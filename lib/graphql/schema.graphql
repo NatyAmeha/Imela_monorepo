@@ -1,0 +1,70 @@
+type Query{
+    getBusinessDetails(id: String!): BusinessResponse
+
+}
+
+# type Business {
+#   activeSubscriptionId: String
+#   branchIds: [String!]
+#   branches: [Branch!]!
+#   bundles: [ProductBundle!]
+#   categories: [String!]!
+#   createdAt: DateTime
+#   creator: String!
+#   customers: [Customer!]
+#   customersId: [String!]
+#   deliveryInfo: [DeliveryInfo!]
+#   description: [LocalizedField!]
+#   email: String
+#   gallery: Gallery!
+#   id: ID
+#   isActive: Boolean
+#   mainAddress: Address!
+#   name: [LocalizedField!]!
+#   openingStatus: OpeningStatus!
+#   phoneNumber: String!
+#   productIds: [String!]
+#   products: [Product!]!
+#   sections: [BusinessSection!]
+#   staffs: [Staff!]
+#   stage: BusinessRegistrationStage!
+#   subscriptionIds: [String!]
+#   trialPeriodUsedServiceIds: [String!]
+#   type: String!
+#   updatedAt: DateTime
+#   website: String
+# }
+
+type Business {
+  id: ID!
+  name: [LocalizedField!]
+  type: String!
+  categories: [String!]!
+  isActive: Boolean!
+  creator: String!
+}
+
+type BusinessResponse {
+  # accesses: [Access!]
+  # branchAdded: [Branch!]
+  # branchUpdated: [Branch!]
+  # branches: [Branch!]
+  business: Business
+  # businesses: [Business!]
+  # code: Int
+  message: String
+  # products: [Product!]
+  success: Boolean!
+}
+
+type LocalizedField {
+  """the name of the language, ex. english, amharic"""
+  key: LanguageKey!
+  value: String!
+}
+
+enum LanguageKey {
+  AMHARIC
+  ENGLISH
+  OROMIC
+} 

@@ -1,0 +1,17 @@
+query GetBusinessDetails($id: String!) {
+  getBusinessDetails(id: $id) {
+    success
+    message
+    business {
+      id
+      name {
+        key
+        value
+      }
+      type
+      categories
+      isActive
+      creator
+    }
+  }
+}
