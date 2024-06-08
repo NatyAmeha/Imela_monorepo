@@ -13,5 +13,18 @@ query GetBusinessDetails($id: String!) {
       isActive
       creator
     }
+    products {
+      id
+      name {
+        key
+        value
+      }
+    }
+    branches {
+      id
+      name {
+        value
+      }
+    }
   }
 }

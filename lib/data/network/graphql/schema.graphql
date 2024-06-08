@@ -1,0 +1,676 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Access {
+  dateCreated: DateTime
+  dateUpdated: DateTime
+  id: ID
+  name: [LocalizedField!]
+  owner: String!
+  ownerType: AccessOwnerType!
+  permissionType: PermissionType!
+  permissions: [Permission!]
+  resourceId: String
+  role: String
+}
+
+enum AccessOwnerType {
+  BUSINESS
+  PLATFORM
+  USER
+}
+
+type Address {
+  address: String
+  city: String!
+  id: ID
+  location: String
+}
+
+input AddressInput {
+  address: String
+  city: String!
+  location: String
+}
+
+type BaseResponse {
+  code: Int
+  message: String
+  success: Boolean!
+}
+
+type Branch {
+  address: Address!
+  bundles: [ProductBundle!]
+  business: Business!
+  businessId: String!
+  createdAt: DateTime
+  email: String
+  id: ID
+  inventoryLocations: [String!]
+  isActive: Boolean
+  name: [LocalizedField!]!
+  phoneNumber: String!
+  productIds: [String!]
+  products: [Product!]!
+  staffs: [Staff!]
+  staffsId: [String!]
+  updatedAt: DateTime
+  website: String
+}
+
+type BranchResponse {
+  branch: Branch
+  branches: [Branch!]
+  code: Int
+  message: String
+  products: [Product!]
+  success: Boolean!
+}
+
+type BundleResponse {
+  bundle: ProductBundle!
+  code: Int
+  message: String
+  success: Boolean!
+}
+
+enum BundleType {
+  DEFAULT
+  SERVICE_BUNDLE
+  TIMELY_BUNDLE
+}
+
+type Business {
+  activeSubscriptionId: String
+  branchIds: [String!]
+  branches: [Branch!]!
+  bundles: [ProductBundle!]
+  categories: [String!]!
+  createdAt: DateTime
+  creator: String!
+  customers: [Customer!]
+  customersId: [String!]
+  deliveryInfo: [DeliveryInfo!]
+  description: [LocalizedField!]
+  email: String
+  gallery: Gallery!
+  id: ID
+  isActive: Boolean
+  mainAddress: Address!
+  name: [LocalizedField!]!
+  openingStatus: OpeningStatus!
+  phoneNumber: String!
+  productIds: [String!]
+  products: [Product!]!
+  sections: [BusinessSection!]
+  staffs: [Staff!]
+  stage: BusinessRegistrationStage!
+  subscriptionIds: [String!]
+  trialPeriodUsedServiceIds: [String!]
+  type: String!
+  updatedAt: DateTime
+  website: String
+}
+
+enum BusinessRegistrationStage {
+  BUSINESS_CREATED
+  COMPLETED
+  PAYMENT_STAGE
+  PRODUCT_SELECTED
+}
+
+type BusinessResponse {
+  accesses: [Access!]
+  branchAdded: [Branch!]
+  branchUpdated: [Branch!]
+  branches: [Branch!]
+  business: Business
+  businesses: [Business!]
+  code: Int
+  message: String
+  products: [Product!]
+  success: Boolean!
+}
+
+type BusinessSection {
+  categoryId: String
+  description: [LocalizedField!]
+  id: String!
+  images: [String!]
+  name: [LocalizedField!]!
+  productIds: [String!]
+}
+
+enum CallToActionType {
+  Book
+  Call
+  Order
+  Reserve
+}
+
+input CreateBranchInput {
+  address: AddressInput!
+  email: String
+  name: [LocalizedFieldInput!]!
+  phoneNumber: String!
+}
+
+input CreateBundleInput {
+  condition: DiscountCondition = NONE
+  conditionValue: Float
+  description: [LocalizedFieldInput!]!
+  discountType: DiscountType
+  discountValue: Float
+  endDate: DateTime
+  gallery: GalleryInput!
+  name: [LocalizedFieldInput!]!
+  productIds: [String!]!
+  startDate: DateTime
+  type: BundleType!
+}
+
+input CreateBusinessInput {
+  categories: [String!]!
+  creator: String!
+  description: [LocalizedFieldInput!]
+  email: String
+  gallery: GalleryInput!
+  mainAddress: AddressInput!
+  name: [LocalizedFieldInput!]!
+  phoneNumber: String!
+  website: String
+}
+
+input CreateBusinessSectionInput {
+  description: [LocalizedFieldInput!]
+  images: [String!]
+  name: [LocalizedFieldInput!]!
+}
+
+input CreateInventoryInput {
+  inventoryLocationId: String!
+  minOrderQty: Int
+  priceInfo: [PriceInfoInput!]!
+  qty: Float
+  unit: String
+}
+
+input CreateInventoryLocationInput {
+  city: String
+  location: String!
+  name: String!
+  phoneNumber: String!
+}
+
+input CreateProductInput {
+  branchIds: [String!]
+  callToAction: String = "Order"
+  canOrderOnline: Boolean! = false
+  category: [String!]!
+  deliveryInfoId: String
+  description: [LocalizedFieldInput!]
+
+  """display name, will be shown on browsing sectioin """
+  displayName: [LocalizedFieldInput!]
+  gallery: GalleryInput!
+  inventoryInfo: CreateInventoryInput!
+  loyaltyPoint: Int! = 0
+  mainProduct: Boolean = false
+
+  """Variant name for the main product"""
+  name: [LocalizedFieldInput!]!
+  options: [ProductOptionInput!]
+  optionsIncluded: [String!]!
+  reviewTopics: [String!]
+  sectionId: [String!]
+  tag: [String!]
+  type: ProductType!
+}
+
+input CreateStaffInput {
+  branchId: String
+  businessId: String
+  name: String!
+  pin: Float!
+  roles: [String!]!
+}
+
+enum Currency {
+  ETB
+  USD
+}
+
+type Customer {
+  branches: [Branch!]
+  branchesId: [String!]
+  id: ID
+  userId: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DeliveryInfo {
+  createdAt: DateTime
+  deliveryAvailable: Boolean!
+
+  """Number of hour to finish the delivery"""
+  deliveryTime: Int
+  id: ID
+  name: String!
+  price: Float
+
+  """Number of hour to prepare the delivery."""
+  timeToPrepare: Int
+  updatedAt: DateTime
+}
+
+type Discount {
+  condition: DiscountCondition!
+  conditionValue: Float
+  type: DiscountType!
+  value: Float!
+}
+
+enum DiscountCondition {
+  MAXIMUM_PURCHASE
+  MINIMUM_PURCHASE
+  NONE
+  PURCHASE_ALL_ITEMS
+  QUANTITY
+}
+
+enum DiscountType {
+  AMOUNT
+  PERCENTAGE
+}
+
+type Gallery {
+  """The cover image of the gallery"""
+  coverImage: String
+
+  """The images in the gallery"""
+  images: [GalleryData!]
+
+  """The logo image of the gallery"""
+  logoImage: String
+
+  """The videos in the gallery"""
+  videos: [GalleryData!]
+}
+
+type GalleryData {
+  featured: Boolean
+  url: ID!
+}
+
+input GalleryDataInput {
+  featured: Boolean
+  url: ID!
+}
+
+input GalleryInput {
+  """The cover image of the gallery"""
+  coverImage: String
+
+  """The images in the gallery"""
+  images: [GalleryDataInput!]
+
+  """The logo image of the gallery"""
+  logoImage: String
+
+  """The videos in the gallery"""
+  videos: [GalleryDataInput!]
+}
+
+type Inventory {
+  createdAt: DateTime
+  id: ID!
+  inventoryLocation: InventoryLocation
+  inventoryLocationId: String!
+  isAvailable: Boolean!
+  maxOrderQty: Int
+  minOrderQty: Int
+  name: String!
+  optionsIncluded: [String!]!
+  priceInfo: [PriceInfo!]!
+  qty: Float!
+  sku: String!
+  unit: ProductUnitType
+  updatedAt: DateTime
+}
+
+type InventoryLocation {
+  address: String
+  branch: Branch
+  branchId: String!
+  business: Business
+  businessId: String!
+  city: String
+  createdAt: DateTime
+  id: ID!
+  location: String!
+  name: String!
+  phoneNumber: String!
+  updatedAt: DateTime
+}
+
+type InventoryResponse {
+  code: Int
+  inventories: [Inventory!]
+  inventory: Inventory
+  location: InventoryLocation
+  locations: [InventoryLocation!]
+  message: String
+  success: Boolean!
+}
+
+enum LanguageKey {
+  AMHARIC
+  ENGLISH
+  OROMIC
+}
+
+type LocalizedField {
+  """the name of the language, ex. english, amharic"""
+  key: LanguageKey!
+  value: String!
+}
+
+input LocalizedFieldInput {
+  """the name of the language, ex. english, amharic"""
+  key: LanguageKey!
+  value: String!
+}
+
+type Mutation {
+  """returns the updated bundle inside bundle field of the response object"""
+  addProductBundleToBranch(branchIds: [String!]!, bundleId: String!, businessId: String!): BundleResponse!
+  addProductToBranch(branchIds: [String!]!, businessId: String!, productIds: [String!]!): ProductResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  addProductToBundle(bundleId: String!, businessId: String!, productIds: [String!]!): BundleResponse!
+  assignStaffToBranch(branchId: String!, staffId: String!): StaffResponse!
+  assignStaffToBusiness(businessId: String!, staffId: String!): StaffResponse!
+  createBranch(branchInfo: CreateBranchInput!, businessId: String!): BusinessResponse!
+
+  """returns the created bundle inside bundle field of the response object"""
+  createBundle(branchIds: [String!]!, bundle: CreateBundleInput!, businessId: String!): BundleResponse!
+  createBusiness(data: CreateBusinessInput!): BusinessResponse!
+
+  """
+  Create products with varaints. returns list of products created. inside products field
+  """
+  createBusinessProducts(businessId: String!, productInfo: [CreateProductInput!]!): ProductResponse!
+  createBusinessSection(businessId: String!, sections: [CreateBusinessSectionInput!]!): BaseResponse!
+
+  """
+  Returns the created inventory location in location field of inventoryResponse object
+  """
+  createInventoryLocationForBranch(branchId: String!, businessId: String!, locationData: CreateInventoryLocationInput!): InventoryResponse!
+  createNewInventoryOnInventoryLocation(businessId: String!, inventoryData: CreateInventoryInput!, productId: String!): InventoryResponse!
+  createStaff(staffInput: CreateStaffInput!): StaffResponse!
+  deleteBranch(branchId: String!, businessId: String!): BranchResponse!
+  deleteProductBundle(bundleId: String!, businessId: String!): BundleResponse!
+  getBusinessProducts(businessId: String!, limit: Float, page: Float): ProductResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  removeBundleFromBranch(branchIds: [String!]!, bundleId: String!, businessId: String!): BundleResponse!
+  removeBusinessSection(businessId: String!, sectionsId: [String!]!): BaseResponse!
+  removeProductFromBranch(branchIds: [String!]!, businessId: String!, productIds: [String!]!): ProductResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  removeProductFromBundle(bundleId: String!, businessId: String!, productIds: [String!]!): BundleResponse!
+  unAssignStaffFromBranch(branchId: String!, staffId: String!): StaffResponse!
+  unAssignStaffFromBusiness(businessId: String!, staffId: String!): StaffResponse!
+  updateBranchInfo(branchId: String!, branchInfo: UpdateBranchInput!): BusinessResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  updateBundle(bundleData: UpdateBundleInput!, bundleId: String!, businessId: String!): BundleResponse!
+  updateBusinessInfo(businessId: String!, data: UpdateBusinessInput!): BusinessResponse!
+  updateBusinessProductInfo(businessId: String!, product: UpdateProductInput!, productId: String!): ProductResponse!
+  updateInventoryLocation(inventoryLocationInfo: UpdateInventoryLocationInput!, locationId: String!): InventoryResponse!
+  updateProductInventoryInformations(businessId: String!, inventoryInfos: [UpdateInventoryInput!]!, productId: String!): InventoryResponse!
+  verifyBusinessRegistration(businessId: String!): BusinessResponse!
+}
+
+enum OpeningStatus {
+  CLOSED
+  OPEN
+  TEMPORARILY_CLOSED
+}
+
+type Permission {
+  action: String!
+  effect: String!
+  groups: [PermissionGroup!]
+  id: ID
+  name: [LocalizedField!]
+  resourcTargetName: String
+  resourceTarget: String!
+  resourceType: String!
+  userGenerated: Boolean
+}
+
+type PermissionGroup {
+  id: String!
+  key: String!
+  name: [LocalizedField!]!
+}
+
+enum PermissionType {
+  BUSINESS_MANAGEMENT_PERMISSION
+  PLATFORM_SERVICE_ACCESS_PERMISSION
+  PLATFORM_SERVICE_CUSTOMIZATION_PERMISSION
+}
+
+type PriceInfo {
+  amount: Float!
+  currency: Currency!
+}
+
+input PriceInfoInput {
+  amount: Float!
+  currency: Currency! = ETB
+}
+
+type Product {
+  branchIds: [String!]
+  branches: [Branch!]
+  business: Business!
+  businessId: String!
+  callToAction: CallToActionType
+  canOrderOnline: Boolean!
+  category: [String!]!
+  createdAt: DateTime
+  deliveryInfoId: String
+  description: [LocalizedField!]!
+  displayName: [LocalizedField!]
+  gallery: Gallery!
+  id: String
+  inventory: [Inventory!]
+  isActive: Boolean!
+  loyaltyPoint: Int!
+  mainProduct: Boolean
+  minimumOrderQty: Int
+  name: [LocalizedField!]!
+  options: [Productoption!]!
+  optionsIncluded: [String!]!
+  reviewTopics: [String!]
+  sectionId: [String!]
+  sku: String!
+  tag: [String!]
+  type: ProductType!
+  updatedAt: DateTime
+  variants: [Product!]
+  variantsId: [String!]
+}
+
+type ProductBundle {
+  branchIds: [String!]!
+  branches: [Branch!]
+  business: Business
+  businessId: String!
+  createdAt: DateTime
+  description: [LocalizedField!]!
+  discount: Discount
+  endDate: DateTime
+  gallery: Gallery!
+  id: ID!
+  isActive: Boolean
+  name: [LocalizedField!]!
+  productIds: [String!]!
+  products: [Product!]
+  startDate: DateTime
+  type: BundleType!
+  updatedAt: DateTime
+}
+
+input ProductOptionInput {
+  key: String!
+  value: [String!]!
+}
+
+type ProductResponse {
+  branches: [Branch!]
+  business: Business
+  code: Int
+  inventories: [Inventory!]
+  message: String
+  product: Product
+  products: [Product!]
+  success: Boolean!
+  variants: [Product!]
+}
+
+enum ProductType {
+  GIFT_CARD
+  MEMBERSHIP
+  PRODUCT
+  SERVICE
+}
+
+enum ProductUnitType {
+  Kg
+  Litre
+  Unit
+}
+
+type Productoption {
+  key: String!
+  value: [String!]!
+}
+
+type Query {
+  getBranchDetails(branchId: String!): BranchResponse!
+  getBranchStaffs(branchId: String!): StaffResponse!
+
+  """Get bundle details with products, business, and branches info"""
+  getBundleDetail(bundleId: String!): BundleResponse!
+  getBusinessDetails(id: String!): BusinessResponse!
+  getBusinessStaffs(businessId: String!): StaffResponse!
+
+  """Get product details with inventory, variants"""
+  getProductDetail(branchId: String, locationId: String, productId: String!): ProductResponse!
+  getUserBusinesses: BusinessResponse!
+}
+
+type Staff {
+  branch: Branch
+  branchId: String
+  business: Business
+  businessId: String
+  createdAt: DateTime
+  id: ID
+  isActive: Boolean!
+  name: String!
+  pin: Int!
+  roles: [String!]!
+  updatedAt: DateTime
+}
+
+type StaffResponse {
+  code: Int
+  message: String
+  staff: Staff
+  staffs: [Staff!]
+  success: Boolean!
+}
+
+input UpdateBranchInput {
+  address: AddressInput
+  email: String
+  name: [LocalizedFieldInput!]
+  phoneNumber: String
+}
+
+input UpdateBundleInput {
+  condition: DiscountCondition = NONE
+  conditionValue: Float
+  description: [LocalizedFieldInput!]
+  discountType: DiscountType
+  discountValue: Float
+  endDate: DateTime
+  gallery: GalleryInput
+  name: [LocalizedFieldInput!]
+  productIds: [String!]
+  startDate: DateTime
+  type: BundleType
+}
+
+input UpdateBusinessInput {
+  categories: [String!]
+  description: [LocalizedFieldInput!]
+  email: String
+  gallery: GalleryInput
+  mainAddress: AddressInput
+  name: [LocalizedFieldInput!]
+  phoneNumber: String
+  website: String
+}
+
+input UpdateInventoryInput {
+  id: String!
+  minOrderQty: Int
+  priceInfo: [PriceInfoInput!]!
+  qty: Float
+  unit: String
+}
+
+input UpdateInventoryLocationInput {
+  address: String
+  branchId: String!
+  businessId: String!
+  city: String
+  location: String
+  name: String
+  phoneNumber: String
+}
+
+input UpdateProductInput {
+  callToAction: String = "Order"
+  canOrderOnline: Boolean = false
+  category: [String!]
+  deliveryInfoId: String
+  description: [LocalizedFieldInput!]
+
+  """display name, will be shown on browsing sectioin """
+  displayName: [LocalizedFieldInput!]
+  gallery: GalleryInput
+  inventoryInfo: CreateInventoryInput
+  loyaltyPoint: Int = 0
+  mainProduct: Boolean = false
+
+  """Variant name for the main product"""
+  name: [LocalizedFieldInput!]
+  options: [ProductOptionInput!]
+  optionsIncluded: [String!]
+  reviewTopics: [String!]
+  sectionId: [String!]
+  tag: [String!]
+  type: ProductType
+}

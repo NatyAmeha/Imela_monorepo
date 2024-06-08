@@ -1,8 +1,8 @@
 import 'package:melegna_customer/data/network/business_response.dart';
+import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.data.gql.dart';
+import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.req.gql.dart';
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/domain/shared/repository.intereface.dart';
-import 'package:melegna_customer/graphql/queries/__generated__/business.data.gql.dart';
-import 'package:melegna_customer/graphql/queries/__generated__/business.req.gql.dart';
 
 abstract class IBusinessrepository extends IRepository {
   Future<BusinessResponse?> getBusinessDetails(String id);

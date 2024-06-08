@@ -1,6 +1,5 @@
 import 'package:ferry/ferry.dart';
 import 'package:melegna_customer/data/network/datasource.interface.dart';
-import 'package:melegna_customer/graphql/queries/__generated__/business.req.gql.dart';
 
 abstract class IGraphQLDataSource extends IDataSource {
   Future<T?> query<T>(OperationRequest<dynamic, dynamic> request);
