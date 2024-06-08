@@ -1,36 +1,24 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:melegna_customer/domain/shared/base.model.dart';
+import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+part 'business.model.freezed.dart';
 part 'business.model.g.dart';
 
-
-@JsonSerializable(explicitToJson: true)
-class Business{
-  final String id;
-  final List<LocalizedField> name;
-  final String type;
-  final List<String> categories;
-  final bool? isActive;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final String creator;
-
-  const Business({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.categories,
-    required this.isActive,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.creator,
-  });
+@freezed
+// @JsonSerializable(explicitToJson: true)
+class Business extends BaseModel with _$Business { 
+  const factory Business({
+    required String id,
+    List<LocalizedField>? name,
+    String? type,
+    List<String>? categories,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? creator,
+    Gallery? gallery,
+  }) = _Business;
 
   factory Business.fromJson(Map<String, dynamic> json) => _$BusinessFromJson(json);
-  Map<String, dynamic> toJson() => _$BusinessToJson(this);
-
-
-
-
-
-
 }

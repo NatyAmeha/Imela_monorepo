@@ -7,29 +7,18 @@ import 'package:hive_flutter/hive_flutter.dart';
 final GetIt getIt = GetIt.instance;
 
 class GraphQLConfig {
-  static Future<Client> initClient() async  {
+  static Future<Client> initClient() async {
     try {
       await Hive.initFlutter();
-
-      final box = await Hive.openBox("graphql");
-
+      final box = await Hive.openBox('graphql');
       final store = HiveStore(box);
-
       final cache = Cache(store: store);
-
       final link = HttpLink('http://localhost:3003/graphql');
-
-      final client = Client(
-        link: link,
-        cache: cache,
-      );
+      final client = Client(link: link, cache: cache);
 
       return client;
     } catch (e) {
-      print("graphql init exception ${e.toString()}");
-      return Future.error("error initializing graphql client");
+      return Future.error('error initializing graphql client');
     }
-
-  
   }
 }

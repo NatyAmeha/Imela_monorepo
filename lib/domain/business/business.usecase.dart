@@ -6,9 +6,9 @@ class BusinessUsecase{
 
   const BusinessUsecase(this._businessRepository);
 
-  Future<BusinessResponse> getBusinessDetails(String businessId) async {
+  Future<BusinessResponse?> getBusinessDetails(String businessId) async {
     var result = await _businessRepository.getBusinessDetails(businessId);
-    print("business result ${result.toJson()}");
+    print("business result ${result?.toString()}");
     return result;
   }
 }
