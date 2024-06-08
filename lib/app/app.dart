@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:melegna_customer/app/routes.dart';
 import 'package:melegna_customer/app/theme.dart';
+import 'package:melegna_customer/data/network/graphql_config.dart';
+import 'package:melegna_customer/data/network/graphql_datasource.dart';
+import 'package:melegna_customer/domain/business/business.usecase.dart';
+import 'package:melegna_customer/domain/business/repo/business_repository.dart';
+import 'package:melegna_customer/presentation/ui/shared/icon_btn.dart';
+import 'package:melegna_customer/presentation/utils/button_style.dart';
+import 'package:melegna_customer/services/routing_service.dart';
 
 class MelegnaCustomerApp extends StatelessWidget {
   const MelegnaCustomerApp._();
@@ -15,8 +21,7 @@ class MelegnaCustomerApp extends StatelessWidget {
       title: 'Melegna',
       theme: AppThemeManager.getInstance(context).getLightTheme(),
       darkTheme: AppThemeManager.getInstance(context).getDarkTheme(),
-      themeMode: ThemeMode.light,
-      
+      themeMode: ThemeMode.dark,
       localizationsDelegates: const [
         // AppLocalizations.delegate, // Add this line
         GlobalMaterialLocalizations.delegate,
@@ -27,7 +32,7 @@ class MelegnaCustomerApp extends StatelessWidget {
         Locale('en', ''), // English, no country code
         Locale('am', ''), // Amharic, no country code
       ],
-      routerConfig: AppRoutes.routes,
+      routerConfig: GoRouterService.routes,
     );
   }
 }
@@ -53,6 +58,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // TODO: implement initState
+    Future.delayed(Duration.zero, () async {
+      var client = await GraphQLConfig.initClient();
+      var graphQLDataSource =  GraphqlDatasource(client);
+      var businessREpo =  BusinessRepository(graphQLDataSource);
+      var businessUsecase =  BusinessUsecase(businessREpo);
+      await businessUsecase.getBusinessDetails("662505ca50948fabb12180ba");
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -107,6 +125,15 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            AppButton(
+              buttonType: ButtonType.FILLED,
+              text: "Click me again",
+              icon: Icon(Icons.favorite),
+              showLoadingIndicator: true,
+              onPressed: () async {
+                await Future.delayed(Duration(seconds: 5), () {});
+              },
             ),
           ],
         ),

@@ -39,12 +39,19 @@ class AppThemeManager {
         labelMedium: AppTypography.of(context).labelLarge,
         labelSmall: AppTypography.of(context).labelLarge,
       ),
+      appBarTheme: const AppBarTheme().copyWith(
+        backgroundColor: ColorManager.alternate,
+        centerTitle: true,
+        elevation: 2,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: AppTypography.of(context).headlineMedium.copyWith(color: ColorManager.primaryText),
+      ),
     );
   }
 
   ThemeData getDarkTheme() {
     return ThemeData(
-      colorScheme: const ColorScheme.light(
+      colorScheme: const ColorScheme.dark(
         primary: ColorManager.primaryDark,
         secondary: ColorManager.secondaryDark,
         secondaryContainer: ColorManager.secondaryBackgroundDark,
@@ -69,6 +76,18 @@ class AppThemeManager {
         labelMedium: AppTypography.of(context).labelLarge,
         labelSmall: AppTypography.of(context).labelLarge,
       ),
+      appBarTheme: const AppBarTheme().copyWith(
+        backgroundColor: ColorManager.alternateDark,
+        centerTitle: true,
+        elevation: 2,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: AppTypography.of(context).headlineMedium.copyWith(color: ColorManager.primaryTextDark),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20))),
+      filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20))),
     );
   }
 }

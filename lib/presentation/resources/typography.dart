@@ -5,24 +5,24 @@ import 'package:melegna_customer/presentation/resources/colors.dart';
 
 class AppTypography {
   late TextStyle displayLarge;
-  TextStyle? displayMedium;
-  TextStyle? displaySmall;
-  TextStyle? headlineLarge;
-  TextStyle? headlineMedium;
-  TextStyle? headlineSmall;
-  TextStyle? titleLarge;
-  TextStyle? titleMedium;
+  late TextStyle displayMedium;
+  late TextStyle displaySmall;
+  late TextStyle headlineLarge;
+  late TextStyle headlineMedium;
+  late TextStyle headlineSmall;
+  late TextStyle titleLarge;
+  late TextStyle titleMedium;
 
-  TextStyle? titleSmall;
+  late TextStyle titleSmall;
 
-  TextStyle? labelLarge;
+  late TextStyle labelLarge;
 
-  TextStyle? labelMedium;
+  late TextStyle labelMedium;
 
-  TextStyle? labelSmall;
-  TextStyle? bodyLarge;
-  TextStyle? bodyMedium;
-  TextStyle? bodySmall;
+  late TextStyle labelSmall;
+  late TextStyle bodyLarge;
+  late TextStyle bodyMedium;
+  late TextStyle bodySmall;
 
   static AppTypography of(BuildContext context) {
     var size = MediaQuery.sizeOf(context);
@@ -48,7 +48,7 @@ class MobileTypography extends AppTypography {
   @override
   TextStyle get headlineLarge => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.normal, fontSize: 32.0);
   @override
-  TextStyle get headlineMedium => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 24.0);
+  TextStyle get headlineMedium => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 23.0);
   @override
   TextStyle get headlineSmall => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 20.0);
   @override
