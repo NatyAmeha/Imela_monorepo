@@ -38,7 +38,10 @@ app.*.symbols
 app.*.map.json
 
 *.g.dart
+*.freezed.dart
 *.mocks.*
+__generated__
+
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -47,3 +50,6 @@ lib/generated_plugin_registrant.dart
 /android/app/debug
 /android/app/profile
 /android/app/release
+lib/graphql/__generated__/
+lib/graphql/queries/__generated__/
+
