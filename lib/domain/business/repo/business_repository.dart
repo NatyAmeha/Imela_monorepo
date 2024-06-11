@@ -1,3 +1,4 @@
+import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/business_response.dart';
 import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.data.gql.dart';
 import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.req.gql.dart';
@@ -8,7 +9,10 @@ abstract class IBusinessrepository extends IRepository {
   Future<BusinessResponse?> getBusinessDetails(String id);
 }
 
+@Named(BusinessRepository.injectName)
+@Injectable(as: IBusinessrepository)
 class BusinessRepository implements IBusinessrepository {
+  static const injectName = 'BUSINESS_REPOSITORY_INJECTION';
   final IGraphQLDataSource _graphQLDataSource;
 
   const BusinessRepository(this._graphQLDataSource);

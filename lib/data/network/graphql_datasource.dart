@@ -1,4 +1,5 @@
 import 'package:ferry/ferry.dart';
+import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/datasource.interface.dart';
 
 abstract class IGraphQLDataSource extends IDataSource {
@@ -6,6 +7,7 @@ abstract class IGraphQLDataSource extends IDataSource {
   Future<dynamic> mutation(String mutation, {Map<String, dynamic> variables});
 }
 
+@Injectable(as: IGraphQLDataSource)
 class GraphqlDatasource implements IGraphQLDataSource {
   final Client graphQlClient;
   const GraphqlDatasource(this.graphQlClient);
