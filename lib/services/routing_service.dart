@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:melegna_customer/app/app.dart';
+import 'package:melegna_customer/presentation/ui/business/business_details.page.dart';
 
 abstract class IRoutingService {
   Future<T?> navigateTo<T>(BuildContext context, String routeName, {Map<String, dynamic> arguments, bool replace = false});
@@ -18,7 +18,7 @@ class GoRouterService implements IRoutingService {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const MyHomePage(title: 'Melegna Customer App'),
+        builder: (context, state) =>  BusinessDetailsPage(),
       ),
     ],
   );
