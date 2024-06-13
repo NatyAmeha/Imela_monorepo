@@ -3,14 +3,14 @@ import 'package:melegna_customer/presentation/utils/screen_size_utils.dart';
 
 class ResponsiveWrapper extends StatelessWidget {
   final Widget smallScreen;
-  final Widget mediumScreen;
-  final Widget largeScreen;
+  final Widget? mediumScreen;
+  final Widget? largeScreen;
 
   const ResponsiveWrapper({
     super.key,
     required this.smallScreen,
-    required this.mediumScreen,
-    required this.largeScreen,
+    this.mediumScreen,
+    this.largeScreen,
   });
 
   @override
@@ -20,9 +20,9 @@ class ResponsiveWrapper extends StatelessWidget {
       case ScreenSize.small:
         return smallScreen;
       case ScreenSize.medium:
-        return mediumScreen;
+        return mediumScreen ?? smallScreen;
       case ScreenSize.large:
-        return largeScreen;
+        return largeScreen ?? mediumScreen ?? smallScreen;
     }
   }
 }

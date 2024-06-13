@@ -1,4 +1,4 @@
 mixin class BaseViewmodel {
-  void init() {}
+  void initViewmodel() {}
   void dispose() {}
 }

@@ -9,17 +9,15 @@ class AndroidWidgetFactory implements WidgetFactory {
   Widget createButton({required BuildContext context, required Widget content, Widget? icon, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
     if (icon != null) {
       return FilledButton.icon(
-        key: _key,
-        icon: (showLoadingIndicator && isLoading) ? createLoadingIndicator(context) : icon,
-        label: content,
-        onPressed: (onPressed == null || isLoading)
-            ? null
-            : () async {
-                await onPressed.call();
-              },
-      );
+          key: _key,
+          icon: (showLoadingIndicator && isLoading) ? createLoadingIndicator(context) : icon,
+          label: content,
+          onPressed: (onPressed == null || isLoading)
+              ? null
+              : () async {
+                  await onPressed.call();
+                });
     }
-
     return FilledButton(
       key: _key,
       onPressed: (onPressed == null || isLoading)
@@ -55,6 +53,11 @@ class AndroidWidgetFactory implements WidgetFactory {
   @override
   Widget createLoadingIndicator(BuildContext context, {double? width = 20, double height = 20}) {
     return SizedBox(width: width, height: height, child: const CircularProgressIndicator());
+  }
+
+  @override
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel}){
+    return Icon(materialIcon, size: size, color: color, semanticLabel: semanticLabel);
   }
 
   @override
@@ -178,6 +181,15 @@ class AndroidWidgetFactory implements WidgetFactory {
           ],
         );
       },
+    );
+  }
+
+  @override
+  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color}) {
+    final defaultTextStyle = Theme.of(context).textTheme.bodyMedium;
+    return Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: Text(text, style: style?.copyWith(color: color, decoration: textDecoration) ?? defaultTextStyle?.copyWith(color: color), textAlign: textAlign, overflow: overflow, maxLines: maxLines),
     );
   }
 }

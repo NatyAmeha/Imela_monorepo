@@ -43,6 +43,11 @@ class IosWidgetFactory implements WidgetFactory {
   }
 
   @override
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel}) {
+    return Icon(cupertinoIcon ?? materialIcon, size: size, color: color, semanticLabel: semanticLabel);
+  }
+
+  @override
   Widget createAppbar() {
     // TODO: implement createAppbar
     throw UnimplementedError();
@@ -141,6 +146,21 @@ class IosWidgetFactory implements WidgetFactory {
       decoration: BoxDecoration(
         border: Border.all(color: CupertinoColors.lightBackgroundGray),
         borderRadius: BorderRadius.circular(8.0),
+      ),
+    );
+  }
+
+  @override
+  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color}) {
+    final defaultTextStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    return Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: Text(
+        text,
+        style: style?.copyWith(color: color) ?? defaultTextStyle.copyWith(color: color),
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: overflow,
       ),
     );
   }

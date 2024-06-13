@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:melegna_customer/presentation/ui/factory/android_widget.facotry.dart';
@@ -10,6 +9,8 @@ abstract class WidgetFactory {
   Widget createButton({required BuildContext context, required Widget content, Widget? icon, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed});
   Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, final Border? border, Function()? onTap});
   Widget createLoadingIndicator(BuildContext context, {double? width = 20, double height = 20});
+  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color});
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel});
 
   Widget createCheckboxListTile(BuildContext context, {required String title, String? subtitle, required bool value, required Function(bool?) onChanged});
   Widget createRadioListTile<T>(BuildContext context, {required String title, String? subtitle, required T value, required T groupValue, required Function(T? p1) onChanged});
