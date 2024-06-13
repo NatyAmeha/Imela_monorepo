@@ -16,14 +16,16 @@ class BusinessDetailsSmallScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appWidgetFactory = WidgetFactory(TargetPlatform.iOS);
-    return Obx(
-      () => PageContentLoader(
-        isLoading: businessDetailsViewmodel.isLoading.value,
-        content: Scaffold(
-          appBar: AppBar(
-            title: appWidgetFactory.createText(context, '${businessDetailsViewmodel.businessDetails.value?.business?.name?.firstOrNull?.value.toString()}'),
-          ),
-          body: Column(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Business Details'),
+      ),
+      body: Obx(
+        () => PageContentLoader(
+          showContent: businessDetailsViewmodel.businessDetails.value != null,
+          isLoading: businessDetailsViewmodel.isLoading.value,
+          hasError: businessDetailsViewmodel.exception.value?.isMainError ?? false,
+          content: Column(
             children: [
               Container(
                 width: 400,
@@ -51,21 +53,21 @@ class BusinessDetailsSmallScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  // AppImage(
-                  //   imageUrl: "https://images.unsplash.com/photo-1588286840104-8957b019727f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw0fHx5b2dhfGVufDB8fHx8MTcwODAxMDkwOHww&ixlib=rb-4.0.3&q=80&w=1080",
-                  //   width: 120,
-                  //   height: 200,
-                  //   borderRadius: BorderRadius.circular(15),
-                  //   gradient: LinearGradient(
-                  //     colors: [Colors.black.withOpacity(0.3), Colors.transparent],
-                  //     begin: Alignment.bottomCenter,
-                  //     end: Alignment.topCenter,
-                  //   ),
-                  //   heroTag: 'exampleHeroTag',
-                  // ),
-                  // const SizedBox(height: 16),
                   Column(
                     children: [
+                      AppImage(
+                        imageUrl: "https://images.unsplash.com/photo-1588286840104-8957b019727f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw0fHx5b2dhfGVufDB8fHx8MTcwODAxMDkwOHww&ixlib=rb-4.0.3&q=80&w=1080",
+                        width: 120,
+                        height: 200,
+                        borderRadius: BorderRadius.circular(15),
+                        gradient: LinearGradient(
+                          colors: [Colors.black.withOpacity(0.3), Colors.transparent],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                        heroTag: 'exampleHeroTag',
+                      ),
+                      const SizedBox(height: 16),
                       const BannerItemComponent(title: "Become a member", width: 300, backgroundColor: ColorManager.success),
                     ],
                   )

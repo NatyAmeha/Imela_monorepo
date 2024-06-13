@@ -26,6 +26,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("viewmodel init state");
     initializeViewmodel();
   }
 

@@ -3,7 +3,7 @@ import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 
 class PageContentLoader extends StatelessWidget {
   final Widget content;
-  final showContent = true;
+  final bool showContent;
   final bool isLoading;
   final Widget errorWidget;
   final Function? onTryAgain;
@@ -12,6 +12,7 @@ class PageContentLoader extends StatelessWidget {
   const PageContentLoader({
     super.key,
     required this.content,
+    this.showContent = true,
     this.isLoading = false,
     this.hasError = false,
     this.errorWidget = const Text("Error occured please try again"),

@@ -1,3 +1,5 @@
+
+import 'package:ferry/ferry.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/business_response.dart';
 import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.data.gql.dart';
@@ -18,13 +20,15 @@ class BusinessRepository implements IBusinessrepository {
   const BusinessRepository(this._graphQLDataSource);
   @override
   Future<BusinessResponse?> getBusinessDetails(String id) async {
-    final request = GGetBusinessDetailsReq((b) => b..vars.id = id);
-    final result = await _graphQLDataSource.query<GGetBusinessDetailsData?>(request);
+    final request = GGetBusinessDetailsReq(
+      (b) => b
+        ..vars.id = id
+        ..fetchPolicy = FetchPolicy.NetworkOnly,
+    );
+    final result = await _graphQLDataSource.query<GGetBusinessDetailsData?>(request, type: "GET_BUSINESS_DETAILS", isMainError: true);
     if (result?.getBusinessDetails == null) {
       return null;
     }
-
-    final businessResponse = BusinessResponse.fromJson(result!.getBusinessDetails!.toJson());
-    return businessResponse;
+    return BusinessResponse.fromJson(result!.getBusinessDetails.toJson());
   }
 }
