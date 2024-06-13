@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/injection.dart';
 import 'package:melegna_customer/presentation/ui/business/business.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details_small_screen.dart';
 import 'package:melegna_customer/presentation/ui/shared/responsive_wrapper.dart';
 
 class BusinessDetailsPage extends StatefulWidget {
+  static const routeName = '/business/:id';
+  static const idQueryParameter = 'id';
   BusinessDetailsViewModel? businessViewmodel;
-  BusinessDetailsPage({super.key, this.businessViewmodel}){
+  final String businessId;
+  final String? businessName;
+  BusinessDetailsPage({super.key, required this.businessId, this.businessName, this.businessViewmodel}){
     businessViewmodel ??= Get.put(getIt<BusinessDetailsViewModel>());
   }
 
@@ -22,7 +27,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
     });
   }
 
-  @override
+  @override 
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -35,6 +40,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
     return ResponsiveWrapper(
       smallScreen: BusinessDetailsSmallScreen(
         businessDetailsViewmodel: widget.businessViewmodel!,
+        businessName: widget.businessName,
       ),
     );
   }

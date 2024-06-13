@@ -41,6 +41,8 @@ app.*.map.json
 *.freezed.dart
 *.mocks.*
 __generated__
+lib/injection.config.dart
+
 
 
 # Web related

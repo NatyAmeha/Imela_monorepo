@@ -8,17 +8,21 @@ import 'package:melegna_customer/presentation/ui/shared/app_tabview.dart';
 import 'package:melegna_customer/presentation/ui/shared/banner_item.dart';
 import 'package:melegna_customer/presentation/ui/shared/listview.component.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_content_loader.dart';
+import 'package:melegna_customer/services/routing_service.dart';
 
 class BusinessDetailsSmallScreen extends StatelessWidget {
   final BusinessDetailsViewModel businessDetailsViewmodel;
-  const BusinessDetailsSmallScreen({super.key, required this.businessDetailsViewmodel});
+  final String? businessName;
+  BusinessDetailsSmallScreen({super.key, required this.businessDetailsViewmodel, this.businessName});
+
+  final _routingService = GoRouterService();
 
   @override
   Widget build(BuildContext context) {
     var appWidgetFactory = WidgetFactory(TargetPlatform.iOS);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Business Details'),
+        title: businessName != null ? Text(businessName!) : null,
       ),
       body: Obx(
         () => PageContentLoader(

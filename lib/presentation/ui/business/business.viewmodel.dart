@@ -12,8 +12,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   final BusinessUsecase businessUsecase;
   final IExceptiionHandler exceptiionHandler;
   final CustomListController<Product> productListController = Get.put(CustomListController<Product>());
-  BusinessDetailsViewModel({required this.businessUsecase, @Named(AppExceptionHandler.injectName) required this.exceptiionHandler})  {
-    initViewmodel();
+  BusinessDetailsViewModel({required this.businessUsecase, @Named(AppExceptionHandler.injectName) required this.exceptiionHandler}) {
   }
 
   var businessDetails = Rxn<BusinessResponse>();
@@ -21,7 +20,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   var exception = Rxn<AppException>();
   var errorMessage = "".obs;
 
-  @override 
+  @override
   void initViewmodel() {
     super.initViewmodel();
     getbusinessDetails();
@@ -31,11 +30,9 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     try {
       isLoading(true);
       print("viewmodel getbusinessDetails");
-      await Future.delayed(Duration(seconds: 5), () async {
-        final result = await businessUsecase.getBusinessDetails("662505ca50948fabb12180ba");
-        businessDetails.value = result;
-        productListController.addItems(result?.products);
-      });
+      final result = await businessUsecase.getBusinessDetails("662505ca50948fabb12180ba");
+      businessDetails.value = result;
+      productListController.addItems(result?.products);
     } catch (e) {
       exception(exceptiionHandler.getException(e as Exception));
     } finally {
