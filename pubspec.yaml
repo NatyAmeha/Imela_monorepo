@@ -82,6 +82,8 @@ dependencies:
   flutter_animate: ^4.5.0
   gql_exec: ^1.0.0+1
 
+  logger: ^2.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
