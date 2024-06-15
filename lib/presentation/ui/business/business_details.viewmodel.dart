@@ -33,7 +33,8 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
       final result = await businessUsecase.getBusinessDetails("662505ca50948fabb12180ba");
       businessDetails.value = result;
       productListController.addItems(result?.products);
-    } catch (e) {
+    }  catch (e) {
+      print("viewmodel level exception ${e.toString()}");
       exception(exceptiionHandler.getException(e as Exception));
     } finally {
       isLoading(false);

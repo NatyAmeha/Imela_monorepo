@@ -1,86 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/business/business.viewmodel.dart';
+import 'package:melegna_customer/presentation/ui/business/business_details.viewmodel.dart';
+import 'package:melegna_customer/presentation/ui/business/component/business_details_header.componenet.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
+import 'package:melegna_customer/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:melegna_customer/presentation/ui/shared/app_tabview.dart';
 import 'package:melegna_customer/presentation/ui/shared/banner_item.dart';
+import 'package:melegna_customer/presentation/ui/shared/gridview.component.dart';
+import 'package:melegna_customer/presentation/ui/shared/list.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/listview.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_content_loader.dart';
-import 'package:melegna_customer/services/routing_service.dart';
 
 class BusinessDetailsSmallScreen extends StatelessWidget {
   final BusinessDetailsViewModel businessDetailsViewmodel;
   final String? businessName;
   BusinessDetailsSmallScreen({super.key, required this.businessDetailsViewmodel, this.businessName});
-
-  final _routingService = GoRouterService();
+  var customListController = CustomListController<int>();
 
   @override
   Widget build(BuildContext context) {
-    var appWidgetFactory = WidgetFactory(TargetPlatform.iOS);
+    customListController.addItems([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    var appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
-      appBar: AppBar(
-        title: businessName != null ? Text(businessName!) : null,
-      ),
-      body: Obx(
-        () => PageContentLoader(
-          showContent: businessDetailsViewmodel.businessDetails.value != null,
-          isLoading: businessDetailsViewmodel.isLoading.value,
-          hasError: businessDetailsViewmodel.exception.value?.isMainError ?? false,
-          content: Column(
-            children: [
-              Container(
-                width: 400,
-                height: 500,
-                child: AppTabView(tabs: [
-                  appWidgetFactory.createText(context, "Overview"),
-                  appWidgetFactory.createText(context, "Products"),
-                ], tabViews: [
-                  CustomListView(
-                    scrollDirection: Axis.vertical,
-                    header: appWidgetFactory.createListTile(title: Text("Products"), subtitle: Text("Product list subtitle"), trailing: Icon(Icons.add)),
-                    controller: businessDetailsViewmodel.productListController,
-                    itemBuilder: (context, item, index) {
-                      return appWidgetFactory.createCard(
-                        padding: EdgeInsets.all(8),
-                        borderRadius: BorderRadius.circular(16),
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        child: Column(
-                          children: [
-                            appWidgetFactory.createText(context, "${item.name?.firstOrNull?.value}"),
-                            Text("${item.description?.firstOrNull?.value}"),
-                            Text(item.loyaltyPoint.toString()),
-                          ],
-                        ),
-                      );
+      body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverAppBar(
+                  expandedHeight: 220,
+                  collapsedHeight: 70,
+                  pinned: true,
+                  floating: false,
+                  backgroundColor: ColorManager.alternate,
+                  automaticallyImplyLeading: false,
+                  leading: appWidgetFactory.createIcon(
+                    materialIcon: Icons.arrow_back_ios,
+                    onPressed: () {
+                      Navigator.of(context).pop();
                     },
                   ),
-                  Column(
-                    children: [
-                      AppImage(
-                        imageUrl: "https://images.unsplash.com/photo-1588286840104-8957b019727f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw0fHx5b2dhfGVufDB8fHx8MTcwODAxMDkwOHww&ixlib=rb-4.0.3&q=80&w=1080",
-                        width: 120,
-                        height: 200,
-                        borderRadius: BorderRadius.circular(15),
-                        gradient: LinearGradient(
-                          colors: [Colors.black.withOpacity(0.3), Colors.transparent],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
-                        heroTag: 'exampleHeroTag',
-                      ),
-                      const SizedBox(height: 16),
-                      const BannerItemComponent(title: "Become a member", width: 300, backgroundColor: ColorManager.success),
-                    ],
-                  )
-                ]),
-              ),
+                  actions: [],
+                  toolbarHeight: 60,
+                  flexibleSpace: FlexibleSpaceBar(
+                    // title: appWidgetFactory.createText(context, "Business Name", style: Theme.of(context).textTheme.headlineMedium),
+                    centerTitle: true,
+                    expandedTitleScale: 1.0,
+                    background: BusinessDetailsHeader(
+                      business: Business(id: ""),
+                      width: double.infinity,
+                      height: 150,
+                      controller: PageController(initialPage: 0),
+                    ),
+                  ),
+                ),
+              ],
+          body: AppTabView(
+            tabs: [
+              Tab(text: "About"),
+              Tab(text: "Services"),
+              Tab(text: "Reviews"),
             ],
-          ),
-        ),
-      ),
+            tabViews: [
+              SingleChildScrollView(
+                primary: true,
+                child: Column(
+                  children: [
+                    AppListView(
+                        scrollDirection: Axis.horizontal,
+                        height: 100,
+                        width: 400,
+                        controller: customListController,
+                        itemBuilder: (context, data, index) {
+                          return const BannerItemComponent(title: "Membership", subtitle: "Membership description with subscription, benefits and other perks", width: 300, backgroundColor: ColorManager.primary);
+                        }),
+                    appWidgetFactory.createText(context, "business description here" * 12, style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
+                    appWidgetFactory.createButton(context: context, content: Text("Get more info"), onPressed: () {}),
+                    const SizedBox(height: 16),
+                    AppGridView(
+                        height: 800,
+                        controller: customListController,
+                        crossAxisCount: 2,
+                        primary: false,
+                        isStaggered: true,
+                        // childAspectRatio: 0.6,
+                        header: appWidgetFactory.createListTile(title: Text("Services"), subtitle: Text("description of list tile "), trailing: appWidgetFactory.createIcon(materialIcon: Icons.arrow_forward_ios), onTap: () {}),
+                        itemBuilder: (context, data, index) {
+                          return const GridProductListItem(imageHeight: 100, imageWidth: double.infinity);
+                        })
+                  ],
+                ),
+              )
+            ],
+          )),
     );
   }
 }

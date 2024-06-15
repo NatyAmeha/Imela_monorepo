@@ -1,17 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:melegna_customer/presentation/ui/factory/base_widget.factory.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class IosWidgetFactory implements WidgetFactory {
+class IosWidgetFactory extends BaseWidgetFactory {
   @override
-  Widget createButton({required BuildContext context, required Widget content, Widget? icon, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
+  Widget createButton({required BuildContext context, required Widget content, Widget? icon, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
     return CupertinoButton.filled(
       onPressed: (onPressed == null || isLoading)
           ? null
           : () async {
               await onPressed.call();
             },
+      
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -19,6 +20,7 @@ class IosWidgetFactory implements WidgetFactory {
           content,
         ],
       ),
+      
     );
   }
 
@@ -43,7 +45,10 @@ class IosWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel}) {
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, EdgeInsets? padding, Function()? onPressed}) {
+    if (onPressed != null) {
+      return IconButton(onPressed: onPressed, icon: Icon(cupertinoIcon ?? materialIcon, size: size, color: color, semanticLabel: semanticLabel));
+    }
     return Icon(cupertinoIcon ?? materialIcon, size: size, color: color, semanticLabel: semanticLabel);
   }
 
@@ -194,4 +199,9 @@ class IosWidgetFactory implements WidgetFactory {
       },
     );
   }
+
+  @override
+    Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged}) {
+      return super.createPageView(context, itemCount: itemCount, itemBuilder: itemBuilder, controller: controller, width: width, height: height);
+    }
 }

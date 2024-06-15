@@ -18,6 +18,9 @@ class ColorManager {
   static const Color error = Color(0xFFFF5963);
   static const Color info = Color(0xFFFFFFFF);
 
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
+
   static const Color primaryDark = Color(0xFF19DB8A);
   static const Color secondaryDark = Color(0xFF36B4FF);
   static const Color tertiaryDark = Color(0xFFFFA130);

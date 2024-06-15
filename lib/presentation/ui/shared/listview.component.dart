@@ -2,45 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:melegna_customer/presentation/ui/shared/list.viewmodel.dart';
 
-typedef ItemBuilder<T> = Widget Function(BuildContext context, T item, int index);
 
-class CustomListView<T> extends StatelessWidget {
+class AppListView<T> extends StatelessWidget {
   final Axis scrollDirection;
-  final Widget header;
+  final Widget? header;
   final CustomListController<T> controller;
   final ItemBuilder<T> itemBuilder;
   final double? width;
   final double? height;
   final bool shrinkWrap;
+  final Widget separator;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry contentPadding;
 
-  const CustomListView({
+  const AppListView({
     super.key,
     required this.scrollDirection,
-    required this.header,
+    this.header,
     required this.controller,
     required this.itemBuilder,
     this.width = double.infinity,
     this.height,
     this.shrinkWrap = false,
+    this.separator = const Divider(),
+    this.padding = const EdgeInsets.all(0),
+    this.contentPadding = const EdgeInsets.all(0),
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width,
       height: height,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          header,
+          if (header != null) ...[
+            header!,
+          ],
           Expanded(
             child: Obx(
-              () => ListView.builder(
+              () => ListView.separated(
                 shrinkWrap: shrinkWrap,
                 scrollDirection: scrollDirection,
+                padding: padding,
                 itemCount: controller.items.length,
+                separatorBuilder: (context, index) => separator,
                 itemBuilder: (context, index) {
-                  return itemBuilder(context, controller.items[index], index);
+                  return Padding(
+                    padding: contentPadding,
+                    child: itemBuilder(context, controller.items[index], index),
+                  );
                 },
               ),
             ),

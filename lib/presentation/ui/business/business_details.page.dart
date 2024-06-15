@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/business/business.viewmodel.dart';
+import 'package:melegna_customer/presentation/ui/business/business_details.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details_small_screen.dart';
 import 'package:melegna_customer/presentation/ui/shared/responsive_wrapper.dart';
 

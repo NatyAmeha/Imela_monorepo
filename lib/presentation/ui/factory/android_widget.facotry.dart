@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:melegna_customer/presentation/ui/factory/base_widget.factory.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class AndroidWidgetFactory implements WidgetFactory {
+class AndroidWidgetFactory extends BaseWidgetFactory {
   final GlobalKey _key = GlobalKey();
 
   @override
-  Widget createButton({required BuildContext context, required Widget content, Widget? icon, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
+  Widget createButton({required BuildContext context, required Widget content, Widget? icon, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
     if (icon != null) {
       return FilledButton.icon(
-          key: _key,
-          icon: (showLoadingIndicator && isLoading) ? createLoadingIndicator(context) : icon,
-          label: content,
-          onPressed: (onPressed == null || isLoading)
-              ? null
-              : () async {
-                  await onPressed.call();
-                });
+        key: _key,
+        icon: (showLoadingIndicator && isLoading) ? createLoadingIndicator(context) : icon,
+        label: content,
+        style: style,
+        onPressed: (onPressed == null || isLoading)
+            ? null
+            : () async {
+                await onPressed.call();
+              },
+      );
     }
-    return FilledButton(
+    return OutlinedButton(
       key: _key,
+      style: style,
       onPressed: (onPressed == null || isLoading)
           ? null
           : () async {
@@ -56,7 +59,10 @@ class AndroidWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel}){
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, EdgeInsets? padding, Function()? onPressed}) {
+    if (onPressed != null) {
+      return IconButton(onPressed: onPressed, icon: Icon(materialIcon, size: size, color: color, semanticLabel: semanticLabel), padding: padding);
+    }
     return Icon(materialIcon, size: size, color: color, semanticLabel: semanticLabel);
   }
 
@@ -191,5 +197,10 @@ class AndroidWidgetFactory implements WidgetFactory {
       padding: padding ?? EdgeInsets.zero,
       child: Text(text, style: style?.copyWith(color: color, decoration: textDecoration) ?? defaultTextStyle?.copyWith(color: color), textAlign: textAlign, overflow: overflow, maxLines: maxLines),
     );
+  }
+
+  @override
+  Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged}) {
+    return super.createPageView(context, itemCount: itemCount, itemBuilder: itemBuilder, controller: controller, width: width, height: height);
   }
 }

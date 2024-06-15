@@ -1,4 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+
+typedef ItemBuilder<T> = Widget Function(BuildContext context, T item, int index);
 
 class CustomListController<T> extends GetxController {
   var items = <T>[].obs;
