@@ -8,9 +8,9 @@ part 'business.section.g.dart';
 class BusinessSection with _$BusinessSection {
   factory BusinessSection({
     String? id,
-     List<LocalizedField>? name,
+    List<LocalizedField>? name,
     String? categoryId,
-    List<String>? productIds, 
+    List<String>? productIds,
     List<String>? images,
     List<LocalizedField>? description,
   }) = _BusinessSection;

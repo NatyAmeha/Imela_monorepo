@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class AppImage extends StatelessWidget {
-  final String imageUrl;
+  final String? imageUrl;
   final double? width;
   final double? height;
   final BorderRadius? borderRadius;
@@ -11,7 +11,7 @@ class AppImage extends StatelessWidget {
   final String? heroTag;
 
   AppImage({
-    required this.imageUrl,
+   this.imageUrl,
     this.width,
     this.height,
     this.borderRadius,
@@ -23,7 +23,7 @@ class AppImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget image = CachedNetworkImage(
-      imageUrl: imageUrl,
+      imageUrl: imageUrl ?? '',
       fit: fit,
       width: width,
       height: height,

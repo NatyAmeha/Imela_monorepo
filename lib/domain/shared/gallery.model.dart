@@ -26,3 +26,19 @@ class GalleryData with _$GalleryData {
     factory GalleryData.fromJson(Map<String, dynamic> json) => _$GalleryDataFromJson(json);
     
 } 
+
+extension GalleryDataExtension on Gallery {
+    List<String> getImages({bool? featured = false}) {
+    // sort images by featured first
+    // gallery?.images?.sort((a, b) => a.featured == b.featured
+    //     ? 0
+    //     : (a.featured ?? false)
+    //         ? -1
+    //         : 1);
+    if(images?.isEmpty == null) return [];
+    if (featured == true) {
+      return images!.where((element) => element.featured == true).map((e) => e.url!).toList();
+    }
+    return images!.map((e) => e.url!).toList();
+  }
+}

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
+import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
+import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 
 class BusinessDetailsHeader extends StatelessWidget {
   final Business business;
@@ -13,20 +15,19 @@ class BusinessDetailsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var image = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2zK7l5I39tA2d0DqcZYxzuFdufj1bDtp6xg&s";
     var appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Stack(
       children: [
         Positioned.fill(
           child: appWidgetFactory.createPageView(
             context,
-            itemCount: 3,
+            itemCount: business.gallery?.getImages().length ?? 0,
             
             controller: controller ?? PageController(),
             width: width,
             height: height,
             itemBuilder: (context, index) {
-              return AppImage(imageUrl: image);
+              return AppImage(imageUrl: business.gallery?.getImages()[index]);
             },
           ),
         ),
@@ -41,14 +42,21 @@ class BusinessDetailsHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    appWidgetFactory.createText(context, "Business Name", style: Theme.of(context).textTheme.headlineMedium, color: ColorManager.white),
+                    appWidgetFactory.createText(context, '${business.getLocalizedBusinessName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.headlineLarge, color: ColorManager.white,),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        appWidgetFactory.createIcon(materialIcon: Icons.star, color: ColorManager.tertiary),
-                        const SizedBox(width: 2),
-                        appWidgetFactory.createText(context, "4.5", style: Theme.of(context).textTheme.labelMedium, color: ColorManager.tertiary),
-                      ],
+                    IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          appWidgetFactory.createIcon(materialIcon: Icons.star, color: ColorManager.tertiary),
+                          const SizedBox(width: 2),
+                          appWidgetFactory.createText(context, "4.5", style: Theme.of(context).textTheme.labelMedium, color: ColorManager.tertiary),
+                          const VerticalDivider(color: ColorManager.white),
+                          if(business.categories?.isNotEmpty ?? false) ...[
+                            ...business.categories!.map((e) => appWidgetFactory.createText(context, e, style: Theme.of(context).textTheme.labelSmall, color: ColorManager.white)),
+                          ]
+                          
+                        ],
+                      ),
                     )
                   ],
                 ),

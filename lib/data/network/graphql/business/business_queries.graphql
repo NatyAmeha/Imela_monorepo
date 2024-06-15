@@ -8,16 +8,50 @@ query GetBusinessDetails($id: String!) {
         key
         value
       }
+      description{
+        key
+        value
+      }
       type
       categories
       isActive
       creator
+      gallery{
+        logoImage
+        coverImage
+        images{
+          featured
+          url
+        }
+        videos{
+          featured
+          url
+        }
+      }
+      sections{
+        id
+        name{
+          key
+          value
+        }
+        productIds
+      }
     }
     products {
       id
       name {
         key
         value
+      }
+      gallery{
+        images{
+          featured
+          url
+        }
+        videos{
+          featured
+          url
+        }
       }
     }
     branches {

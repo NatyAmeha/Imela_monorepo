@@ -1,1 +1,3 @@
-class BaseModel{}
+class BaseModel{
+  const BaseModel();
+}

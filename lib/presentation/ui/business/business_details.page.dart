@@ -4,6 +4,7 @@ import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/injection.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details_small_screen.dart';
+import 'package:melegna_customer/presentation/ui/shared/page_content_loader.dart';
 import 'package:melegna_customer/presentation/ui/shared/responsive_wrapper.dart';
 
 class BusinessDetailsPage extends StatefulWidget {
@@ -12,24 +13,23 @@ class BusinessDetailsPage extends StatefulWidget {
   BusinessDetailsViewModel? businessViewmodel;
   final String businessId;
   final String? businessName;
-  BusinessDetailsPage({super.key, required this.businessId, this.businessName, this.businessViewmodel}){
+  BusinessDetailsPage({super.key, required this.businessId, this.businessName, this.businessViewmodel}) {
     businessViewmodel ??= Get.put(getIt<BusinessDetailsViewModel>());
   }
 
-  @override 
+  @override
   State<BusinessDetailsPage> createState() => _BusinessDetailsPageState();
 }
 
 class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   void initializeViewmodel() {
     Future.delayed(Duration.zero, () {
-      widget.businessViewmodel!.initViewmodel(); 
+      widget.businessViewmodel!.initViewmodel();
     });
   }
 
-  @override 
+  @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     print("viewmodel init state");
     initializeViewmodel();
@@ -37,10 +37,20 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveWrapper(
-      smallScreen: BusinessDetailsSmallScreen(
-        businessDetailsViewmodel: widget.businessViewmodel!,
-        businessName: widget.businessName,
+    return Scaffold(
+      body: Obx(
+      
+        () => PageContentLoader(
+          isLoading: widget.businessViewmodel!.isLoading.value,
+          hasError: widget.businessViewmodel!.exception.value?.isMainError ?? false,
+          showContent: widget.businessViewmodel!.businessDetails.value != null,
+          content: ResponsiveWrapper(
+            smallScreen: BusinessDetailsSmallScreen(
+              businessDetailsViewmodel: widget.businessViewmodel!,
+              businessName: widget.businessName,
+            ),
+          ),
+        ),
       ),
     );
   }

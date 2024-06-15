@@ -27,6 +27,8 @@ class FileLogOutput implements ILogOutput {
   }
 }
 
+
+@injectable
 class AppLogFormat extends LogPrinter {
   @override
   List<String> log(LogEvent event) {

@@ -20,13 +20,14 @@ class GraphQLConfig {
       final box = await Hive.openBox('graphql');
       final store = HiveStore(box);
       final cache = Cache(store: store);
-      final link = HttpLink('http://192.168.1.4:3000/graphql');
+      final link = HttpLink('http://192.168.12.134:3000/graphql');
       final timeoutLink = TimeoutLink(
           const Duration(seconds: 10), // Set the timeout duration here
           link);
       _ferryGraphQlClient = Client(link: timeoutLink, cache: cache);
       return _ferryGraphQlClient!;
     } catch (e) {
+      print("graphql exception ${e.toString()}");
       return Future.error('error initializing graphql client');
     }
   }

@@ -30,8 +30,8 @@ class AppGridView<T> extends StatelessWidget {
     this.isStaggered = false,
     this.padding = const EdgeInsets.all(0),
     this.crossAxisCount = 2,
-    this.mainAxisSpacing = 4,
-    this.crossAxisSpacing = 4,
+    this.mainAxisSpacing = 12,
+    this.crossAxisSpacing = 10,
     this.childAspectRatio = 1.0,
     this.primary = true,
   });
@@ -52,6 +52,7 @@ class AppGridView<T> extends StatelessWidget {
                 ? Obx(
                     () => MasonryGridView.builder(
                       primary: primary,
+                      padding: EdgeInsets.zero,
                       physics: !primary ? const NeverScrollableScrollPhysics() : null,
                       gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
                       mainAxisSpacing: mainAxisSpacing,
