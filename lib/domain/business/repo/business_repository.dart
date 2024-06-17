@@ -7,8 +7,10 @@ import 'package:melegna_customer/data/network/graphql/business/__generated__/bus
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/domain/shared/repository.intereface.dart';
 
+enum ApiDataFetchPolicy { cacheFirst, cacheAndNetwork, networkOnly, cacheOnly, noCache }
+
 abstract class IBusinessrepository extends IRepository {
-  Future<BusinessResponse?> getBusinessDetails(String id);
+  Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
 }
 
 @Named(BusinessRepository.injectName)
@@ -17,13 +19,13 @@ class BusinessRepository implements IBusinessrepository {
   static const injectName = 'BUSINESS_REPOSITORY_INJECTION';
   final IGraphQLDataSource _graphQLDataSource;
 
-  const BusinessRepository(this._graphQLDataSource);
+  const BusinessRepository(@Named( GraphqlDatasource.injectName) this._graphQLDataSource);
   @override
-  Future<BusinessResponse?> getBusinessDetails(String id) async {
+  Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork}) async {
     final request = GGetBusinessDetailsReq(
       (b) => b
         ..vars.id = id
-        ..fetchPolicy = FetchPolicy.NetworkOnly,
+        ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
     final result = await _graphQLDataSource.query<GGetBusinessDetailsData?>(request, type: "GET_BUSINESS_DETAILS", isMainError: true);
     if (result?.getBusinessDetails == null) {

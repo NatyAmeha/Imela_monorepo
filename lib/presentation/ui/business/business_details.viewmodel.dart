@@ -75,7 +75,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   Future<void> getbusinessDetails(String id) async {
     try {
       isLoading(true);
-      print("viewmodel getbusinessDetails");
+      print('viewmodel getbusinessDetails');
       final result = await businessUsecase.getBusinessDetails(id);
       businessDetails.value = result;
       productListController.addItems(result?.products);

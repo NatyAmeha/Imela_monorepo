@@ -4,47 +4,61 @@ import 'package:melegna_customer/services/logger/log.model.dart';
 import 'package:melegna_customer/services/logger/log_output.service.dart';
 
 abstract class ILogService {
+  List<LogData> errorLogs = [];
   void log(LogData data);
 }
 
+
+@Singleton(as: ILogService)
 @Named(AppLogService.injectName)
-@Injectable(as: ILogService)
 class AppLogService implements ILogService {
   static const injectName = 'AppLogService';
-  final ILogOutput? logOutput;
+  // final ILogOutput? fileLogOutput;
   static Logger? _logger;
 
-  const AppLogService({this.logOutput});
+  
+
+  @override
+  List<LogData> errorLogs = [];
+
+   batchLogs(LogData logs){
+    errorLogs.add(logs);
+  }
+
+  AppLogService();
+
   Logger get getLoggerInstance {
     if (_logger != null) {
       return _logger!;
     } else {
-      _logger = Logger(printer: AppLogFormat(), output: logOutput);
+      _logger = Logger(printer: AppLogFormat() );
       return _logger!;
     }
   }
 
   @override
-  void log(LogData data) {
-    switch (data.logLevel) {
+  void log(LogData logData) {
+    switch (logData.logLevel) {
       case LogLevel.DEBUG:
-        getLoggerInstance.d(data.message);
+        getLoggerInstance.d(logData.message);
         break;
       case LogLevel.INFO:
-        getLoggerInstance.i(data.message);
+        getLoggerInstance.i(logData.message);
         break;
       case LogLevel.WARNING:
-        getLoggerInstance.w(data.message);
+        getLoggerInstance.w(logData.message);
         break;
       case LogLevel.ERROR:
-        getLoggerInstance.log(Level.error, data.message, error: data.error);
+        getLoggerInstance.log(Level.error, logData.message, error: logData.error);
+        batchLogs(logData);
         break;
       case LogLevel.FATAL:
-        getLoggerInstance.log(Level.error, data.message, error: data.error, stackTrace: data.stackTrace);
+        getLoggerInstance.log(Level.error, logData.message, error: logData.error, stackTrace: logData.stackTrace);
+        batchLogs(logData);
         break;
 
       default:
-        getLoggerInstance.d(data.message);
+        getLoggerInstance.d(logData.message);
     }
   }
 }

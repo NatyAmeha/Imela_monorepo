@@ -2,30 +2,44 @@ import 'dart:convert';
 
 import 'package:ferry/ferry.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/datasource.interface.dart';
+import 'package:melegna_customer/domain/business/repo/business_repository.dart';
 import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
+import 'package:melegna_customer/services/logger/log.model.dart';
+import 'package:melegna_customer/services/logger/logger.service.dart';
 
-abstract class IGraphQLDataSource extends IDataSource {
+abstract class IGraphQLDataSource {
   Future<T?> query<T>(OperationRequest<dynamic, dynamic> request, {String? type,  bool isMainError = false});
   Future<dynamic> mutation(String mutation, {Map<String, dynamic> variables});
+  FetchPolicy getFetchPolicy(ApiDataFetchPolicy policy);
 }
 
-@Injectable(as: IGraphQLDataSource)
+@Injectable(as: IGraphQLDataSource) 
+@Named(GraphqlDatasource.injectName)
 class GraphqlDatasource implements IGraphQLDataSource {
+  static const injectName = 'GRAPHQL_DATASOURCE_INJECTION';
   final Client graphQlClient;
-  const GraphqlDatasource(this.graphQlClient);
-  @override
-  Future delete(String url) {
-    // TODO: implement delete
-    throw UnimplementedError();
-  }
+  final ILogService _loggerService;
+  const GraphqlDatasource(this.graphQlClient, @Named(AppLogService.injectName) this._loggerService);
+
 
   @override
-  Future get(String url) {
-    // TODO: implement get
-    throw UnimplementedError();
+  FetchPolicy getFetchPolicy(ApiDataFetchPolicy policy) {
+    switch (policy) {
+      case ApiDataFetchPolicy.cacheFirst:
+        return FetchPolicy.CacheFirst;
+      case ApiDataFetchPolicy.cacheAndNetwork:
+        return FetchPolicy.CacheAndNetwork;
+      case ApiDataFetchPolicy.networkOnly:
+        return FetchPolicy.NetworkOnly;
+      case ApiDataFetchPolicy.cacheOnly:
+        return FetchPolicy.CacheOnly;
+      case ApiDataFetchPolicy.noCache:
+        return FetchPolicy.NoCache;
+      default:
+        return FetchPolicy.CacheFirst;
+    }
   }
-
+  
   @override
   Future mutation(String mutation, {Map<String, dynamic>? variables}) {
     // TODO: implement mutation
@@ -33,24 +47,13 @@ class GraphqlDatasource implements IGraphQLDataSource {
   }
 
   @override
-  Future post(String url, data) {
-    // TODO: implement post
-    throw UnimplementedError();
-  }
-
-  @override
-  Future put(String url, data) {
-    // TODO: implement put
-
-    throw UnimplementedError();
-  }
-
-  @override
   Future<T?> query<T>(OperationRequest<dynamic, dynamic> request, {String? type,  bool isMainError = false}) async {
     var response = await graphQlClient.request(request).first;
     if (response.hasErrors) {
+      _loggerService.log(LogData(source: this.toString(), message: 'Graphql error: ${jsonEncode(response.graphqlErrors)}', logLevel: LogLevel.ERROR));
       throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
     }
+    _loggerService.log(LogData(message: 'Graphql response: ${jsonEncode(response.data)}', logLevel: LogLevel.INFO));
     return response.data as T?;
   }
 }
