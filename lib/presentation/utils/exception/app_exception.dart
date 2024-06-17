@@ -16,6 +16,10 @@ class AppException implements Exception {
   AppException serialize() {
     return AppException(message: message, code: code, type: type, isMainError: isMainError, exception: exception);
   }
+
+  static AppException unexpectedError(Object exception) {
+    return AppException(message: 'An unexpected error occured $exception', isMainError: false, exception: exception);
+  }
 }
 
 abstract class IExceptiionHandler {

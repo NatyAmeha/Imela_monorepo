@@ -1,5 +1,4 @@
 
-import 'package:ferry/ferry.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/business_response.dart';
 import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.data.gql.dart';
@@ -7,7 +6,6 @@ import 'package:melegna_customer/data/network/graphql/business/__generated__/bus
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/domain/shared/repository.intereface.dart';
 
-enum ApiDataFetchPolicy { cacheFirst, cacheAndNetwork, networkOnly, cacheOnly, noCache }
 
 abstract class IBusinessrepository extends IRepository {
   Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});

@@ -5,8 +5,8 @@ import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 
-part 'product.model.freezed.dart';
-part 'product.model.g.dart';
+part '../product.model.freezed.dart';
+part '../product.model.g.dart';
 
 @freezed
 class Product with _$Product {

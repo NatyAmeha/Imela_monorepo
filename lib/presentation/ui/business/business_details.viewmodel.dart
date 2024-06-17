@@ -5,18 +5,23 @@ import 'package:melegna_customer/data/network/business_response.dart';
 import 'package:melegna_customer/domain/business/business.usecase.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/business/model/business.section.dart';
-import 'package:melegna_customer/domain/product/product.model.dart';
+import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:melegna_customer/services/routing_service.dart';
 
 @injectable
 class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   final BusinessUsecase businessUsecase;
   final IExceptiionHandler exceptiionHandler;
-  BusinessDetailsViewModel({required this.businessUsecase, @Named(AppExceptionHandler.injectName) required this.exceptiionHandler});
+  final IRoutingService router;
+  BusinessDetailsViewModel({required this.businessUsecase, 
+  @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
+  @Named(GoRouterService.injectName) required this.router,
+  });
   // page state variables
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
@@ -30,7 +35,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   Business? get businessData => businessDetails.value?.business;
   List<BusinessSection> get sections => businessDetails.value?.business?.sections ?? [];
 
-  Map<String, CustomListController> get businessSectionsWithProductListController {
+  Map<String, CustomListController<Product>> get businessSectionsWithProductListController {
     var sectionsWithProducts = {'Overview': productListController};
     for (var section in sections) {
       if (section.name.getLocalizedValue(AppLanguage.ENGLISH.name) != null) {
@@ -94,8 +99,11 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     return businessSectionsWithProductListController.keys.map((e) => Tab(text: e)).toList();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+
+  // navigation helpers
+  void navigateToProductDetails(BuildContext context, Product productInfo) {
+    router.navigateTo(context, '/product/${productInfo.id!}', extra:  {'name': productInfo.name?.getLocalizedValue(AppLanguage.ENGLISH.name)});
   }
+
+  
 }

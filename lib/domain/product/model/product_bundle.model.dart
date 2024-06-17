@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:melegna_customer/domain/branch/branch.model.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/product/discount.model.dart';
-import 'package:melegna_customer/domain/product/product.model.dart';
+import 'package:melegna_customer/domain/product/model/discount.model.dart';
+import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 

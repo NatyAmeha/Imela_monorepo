@@ -1,0 +1,65 @@
+query GetProductDetails($id : String!){
+    getProductDetail(productId: $id) {
+    success
+    message
+    product {
+      id
+      name {
+        key
+        value
+      }
+      description {
+        key
+        value
+      }
+      gallery {
+        images {
+          featured
+          url
+        }
+      }
+      tag
+      minimumOrderQty
+      loyaltyPoint
+      category
+      canOrderOnline
+      reviewTopics
+      sku
+      options {
+        key
+        value
+      }
+      optionsIncluded
+      variants {
+        id
+        name {
+          key
+          value
+        }
+        gallery {
+          images {
+            url
+          }
+        }
+        minimumOrderQty
+      }
+      inventory{
+        qty
+        unit
+        minOrderQty
+        maxOrderQty
+        isAvailable
+        optionsIncluded
+      }
+      callToAction
+      branchIds
+      
+      business {
+        name {
+          key
+          value
+        }
+      }
+    }
+  }
+}

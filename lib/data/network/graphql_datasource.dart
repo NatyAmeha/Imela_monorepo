@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:ferry/ferry.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/business/repo/business_repository.dart';
 import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
 import 'package:melegna_customer/services/logger/log.model.dart';
 import 'package:melegna_customer/services/logger/logger.service.dart';
+
+enum ApiDataFetchPolicy { cacheFirst, cacheAndNetwork, networkOnly, cacheOnly, noCache }
 
 abstract class IGraphQLDataSource {
   Future<T?> query<T>(OperationRequest<dynamic, dynamic> request, {String? type,  bool isMainError = false});

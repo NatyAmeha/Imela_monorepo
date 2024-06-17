@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/list_header.component.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
@@ -73,14 +74,22 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
         controller: widget.businessDetailsViewmodel.businessSectionTabControllers,
         tabViews: widget.businessDetailsViewmodel.businessSectionsWithProductListController.entries.map((entry) {
           if (entry.key == 'Overview') {
-            return buildBusinessOverview();
+            return buildBusinessOverview(appWidgetFactory);
           }
-          return AppGridView(
+          return AppGridView<Product>(
             controller: entry.value,
             crossAxisCount: 2,
             isStaggered: true,
             itemBuilder: (context, productData, index) {
-              return GridProductListItem(product: productData, imageHeight: 150, imageWidth: double.infinity);
+              return GridProductListItem(
+                product: productData,
+                imageHeight: 150,
+                imageWidth: double.infinity,
+                widgetFactory: appWidgetFactory,
+                onTap: () {
+                  widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
+                },
+              );
             },
           );
         }).toList(),
@@ -88,7 +97,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
     );
   }
 
-  Widget buildBusinessOverview() {
+  Widget buildBusinessOverview( WidgetFactory widgetFactory) {
     return SingleChildScrollView(
       primary: true,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -128,7 +137,9 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               onActionClicked: () {},
             ),
             itemBuilder: (context, productData, index) {
-              return GridProductListItem(product: productData, imageHeight: 150, imageWidth: double.infinity);
+              return GridProductListItem(product: productData, imageHeight: 150, imageWidth: double.infinity, widgetFactory: widgetFactory, onTap: () {
+                widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
+              });
             },
           )
         ],

@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.page.dart';
 import 'package:melegna_customer/presentation/ui/home/home.page.dart';
+import 'package:melegna_customer/presentation/ui/product/product_details.page.dart';
 
 abstract class IRoutingService {
   Future<T?> navigateTo<T>(BuildContext context, String routeName, {Map<String, dynamic> queryParam, Map<String,dynamic>? extra, bool replace = false});
   Future<void> goBack(BuildContext context, {Map<String, dynamic>? returnValue = const {}});
 }
 
+@Injectable(as: IRoutingService)
+@Named(GoRouterService.injectName)
 class GoRouterService implements IRoutingService {
+  static const injectName = 'GoRouterService';
   static GoRouterService? instance;
   static final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -35,10 +37,16 @@ class GoRouterService implements IRoutingService {
         path: BusinessDetailsPage.routeName,
         builder: (context, state) {
           final businessId = state.pathParameters[BusinessDetailsPage.idQueryParameter];
-          final businessName = (state.extra as Map<String, dynamic>)?['name'];
+          final businessName = (state.extra as Map<String, dynamic>)['name'];
           return BusinessDetailsPage(businessId: businessId!, businessName: businessName);
         },
       ),
+      GoRoute(path: ProductDetailPage.routeName, builder: (context, state){
+        final productId = state.pathParameters["id"];
+        final productName = (state.extra as Map<String, dynamic>)['name'];
+        return ProductDetailPage(productId: productId!, productName: productName);
+      
+      }),
     ],
   );
   @override
