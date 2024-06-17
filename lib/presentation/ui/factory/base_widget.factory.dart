@@ -44,7 +44,7 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, EdgeInsets? padding, Function()? onPressed}) {
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, Color? backgroundColor, EdgeInsets? padding, Function()? onPressed}) {
     // TODO: implement createIcon
     throw UnimplementedError();
   }

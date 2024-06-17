@@ -42,7 +42,7 @@ class BusinessDetailsHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    appWidgetFactory.createText(context, '${business.getLocalizedBusinessName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.headlineLarge, color: ColorManager.white,),
+                    appWidgetFactory.createText(context, '${business.getLocalizedBusinessName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.headlineMedium, color: ColorManager.white,),
                     const SizedBox(height: 4),
                     IntrinsicHeight(
                       child: Row(
@@ -52,12 +52,12 @@ class BusinessDetailsHeader extends StatelessWidget {
                           appWidgetFactory.createText(context, "4.5", style: Theme.of(context).textTheme.labelMedium, color: ColorManager.tertiary),
                           const VerticalDivider(color: ColorManager.white),
                           if(business.categories?.isNotEmpty ?? false) ...[
-                            ...business.categories!.map((e) => appWidgetFactory.createText(context, e, style: Theme.of(context).textTheme.labelSmall, color: ColorManager.white)),
+                            ...business.categories!.map((e) => appWidgetFactory.createText(context, e, style: Theme.of(context).textTheme.titleSmall, color: ColorManager.white)),
                           ]
                           
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               )),

@@ -13,36 +13,56 @@ class BusinessAddressQuickActionComponenet extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        childAspectRatio: 1.5,
+        childAspectRatio: 1.2,
       ),
-      
       children: [
         appWidgetFactory.createCard(
-          onTap: () {
-
-          },
+          onTap: () {},
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              appWidgetFactory.createIcon(materialIcon: Icons.call, color: Theme.of(context).primaryColor, ),
-              const SizedBox(height: 8),
-              appWidgetFactory.createText(context, "Call", style: Theme.of(context).textTheme.bodyMedium),
+              appWidgetFactory.createIcon(
+                materialIcon: Icons.call,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                padding: const EdgeInsets.all(8),
+                color: Theme.of(context).primaryColor,
+              ),
+              const SizedBox(height: 6),
+              appWidgetFactory.createText(context, 'Call', style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            appWidgetFactory.createIcon(materialIcon: Icons.pin, color: Theme.of(context).primaryColor),
-            appWidgetFactory.createText(context, "Address", style: Theme.of(context).textTheme.bodyMedium),
-          ],
+        appWidgetFactory.createCard(
+          onTap: () {},
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              appWidgetFactory.createIcon(
+                materialIcon: Icons.pin,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                padding: const EdgeInsets.all(8),
+                color: Theme.of(context).primaryColor,
+              ),
+              const SizedBox(height: 6),
+              appWidgetFactory.createText(context, "Address", style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ),
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            appWidgetFactory.createIcon(materialIcon: Icons.abc, color: Theme.of(context).primaryColor),
-            appWidgetFactory.createText(context, "Branches", style: Theme.of(context).textTheme.bodyMedium),
-          ],
+        appWidgetFactory.createCard(
+          onTap: () {},
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              appWidgetFactory.createIcon(
+                materialIcon: Icons.business,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                padding: const EdgeInsets.all(8),
+                color: Theme.of(context).primaryColor,
+              ),
+              const SizedBox(height: 6),
+              appWidgetFactory.createText(context, 'Branches', style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ),
         ),
       ],
     );

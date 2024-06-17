@@ -59,11 +59,19 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, EdgeInsets? padding, Function()? onPressed}) {
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, Color? backgroundColor, EdgeInsets? padding, Function()? onPressed}) {
+    var decoration = backgroundColor != null ? BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(50)) : null;
+    Icon iconWidget = Icon(materialIcon, size: size, color: color, semanticLabel: semanticLabel);
     if (onPressed != null) {
-      return IconButton(onPressed: onPressed, icon: Icon(materialIcon, size: size, color: color, semanticLabel: semanticLabel), padding: padding);
+      if (backgroundColor != null) {
+        return Container(padding: padding, decoration: decoration, child: IconButton(onPressed: onPressed, icon: iconWidget, padding: padding));
+      }
+      return IconButton(onPressed: onPressed, icon: iconWidget, padding: padding);
     }
-    return Icon(materialIcon, size: size, color: color, semanticLabel: semanticLabel);
+    if (backgroundColor != null) {
+      return Container(padding: padding, decoration: decoration, child: iconWidget);
+    }
+    return iconWidget;
   }
 
   @override

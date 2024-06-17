@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:melegna_customer/presentation/resources/asset_manager.dart';
 
 class AppImage extends StatelessWidget {
   final String? imageUrl;
@@ -9,15 +10,18 @@ class AppImage extends StatelessWidget {
   final BoxFit fit;
   final Gradient? gradient;
   final String? heroTag;
+  final String placeholderImageUrl;
 
-  AppImage({
-   this.imageUrl,
+  const AppImage({
+    super.key,
+    this.imageUrl,
     this.width,
     this.height,
     this.borderRadius,
     this.fit = BoxFit.cover,
     this.gradient,
     this.heroTag,
+    this.placeholderImageUrl = AssetManager.productPlaceholderImage,
   });
 
   @override
@@ -27,8 +31,8 @@ class AppImage extends StatelessWidget {
       fit: fit,
       width: width,
       height: height,
-      // placeholder: (context, url) => const CircularProgressIndicator(),
-      errorWidget: (context, url, error) => const Icon(Icons.error),
+      placeholder: (context, url) => Image.asset(placeholderImageUrl),
+      errorWidget: (context, url, error) => Image.asset(placeholderImageUrl),
     );
 
     if (borderRadius != null) {

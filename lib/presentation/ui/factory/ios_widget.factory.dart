@@ -12,7 +12,6 @@ class IosWidgetFactory extends BaseWidgetFactory {
           : () async {
               await onPressed.call();
             },
-      
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -20,7 +19,6 @@ class IosWidgetFactory extends BaseWidgetFactory {
           content,
         ],
       ),
-      
     );
   }
 
@@ -45,11 +43,19 @@ class IosWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, EdgeInsets? padding, Function()? onPressed}) {
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, Color? backgroundColor, EdgeInsets? padding, Function()? onPressed}) {
+    var decoration = backgroundColor != null ? BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(50)) : null;
+    Icon iconWidget = Icon(cupertinoIcon ?? materialIcon, size: size, color: color, semanticLabel: semanticLabel);
     if (onPressed != null) {
-      return IconButton(onPressed: onPressed, icon: Icon(cupertinoIcon ?? materialIcon, size: size, color: color, semanticLabel: semanticLabel));
+      if (backgroundColor != null) {
+        return Container(padding: padding, decoration: decoration, child: IconButton(onPressed: onPressed, icon: iconWidget, padding: padding));
+      }
+      return IconButton(onPressed: onPressed, icon: iconWidget, padding: padding);
     }
-    return Icon(cupertinoIcon ?? materialIcon, size: size, color: color, semanticLabel: semanticLabel);
+    if (backgroundColor != null) {
+      return Container(padding: padding, decoration: decoration, child: iconWidget);
+    }
+    return iconWidget;
   }
 
   @override
@@ -201,7 +207,7 @@ class IosWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-    Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged}) {
-      return super.createPageView(context, itemCount: itemCount, itemBuilder: itemBuilder, controller: controller, width: width, height: height);
-    }
+  Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged}) {
+    return super.createPageView(context, itemCount: itemCount, itemBuilder: itemBuilder, controller: controller, width: width, height: height);
+  }
 }

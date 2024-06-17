@@ -25,9 +25,8 @@ class GridProductListItem extends StatelessWidget {
           children: [
             AppImage(imageUrl: product.gallery?.getImages().firstOrNull, width: imageWidth, height: imageHeight, borderRadius: BorderRadius.circular(16)), // (1
             const SizedBox(height: 4),
-            appWidgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.titleMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
-
-            const SizedBox(height: 4),
+            appWidgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.titleSmall, maxLines: 3, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 8),
             appWidgetFactory.createText(context, "5400 Birr", style: Theme.of(context).textTheme.bodySmall,textDecoration: TextDecoration.lineThrough),
             appWidgetFactory.createText(context, "5000 Birr", style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).primaryColor),
             const SizedBox(height: 4),

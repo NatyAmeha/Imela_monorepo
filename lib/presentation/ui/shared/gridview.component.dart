@@ -46,6 +46,7 @@ class AppGridView<T> extends StatelessWidget {
         children: [
           if (header != null) ...[
             header!,
+            const SizedBox(height: 12),
           ],
           Expanded(
             child: isStaggered
