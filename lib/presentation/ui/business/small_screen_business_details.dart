@@ -102,7 +102,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (widget.businessDetailsViewmodel.businessData?.description?.isNotEmpty == true) ...[
-                  appWidgetFactory.createText(context, '${widget.businessDetailsViewmodel.businessData?.description.getLocalizedValue(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.labelSmall, maxLines: 3, overflow: TextOverflow.ellipsis),
+                  appWidgetFactory.createText(context, '${widget.businessDetailsViewmodel.businessData?.description.getLocalizedValue(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
                 ],
                 const SizedBox(height: 16),
                 const BusinessAddressQuickActionComponenet(),

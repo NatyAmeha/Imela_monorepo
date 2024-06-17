@@ -38,19 +38,19 @@ class AppLogFormat extends LogPrinter {
     className = name;
   }
 
-  static final Map<LogLevel, String> levelColors = {
-    LogLevel.DEBUG: '\x1B[34m',  // blue
-    LogLevel.INFO: '\x1B[32m', // green
-    LogLevel.WARNING: '\x1B[33m', // yellow
-    LogLevel.ERROR: '\x1B[31m', // red
-    LogLevel.FATAL: '\x1B[35m' // magenta
+  static final Map<Level, String> levelColors = {
+    Level.debug: '\x1B[34m',  // blue
+    Level.info: '\x1B[32m', // green
+    Level.warning: '\x1B[33m', // yellow
+    Level.error: '\x1B[31m', // red
+    Level.fatal: '\x1B[35m' // magenta
   };
 
   @override
   List<String> log(LogEvent event) {
     final color = levelColors[event.level]!;
     final emoji = PrettyPrinter.defaultLevelEmojis[event.level]!;
-    final message = event.message as LogData;
+    final message = event.message;
     final time = DateTime.now().toIso8601String();
 
     return ['$color$time  $emoji $message'];

@@ -48,15 +48,15 @@ class MobileTypography extends AppTypography {
   @override
   TextStyle get headlineLarge => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.normal, fontSize: 32.0);
   @override
-  TextStyle get headlineMedium => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 23.0);
+  TextStyle get headlineMedium => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w800, fontSize: 23.0);
   @override
-  TextStyle get headlineSmall => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 20.0);
+  TextStyle get headlineSmall => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w600, fontSize: 20.0);
   @override
-  TextStyle get titleLarge => GoogleFonts.getFont('Readex Pro', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 22.0);
+  TextStyle get titleLarge => GoogleFonts.getFont('Readex Pro', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 21.0);
   @override
-  TextStyle get titleMedium => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 16.0);
+  TextStyle get titleMedium => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 18.0);
   @override
-  TextStyle get titleSmall => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 14.0);
+  TextStyle get titleSmall => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 15.0);
   @override
   TextStyle get labelLarge => GoogleFonts.getFont('Readex Pro', color: ColorManager.secondaryText, fontWeight: FontWeight.w500, fontSize: 16.0);
   @override
@@ -85,11 +85,11 @@ class DesktopTypography extends AppTypography {
   @override
   TextStyle get headlineSmall => GoogleFonts.getFont('Inter', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 20.0);
   @override
-  TextStyle get titleLarge => GoogleFonts.getFont('Readex Pro', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 22.0);
+  TextStyle get titleLarge => GoogleFonts.getFont('Readex Pro', color: ColorManager.primaryText, fontWeight: FontWeight.w500, fontSize: 21.0);
   @override
-  TextStyle get titleMedium => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 16.0);
+  TextStyle get titleMedium => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 18.0);
   @override
-  TextStyle get titleSmall => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 14.0);
+  TextStyle get titleSmall => GoogleFonts.getFont('Readex Pro', color: ColorManager.info, fontWeight: FontWeight.w500, fontSize: 15.0);
   @override
   TextStyle get labelLarge => GoogleFonts.getFont('Readex Pro', color: ColorManager.secondaryText, fontWeight: FontWeight.w500, fontSize: 16.0);
   @override

@@ -21,7 +21,7 @@ class AppLogService implements ILogService {
   @override
   List<LogData> errorLogs = [];
 
-   batchLogs(LogData logs){
+   void batchLogs(LogData logs){
     errorLogs.add(logs);
   }
 
@@ -53,7 +53,7 @@ class AppLogService implements ILogService {
         batchLogs(logData);
         break;
       case LogLevel.FATAL:
-        getLoggerInstance.log(Level.error, logData.message, error: logData.error, stackTrace: logData.stackTrace);
+        getLoggerInstance.log(Level.fatal, logData.message, error: logData.error, stackTrace: logData.stackTrace);
         batchLogs(logData);
         break;
 

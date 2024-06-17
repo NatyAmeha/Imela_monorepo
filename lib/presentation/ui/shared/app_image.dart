@@ -31,8 +31,8 @@ class AppImage extends StatelessWidget {
       fit: fit,
       width: width,
       height: height,
-      placeholder: (context, url) => Image.asset(placeholderImageUrl),
-      errorWidget: (context, url, error) => Image.asset(placeholderImageUrl),
+      placeholder: (context, url) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
+      errorWidget: (context, url, error) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
     );
 
     if (borderRadius != null) {

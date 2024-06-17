@@ -50,10 +50,10 @@ class GraphqlDatasource implements IGraphQLDataSource {
   Future<T?> query<T>(OperationRequest<dynamic, dynamic> request, {String? type,  bool isMainError = false}) async {
     var response = await graphQlClient.request(request).first;
     if (response.hasErrors) {
-      _loggerService.log(LogData(source: this.toString(), message: 'Graphql error: ${jsonEncode(response.graphqlErrors)}', logLevel: LogLevel.ERROR));
+      _loggerService.log(LogData(source: "Class name", message: 'Graphql error: ${jsonEncode(response.graphqlErrors)}', logLevel: LogLevel.ERROR));
       throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
     }
-    _loggerService.log(LogData(message: 'Graphql response: ${jsonEncode(response.data)}', logLevel: LogLevel.INFO));
+    _loggerService.log(LogData(source:  "Class Name", message: 'Graphql response: ${jsonEncode(response.data)}', logLevel: LogLevel.INFO));
     return response.data as T?;
   }
 }

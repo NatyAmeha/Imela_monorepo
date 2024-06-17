@@ -28,7 +28,7 @@ class GridProductListItem extends StatelessWidget {
             appWidgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.titleSmall, maxLines: 3, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 8),
             appWidgetFactory.createText(context, '5400 Birr', style: Theme.of(context).textTheme.bodySmall,textDecoration: TextDecoration.lineThrough),
-            appWidgetFactory.createText(context, '5000 Birr', style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).primaryColor),
+            appWidgetFactory.createText(context, '5000 Birr', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -69,6 +69,9 @@ class GridProductListItem extends StatelessWidget {
               ],
             ),
           ],
-        ));
+        ),
+        onTap: (){
+          
+        });
   }
 }
