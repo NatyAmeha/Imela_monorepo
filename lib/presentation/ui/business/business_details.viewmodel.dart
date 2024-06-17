@@ -1,6 +1,3 @@
-import 'dart:ffi';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
@@ -11,7 +8,7 @@ import 'package:melegna_customer/domain/business/model/business.section.dart';
 import 'package:melegna_customer/domain/product/product.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list.viewmodel.dart';
+import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 
@@ -20,18 +17,21 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   final BusinessUsecase businessUsecase;
   final IExceptiionHandler exceptiionHandler;
   BusinessDetailsViewModel({required this.businessUsecase, @Named(AppExceptionHandler.injectName) required this.exceptiionHandler});
+  // page state variables
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
-  var errorMessage = "".obs;
-
+  var errorMessage = ''.obs;
   var businessDetails = Rxn<BusinessResponse>();
-  final productListController = Get.put(CustomListController<Product>());
-  Business? get businessData => businessDetails.value?.business;
+  var isAppbarExpanded = true.obs;
 
+  static const businessUiHeaderHeight = 170;
+
+  // getters
+  Business? get businessData => businessDetails.value?.business;
   List<BusinessSection> get sections => businessDetails.value?.business?.sections ?? [];
-  Map<String, CustomListController> get sectionsWithProducts {
+
+  Map<String, CustomListController> get businessSectionsWithProductListController {
     var sectionsWithProducts = {'Overview': productListController};
-    
     for (var section in sections) {
       if (section.name.getLocalizedValue(AppLanguage.ENGLISH.name) != null) {
         var products = productListController.items.where((element) => section.productIds?.contains(element.id) == true).toList();
@@ -47,32 +47,36 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   List<String> get categories => businessDetails.value?.business?.categories ?? [];
 
   // widget controllers
-  var businessOfferringListController = CustomListController<String>();
+  final productListController = Get.put(CustomListController<Product>());
   late TabController businessSectionTabControllers;
-  businesofferingList() {
-    businessOfferringListController.addItems(businessDetails.value?.business?.categories ?? []);
+  ScrollController businessHeaderScrollController = ScrollController();
+
+  void assignTabController(int length, TickerProvider vsync) {
+    businessSectionTabControllers = TabController(length: length, vsync: vsync);
   }
 
   @override
-  void initViewmodel() {
-    super.initViewmodel();
-    getbusinessDetails();
-    businesofferingList();
+  void initViewmodel({Map<String, dynamic>? data}) {
+    super.initViewmodel(data: data);
+    final businessId = data!['id'] as String;
+    getbusinessDetails(businessId);
   }
 
-  assignTabController(int length,  TickerProvider vsync) {
-    businessSectionTabControllers = TabController(length: length, vsync: vsync);
-    businessSectionTabControllers.addListener(() {
-      if (businessSectionTabControllers.indexIsChanging) {
+  void listenAppbarHeaderScroll() {
+    businessHeaderScrollController.addListener(() {
+      if (businessHeaderScrollController.offset > businessUiHeaderHeight && isAppbarExpanded.value) {
+        isAppbarExpanded(false);
+      } else if (businessHeaderScrollController.offset <= businessUiHeaderHeight && !isAppbarExpanded.value) {
+        isAppbarExpanded(true);
       }
     });
   }
 
-  Future<void> getbusinessDetails() async {
+  Future<void> getbusinessDetails(String id) async {
     try {
       isLoading(true);
       print("viewmodel getbusinessDetails");
-      final result = await businessUsecase.getBusinessDetails("662505ca50948fabb12180ba");
+      final result = await businessUsecase.getBusinessDetails(id);
       businessDetails.value = result;
       productListController.addItems(result?.products);
     } catch (e) {
@@ -80,6 +84,12 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     } finally {
       isLoading(false);
     }
+  }
+
+
+  // Widget helpers
+  List<Widget> getBusinessSectionTabs(){
+    return businessSectionsWithProductListController.keys.map((e) => Tab(text: e)).toList();
   }
 
   @override

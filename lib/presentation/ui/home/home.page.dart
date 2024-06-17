@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
         ),
         body: Center(
           child: appWidgetFactory.createButton(context: context, content: Text("Navigate to business details"), onPressed: () {
-            _routingService.navigateTo(context, '/business/1234', extra: {"name" : "Custom business name"});
+            _routingService.navigateTo(context, '/business/662505ca50948fabb12180ba', extra: {"name" : "Custom business name"});
           }),
         ));
   }

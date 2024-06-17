@@ -27,15 +27,15 @@ class GridProductListItem extends StatelessWidget {
             const SizedBox(height: 4),
             appWidgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.titleSmall, maxLines: 3, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 8),
-            appWidgetFactory.createText(context, "5400 Birr", style: Theme.of(context).textTheme.bodySmall,textDecoration: TextDecoration.lineThrough),
-            appWidgetFactory.createText(context, "5000 Birr", style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).primaryColor),
+            appWidgetFactory.createText(context, '5400 Birr', style: Theme.of(context).textTheme.bodySmall,textDecoration: TextDecoration.lineThrough),
+            appWidgetFactory.createText(context, '5000 Birr', style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).primaryColor),
             const SizedBox(height: 4),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 appWidgetFactory.createIcon(materialIcon: Icons.star, color: ColorManager.tertiary, size: 16),
                 const SizedBox(width: 2),
-                appWidgetFactory.createText(context, "4.5 Rating", style: Theme.of(context).textTheme.titleSmall, color: ColorManager.tertiary),
+                appWidgetFactory.createText(context, '4.5 Rating', style: Theme.of(context).textTheme.titleSmall, color: ColorManager.tertiary),
               ],
             ),
             const SizedBox(height: 4),
@@ -44,9 +44,9 @@ class GridProductListItem extends StatelessWidget {
               children: [
                 appWidgetFactory.createIcon(materialIcon: Icons.book, size: 16),
                 const SizedBox(width: 2),
-                appWidgetFactory.createText(context, "Min order - ", style: Theme.of(context).textTheme.bodySmall),
+                appWidgetFactory.createText(context, 'Min order - ', style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(width: 1),
-                appWidgetFactory.createText(context, "12 Unit", style: Theme.of(context).textTheme.bodySmall),
+                appWidgetFactory.createText(context, '12 Unit', style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
             const SizedBox(height: 4),
@@ -55,7 +55,7 @@ class GridProductListItem extends StatelessWidget {
               children: [
                 appWidgetFactory.createIcon(materialIcon: Icons.keyboard_option_key, size: 16),
                 const SizedBox(width: 2),
-                appWidgetFactory.createText(context, "5 Options", style: Theme.of(context).textTheme.bodySmall),
+                appWidgetFactory.createText(context, '5 Options', style: Theme.of(context).textTheme.bodySmall),
                 
               ],
             ),
@@ -65,8 +65,7 @@ class GridProductListItem extends StatelessWidget {
               children: [
                 appWidgetFactory.createIcon(materialIcon: Icons.business, size: 16),
                 const SizedBox(width: 2),
-                appWidgetFactory.createText(context, "Business Name", style: Theme.of(context).textTheme.bodySmall),
-                
+                appWidgetFactory.createText(context, 'Business Name', style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ],

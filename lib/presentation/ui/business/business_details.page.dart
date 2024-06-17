@@ -3,17 +3,17 @@ import 'package:get/get.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/injection.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/business/business_details_small_screen.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_content_loader.dart';
-import 'package:melegna_customer/presentation/ui/shared/responsive_wrapper.dart';
+import 'package:melegna_customer/presentation/ui/business/small_screen_business_details.dart';
+import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 
 class BusinessDetailsPage extends StatefulWidget {
   static const routeName = '/business/:id';
   static const idQueryParameter = 'id';
-  BusinessDetailsViewModel? businessViewmodel;
+   BusinessDetailsViewModel? businessViewmodel;
   final String businessId;
   final String? businessName;
-  BusinessDetailsPage({super.key, required this.businessId, this.businessName, this.businessViewmodel}) {
+   BusinessDetailsPage({super.key, required this.businessId, this.businessName, this.businessViewmodel}) {
     businessViewmodel ??= Get.put(getIt<BusinessDetailsViewModel>());
   }
 
@@ -24,7 +24,7 @@ class BusinessDetailsPage extends StatefulWidget {
 class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   void initializeViewmodel() {
     Future.delayed(Duration.zero, () {
-      widget.businessViewmodel!.initViewmodel();
+      widget.businessViewmodel!.initViewmodel(data : {'id' : widget.businessId});
     });
   }
 
@@ -39,7 +39,6 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(
-      
         () => PageContentLoader(
           isLoading: widget.businessViewmodel!.isLoading.value,
           hasError: widget.businessViewmodel!.exception.value?.isMainError ?? false,

@@ -1,4 +1,4 @@
 mixin class BaseViewmodel {
-  void initViewmodel() {}
+  void initViewmodel({Map<String, dynamic>? data}) {}
   void dispose() {}
 }
