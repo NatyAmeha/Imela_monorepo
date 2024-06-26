@@ -2,7 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:melegna_customer/domain/branch/inventory_location.model.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/product/model/product_bundle.model.dart';
+import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
 import 'package:melegna_customer/domain/shared/address.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 

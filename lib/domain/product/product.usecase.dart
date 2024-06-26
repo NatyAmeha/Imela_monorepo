@@ -1,7 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/product_response.dart';
 import 'package:melegna_customer/domain/product/repo/product.repository.dart';
-import 'package:melegna_customer/services/logger/logger.service.dart';
 
 @injectable
 class ProductUsecase {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ferry/ferry.dart';
 import 'package:injectable/injectable.dart';
+import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
 import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
 import 'package:melegna_customer/services/logger/log.model.dart';
 import 'package:melegna_customer/services/logger/logger.service.dart';
@@ -49,12 +50,19 @@ class GraphqlDatasource implements IGraphQLDataSource {
 
   @override
   Future<T?> query<T>(OperationRequest<dynamic, dynamic> request, {String? type,  bool isMainError = false}) async {
-    var response = await graphQlClient.request(request).first;
-    if (response.hasErrors) {
-      _loggerService.log(LogData(source: "Class name", message: 'Graphql error: ${jsonEncode(response.graphqlErrors)}', logLevel: LogLevel.ERROR));
-      throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
+    try {
+      var response = await graphQlClient.request(request).first;
+      if (response.hasErrors) {
+        print("graphql errors ${response.graphqlErrors.toString()}");
+        _loggerService.log(LogData(source: "Class name", message: 'Graphql error: ${response.graphqlErrors.toString()}', logLevel: LogLevel.ERROR));
+        throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
+      }
+      _loggerService.log(LogData(source: "Class Name", message: 'Graphql response: ${jsonEncode(response.data)}', logLevel: LogLevel.INFO));
+      return response.data as T?;
+    } catch (e) {
+      print("graphql exception $e");
+      // _loggerService.log(LogData(source: "Class name", message: 'Graphql error: ${jsonEncode(response.graphqlErrors)}', logLevel: LogLevel.ERROR));
+      throw AppException(exception: e , type: type, isMainError: isMainError);
     }
-    _loggerService.log(LogData(source:  "Class Name", message: 'Graphql response: ${jsonEncode(response.data)}', logLevel: LogLevel.INFO));
-    return response.data as T?;
   }
 }

@@ -10,7 +10,6 @@ part 'product_bundle.model.freezed.dart';
 part 'product_bundle.model.g.dart';
 
 @freezed
-// @JsonSerializable(explicitToJson: true)
 class ProductBundle with _$ProductBundle {
   const factory ProductBundle({
     String? id,

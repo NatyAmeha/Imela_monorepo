@@ -18,18 +18,17 @@ class GraphQLConfig {
         return Future.value(_ferryGraphQlClient);
       }
       await Hive.initFlutter();
-      final box = await Hive.openBox<Map<String, dynamic>>('graphql_cache');
-      const cacheDuration = Duration(minutes: 1); // Set your desired cache duration
-      final store = CacheConfigurator(box, cacheDuration);
+      final box = await Hive.openBox('graphql_cache_store');
+      final cacheDuration = const Duration(minutes: 1); // Set your desired cache duration
+      final store = ExpiringStore(box, cacheDuration);
+      // final store = HiveStore(box);
       final cache = Cache(store: store);
       final link = HttpLink('http://192.168.12.134:3000/graphql');
-      final timeoutLink = TimeoutLink(
-          const Duration(seconds: 10), // Set the timeout duration here
-          link);
+      final timeoutLink = TimeoutLink(const Duration(seconds: 10), link);
       _ferryGraphQlClient = Client(link: timeoutLink, cache: cache);
       return _ferryGraphQlClient!;
     } catch (e) {
-      print("graphql exception ${e.toString()}");
+      print("graph exception ${e.toString()}");
       return Future.error('error initializing graphql client');
     }
   }

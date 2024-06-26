@@ -7,13 +7,13 @@ query GetProductDetails($id : String!){
       name {
         key
         value
-      }
+      } 
       description {
         key
         value
       }
       gallery {
-        images {
+        images { 
           featured
           url
         }

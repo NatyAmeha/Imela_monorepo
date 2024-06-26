@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../discount.model.freezed.dart';
-part '../discount.model.g.dart';
+part 'discount.model.freezed.dart';
+part 'discount.model.g.dart';
 
 @freezed
 // @JsonSerializable(explicitToJson: true)

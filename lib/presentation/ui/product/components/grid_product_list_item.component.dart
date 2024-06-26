@@ -56,7 +56,7 @@ class GridProductListItem extends StatelessWidget {
               children: [
                 widgetFactory.createIcon(materialIcon: Icons.keyboard_option_key, size: 16),
                 const SizedBox(width: 2),
-                widgetFactory.createText(context, '5 Options', style: Theme.of(context).textTheme.bodySmall),
+                widgetFactory.createText(context, '${product.getOptionCount()} options', style: Theme.of(context).textTheme.bodySmall),
                 
               ],
             ),

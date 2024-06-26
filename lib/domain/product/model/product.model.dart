@@ -2,15 +2,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:melegna_customer/domain/branch/branch.model.dart';
 import 'package:melegna_customer/domain/branch/inventory.model.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
+import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 
-part '../product.model.freezed.dart';
-part '../product.model.g.dart';
+part 'product.model.freezed.dart';
+part 'product.model.g.dart';
 
 @freezed
 class Product with _$Product {
-  const Product._();
+  const Product._(); 
   const factory Product({
     String? id,
     List<LocalizedField>? name,
@@ -30,7 +31,7 @@ class Product with _$Product {
     DateTime? updatedAt,
     bool? canOrderOnline,
     List<String>? reviewTopics,
-   String? sku,
+    String? sku,
     List<ProductOption>? options,
     List<String>? optionsIncluded,
     List<String>? variantsId,
@@ -41,12 +42,21 @@ class Product with _$Product {
     List<String>? branchIds,
     String? deliveryInfoId,
     List<Branch>? branches,
+    List<ProductAddon>? addons,
   }) = _Product;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
 
   String? getLocalizedProductName(String locale) {
     return name?.getLocalizedValue(locale);
+  }
+
+  String getImageUrl() {
+    return gallery?.getImages().firstOrNull ?? '';
+  }
+
+  int getOptionCount() {
+    return variants?.length ?? 0;
   }
 }
 
@@ -55,14 +65,9 @@ class ProductOption with _$ProductOption {
   const factory ProductOption({
     String? key,
     List<String>? value,
-    
   }) = _ProductOption;
 
   factory ProductOption.fromJson(Map<String, dynamic> json) => _$ProductOptionFromJson(json);
-
 }
 
-enum CallToAction{
-  Order, Call, Book, Reserve
-}
-
+enum CallToAction { Order, Call, Book, Reserve }

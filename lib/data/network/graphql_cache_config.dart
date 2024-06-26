@@ -1,11 +1,11 @@
 import 'package:ferry_cache/ferry_cache.dart';
 import 'package:hive/hive.dart';
 
-class CacheConfigurator extends Store {
-  final Box<Map<String, dynamic>> _box;
+class ExpiringStore extends Store {
+  final Box _box;
   final Duration cacheDuration;
 
-  CacheConfigurator(this._box, this.cacheDuration);
+  ExpiringStore(this._box, this.cacheDuration);
 
   @override
   Map<String, dynamic>? get(String key) {

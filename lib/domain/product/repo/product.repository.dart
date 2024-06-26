@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql/product/__generated__/product_queries.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/product/__generated__/product_queries.req.gql.dart';
+import 'package:melegna_customer/data/network/graphql/product/__generated__/product_detail_queries.data.gql.dart';
+import 'package:melegna_customer/data/network/graphql/product/__generated__/product_detail_queries.req.gql.dart';
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/data/network/product_response.dart';
 
@@ -9,14 +9,14 @@ abstract class IProductRepository {
 }
 
 @Injectable(as: IProductRepository)
-@Named(ProductRepository.injectName)
+@Named(ProductRepository.injectName) 
 class ProductRepository implements IProductRepository {
   static const injectName = 'PRODUCT_REPOSITORY_INJECTION';
   final IGraphQLDataSource _graphQLDataSource;
 
   const ProductRepository(@Named(GraphqlDatasource.injectName) this._graphQLDataSource);
   @override
-  Future<ProductResponse?> getProductDetails(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
+  Future<ProductResponse?> getProductDetails(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     final request = GGetProductDetailsReq(
       (b) => b
         ..vars.id = id
@@ -29,7 +29,7 @@ class ProductRepository implements IProductRepository {
     return ProductResponse.fromJson(result.getProductDetail.toJson());
   }
 
-
+ 
   // request type cosntants
   static const  String GET_PRODUCT_DETAILS = 'GET_PRODUCT_DETAILS';
 }
