@@ -29,8 +29,39 @@ query GetProductDetails($id : String!){
         key
         value
       }
+      mainProduct
       optionsIncluded
-      variants {
+      
+      callToAction
+      branchIds
+      
+      business {
+        name {
+          key
+          value
+        }
+      }
+      addons {
+        id
+        name {
+          key
+          value
+        }
+        minQty
+        maxQty
+        tag
+        isActive 
+        isRequired
+        isProduct
+        productId
+        additionalPrice{
+          id
+          amount
+          currency
+        }
+      }
+    }
+    variants {
         id
         name {
           key
@@ -42,8 +73,8 @@ query GetProductDetails($id : String!){
           }
         }
         minimumOrderQty
-      }
-      inventory{
+    } 
+    inventories{
         qty
         unit
         minOrderQty
@@ -51,15 +82,5 @@ query GetProductDetails($id : String!){
         isAvailable
         optionsIncluded
       }
-      callToAction
-      branchIds
-      
-      business {
-        name {
-          key
-          value
-        }
-      }
-    }
-  }
+  } 
 }

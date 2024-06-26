@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:gql_exec/gql_exec.dart';
 import 'package:gql_http_link/gql_http_link.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:melegna_customer/data/network/graphql_cache_config.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -17,8 +18,9 @@ class GraphQLConfig {
         return Future.value(_ferryGraphQlClient);
       }
       await Hive.initFlutter();
-      final box = await Hive.openBox('graphql');
-      final store = HiveStore(box);
+      final box = await Hive.openBox<Map<String, dynamic>>('graphql_cache');
+      const cacheDuration = Duration(minutes: 1); // Set your desired cache duration
+      final store = CacheConfigurator(box, cacheDuration);
       final cache = Cache(store: store);
       final link = HttpLink('http://192.168.12.134:3000/graphql');
       final timeoutLink = TimeoutLink(

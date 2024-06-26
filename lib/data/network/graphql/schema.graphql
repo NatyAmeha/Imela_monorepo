@@ -101,6 +101,7 @@ type Business {
   mainAddress: Address!
   name: [LocalizedField!]!
   openingStatus: OpeningStatus!
+  paymentOptions: [PaymentOption!]
   phoneNumber: String!
   productIds: [String!]
   products: [Product!]!
@@ -179,6 +180,7 @@ input CreateBusinessInput {
   gallery: GalleryInput!
   mainAddress: AddressInput!
   name: [LocalizedFieldInput!]!
+  paymentOptions: [CreatePaymentOptionInput!]
   phoneNumber: String!
   website: String
 }
@@ -202,6 +204,24 @@ input CreateInventoryLocationInput {
   location: String!
   name: String!
   phoneNumber: String!
+}
+
+input CreatePaymentOptionInput {
+  dueDate: DateTime
+  name: [LocalizedFieldInput!]!
+  type: String!
+  upfrontPayment: Float
+}
+
+input CreateProductAddonInput {
+  additionalPrice: [PriceInput!]
+  isProduct: Boolean
+  isRequired: Boolean
+  maxQty: Float
+  minQty: Float
+  name: [LocalizedFieldInput!]!
+  productId: String
+  tag: [String!]
 }
 
 input CreateProductInput {
@@ -238,6 +258,11 @@ input CreateStaffInput {
 }
 
 enum Currency {
+  ETB
+  USD
+}
+
+enum CurrencyKey {
   ETB
   USD
 }
@@ -394,6 +419,7 @@ type Mutation {
 
   """returns the updated bundle inside bundle field of the response object"""
   addProductToBundle(bundleId: String!, businessId: String!, productIds: [String!]!): BundleResponse!
+  assignPaymentOptionToProduct(businessId: String!, paymentOptionId: [String!]!, productId: String!): ProductResponse!
   assignStaffToBranch(branchId: String!, staffId: String!): StaffResponse!
   assignStaffToBusiness(businessId: String!, staffId: String!): StaffResponse!
   createBranch(branchInfo: CreateBranchInput!, businessId: String!): BusinessResponse!
@@ -413,14 +439,25 @@ type Mutation {
   """
   createInventoryLocationForBranch(branchId: String!, businessId: String!, locationData: CreateInventoryLocationInput!): InventoryResponse!
   createNewInventoryOnInventoryLocation(businessId: String!, inventoryData: CreateInventoryInput!, productId: String!): InventoryResponse!
+
+  """
+  Return a boolean value to indicate if the product addon is created successfully or not
+  """
+  createProductAddon(businessId: String!, input: [CreateProductAddonInput!]!, productId: String!): ProductResponse!
   createStaff(staffInput: CreateStaffInput!): StaffResponse!
   deleteBranch(branchId: String!, businessId: String!): BranchResponse!
+
+  """
+  Return a boolean value to indicate if the product addon is deleted successfully or not
+  """
+  deleteProductAddon(addonId: String!, businessId: String!, productId: String!): ProductResponse!
   deleteProductBundle(bundleId: String!, businessId: String!): BundleResponse!
   getBusinessProducts(businessId: String!, limit: Float, page: Float): ProductResponse!
 
   """returns the updated bundle inside bundle field of the response object"""
   removeBundleFromBranch(branchIds: [String!]!, bundleId: String!, businessId: String!): BundleResponse!
   removeBusinessSection(businessId: String!, sectionsId: [String!]!): BaseResponse!
+  removePaymentOptionFromProduct(businessId: String!, paymentOptionId: [String!]!, productId: String!): ProductResponse!
   removeProductFromBranch(branchIds: [String!]!, businessId: String!, productIds: [String!]!): ProductResponse!
 
   """returns the updated bundle inside bundle field of the response object"""
@@ -434,6 +471,11 @@ type Mutation {
   updateBusinessInfo(businessId: String!, data: UpdateBusinessInput!): BusinessResponse!
   updateBusinessProductInfo(businessId: String!, product: UpdateProductInput!, productId: String!): ProductResponse!
   updateInventoryLocation(inventoryLocationInfo: UpdateInventoryLocationInput!, locationId: String!): InventoryResponse!
+
+  """
+  Add addon id alognside with new addon info to update the product addon. return boolean value to indicate if the product addon is updated successfully
+  """
+  updateProductAddons(businessId: String!, input: [UpdateProductAddonInput!]!, productId: String!): ProductResponse!
   updateProductInventoryInformations(businessId: String!, inventoryInfos: [UpdateInventoryInput!]!, productId: String!): InventoryResponse!
   verifyBusinessRegistration(businessId: String!): BusinessResponse!
 }
@@ -442,6 +484,23 @@ enum OpeningStatus {
   CLOSED
   OPEN
   TEMPORARILY_CLOSED
+}
+
+type PaymentOption {
+  createdAt: DateTime
+  dueDate: DateTime
+  id: String
+  name: [LocalizedField!]!
+  type: PaymentOptionType!
+  updatedAt: DateTime
+  upfrontPayment: Float
+}
+
+enum PaymentOptionType {
+  DEPOSIT
+  FULL_PAYMENT
+  INSTALLMENT
+  PAY_LATER
 }
 
 type Permission {
@@ -468,6 +527,12 @@ enum PermissionType {
   PLATFORM_SERVICE_CUSTOMIZATION_PERMISSION
 }
 
+type Price {
+  amount: Float!
+  currency: CurrencyKey!
+  id: ID
+}
+
 type PriceInfo {
   amount: Float!
   currency: Currency!
@@ -478,7 +543,14 @@ input PriceInfoInput {
   currency: Currency! = ETB
 }
 
+input PriceInput {
+  amount: Float!
+  currency: CurrencyKey! = ETB
+  id: ID
+}
+
 type Product {
+  addons: [ProductAddon!]
   branchIds: [String!]
   branches: [Branch!]
   business: Business!
@@ -500,6 +572,7 @@ type Product {
   name: [LocalizedField!]!
   options: [Productoption!]!
   optionsIncluded: [String!]!
+  paymentOptionsId: [String!]
   reviewTopics: [String!]
   sectionId: [String!]
   sku: String!
@@ -508,6 +581,21 @@ type Product {
   updatedAt: DateTime
   variants: [Product!]
   variantsId: [String!]
+}
+
+type ProductAddon {
+  additionalPrice: [Price!]!
+  createdAt: DateTime
+  id: ID!
+  isActive: Boolean!
+  isProduct: Boolean!
+  isRequired: Boolean!
+  maxQty: Float!
+  minQty: Float!
+  name: [LocalizedField!]!
+  productId: String
+  tag: [String!]
+  updatedAt: DateTime
 }
 
 type ProductBundle {
@@ -555,6 +643,7 @@ enum ProductType {
 }
 
 enum ProductUnitType {
+  KG
   Kg
   Litre
   Unit
@@ -629,6 +718,7 @@ input UpdateBusinessInput {
   gallery: GalleryInput
   mainAddress: AddressInput
   name: [LocalizedFieldInput!]
+  paymentOptions: [CreatePaymentOptionInput!]
   phoneNumber: String
   website: String
 }
@@ -649,6 +739,18 @@ input UpdateInventoryLocationInput {
   location: String
   name: String
   phoneNumber: String
+}
+
+input UpdateProductAddonInput {
+  additionalPrice: [PriceInput!]
+  id: ID!
+  isProduct: Boolean
+  isRequired: Boolean
+  maxQty: Float
+  minQty: Float
+  name: [LocalizedFieldInput!]
+  productId: String
+  tag: [String!]
 }
 
 input UpdateProductInput {
