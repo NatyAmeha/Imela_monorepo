@@ -7,8 +7,10 @@ import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/business/model/business.section.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:melegna_customer/presentation/ui/product/product_list/product_list_page.dart';
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:melegna_customer/presentation/ui/shared/list/list_display_style.constants.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 import 'package:melegna_customer/services/routing_service.dart';
@@ -18,9 +20,10 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   final BusinessUsecase businessUsecase;
   final IExceptiionHandler exceptiionHandler;
   final IRoutingService router;
-  BusinessDetailsViewModel({required this.businessUsecase, 
-  @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
-  @Named(GoRouterService.injectName) required this.router,
+  BusinessDetailsViewModel({
+    required this.businessUsecase,
+    @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
+    @Named(GoRouterService.injectName) required this.router,
   });
   // page state variables
   var isLoading = false.obs;
@@ -52,9 +55,9 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   List<String> get categories => businessDetails.value?.business?.categories ?? [];
 
   // widget controllers
-  final productListController = Get.put(CustomListController<Product>());
+  final productListController = Get.put(CustomListController<Product>(), tag: "AllProducts");
   late TabController businessSectionTabControllers;
-  ScrollController businessHeaderScrollController = ScrollController();
+  late ScrollController businessHeaderScrollController ;
 
   void assignTabController(int length, TickerProvider vsync) {
     businessSectionTabControllers = TabController(length: length, vsync: vsync);
@@ -62,6 +65,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
+    businessHeaderScrollController = ScrollController(); 
     super.initViewmodel(data: data);
     final businessId = data!['id'] as String;
     getbusinessDetails(businessId);
@@ -81,7 +85,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     try {
       isLoading(true);
       final result = await businessUsecase.getBusinessDetails(id);
-      if(result == null){
+      if (result == null) {
         exception(AppException(message: 'Business not found'));
       }
       businessDetails.value = result;
@@ -93,17 +97,30 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     }
   }
 
+  navigateToFeaturedProductListPage(BuildContext context) {
+    router.navigateTo(context, '${ProductListPage.baseRouteName}/featured', extra: {'title': 'Featured products', 'products': businessDetails.value?.products, 'displayStyle': ListDisplayStyle.List});
+  }
 
   // Widget helpers
-  List<Widget> getBusinessSectionTabs(){
+  List<Widget> getBusinessSectionTabs() {
     return businessSectionsWithProductListController.keys.map((e) => Tab(text: e)).toList();
   }
 
-
   // navigation helpers
   void navigateToProductDetails(BuildContext context, Product productInfo) {
-    router.navigateTo(context, '/product/${productInfo.id!}', extra:  {'name': productInfo.name?.getLocalizedValue(AppLanguage.ENGLISH.name)});
+    router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.getLocalizedValue(AppLanguage.ENGLISH.name)});
   }
 
-  
+
+  @override
+  void dispose() {
+    businessHeaderScrollController.dispose();
+    productListController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }

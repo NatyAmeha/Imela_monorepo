@@ -97,6 +97,13 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
     );
   }
 
+  @override
+  void dispose() {
+    print("business details dispose");
+    widget.businessDetailsViewmodel.dispose();
+    super.dispose();
+  } 
+
   Widget buildBusinessOverview( WidgetFactory widgetFactory) {
     return SingleChildScrollView(
       primary: true,
@@ -123,7 +130,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
           ),
           const SizedBox(height: 16),
           AppGridView(
-            height: 800,
+            height: 2800,
             controller: widget.businessDetailsViewmodel.productListController,
             crossAxisCount: 2,
             crossAxisSpacing: 8,
@@ -134,7 +141,9 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               title: 'Featured Products',
               subtitle: 'View all fetured products from this business',
               trailing: appWidgetFactory.createIcon(materialIcon: Icons.arrow_forward_ios, color: Theme.of(context).primaryColor, backgroundColor: Theme.of(context).colorScheme.primaryContainer, padding: const EdgeInsets.all(8)),
-              onActionClicked: () {},
+              onActionClicked: () {
+                widget.businessDetailsViewmodel.navigateToFeaturedProductListPage(context);
+              },
             ),
             itemBuilder: (context, productData, index) {
               return GridProductListItem(product: productData, imageHeight: 150, imageWidth: double.infinity, widgetFactory: widgetFactory, onTap: () {
