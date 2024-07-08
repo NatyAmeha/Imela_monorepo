@@ -19,7 +19,7 @@ class BusinessRepository implements IBusinessrepository {
 
   const BusinessRepository(@Named( GraphqlDatasource.injectName) this._graphQLDataSource);
   @override
-  Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork}) async {
+  Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
     final request = GGetBusinessDetailsReq(
       (b) => b
         ..vars.id = id

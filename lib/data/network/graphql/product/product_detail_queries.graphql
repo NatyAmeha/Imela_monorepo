@@ -1,21 +1,42 @@
 query GetProductDetails($id : String!){
-    getProductDetail(productId: $id) {
+   getProductDetail(productId: $id) {
     success
     message
     product {
       id
+      # totalViews
       name {
         key
         value
-      } 
+      }
       description {
         key
         value
       }
       gallery {
-        images { 
+        images {
           featured
           url
+        }
+      }
+      addons {
+        id
+        name {
+          key
+          value
+        }
+        inputType
+        minAmount
+        maxAmount
+        tag
+        isActive
+        isRequired
+        isProduct
+        productIds
+        additionalPrice {
+          id
+          amount
+          currency
         }
       }
       tag
@@ -29,39 +50,8 @@ query GetProductDetails($id : String!){
         key
         value
       }
-      mainProduct
       optionsIncluded
-      
-      callToAction
-      branchIds
-      
-      business {
-        name {
-          key
-          value
-        }
-      }
-      addons {
-        id
-        name {
-          key
-          value
-        }
-        minQty
-        maxQty
-        tag
-        isActive 
-        isRequired
-        isProduct
-        productId
-        additionalPrice{
-          id
-          amount
-          currency
-        }
-      }
-    }
-    variants {
+      variants {
         id
         name {
           key
@@ -73,8 +63,8 @@ query GetProductDetails($id : String!){
           }
         }
         minimumOrderQty
-    } 
-    inventories{
+      }
+      inventory {
         qty
         unit
         minOrderQty
@@ -82,5 +72,16 @@ query GetProductDetails($id : String!){
         isAvailable
         optionsIncluded
       }
-  } 
+      callToAction
+      branchIds
+
+      business {
+        name {
+          key
+          value
+        }
+      }
+    }
+  }
+  
 }

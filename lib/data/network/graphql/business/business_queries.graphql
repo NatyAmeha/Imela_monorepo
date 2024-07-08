@@ -4,6 +4,7 @@ query GetBusinessDetails($id: String!) {
     message
     business {
       id
+      totalViews
       name {
         key
         value
@@ -27,6 +28,7 @@ query GetBusinessDetails($id: String!) {
           featured
           url
         }
+        
       }
       sections{
         id
@@ -43,16 +45,6 @@ query GetBusinessDetails($id: String!) {
         key
         value
       }
-      gallery{
-        images{
-          featured
-          url
-        }
-        videos{
-          featured
-          url
-        }
-      }
     }
     branches {
       id
@@ -60,5 +52,15 @@ query GetBusinessDetails($id: String!) {
         value
       }
     }
+    memberships{
+      id
+      name{
+        key
+        value
+      }
+      membersProductIds
+      groupsId
+    }
+    
   }
 }

@@ -11,7 +11,7 @@ part 'product.model.g.dart';
 
 @freezed
 class Product with _$Product {
-  const Product._(); 
+  const Product._();
   const factory Product({
     String? id,
     List<LocalizedField>? name,
@@ -43,6 +43,7 @@ class Product with _$Product {
     String? deliveryInfoId,
     List<Branch>? branches,
     List<ProductAddon>? addons,
+    int? totalViews,
   }) = _Product;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);

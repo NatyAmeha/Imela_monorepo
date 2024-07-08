@@ -53,7 +53,7 @@ class GraphqlDatasource implements IGraphQLDataSource {
     try {
       var response = await graphQlClient.request(request).first;
       if (response.hasErrors) {
-        print("graphql errors ${response.graphqlErrors.toString()}");
+        print("graphql errors ${response.graphqlErrors.toString()} ${response.linkException.toString()}");
         _loggerService.log(LogData(source: "Class name", message: 'Graphql error: ${response.graphqlErrors.toString()}', logLevel: LogLevel.ERROR));
         throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
       }

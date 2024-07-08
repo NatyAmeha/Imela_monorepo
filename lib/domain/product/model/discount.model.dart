@@ -7,9 +7,9 @@ part 'discount.model.g.dart';
 // @JsonSerializable(explicitToJson: true)
 class Discount with _$Discount {
   factory Discount({
-    required DiscountType type,
+    required String type,
     required double value,
-    @Default(DiscountCondition.NONE) DiscountCondition condition,
+    @Default('NONE') String condition,
     double? conditionValue,
   }) = _Discount;
 
