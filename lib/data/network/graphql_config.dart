@@ -23,7 +23,7 @@ class GraphQLConfig {
       final store = ExpiringStore(box, cacheDuration);
       // final store = HiveStore(box);
       final cache = Cache(store: store);
-      final link = HttpLink('http://192.168.12.134:3000/graphql');
+      final link = HttpLink('http://192.168.10.134:3000/graphql');
       final timeoutLink = TimeoutLink(const Duration(seconds: 10), link);
       _ferryGraphQlClient = Client(link: timeoutLink, cache: cache);
       return _ferryGraphQlClient!;

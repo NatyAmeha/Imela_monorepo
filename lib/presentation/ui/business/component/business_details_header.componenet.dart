@@ -36,7 +36,7 @@ class BusinessDetailsHeader extends StatelessWidget {
               alignment: const AlignmentDirectional(0, 1),
               child: Container(
                 height: 100,
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 color: Colors.black38,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
