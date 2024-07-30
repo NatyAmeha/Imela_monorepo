@@ -1,7 +1,7 @@
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -80,9 +80,11 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color}) {
-    // TODO: implement createText
-    throw UnimplementedError();
+  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color, bool enableResize = false}) {
+    return Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: enableResize ? AutoSizeText(text, style: style?.copyWith(color: color), textAlign: textAlign, maxLines: maxLines, overflow: overflow, minFontSize: 10) : Text(text, style: style?.copyWith(color: color), textAlign: textAlign, maxLines: maxLines, overflow: overflow),
+    );
   }
 
   @override

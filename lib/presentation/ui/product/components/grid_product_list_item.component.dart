@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
+import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 
 class GridProductListItem extends StatelessWidget {
   final Product product;
@@ -14,10 +16,12 @@ class GridProductListItem extends StatelessWidget {
   final Function()? onTap;
   const GridProductListItem({super.key, required this.product, required this.widgetFactory, this.imageHeight, this.imageWidth = double.infinity, this.onTap});
 
+  String get productOptionValue => product.getProductOptionInfo();
+
   @override
   Widget build(BuildContext context) {
     return widgetFactory.createCard(
-        border:  Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
+        border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
         borderRadius: BorderRadius.circular(8),
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -28,7 +32,7 @@ class GridProductListItem extends StatelessWidget {
             const SizedBox(height: 4),
             widgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.titleSmall, maxLines: 3, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 8),
-            widgetFactory.createText(context, '5400 Birr', style: Theme.of(context).textTheme.bodySmall,textDecoration: TextDecoration.lineThrough),
+            widgetFactory.createText(context, '5400 Birr', style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
             widgetFactory.createText(context, '5000 Birr', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Row(
@@ -50,28 +54,27 @@ class GridProductListItem extends StatelessWidget {
                 widgetFactory.createText(context, '12 Unit', style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 widgetFactory.createIcon(materialIcon: Icons.keyboard_option_key, size: 16),
                 const SizedBox(width: 2),
-                widgetFactory.createText(context, '${product.getOptionCount()} options', style: Theme.of(context).textTheme.bodySmall),
-                
+                widgetFactory.createText(context, productOptionValue, style: Theme.of(context).textTheme.bodySmall),
               ],
-            ),
-            const SizedBox(height: 4),
+            ).showIf(productOptionValue.isNotEmpty),
+            const SizedBox(height: 6),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 widgetFactory.createIcon(materialIcon: Icons.business, size: 16),
-                const SizedBox(width: 2),
-                widgetFactory.createText(context, 'Business Name', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(width: 4),
+                widgetFactory.createText(context, '${product.business?.name.localize()}', style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ],
         ),
-        onTap: (){
+        onTap: () {
           onTap?.call();
         });
   }

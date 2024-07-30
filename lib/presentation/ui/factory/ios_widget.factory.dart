@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/presentation/ui/factory/base_widget.factory.dart';
@@ -162,18 +163,10 @@ class IosWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color}) {
-    final defaultTextStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    return Padding(
-      padding: padding ?? EdgeInsets.zero,
-      child: Text(
-        text,
-        style: style?.copyWith(color: color) ?? defaultTextStyle.copyWith(color: color),
-        textAlign: textAlign,
-        maxLines: maxLines,
-        overflow: overflow,
-      ),
-    );
+  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color, bool enableResize = false}) {
+    final defaultTextStyle = CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: color);
+    return super.createText(context, text, style: style ?? defaultTextStyle, textDecoration: textDecoration, padding: padding, textAlign: textAlign, overflow: overflow, maxLines: maxLines, color: color, enableResize: enableResize);
+    
   }
 
   // Dialog related widgets

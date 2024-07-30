@@ -5,6 +5,7 @@ import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 
 class VerticalProductListItem extends StatelessWidget {
   final Product product;
@@ -22,6 +23,9 @@ class VerticalProductListItem extends StatelessWidget {
     this.selectedLanguage = AppLanguage.ENGLISH,
     this.onTap,
   });
+
+    String get productOptionValue => product.getProductOptionInfo();
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +68,9 @@ class VerticalProductListItem extends StatelessWidget {
                   children: [
                     widgetFactory.createIcon(materialIcon: Icons.keyboard_option_key, size: 16),
                     const SizedBox(width: 2),
-                    widgetFactory.createText(context, '${product.getOptionCount()} options', style: Theme.of(context).textTheme.bodySmall),
+                    widgetFactory.createText(context, productOptionValue, style: Theme.of(context).textTheme.bodySmall),
                   ],
-                ),
+                ).showIf(productOptionValue.isNotEmpty),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisSize: MainAxisSize.min,

@@ -19,15 +19,15 @@ class ProductAddonListItem extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                widgetFactory.createText(context, "${addon.name.getLocalizedValue(locale.name)}", style: Theme.of(context).textTheme.bodyMedium),
-                if (addon.description != null) widgetFactory.createText(context, "${addon.description.getLocalizedValue(locale.name)}" * 3, style: Theme.of(context).textTheme.labelSmall),
+                widgetFactory.createText(context, addon.name.localize(), style: Theme.of(context).textTheme.bodyMedium),
+                if (addon.description != null) widgetFactory.createText(context, addon.description.localize() * 3, style: Theme.of(context).textTheme.labelSmall),
               ],
             ),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              widgetFactory.createText(context, "40 Birr", style: Theme.of(context).textTheme.titleMedium),
+              widgetFactory.createText(context, '40 Birr', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               QuantityModifierComponent(
                   currentQty: addon.minQty,

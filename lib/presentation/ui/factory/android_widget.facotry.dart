@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/presentation/ui/factory/base_widget.factory.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -20,7 +21,7 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
               },
       );
     }
-    return OutlinedButton(
+    return FilledButton(
       key: _key,
       style: style,
       onPressed: (onPressed == null || isLoading)
@@ -39,7 +40,7 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow,  Border? border, Function()? onTap}) {
+  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, Border? border, Function()? onTap}) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -47,7 +48,6 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
         margin: margin,
         width: width,
         height: height,
-        
         decoration: BoxDecoration(color: color, border: border, borderRadius: borderRadius ?? BorderRadius.circular(8.0), boxShadow: boxShadow),
         child: child,
       ),
@@ -200,12 +200,9 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color}) {
+  Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color, bool enableResize = false}) {
     final defaultTextStyle = Theme.of(context).textTheme.bodyMedium;
-    return Padding(
-      padding: padding ?? EdgeInsets.zero,
-      child: Text(text, style: style?.copyWith(color: color, decoration: textDecoration) ?? defaultTextStyle?.copyWith(color: color), textAlign: textAlign, overflow: overflow, maxLines: maxLines),
-    );
+    return super.createText(context, text, style: style ?? defaultTextStyle, textDecoration: textDecoration, padding: padding, textAlign: textAlign, overflow: overflow, maxLines: maxLines, color: color, enableResize: enableResize);
   }
 
   @override
