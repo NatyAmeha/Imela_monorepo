@@ -46,7 +46,7 @@ class Business extends BaseModel with _$Business {
   factory Business.fromJson(Map<String, dynamic> json) => _$BusinessFromJson(json);
 
   String? getLocalizedBusinessName(String locale) {
-    return name?.getLocalizedValue(locale);
+    return name?.localize();
   }
 
 }

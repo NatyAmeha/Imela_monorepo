@@ -5,12 +5,14 @@ import 'package:melegna_customer/domain/product/model/discount.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 
 part 'product_bundle.model.freezed.dart';
 part 'product_bundle.model.g.dart';
 
 @freezed
 class ProductBundle with _$ProductBundle {
+  const ProductBundle._();
   const factory ProductBundle({
     String? id,
     List<LocalizedField>? name,
@@ -30,6 +32,18 @@ class ProductBundle with _$ProductBundle {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _ProductBundle;
-  
-factory ProductBundle.fromJson(Map<String, dynamic> json) => _$ProductBundleFromJson(json);
+
+  factory ProductBundle.fromJson(Map<String, dynamic> json) => _$ProductBundleFromJson(json);
+
+  String getBundleName(AppLanguage selectedLanguage){
+    return name.localize();
+  }
+
+  String getBundleProducts() {
+    return '${productIds?.length} products';
+  }
+
+  List<String?> getBundleProductImages() {
+    return products!.map((e) => e.gallery!.getImage()).toList();
+  }
 }

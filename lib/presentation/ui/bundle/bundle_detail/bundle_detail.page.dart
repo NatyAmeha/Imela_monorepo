@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/injection.dart';
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
@@ -7,7 +8,7 @@ import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/small_bund
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:melegna_customer/services/routing_service.dart';
 
 class BundleDetailPage extends StatefulWidget {
   // routing constants
@@ -24,6 +25,10 @@ class BundleDetailPage extends StatefulWidget {
 
   @override
   State<BundleDetailPage> createState() => _BundleDetailPageState();
+
+  static void navigateToBundleDetailPage(BuildContext context, IRoutingService router, ProductBundle bundle, {Widget? previousPage}) {
+    router.navigateTo(context, '${BundleDetailPage.baseRouteName}/${bundle.id}', extra: {'name': '${bundle.name?.localize()}', GoRouterService.PREVIOUS_PAGE_KEY: previousPage});
+  }
 }
 
 class _BundleDetailPageState extends State<BundleDetailPage> {
@@ -31,13 +36,14 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
 
   void initViewmodel() {
     Future.delayed(Duration.zero, () {
-      viewmodel.initViewmodel(data: {"id": widget.id});
+      viewmodel.initViewmodel(data: {'id': widget.id});
     });
   }
 
   @override
   void initState() {
     super.initState();
+    print("bundle detail page called");
     initViewmodel();
   }
 
@@ -53,10 +59,17 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
           isLoading: viewmodel.isLoading.value,
           showContent: viewmodel.bundle != null,
           content: ResponsiveWrapper(
-            smallScreen: SmallBundleDetailScreen(viewmodel: viewmodel, widgetFactory: appWidgetFactory),
+            smallScreen: SmallBundleDetailScreen(viewmodel: viewmodel, widgetFactory: appWidgetFactory, scaffoldScreen: widget),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    print("bundle detail dispose");
+    viewmodel.dispose();
+    super.dispose();
   }
 }

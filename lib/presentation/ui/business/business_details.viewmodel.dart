@@ -41,9 +41,9 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   Map<String, CustomListController<Product>> get businessSectionsWithProductListController {
     var sectionsWithProducts = {'Overview': productListController};
     for (var section in sections) {
-      if (section.name.getLocalizedValue(AppLanguage.ENGLISH.name) != null) {
+      if (section.name.localize().isNotEmpty == true) {
         var products = productListController.items.where((element) => section.productIds?.contains(element.id) == true).toList();
-        final sectionName = section.name.getLocalizedValue(AppLanguage.ENGLISH.name)!;
+        final sectionName = section.name.localize();
         var newProductListController = Get.put(CustomListController<Product>(), tag: sectionName);
         newProductListController.addItems(products);
         sectionsWithProducts[sectionName] = newProductListController;
@@ -108,7 +108,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   // navigation helpers
   void navigateToProductDetails(BuildContext context, Product productInfo) {
-    router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.getLocalizedValue(AppLanguage.ENGLISH.name)});
+    router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.localize()});
   }
 
 

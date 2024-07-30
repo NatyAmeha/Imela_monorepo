@@ -5,13 +5,12 @@ import 'package:melegna_customer/presentation/ui/bundle/components/bundle_summar
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 
 class SmallBundleDetailScreen extends StatelessWidget {
   final WidgetFactory widgetFactory;
   final BundleDetailViewmodel viewmodel;
-  final AppLanguage selectedLanguage;
-  const SmallBundleDetailScreen({super.key, required this.widgetFactory, required this.viewmodel, this.selectedLanguage = AppLanguage.ENGLISH});
+  final Widget scaffoldScreen;
+  const SmallBundleDetailScreen({super.key, required this.widgetFactory, required this.viewmodel, required this.scaffoldScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     controller: viewmodel.productListController,
                     itemBuilder: (context, product, index) {
                       return GridProductListItem(product: product, widgetFactory: widgetFactory, imageHeight: 150, onTap: (){
-                        viewmodel.navigateToProductDetailPage(context, product );
+                        viewmodel.navigateToProductDetailPage(context, product, previousPage: scaffoldScreen );
                       },);
                     })
               ],

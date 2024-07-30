@@ -8,17 +8,20 @@ class ExpiringStore extends Store {
   ExpiringStore(this._box, this.cacheDuration);
 
   @override
-  Map<String, dynamic>? get(String key) {
-    final data = _box.get(key);
+  Map<String, dynamic>? get(String dataId) {
+    final data = _box.get(dataId);
     if (data == null) return null;
 
     final cacheTime = DateTime.parse(data['cacheTime'] as String);
     if (DateTime.now().difference(cacheTime) > cacheDuration) {
-      _box.delete(key);
+      _box.delete(dataId);
       return null;
     }
 
-    return data['data'] as Map<String, dynamic>?;
+    final cachedData = data['data'];
+    if (cachedData is! Map<String, dynamic>) return null;
+
+    return cachedData as Map<String, dynamic>?;
   }
 
   @override

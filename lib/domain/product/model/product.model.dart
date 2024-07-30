@@ -49,15 +49,19 @@ class Product with _$Product {
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
 
   String? getLocalizedProductName(String locale) {
-    return name?.getLocalizedValue(locale);
+    return name?.localize();
   }
 
   String getImageUrl() {
     return gallery?.getImages().firstOrNull ?? '';
   }
 
-  int getOptionCount() {
-    return variants?.length ?? 0;
+  String getProductOptionInfo() {
+    final productOptionCount = variants?.length ?? variantsId?.length ?? 0;
+    if(productOptionCount == 0){
+      return '';
+    }
+    return '$productOptionCount options';
   }
 }
 

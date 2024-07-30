@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:melegna_customer/presentation/ui/app_controller.dart';
 part 'localized_field.model.g.dart';
 part 'localized_field.model.freezed.dart';
 
@@ -12,8 +13,8 @@ class LocalizedField with _$LocalizedField {
 }
 
 extension LocalizedFieldExtension on List<LocalizedField>? {
-  String? getLocalizedValue(String selectedLanguage) {
-    if (this == null) return null;
-    return this?.firstWhereOrNull((element) => element.key == selectedLanguage)?.value ?? this?.firstOrNull?.value ?? "";
+  String localize() {
+    if (this == null) return '';
+    return this?.firstWhereOrNull((element) => element.key == AppController.getInstance.selectedLanguage.name)?.value ?? this?.firstOrNull?.value ?? "";
   }
 }

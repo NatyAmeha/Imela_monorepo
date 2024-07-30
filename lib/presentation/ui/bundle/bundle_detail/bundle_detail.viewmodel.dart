@@ -11,7 +11,6 @@ import 'package:melegna_customer/presentation/ui/product/product_details/product
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 import 'package:melegna_customer/services/routing_service.dart';
 
 @injectable
@@ -35,10 +34,11 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   List<Product> get bundleProducts => bundle?.products ?? [];
 
   // widget controllers
-  late final CustomListController<Product> productListController;
+  late  CustomListController<Product> productListController;
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
+    print("bundle detail viewmodel called");
     super.initViewmodel(data: data);
     productListController = Get.put(CustomListController<Product>(), tag: 'bundle_products');
     final bundleId = data!['id'] as String;
@@ -76,7 +76,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     return '${bundleProducts.length} Products';
   }
 
-  String get bundleDescription => bundle?.description?.getLocalizedValue(AppLanguage.ENGLISH.name) ?? '';
+  String get bundleDescription => bundle?.description?.localize() ?? '';
 
   String getProductCount() {
     return bundleProducts.length.toString();
@@ -92,7 +92,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     try {
       isLoading(true);
       bundleResponse.value = await bundleUsecase.getBundleDetails(bundleId);
-      productListController.addItems(bundleProducts);
+      productListController.setItems(bundleProducts);
     } on AppException catch (e) {
       exception.value = e;
     } catch (e) {
@@ -102,8 +102,8 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-  void navigateToProductDetailPage(BuildContext context, Product product) {
-    ProductDetailPage.navigateToProductDetailPage(context, router, product);
+  void navigateToProductDetailPage(BuildContext context, Product product, {Widget? previousPage}) {
+    ProductDetailPage.navigateToProductDetailPage(context, router, product, previousPage: previousPage);
   }
 
   @override

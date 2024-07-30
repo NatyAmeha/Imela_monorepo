@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'gallery.model.freezed.dart';
 part 'gallery.model.g.dart';
@@ -40,5 +41,13 @@ extension GalleryDataExtension on Gallery {
       return images!.where((element) => element.featured == true).map((e) => e.url!).toList();
     }
     return images!.map((e) => e.url!).toList();
+  }
+
+  String? getImage({bool? featured = false}) {
+    if (images?.isEmpty == null) return '';
+    if (featured == true) {
+      return images!.firstWhereOrNull((element) => element.featured == true)?.url;
+    }
+    return images?.firstOrNull?.url;
   }
 }
