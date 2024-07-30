@@ -4,11 +4,11 @@ import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/injection.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:melegna_customer/presentation/ui/product/components/product_detail_loading.dart';
 import 'package:melegna_customer/presentation/ui/product/product_details/product_details.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/product/product_details/small_screen_product_detail.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 import 'package:melegna_customer/services/routing_service.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -22,8 +22,8 @@ class ProductDetailPage extends StatefulWidget {
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 
-   static void navigateToProductDetailPage(BuildContext context, IRoutingService router, Product product) {
-    router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.getLocalizedValue(AppLanguage.ENGLISH.name)}'});
+  static void navigateToProductDetailPage(BuildContext context, IRoutingService router, Product product, {Widget? previousPage}) {
+    router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize()}', GoRouterService.PREVIOUS_PAGE_KEY: previousPage});
   }
 }
 
@@ -38,6 +38,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   void initState() {
+    print("bundle detail product product product detail page called");
     super.initState();
     initializeViewmodel();
   }
@@ -51,6 +52,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           isLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: viewmodel.productDetails.value != null,
+          loadingWidget: const ProductDetailLoadingComponent(),
           content: ResponsiveWrapper(
             smallScreen: SmallScreenProductDetail(viewmodel: viewmodel, widgetFactory: appWidgetFactory),
           ),

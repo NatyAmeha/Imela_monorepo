@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 
-
 class AppListView<T> extends StatelessWidget {
   final Axis scrollDirection;
   final Widget? header;
@@ -12,12 +11,14 @@ class AppListView<T> extends StatelessWidget {
   final double? height;
   final bool shrinkWrap;
   final Widget separator;
+  final bool primary;
+
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry contentPadding;
 
   const AppListView({
     super.key,
-    required this.scrollDirection,
+    this.scrollDirection = Axis.vertical,
     this.header,
     required this.controller,
     required this.itemBuilder,
@@ -25,6 +26,7 @@ class AppListView<T> extends StatelessWidget {
     this.height,
     this.shrinkWrap = false,
     this.separator = const Divider(),
+    this.primary = true,
     this.padding = const EdgeInsets.all(0),
     this.contentPadding = const EdgeInsets.all(0),
   });
@@ -44,6 +46,8 @@ class AppListView<T> extends StatelessWidget {
             child: Obx(
               () => ListView.separated(
                 shrinkWrap: shrinkWrap,
+                primary: primary,
+                physics: !primary ? const NeverScrollableScrollPhysics() : null,
                 scrollDirection: scrollDirection,
                 padding: padding,
                 itemCount: controller.items.length,

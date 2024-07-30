@@ -11,3 +11,11 @@ class Responsive {
     return ScreenSize.large;
   }
 }
+
+class Destination {
+  final String title;
+  final Widget icon;
+  final Widget page;
+
+  const Destination({required this.title, required this.icon, required this.page});
+}

@@ -17,6 +17,7 @@ class AppGridView<T> extends StatelessWidget {
   final double mainAxisSpacing;
   final double crossAxisSpacing;
   final double childAspectRatio;
+  final double? itemExtent;
   final bool primary;
   const AppGridView({
     super.key,
@@ -33,6 +34,7 @@ class AppGridView<T> extends StatelessWidget {
     this.mainAxisSpacing = 12,
     this.crossAxisSpacing = 10,
     this.childAspectRatio = 1.0,
+    this.itemExtent,
     this.primary = true,
   });
 
@@ -48,39 +50,72 @@ class AppGridView<T> extends StatelessWidget {
             header!,
             const SizedBox(height: 16),
           ],
-          Expanded(
-            child: isStaggered
-                ? Obx(
-                    () => MasonryGridView.builder(
-                      primary: primary,
-                      padding: EdgeInsets.zero,
-                      physics: !primary ? const NeverScrollableScrollPhysics() : null,
-                      gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
-                      mainAxisSpacing: mainAxisSpacing,
-                      crossAxisSpacing: crossAxisSpacing,
-                      itemCount: controller.items.length,
-                      itemBuilder: (context, index) {
-                        return itemBuilder(context, controller.items[index], index);
-                      },
-                    ),
-                  )
-                : Obx(
-                    () => GridView.builder(
-                      primary: primary,
-                       physics: !primary ? const NeverScrollableScrollPhysics() : null,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
+          if (shrinkWrap)
+            ...[
+              isStaggered
+                  ? Obx(
+                      () => MasonryGridView.builder(
+                        primary: primary,
+                        shrinkWrap: shrinkWrap,
+                        padding: EdgeInsets.zero,
+                        physics: !primary ? const NeverScrollableScrollPhysics() : null,
+                        gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
                         mainAxisSpacing: mainAxisSpacing,
                         crossAxisSpacing: crossAxisSpacing,
-                        childAspectRatio: childAspectRatio,
+                        itemCount: controller.items.length,
+                        itemBuilder: (context, index) {
+                          return itemBuilder(context, controller.items[index], index);
+                        },
                       ),
-                      itemCount: controller.items.length,
-                      itemBuilder: (context, index) {
-                        return itemBuilder(context, controller.items[index], index);
-                      },
+                    )
+                  : Obx(
+                      () => GridView.builder(
+                        primary: primary,
+                        shrinkWrap: shrinkWrap,
+                        physics: !primary ? const NeverScrollableScrollPhysics() : null,
+                        scrollDirection: scrollDirection ?? Axis.vertical,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, mainAxisSpacing: mainAxisSpacing, crossAxisSpacing: crossAxisSpacing, childAspectRatio: childAspectRatio, mainAxisExtent: itemExtent),
+                        itemCount: controller.items.length,
+                        padding: padding,
+                        itemBuilder: (context, index) {
+                          return itemBuilder(context, controller.items[index], index);
+                        },
+                      ),
                     ),
-                  ),
-          ),
+            ]
+          else ...[
+            Expanded(
+              child: isStaggered
+                  ? Obx(
+                      () => MasonryGridView.builder(
+                        primary: primary,
+                        shrinkWrap: shrinkWrap,
+                        padding: EdgeInsets.zero,
+                        physics: !primary ? const NeverScrollableScrollPhysics() : null,
+                        gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
+                        mainAxisSpacing: mainAxisSpacing,
+                        crossAxisSpacing: crossAxisSpacing,
+                        itemCount: controller.items.length,
+                        itemBuilder: (context, index) {
+                          return itemBuilder(context, controller.items[index], index);
+                        },
+                      ),
+                    )
+                  : Obx(
+                      () => GridView.builder(
+                        primary: primary,
+                        shrinkWrap: shrinkWrap,
+                        physics: !primary ? const NeverScrollableScrollPhysics() : null,
+                        scrollDirection: scrollDirection ?? Axis.vertical,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, mainAxisSpacing: mainAxisSpacing, crossAxisSpacing: crossAxisSpacing, childAspectRatio: childAspectRatio, mainAxisExtent: itemExtent),
+                        itemCount: controller.items.length,
+                        itemBuilder: (context, index) {
+                          return itemBuilder(context, controller.items[index], index);
+                        },
+                      ),
+                    ),
+            ),
+          ],
         ],
       ),
     );

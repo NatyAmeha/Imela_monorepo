@@ -13,9 +13,21 @@ class CustomListController<T> extends GetxController {
     }
   }
 
+  void setItems(List<T> newItems) {
+    items.value= newItems;
+  }
+
   // Method to update an item
   void updateItem(int index, T newItem) {
     items[index] = newItem;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    items.clear();
+    
+    super.dispose();
   }
 
   // Add methods to add, remove or initialize items as needed

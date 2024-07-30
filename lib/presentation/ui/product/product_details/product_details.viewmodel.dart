@@ -45,11 +45,11 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   }
 
   String get getProductName {
-    return selectedProductOption.value?.name.getLocalizedValue(AppLanguage.ENGLISH.name) ?? '${productDetails.value?.product?.getLocalizedProductName(AppLanguage.ENGLISH.name)}';
+    return selectedProductOption.value?.name.localize() ?? '${productDetails.value?.product?.getLocalizedProductName(AppLanguage.ENGLISH.name)}';
   }
 
   String get getProductDescription {
-    return '${productDetails.value?.product?.description?.getLocalizedValue(AppLanguage.ENGLISH.name)}';
+    return '${productDetails.value?.product?.description?.localize()}';
   }
 
   List<String> get getProductImage {
@@ -62,6 +62,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
+    print("bundle detail product viewmodel called");
     super.initViewmodel(data: data);
     productHeaderScrollController = ScrollController();
     final productId = data!['id'] as String;

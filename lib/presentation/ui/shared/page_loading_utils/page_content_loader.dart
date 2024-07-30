@@ -5,6 +5,7 @@ class PageContentLoader extends StatelessWidget {
   final Widget content;
   final bool showContent;
   final bool isLoading;
+  final Widget? loadingWidget;
   final Widget errorWidget;
   final Function? onTryAgain;
   final bool hasError;
@@ -14,6 +15,7 @@ class PageContentLoader extends StatelessWidget {
     required this.content,
     this.showContent = true,
     this.isLoading = false,
+    this.loadingWidget,
     this.hasError = false,
     this.errorWidget = const Text("Error occured please try again"),
     this.onTryAgain,
@@ -29,7 +31,7 @@ class PageContentLoader extends StatelessWidget {
       return Stack(
         children: [
           if (showContent) content,
-          if (isLoading) Center(child: appWidgetFactory.createLoadingIndicator(context)),
+          if (isLoading) loadingWidget ?? Center(child: appWidgetFactory.createLoadingIndicator(context)),
         ],
       );
     }
