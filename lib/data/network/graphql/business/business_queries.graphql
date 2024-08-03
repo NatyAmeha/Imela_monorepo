@@ -45,6 +45,12 @@ query GetBusinessDetails($id: String!) {
         key
         value
       }
+      gallery {
+        images {
+          featured
+          url
+        }
+      }
     }
     branches {
       id

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
@@ -44,7 +45,7 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, Color? backgroundColor, EdgeInsets? padding, Function()? onPressed}) {
+  Widget createIcon({required IconData materialIcon, IconData? cupertinoIcon, double size = 24, Color? color, String? semanticLabel, Color? backgroundColor, EdgeInsets? padding, Function()? onPressed, bool showIconOnly = true}) {
     // TODO: implement createIcon
     throw UnimplementedError();
   }
@@ -62,9 +63,19 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Future<T?> createModalBottomSheet<T>(BuildContext context, {required Widget content, bool dismissable = true}) {
-    // TODO: implement createModalBottomSheet
-    throw UnimplementedError();
+  Future<T?> createModalBottomSheet<T>(BuildContext context, {required Widget Function(ScrollController) content, bool dismissable = true, double initialHeight = 0.5, double minHeight = 0, double? maxHeight = 1.0, BorderRadius? borderRadius}) {
+    return showFlexibleBottomSheet(
+      context: context,
+      builder: (context, controller, _) => content(controller),
+      minHeight: minHeight,
+      initHeight: initialHeight,
+      maxHeight: maxHeight,
+      isSafeArea: true,
+      isDismissible: dismissable,
+      anchors: [0, (maxHeight! - 0.01), (maxHeight)],
+      bottomSheetBorderRadius: borderRadius ?? BorderRadius.circular(16),
+      isModal: true
+    );
   }
 
   @override
@@ -83,7 +94,7 @@ class BaseWidgetFactory implements WidgetFactory {
   Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color, bool enableResize = false}) {
     return Padding(
       padding: padding ?? EdgeInsets.zero,
-      child: enableResize ? AutoSizeText(text, style: style?.copyWith(color: color), textAlign: textAlign, maxLines: maxLines, overflow: overflow, minFontSize: 10) : Text(text, style: style?.copyWith(color: color), textAlign: textAlign, maxLines: maxLines, overflow: overflow),
+      child: enableResize ? AutoSizeText(text, style: style?.copyWith(color: color, decoration: textDecoration), textAlign: textAlign, maxLines: maxLines, overflow: overflow, minFontSize: 10 ) : Text(text, style: style?.copyWith(color: color, decoration: textDecoration), textAlign: textAlign, maxLines: maxLines, overflow: overflow),
     );
   }
 
@@ -106,13 +117,22 @@ class BaseWidgetFactory implements WidgetFactory {
     throw UnimplementedError();
   }
 
+  @override
   Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged}) {
     return SizedBox(
       width: width,
       height: height,
       child: Stack(
         children: [
-          Positioned.fill(child: PageView.builder(itemBuilder: itemBuilder, itemCount: itemCount, controller: controller, scrollDirection: scrollDirection = Axis.horizontal, onPageChanged: onPageChanged)),
+          Positioned.fill(
+            child: PageView.builder(
+              itemBuilder: itemBuilder,
+              itemCount: itemCount,
+              controller: controller,
+              scrollDirection: scrollDirection = Axis.horizontal,
+              onPageChanged: onPageChanged,
+            ),
+          ),
           Positioned(
             bottom: 8,
             left: 0,
@@ -138,5 +158,15 @@ class BaseWidgetFactory implements WidgetFactory {
         ],
       ),
     );
+  }
+
+  @override
+  Future<DateTime?> showDateTimePicker(BuildContext context, DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable = true}) async {
+    throw UnimplementedError();
   }
 }

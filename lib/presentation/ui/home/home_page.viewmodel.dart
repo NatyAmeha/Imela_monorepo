@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:dartx/dartx.dart';
@@ -6,14 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
+import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/discovery/discovery.usecase.dart';
 import 'package:melegna_customer/domain/discovery/model/bundle_discovery.model.dart';
 import 'package:melegna_customer/domain/discovery/model/business_discovery.model.dart';
 import 'package:melegna_customer/domain/discovery/model/discovery_response.dart';
 import 'package:melegna_customer/domain/discovery/model/product_discovery.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
+import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
+import 'package:melegna_customer/presentation/ui/business/business_details.page.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:melegna_customer/presentation/ui/home/components/feature_promo_banner.dart';
 import 'package:melegna_customer/presentation/ui/home/discover/discover.page.dart';
 import 'package:melegna_customer/presentation/ui/home/foryou.page.dart';
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
@@ -48,10 +53,13 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
 
   // Getters
   Map<int, List<ProductDiscoveryResponse>>? get browseProductsResponse => browseData.value?.productsResponse?.groupBy((response) => response.sequence ?? 0);
-  Map<int, List<BusinessDiscovery>>? get browseBusinessesResponse => browseData.value?.businessesResponse?.groupBy((response) => response.sequence ?? 0);
 
   List<ProductDiscoveryResponse> get sequenceOneProductResponse => browseProductsResponse?[0] ?? [];
   List<BundleDiscovery> get bundleResponse => browseData.value?.bundlesResponse ?? [];
+
+  Map<int, List<BusinessDiscovery>>? get browseBusinessesResponse => browseData.value?.businessesResponse?.groupBy((response) => response.sequence ?? 0);
+  List<BusinessDiscovery> get sequenceOneBusinessResponse => browseBusinessesResponse?[0] ?? [];
+  final businessListController = Get.put(CustomListController<Business>(), tag: 'businessListController');
 
   // widget Controllers
   PersistentTabController persistentTabController = PersistentTabController(initialIndex: 0);
@@ -70,7 +78,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
           page: BrowsePage(
             homepageViewmodel: this,
           )),
-      Destination(title: 'For You', icon: widgetFactory.createIcon(materialIcon: Icons.search, cupertinoIcon: CupertinoIcons.search), page: ForYouPage()),
+      Destination(title: 'For You', icon: widgetFactory.createIcon(materialIcon: Icons.search, cupertinoIcon: CupertinoIcons.search), page: const ForYouPage()),
     ];
   }
 
@@ -84,6 +92,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
         sequenceZeroproductListController.setItems(sequenceOneProductResponse.map((e) => e.items).flatten().toList());
         sequence1productListController.setItems(browseProductsResponse?[1]?.map((e) => e.items).flatten().toList() ?? []);
         bundleListController.setItems(bundleResponse.map((bundleRes) => bundleRes.items).flatten().toList());
+        businessListController.setItems(browseBusinessesResponse?[0]?.map((e) => e.items).flatten().toList() ?? []);
       }
     }
   }
@@ -105,11 +114,54 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-  navigateToBusinessDetailPage(BuildContext context, String businessId) {
-    Navigator.of(context).pushNamed('/business/$businessId');
+  final PageController featureBannerPageController = PageController();
+  Timer? _autoScrollTimer;
+  List<BannerData> getAppFeaturesBannerData() {
+    return [
+      BannerData(
+        title: 'Online presense for your business',
+        description: 'Create online store for your business and reach more customers, accept online orders and payments',
+        imageUrl: 'https://www.shutterstock.com/image-vector/concept-online-shop-store-transfer-260nw-1066200437.jpg',
+        backgroundColor: ColorManager.primary,
+      ),
+      BannerData(
+        title: 'Membership and subscription',
+        description: 'Create membership and subscription plans for your customers and increase your revenue and customer loyalty',
+        imageUrl: 'https://www.shutterstock.com/image-photo/man-hand-showing-smartphone-mock-260nw-2322526537.jpg',
+        backgroundColor: ColorManager.tertiary,
+      ),
+      BannerData(
+        title: 'Create Loyal customers',
+        description: 'Create loyalty programs and reward your customers for their loyalty and increase your repeat customers',
+        imageUrl: 'https://www.shutterstock.com/image-vector/3d-discount-coupon-sale-banner-260nw-2040195605.jpg',
+        backgroundColor: ColorManager.secondary,
+      ),
+    ];
+  }
+
+  void startAutoScrollFeatureBanner() {
+    // _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    //   if (featureBannerPageController.hasClients) {
+    //     int nextPage = featureBannerPageController.page!.round() + 1;
+    //     if (nextPage >= 3) {
+    //       nextPage = 0;
+    //     }
+    //     featureBannerPageController.animateToPage(nextPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    //   }
+    // });
+  }
+
+  void navigateToBusinessDetailPage(BuildContext context, Business business, {Widget? previousPage}) {
+    BusinessDetailsPage.navigateToBusinessDetailPage(context, router, business, previousPage: previousPage);
   }
 
   void moveToBundleDetailPage(BuildContext context, ProductBundle bundle, {Widget? previousPage}) {
     BundleDetailPage.navigateToBundleDetailPage(context, router, bundle, previousPage: previousPage);
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    super.dispose();
   }
 }

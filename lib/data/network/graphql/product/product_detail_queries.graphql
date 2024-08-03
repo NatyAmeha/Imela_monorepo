@@ -82,6 +82,19 @@ query GetProductDetails($id : String!){
         }
       }
     }
+    variants {
+        id
+        name {
+          key
+          value
+        }
+        gallery {
+          images {
+            url
+          }
+        }
+        minimumOrderQty
+      }
   }
   
 }

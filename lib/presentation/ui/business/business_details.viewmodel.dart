@@ -12,7 +12,6 @@ import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_display_style.constants.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 import 'package:melegna_customer/services/routing_service.dart';
 
 @injectable

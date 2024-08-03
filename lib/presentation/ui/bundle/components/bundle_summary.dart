@@ -3,7 +3,7 @@ import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/countdownl_timer.component.dart';
+import 'package:melegna_customer/presentation/ui/shared/countdown_timer.component.dart';
 
 class BundleSummary extends StatelessWidget {
   final double width;

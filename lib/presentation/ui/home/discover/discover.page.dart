@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/home/discover/small_discover_screen.dart';
 import 'package:melegna_customer/presentation/ui/home/home_page.viewmodel.dart';
-import 'package:melegna_customer/injection.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 
@@ -28,6 +27,7 @@ class _BrowsePageState extends State<BrowsePage> {
   void initState() {
     super.initState();
     initializeViewmodel();
+    viewmodel.startAutoScrollFeatureBanner();
   }
 
   @override

@@ -20,6 +20,7 @@ class ColorManager {
 
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
+  static const Color blue = Colors.blue;
 
   static const Color primaryDark = Color(0xFF19DB8A);
   static const Color secondaryDark = Color(0xFF36B4FF);

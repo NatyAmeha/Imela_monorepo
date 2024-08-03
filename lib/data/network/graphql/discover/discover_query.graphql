@@ -36,6 +36,12 @@ query GetDiscoveryData {
           key
           value
         }
+        gallery{
+          images{
+            url
+            featured
+          }
+        }
       }
     }
     bundlesResponse{

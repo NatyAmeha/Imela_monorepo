@@ -49,7 +49,7 @@ class BundleListItem extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       style: Theme.of(context).textTheme.bodyMedium,
                     )
-                    .showIf(bundleData.description),
+                    .showIfNotNull(bundleData.description),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -112,7 +112,7 @@ class BundleListItem extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ))
                         .toList(),
-                  ).showIf(productImages.isNotEmpty),
+                  ).showIfNotNull(productImages.isNotEmpty),
                 ),
               ),
             ],
