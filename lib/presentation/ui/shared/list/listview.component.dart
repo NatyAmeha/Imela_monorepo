@@ -38,6 +38,7 @@ class AppListView<T> extends StatelessWidget {
       height: height,
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (header != null) ...[
             header!,

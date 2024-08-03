@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/product_response.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
+import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
 import 'package:melegna_customer/domain/product/product.usecase.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
@@ -33,8 +34,39 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   final exception = Rxn<AppException>();
 
   var isAppbarExpanded = true.obs;
-
   var selectedProductOption = Rxn<Product>();
+
+  var selectedAddonDateRange = <String, DateTimeRange>{}.obs;
+  DateTimeRange? getSelectedDateRange(String addonId) {
+    return selectedAddonDateRange[addonId];
+  }
+
+  var selectedSingleOptions = <String, String>{}.obs;
+  String? getSelectedSingleOptionOfAddon(String addonId) {
+    return selectedSingleOptions[addonId];
+  }
+
+  var addonsSelectedQtyChange = <String, double>{}.obs;
+  double? getSelectedAddonQty(String addonId) {
+    return addonsSelectedQtyChange[addonId];
+  }
+
+  bool get canEnableContinueBtn {
+    bool canEnable = false;
+    final requiredAddons = productInfo?.addons?.where((addon) => addon.isRequired);
+    requiredAddons?.forEach((addon) {
+      if (addon.isDateInput) {
+        canEnable = selectedAddonDateRange.containsKey(addon.id);
+      } else if (addon.isNumberInput) {
+        canEnable = addonsSelectedQtyChange.containsKey(addon.id);
+      } else if (addon.isSingleSelectionInput) {
+        canEnable = selectedSingleOptions.containsKey(addon.id);
+      }
+    });
+    return canEnable;
+  }
+
+  
 
   // getter
   List<Product> get productOptions => productDetails.value?.variants ?? [];
@@ -109,10 +141,51 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     return list;
   }
 
-  handleJourney(BuildContext context, WidgetFactory widgetFactory) async {
+  void handleJourney(BuildContext context, WidgetFactory widgetFactory) async {
     if (productInfo?.addons?.isNotEmpty == true) {
-      await widgetFactory.createModalBottomSheet(context, content: ProductAddonModal(widgetFactory: widgetFactory, addons: productInfo!.addons!));
+      double screenHeight = MediaQuery.sizeOf(context).height;
+      const double addonWidgetHeight = 100.0;
+
+      // Calculate the total height required for all addons
+      double totalHeight = productInfo!.addons!.length * addonWidgetHeight + 200;
+
+      // Normalize the height to a value between 0 and 1
+      double normalizedHeight = totalHeight / screenHeight;
+      normalizedHeight = normalizedHeight.clamp(0.0, 1.0);
+      print("normalized height $normalizedHeight");
+      normalizedHeight = normalizedHeight <= 0.5 ? 0.52 : normalizedHeight;
+      var initialHeight = normalizedHeight <= 0.85 ? normalizedHeight : 0.5;
+
+      await widgetFactory.createModalBottomSheet(
+        context,
+        content: (scrollController) => ProductAddonModal(
+          widgetFactory: widgetFactory,
+          addons: productInfo!.addons!,
+          scrollController: scrollController,
+          productDetailsViewmodel: this,
+          onContinue: (){
+            
+          },
+        ),
+        initialHeight: initialHeight,
+        maxHeight: normalizedHeight,
+      );
     }
+  }
+
+  void handleAddonDateSelection(BuildContext context, ProductAddon addon, WidgetFactory widgetFactory) async {
+    final pickedDate = await widgetFactory.showDateRangePickerUI(context, initialDateRange: getSelectedDateRange(addon.id!));
+    if (pickedDate != null) {
+      selectedAddonDateRange.addAll({addon.id!: pickedDate});
+    }
+  }
+
+  void handleProductAddonsingleSelection(BuildContext context, ProductAddon addon, {required String value, required WidgetFactory widgetFactory}) async {
+    selectedSingleOptions.addAll({addon.id!: value});
+  }
+
+  void handleProductAddonQtyChange(BuildContext context, ProductAddon addon, {required double value, required WidgetFactory widgetFactory}) async {
+    addonsSelectedQtyChange.addAll({addon.id!: value});
   }
 
   @override

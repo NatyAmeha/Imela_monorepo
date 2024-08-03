@@ -57,7 +57,7 @@ class AppGridView<T> extends StatelessWidget {
                       () => MasonryGridView.builder(
                         primary: primary,
                         shrinkWrap: shrinkWrap,
-                        padding: EdgeInsets.zero,
+                        padding: padding,
                         physics: !primary ? const NeverScrollableScrollPhysics() : null,
                         gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
                         mainAxisSpacing: mainAxisSpacing,
@@ -90,7 +90,7 @@ class AppGridView<T> extends StatelessWidget {
                       () => MasonryGridView.builder(
                         primary: primary,
                         shrinkWrap: shrinkWrap,
-                        padding: EdgeInsets.zero,
+                        padding: padding,
                         physics: !primary ? const NeverScrollableScrollPhysics() : null,
                         gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
                         mainAxisSpacing: mainAxisSpacing,

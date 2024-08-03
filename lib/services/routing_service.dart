@@ -50,7 +50,7 @@ class GoRouterService implements IRoutingService {
         pageBuilder: (context, state) {
           final businessId = state.pathParameters[BusinessDetailsPage.idQueryParameter];
           final arguments = state.extra as Map<String, dynamic>;
-          final businessName = arguments['name'];
+          final businessName = arguments['name'] as String?;
           final prevScreen = arguments[GoRouterService.PREVIOUS_PAGE_KEY] as Widget?;
 
           return buildPageWithCustomTransition(state, BusinessDetailsPage(businessId: businessId!, businessName: businessName), previousScreen: prevScreen);
@@ -119,8 +119,8 @@ class GoRouterService implements IRoutingService {
           type: transitionType ?? (previousScreen != null ? PageTransitionType.rightToLeftJoined : PageTransitionType.rightToLeft),
           maintainStateData: true,
           childCurrent: previousScreen,
-          duration: const Duration(milliseconds: 80),
-          reverseDuration: const Duration(milliseconds: 50),
+          duration: const Duration(milliseconds: 300),
+          reverseDuration: const Duration(milliseconds: 300),
           alignment: Alignment.center,
           ctx: context,
         ).buildTransitions(context, animation, secondaryAnimation, child);

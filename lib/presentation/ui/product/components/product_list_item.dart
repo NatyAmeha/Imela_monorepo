@@ -70,7 +70,7 @@ class VerticalProductListItem extends StatelessWidget {
                     const SizedBox(width: 2),
                     widgetFactory.createText(context, productOptionValue, style: Theme.of(context).textTheme.bodySmall),
                   ],
-                ).showIf(productOptionValue.isNotEmpty),
+                ).showIfNotNull(productOptionValue.isNotEmpty),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisSize: MainAxisSize.min,
