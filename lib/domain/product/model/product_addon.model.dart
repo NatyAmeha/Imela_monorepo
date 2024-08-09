@@ -27,7 +27,7 @@ class ProductAddon with _$ProductAddon {
     List<LocalizedField>? name,
     // List<LocalizedField>? description,
     required String inputType,
-    List<ProductAddonOption>? options,
+    @Default([]) List<ProductAddonOption> options,
     bool? checkCalendar,
     List<Price>? additionalPrice,
     @Default(1.0) double minAmount,

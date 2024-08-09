@@ -18,7 +18,7 @@ class GraphQLConfig {
       }
       await Hive.initFlutter();
       final box = await Hive.openBox('graphql_cache_store');
-      const cacheDuration = Duration(minutes: 1); // Set your desired cache duration
+      const cacheDuration = Duration(minutes: 3); // Set your desired cache duration
       final store = ExpiringStore(box, cacheDuration);
       // final store = HiveStore(box);
       final cache = Cache(store: store);
