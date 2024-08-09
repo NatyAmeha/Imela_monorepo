@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:melegna_customer/app/app.dart';
 import 'package:melegna_customer/injection.dart';
@@ -18,6 +19,7 @@ void main() async {
     }
   };
   Get.put(AppController());
+  // debugRepaintRainbowEnabled = true;
   runApp(MelegnaCustomerApp.instance);
 }
  

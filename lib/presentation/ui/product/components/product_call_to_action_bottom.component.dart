@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/presentation/resources/values.dart';
-import 'package:melegna_customer/presentation/ui/factory/button_style_utils.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:melegna_customer/presentation/utils/currency_utils.dart';
 
 class ProductCallToActionBottomComponenet extends StatelessWidget {
   final Product product;
   final WidgetFactory widgetFactory;
   final Function? onPressed;
-  const ProductCallToActionBottomComponenet({super.key, required this.product, required this.widgetFactory, this.onPressed});
+  final String? callToActionText;
+  final bool enableCallToActionBtn;
+  const ProductCallToActionBottomComponenet({
+    super.key,
+    required this.product,
+    required this.widgetFactory,
+    this.callToActionText,
+    this.onPressed,
+    this.enableCallToActionBtn = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,26 +29,24 @@ class ProductCallToActionBottomComponenet extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              // flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, '54000 Birr', style: Theme.of(context).textTheme.headlineMedium),
+                  widgetFactory.createText(context, product.getPrice().toSelectedPriceString(), style: Theme.of(context).textTheme.headlineMedium),
                   widgetFactory.createText(context, '4 options', style: Theme.of(context).textTheme.bodyMedium, textDecoration: TextDecoration.underline),
                 ],
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              // flex: 3,
               child: widgetFactory.createButton(
                 context: context,
                 icon: const Icon(Icons.shopping_cart_sharp),
-                style: AppButtonStyle.applyBtnStyle(color: Theme.of(context).primaryColor),
-                content: Text('${product.callToAction}'),
-                onPressed: () {
+                // style: AppButtonStyle.applyBtnStyle),
+                content: Text(callToActionText ?? product.getCallToAction()),
+                onPressed: enableCallToActionBtn ? () {
                   onPressed?.call();
-                },
+                } : null
               ),
             )
           ],

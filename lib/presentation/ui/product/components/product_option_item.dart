@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
+import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:melegna_customer/presentation/utils/currency_utils.dart';
 
 class ProductOptionItemComponent extends StatelessWidget {
   final Product productOption;
@@ -10,7 +11,6 @@ class ProductOptionItemComponent extends StatelessWidget {
   final double height;
   final double width;
   final WidgetFactory widgetFactory;
-  final AppLanguage locale;
   final Function? onOptionSelected;
   const ProductOptionItemComponent({
     super.key,
@@ -19,7 +19,6 @@ class ProductOptionItemComponent extends StatelessWidget {
     this.height = 40,
     this.width = 250,
     this.isOptionSelected = false,
-    this.locale = AppLanguage.ENGLISH,
     this.onOptionSelected,
   });
 
@@ -36,7 +35,7 @@ class ProductOptionItemComponent extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppImage(imageUrl: productOption.getImageUrl(), width: 80, height: double.infinity, borderRadius: BorderRadius.circular(6)),
+            AppImage(imageUrl: productOption.getImageUrl(), width: 75, height: double.infinity, borderRadius: BorderRadius.circular(6)),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
@@ -44,8 +43,8 @@ class ProductOptionItemComponent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 4),
-                  widgetFactory.createText(context, '${productOption.getLocalizedProductName(locale.name)}', style: Theme.of(context).textTheme.labelMedium),
-                  widgetFactory.createText(context, '412 Birr', style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, productOption.name.localize(), style: Theme.of(context).textTheme.labelMedium),
+                  widgetFactory.createText(context, productOption.getPrice().toSelectedPriceString(), style: Theme.of(context).textTheme.titleMedium),
                 ],
               ),
             ),

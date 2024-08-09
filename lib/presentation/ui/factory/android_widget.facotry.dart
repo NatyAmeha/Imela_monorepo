@@ -66,7 +66,7 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
     if (backgroundColor != null) {
       return Container(padding: padding, decoration: decoration, child: showIconOnly ? iconWidget : IconButton(onPressed: onPressed, icon: iconWidget, padding: padding));
     }
-    if (showIconOnly) {
+    if (onPressed == null && showIconOnly) {
       return iconWidget;
     }
     return IconButton(onPressed: onPressed, icon: iconWidget, padding: padding ?? const EdgeInsets.all(0));

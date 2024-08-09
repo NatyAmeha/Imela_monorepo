@@ -80,7 +80,7 @@ class ProductAddonModal extends StatelessWidget {
               () => widgetFactory.createButton(
                 context: context,
                 content: const Text('Continue'),
-                onPressed: productDetailsViewmodel.canEnableContinueBtn
+                onPressed: productDetailsViewmodel.canEnableAddonContinueBtn
                     ? () {
                         onContinue?.call();
                       }

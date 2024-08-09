@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+class DateHelper {
+  static Duration getDateDifference({DateTime? startDate, DateTime? endDate}) {
+    if (startDate == null || endDate == null) {
+      return Duration.zero;
+    }
+    return endDate.difference(startDate);
+  }
+}
+
 extension DateUtils on DateTime? {
   String toFormattedString() {
     if (this == null) {

@@ -9,8 +9,8 @@ class AppListHeader extends StatelessWidget {
   final double? height;
   final double? width;
   final EdgeInsetsGeometry? padding;
-  final Function onActionClicked;
-  const AppListHeader({super.key, required this.title, this.subtitle, this.trailing, this.leading, this.height, this.width, this.padding, required this.onActionClicked});
+  final Function? onActionClicked;
+  const AppListHeader({super.key, required this.title, this.subtitle, this.trailing, this.leading, this.height, this.width, this.padding,  this.onActionClicked});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class AppListHeader extends StatelessWidget {
             const SizedBox(width:16),
             InkWell(
               onTap: () {
-                onActionClicked.call();
+                onActionClicked?.call();
               },
               child: trailing!,
             ),

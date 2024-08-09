@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:melegna_customer/domain/shared/price_currency.model.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 
 class AppController extends GetxController{
@@ -8,4 +9,6 @@ class AppController extends GetxController{
   }
   
   AppLanguage selectedLanguage = AppLanguage.ENGLISH;
+
+  Currency selectedCurrency = Currency.ETB;
 }

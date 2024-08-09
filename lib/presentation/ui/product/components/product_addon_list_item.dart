@@ -51,7 +51,6 @@ class ProductAddonListItem extends StatelessWidget {
 
   String get selectDateText => selectedDateRange?.toFormattedString() != null ? 'Edit' : 'Select Date';
 
-  // bool get canEnableContinueBtn =
   @override
   Widget build(BuildContext context) {
     return widgetFactory.createCard(

@@ -56,7 +56,7 @@ class SmallDiscoverScreen extends StatelessWidget {
                           widgetFactory: widgetFactory,
                           imageHeight: 110,
                           onTap: () {
-                            homepageViewmodel.navigateToBusinessDetailPage(context, business, previousPage: scaffoldScreen);
+                            homepageViewmodel.navigateToBusinessDetailPage(context, business, previousPage: this);
                           },
                         );
                       },
@@ -86,7 +86,7 @@ class SmallDiscoverScreen extends StatelessWidget {
                           imageWidth: double.infinity,
                           widgetFactory: widgetFactory,
                           onTap: () {
-                            ProductDetailPage.navigateToProductDetailPage(context, homepageViewmodel.router, productData, previousPage: scaffoldScreen);
+                            ProductDetailPage.navigateToProductDetailPage(context, homepageViewmodel.router, productData, previousPage: this);
                           },
                         );
                       },
