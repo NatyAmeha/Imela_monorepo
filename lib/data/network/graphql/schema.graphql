@@ -80,7 +80,9 @@ type Branch {
   isActive: Boolean
   name: [LocalizedField!]!
   phoneNumber: String!
+  priceLists: [PriceList!]
   productIds: [String!]
+  productPrices: [ProductPrice!]
   products: [Product!]!
   staffs: [Staff!]
   staffsId: [String!]
@@ -91,8 +93,11 @@ type Branch {
 type BranchResponse {
   branch: Branch
   branches: [Branch!]
+  bundles: [ProductBundle!]
+  business: Business
   code: Int
   message: String
+  priceList: [PriceList!]
   products: [Product!]
   success: Boolean!
 }
@@ -138,6 +143,7 @@ type Business {
   openingStatus: OpeningStatus!
   paymentOptions: [PaymentOption!]
   phoneNumber: String!
+  priceLists: [PriceList!]
   productIds: [String!]
   products: [Product!]!
   sections: [BusinessSection!]
@@ -277,6 +283,13 @@ input CreatePaymentOptionInput {
   upfrontPayment: Float = 0
 }
 
+input CreatePriceListInput {
+  branchIds: [String!]
+  description: [LocalizedFieldInput!]
+  isActive: Boolean = true
+  name: [LocalizedFieldInput!]!
+}
+
 input CreateProductAddonInput {
   additionalPrice: [PriceInput!]
   checkCalendar: Boolean
@@ -296,6 +309,7 @@ input CreateProductInput {
   callToAction: String = "Order"
   canOrderOnline: Boolean! = false
   category: [String!]!
+  defaultPrice: [PriceInput!]!
   deliveryInfoId: String
   description: [LocalizedFieldInput!]
 
@@ -314,6 +328,13 @@ input CreateProductInput {
   sectionId: [String!]
   tag: [String!]
   type: ProductType!
+}
+
+input CreateProductPriceInput {
+  branchId: String
+  isDefault: Boolean!
+  price: [PriceInput!]!
+  priceListId: String
 }
 
 input CreateStaffInput {
@@ -587,6 +608,7 @@ enum MembershipPerkType {
 
 type Mutation {
   addPaymentOptions(businessId: String!, paymentOptions: [CreatePaymentOptionInput!]!): BusinessResponse!
+  addPriceListTobusiness(businessId: String!, input: [CreatePriceListInput!]!): BusinessResponse!
 
   """returns the updated bundle inside bundle field of the response object"""
   addProductBundleToBranch(branchIds: [String!]!, bundleId: String!, businessId: String!): BundleResponse!
@@ -623,8 +645,11 @@ type Mutation {
   Return a boolean value to indicate if the product addon is created successfully or not
   """
   createProductAddon(businessId: String!, input: [CreateProductAddonInput!]!, productId: String!): ProductResponse!
+  createProductPrice(businessId: String!, input: [CreateProductPriceInput!]!, productId: String!): ProductResponse!
   createStaff(staffInput: CreateStaffInput!): StaffResponse!
   deleteBranch(branchId: String!, businessId: String!): BranchResponse!
+  deleteBusinessPriceLlist(businessId: String!, priceListIds: [String!]!): BusinessResponse!
+  deletePaymentOption(businessId: String!, paymentOptionsId: [String!]!): BusinessResponse!
 
   """
   Return a boolean value to indicate if the product addon is deleted successfully or not
@@ -648,6 +673,7 @@ type Mutation {
   """returns the updated bundle inside bundle field of the response object"""
   updateBundle(bundleData: UpdateBundleInput!, bundleId: String!, businessId: String!): BundleResponse!
   updateBusinessInfo(businessId: String!, data: UpdateBusinessInput!): BusinessResponse!
+  updateBusinessPriceList(businessId: String!, input: [UpdatePriceListInput!]!): BusinessResponse!
   updateBusinessProductInfo(businessId: String!, product: UpdateProductInput!, productId: String!): ProductResponse!
   updateInventoryLocation(inventoryLocationInfo: UpdateInventoryLocationInput!, locationId: String!): InventoryResponse!
 
@@ -656,6 +682,7 @@ type Mutation {
   """
   updateProductAddons(businessId: String!, input: [UpdateProductAddonInput!]!, productId: String!): ProductResponse!
   updateProductInventoryInformations(businessId: String!, inventoryInfos: [UpdateInventoryInput!]!, productId: String!): InventoryResponse!
+  updateProductPricing(businessId: String!, input: [UpdateProductPriceInput!]!, productId: String!): ProductResponse!
   verifyBusinessRegistration(businessId: String!): BusinessResponse!
 }
 
@@ -761,6 +788,16 @@ input PriceInput {
   currency: CurrencyKey! = ETB
 }
 
+type PriceList {
+  branchIds: [String!]
+  createdAt: DateTime
+  description: [LocalizedField!]!
+  id: ID!
+  isActive: Boolean!
+  name: [LocalizedField!]!
+  updatedAt: DateTime
+}
+
 type Product {
   addons: [ProductAddon!]
   branchIds: [String!]
@@ -786,6 +823,7 @@ type Product {
   options: [Productoption!]!
   optionsIncluded: [String!]!
   paymentOptionsId: [String!]
+  prices(branchId: String, priceListId: String): [ProductPrice!]!
   reviewTopics: [String!]
   sectionId: [String!]
   sku: String!
@@ -840,7 +878,7 @@ type ProductBundle {
   isActive: Boolean
   name: [LocalizedField!]!
   productIds: [String!]!
-  products: [Product!]
+  products: [Product!]!
   startDate: DateTime
   type: BundleType!
   updatedAt: DateTime
@@ -858,6 +896,20 @@ input ProductOptionInput {
   value: [String!]!
 }
 
+type ProductPrice {
+  branchId: String
+  createdAt: DateTime
+  id: ID!
+  isActive: Boolean!
+  isDefault: Boolean!
+  price: [Price!]!
+  priceList: PriceList
+  priceListId: String
+  product: Product!
+  productId: String!
+  updatedAt: DateTime
+}
+
 type ProductResponse {
   branches: [Branch!]
   business: Business
@@ -865,6 +917,7 @@ type ProductResponse {
   inventories: [Inventory!]
   message: String
   product: Product
+  productPrices: [ProductPrice!]
   products: [Product!]
   success: Boolean!
   variants: [Product!]
@@ -890,7 +943,8 @@ type Productoption {
 }
 
 type Query {
-  getBranchDetails(branchId: String!): BranchResponse!
+  getBranchDetails(branchId: String!, businessId: String!): BranchResponse!
+  getBranchDetailsForPOS(branchId: String!, businessId: String!): BranchResponse!
   getBranchStaffs(branchId: String!): StaffResponse!
 
   """Get bundle details with products, business, and branches info"""
@@ -901,7 +955,7 @@ type Query {
   getForYouData: ForYouResponse!
 
   """Get product details with inventory, variants"""
-  getProductDetail(branchId: String, locationId: String, productId: String!): ProductResponse!
+  getProductDetail(branchId: String, locationId: String, priceListId: String, productId: String!): ProductResponse!
   getUserBusinesses: BusinessResponse!
 }
 
@@ -1038,6 +1092,14 @@ input UpdateInventoryLocationInput {
   phoneNumber: String
 }
 
+input UpdatePriceListInput {
+  branchIds: [String!]
+  description: [LocalizedFieldInput!]
+  id: String!
+  isActive: Boolean = true
+  name: [LocalizedFieldInput!]
+}
+
 input UpdateProductAddonInput {
   additionalPrice: [PriceInput!]
   checkCalendar: Boolean
@@ -1058,6 +1120,7 @@ input UpdateProductInput {
   callToAction: String = "Order"
   canOrderOnline: Boolean = false
   category: [String!]
+  defaultPrice: [PriceInput!]
   deliveryInfoId: String
   description: [LocalizedFieldInput!]
 
@@ -1076,6 +1139,14 @@ input UpdateProductInput {
   sectionId: [String!]
   tag: [String!]
   type: ProductType
+}
+
+input UpdateProductPriceInput {
+  branchId: String
+  id: String!
+  isDefault: Boolean
+  price: [PriceInput!]
+  priceListId: String
 }
 
 type User {

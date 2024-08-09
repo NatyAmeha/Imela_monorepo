@@ -13,6 +13,12 @@ query GetDiscoveryData {
           key
           value
         } 
+        prices {
+          price {
+            amount
+            currency
+          }
+        }
         gallery{
           images{
             url

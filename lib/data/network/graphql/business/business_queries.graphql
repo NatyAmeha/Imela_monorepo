@@ -45,6 +45,12 @@ query GetBusinessDetails($id: String!) {
         key
         value
       }
+      prices {
+        price {
+          amount
+          currency
+        }
+      }
       gallery {
         images {
           featured

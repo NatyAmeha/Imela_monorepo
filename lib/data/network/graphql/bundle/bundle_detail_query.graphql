@@ -39,6 +39,16 @@ query GetBundleDetail($id : String!){
 					key
 					value
 				}
+				description {
+					key
+					value
+				}
+				prices {
+          			price {
+            			amount
+            			currency
+          			}
+        		}
 				gallery {
 					images {
 						featured
@@ -48,7 +58,24 @@ query GetBundleDetail($id : String!){
 				loyaltyPoint
 				minimumOrderQty
 				variants {
+					id
 					name {
+						key
+						value
+					}
+					gallery {
+						images {
+							featured
+							url
+						}
+					}
+					prices{
+            			price{
+              				amount
+              				currency
+            			}
+          			}
+					description {
 						key
 						value
 					}

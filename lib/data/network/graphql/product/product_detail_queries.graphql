@@ -9,6 +9,12 @@ query GetProductDetails($id : String!){
         key
         value
       }
+      prices {
+        price {
+          amount
+          currency
+        }
+      }
       description {
         key
         value
@@ -57,6 +63,12 @@ query GetProductDetails($id : String!){
           key
           value
         }
+        prices {
+          price {
+            amount
+            currency
+          }
+        }
         gallery {
           images {
             url
@@ -87,6 +99,12 @@ query GetProductDetails($id : String!){
         name {
           key
           value
+        }
+        prices {
+          price {
+            amount
+            currency
+          }
         }
         gallery {
           images {
