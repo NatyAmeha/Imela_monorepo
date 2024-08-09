@@ -29,63 +29,56 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   });
 
   // page state variables
-  final productDetails = Rxn<ProductResponse>();
   final isLoading = false.obs;
   final exception = Rxn<AppException>();
 
+  final productDetails = Rxn<ProductResponse>();
+  Product get selectedProduct => selectedProductOption.value ?? productDetails.value!.product!;
+  String get productName => productDetails.value?.product?.name.localize() ?? '';
+  String get getProductDescription => productDetails.value?.product?.description?.localize() ?? '';
+  List<String> get getProductImage => productDetails.value!.product?.gallery?.getImages() ?? [];
+
   var isAppbarExpanded = true.obs;
+
   var selectedProductOption = Rxn<Product>();
+  bool get isOptionSelected => productOptions.isNotEmpty ? selectedProductOption.value != null : true;
+  bool isProductOptionSelected(Product product) => selectedProductOption.value?.id == product.id;
 
   var selectedAddonDateRange = <String, DateTimeRange>{}.obs;
-  DateTimeRange? getSelectedDateRange(String addonId) {
-    return selectedAddonDateRange[addonId];
-  }
+  DateTimeRange? getSelectedDateRange(String addonId) => selectedAddonDateRange[addonId];
 
   var selectedSingleOptions = <String, String>{}.obs;
-  String? getSelectedSingleOptionOfAddon(String addonId) {
-    return selectedSingleOptions[addonId];
-  }
+  String? getSelectedSingleOptionOfAddon(String addonId) => selectedSingleOptions[addonId];
 
   var addonsSelectedQtyChange = <String, double>{}.obs;
-  double? getSelectedAddonQty(String addonId) {
-    return addonsSelectedQtyChange[addonId];
-  }
+  double? getSelectedAddonQty(String addonId) => addonsSelectedQtyChange[addonId];
 
-  bool get canEnableContinueBtn {
-    bool canEnable = false;
-    final requiredAddons = productInfo?.addons?.where((addon) => addon.isRequired);
-    requiredAddons?.forEach((addon) {
-      if (addon.isDateInput) {
-        canEnable = selectedAddonDateRange.containsKey(addon.id);
-      } else if (addon.isNumberInput) {
-        canEnable = addonsSelectedQtyChange.containsKey(addon.id);
-      } else if (addon.isSingleSelectionInput) {
-        canEnable = selectedSingleOptions.containsKey(addon.id);
+  void selectDefaultAddons() {
+    productInfo?.addons?.where((addon) => addon.isRequired == true).forEach((addon) {
+      if (addon.isNumberInput) {
+        addonsSelectedQtyChange.addAll({addon.id!: addon.minAmount});
+      } else if (addon.isSingleSelectionInput && addon.options.isNotEmpty == true) {
+        selectedSingleOptions.addAll({addon.id!: addon.options.first.name.localize()});
       }
     });
-    return canEnable;
   }
 
-  
+  bool get canEnableAddonContinueBtn {
+    bool isDateSelected = false;
+    final requiredAddons = productInfo?.addons?.where((addon) => addon.isRequired);
+    requiredAddons?.forEach((addon) {
+      if (addon.isDateInput || addon.isDateTimeInput || addon.isTimeINput) {
+        isDateSelected = selectedAddonDateRange.containsKey(addon.id);
+      } 
+    });
+    return isDateSelected;
+  }
 
-  // getter
   List<Product> get productOptions => productDetails.value?.variants ?? [];
   Product? get productInfo => productDetails.value?.product;
 
-  bool isProductOptionSelected(Product product) {
-    return selectedProductOption.value?.id == product.id;
-  }
-
-  String get getProductName {
-    return selectedProductOption.value?.name.localize() ?? '${productDetails.value?.product?.getLocalizedProductName(AppLanguage.ENGLISH.name)}';
-  }
-
-  String get getProductDescription {
-    return '${productDetails.value?.product?.description?.localize()}';
-  }
-
-  List<String> get getProductImage {
-    return productDetails.value!.product?.gallery?.getImages() ?? [];
+  void selectProductOption(Product product) {
+    selectedProductOption.value = product; 
   }
 
   // widget Controllers
@@ -118,8 +111,8 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
       productDetails.value = await productUsecase.getProductDetails(productId);
       if (productOptions.isNotEmpty) {
         productOptionListController.addItems(productOptions);
-        selectedProductOption(productOptions.firstOrNull);
       }
+      selectDefaultAddons();
     } on AppException catch (e) {
       exception.value = e;
     } catch (e) {
@@ -163,8 +156,8 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
           addons: productInfo!.addons!,
           scrollController: scrollController,
           productDetailsViewmodel: this,
-          onContinue: (){
-            
+          onContinue: () {
+            router.goBack(context);
           },
         ),
         initialHeight: initialHeight,
@@ -186,6 +179,15 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
 
   void handleProductAddonQtyChange(BuildContext context, ProductAddon addon, {required double value, required WidgetFactory widgetFactory}) async {
     addonsSelectedQtyChange.addAll({addon.id!: value});
+  }
+
+  void cleanup() {
+    selectedAddonDateRange.clear();
+    selectedSingleOptions.clear();
+    addonsSelectedQtyChange.clear();
+    productDetails(null);
+    selectedProductOption(null);
+    exception.value = null;
   }
 
   @override

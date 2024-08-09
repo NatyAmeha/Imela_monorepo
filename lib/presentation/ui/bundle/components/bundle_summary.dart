@@ -4,6 +4,7 @@ import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/shared/countdown_timer.component.dart';
+import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 
 class BundleSummary extends StatelessWidget {
   final double width;
@@ -31,26 +32,21 @@ class BundleSummary extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(4),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (viewmodel.getDiscountValue != null) ...[
-                  Expanded(
-                    flex: 1,
-                    child: widgetFactory.createText(context, 'Discount', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        widgetFactory.createText(context, viewmodel.getDiscountValue!, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.end),
-                        if (viewmodel.discountCondition != null) ...[
-                          widgetFactory.createText(context, viewmodel.discountCondition!, style: Theme.of(context).textTheme.labelSmall, textAlign: TextAlign.end),
-                        ]
-                      ],
-                    ),
-                  )
-                ]
+                Expanded(flex: 1, child: widgetFactory.createText(context, 'Discount', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      widgetFactory.createText(context, viewmodel.getDiscountValue!, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.end),
+                      widgetFactory.createText(context, viewmodel.discountCondition!, style: Theme.of(context).textTheme.labelSmall, textAlign: TextAlign.end).showIfTrue(viewmodel.discountCondition?.isNotEmpty == true),
+                    ],
+                  ),
+                )
               ],
-            ),
+            ).showIfTrue(viewmodel.getDiscountValue.isNotEmpty == true),
           ),
           Padding(
             padding: const EdgeInsets.all(4),
@@ -63,28 +59,13 @@ class BundleSummary extends StatelessWidget {
               ],
             ),
           ),
-          
-          Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
-                Expanded(
-                  child: widgetFactory.createText(context, viewmodel.getBundlePrice, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.end),
-                )
-              ],
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.all(4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 widgetFactory.createText(context, 'Time remaining', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
-                CountdownTimer(
-                  duration: const Duration(minutes: 30),
-                  backgroundColor: ColorManager.error,
-                                )
+                CountdownTimer(duration: viewmodel.getRemainingTime(), backgroundColor: ColorManager.error),
               ],
             ),
           ),
@@ -92,6 +73,4 @@ class BundleSummary extends StatelessWidget {
       ),
     );
   }
-
-  
 }
