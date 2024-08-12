@@ -44,6 +44,8 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     @Named(GoRouterService.injectName) required this.router,
   });
 
+  Widget? page;
+
   // State variables
   var browseData = Rxn<DiscoveryResponse>();
   var forYouData = Rxn<DiscoveryResponse>();
@@ -86,6 +88,9 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   void initViewmodel({Map<String, dynamic>? data}) async {
     final bool fetchBrowseData = data?.getOrElse(FETCH_BROWSEDATA, () => false) ?? false;
     final bool fetchForYouData = data?.getOrElse(FETCH_FORYOU_DATA, () => false) ?? false;
+    if (data?['WIDGET'] != null) {
+      page = data?['WIDGET'];
+    }
     if (fetchBrowseData) {
       await getBrowseData();
       if (browseData.value != null) {
@@ -152,14 +157,14 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToBusinessDetailPage(BuildContext context, Business business, {Widget? previousPage}) {
-    BusinessDetailsPage.navigateToBusinessDetailPage(context, router, business, previousPage: previousPage);
+    BusinessDetailsPage.navigateToBusinessDetailPage(context, router, business, previousPage: null);
   }
 
   void moveToBundleDetailPage(BuildContext context, ProductBundle bundle, {Widget? previousPage}) {
-    BundleDetailPage.navigateToBundleDetailPage(context, router, bundle, previousPage: previousPage);
+    BundleDetailPage.navigateToBundleDetailPage(context, router, bundle, previousPage: null); 
   }
-
-  @override
+ 
+  @override 
   void dispose() {
     _autoScrollTimer?.cancel();
     super.dispose();

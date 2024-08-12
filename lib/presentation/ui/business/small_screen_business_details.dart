@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
@@ -28,7 +29,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
   @override
   void initState() {
     super.initState();
-    widget.businessDetailsViewmodel.assignTabController(widget.businessDetailsViewmodel.businessSectionsWithProductListController.keys.length, this);
+    widget.businessDetailsViewmodel.assignTabController(widget.businessDetailsViewmodel.sectionsWithProductsControllers.keys.length, this);
     widget.businessDetailsViewmodel.listenAppbarHeaderScroll();
   }
 
@@ -72,25 +73,33 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
       body: AppTabView(
         tabs: widget.businessDetailsViewmodel.getBusinessSectionTabs(),
         controller: widget.businessDetailsViewmodel.businessSectionTabControllers,
-        tabViews: widget.businessDetailsViewmodel.businessSectionsWithProductListController.entries.map((entry) {
+        tabViews: widget.businessDetailsViewmodel.sectionsWithProductsControllers.entries.map((entry) {
           if (entry.key == 'Overview') {
             return buildBusinessOverview(appWidgetFactory);
           }
-          return AppGridView<Product>(
-            controller: entry.value,
-            crossAxisCount: 2,
-            isStaggered: true,
-            itemBuilder: (context, productData, index) {
-              return GridProductListItem(
-                product: productData,
-                imageHeight: 150,
-                imageWidth: double.infinity,
-                widgetFactory: appWidgetFactory,
-                onTap: () {
-                  widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
-                },
-              );
-            },
+          return SingleChildScrollView(
+            primary: true,
+            child: AppGridView(
+              items: entry.value.items,
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              isStaggered: true,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 16,
+              primary: false,
+             
+              itemBuilder: (context, productData, index) {
+                return GridProductListItem(
+                  product: productData,
+                  imageHeight: 150,
+                  imageWidth: double.infinity,
+                  widgetFactory: appWidgetFactory,
+                  onTap: () {
+                    widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
+                  },
+                );
+              },
+            ),
           );
         }).toList(),
       ),
@@ -99,7 +108,9 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
 
   @override
   void dispose() {
-    print("business details dispose");
+    if (kDebugMode) {
+      print('business details dispose');
+    }
     widget.businessDetailsViewmodel.dispose();
     super.dispose();
   } 
@@ -130,8 +141,9 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
           ),
           const SizedBox(height: 16),
           AppGridView(
-            height: 2800,
-            controller: widget.businessDetailsViewmodel.productListController,
+            shrinkWrap: true,
+            // controller: widget.businessDetailsViewmodel.productListController,
+            items: widget.businessDetailsViewmodel.featuredProducts,
             crossAxisCount: 2,
             crossAxisSpacing: 8,
             mainAxisSpacing: 16,
@@ -150,7 +162,11 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                 widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
               });
             },
-          )
+          ),
+          const SizedBox(height: 24),
+          widgetFactory.createButton(context: context, content: const Text('View all products'), onPressed: () {
+            widget.businessDetailsViewmodel.navigateToAllProductsPage(context);
+          }),
         ],
       ),
     );

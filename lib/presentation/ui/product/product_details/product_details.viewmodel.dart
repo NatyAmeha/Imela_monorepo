@@ -13,7 +13,6 @@ import 'package:melegna_customer/presentation/ui/product/components/product_feat
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 import 'package:melegna_customer/services/routing_service.dart';
 
 @injectable
@@ -69,7 +68,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     requiredAddons?.forEach((addon) {
       if (addon.isDateInput || addon.isDateTimeInput || addon.isTimeINput) {
         isDateSelected = selectedAddonDateRange.containsKey(addon.id);
-      } 
+      }
     });
     return isDateSelected;
   }
@@ -78,7 +77,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   Product? get productInfo => productDetails.value?.product;
 
   void selectProductOption(Product product) {
-    selectedProductOption.value = product; 
+    selectedProductOption.value = product;
   }
 
   // widget Controllers
@@ -90,16 +89,17 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     print("bundle detail product viewmodel called");
     super.initViewmodel(data: data);
     productHeaderScrollController = ScrollController();
+
     final productId = data!['id'] as String;
     getProductDetails(productId);
   }
 
   void listenAppbarHeaderScroll() {
     productHeaderScrollController.addListener(() {
-      if (productHeaderScrollController.offset > 250) {
-        isAppbarExpanded(false);
-      } else if (productHeaderScrollController.offset <= 250) {
+      if (productHeaderScrollController.offset > 220) {
         isAppbarExpanded(true);
+      } else if (productHeaderScrollController.offset <= 220) {
+        isAppbarExpanded(false);
       }
     });
   }
@@ -107,6 +107,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   // data fetching
   Future<void> getProductDetails(String productId) async {
     try {
+      cleanupStateVariables();
       isLoading(true);
       productDetails.value = await productUsecase.getProductDetails(productId);
       if (productOptions.isNotEmpty) {
@@ -181,11 +182,10 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     addonsSelectedQtyChange.addAll({addon.id!: value});
   }
 
-  void cleanup() {
+  void cleanupStateVariables() {
     selectedAddonDateRange.clear();
     selectedSingleOptions.clear();
     addonsSelectedQtyChange.clear();
-    productDetails(null);
     selectedProductOption(null);
     exception.value = null;
   }

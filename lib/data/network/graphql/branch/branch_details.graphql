@@ -1,0 +1,85 @@
+query GetBranchDetails( $bsId : String!, $brId : String!){
+    getBranchDetails(businessId: $bsId, branchId: $brId) {
+        success
+        bundles {
+            id
+            type
+            startDate
+            endDate
+            name {
+                key
+                value
+            }
+            gallery {
+                images {
+                    featured
+                    url
+                }
+            }
+            discount {
+                type
+                value
+                condition
+                conditionValue
+            }
+        }
+        branch {
+            name {
+                key
+                value
+            }
+            phoneNumber
+            email
+            website
+            phoneNumber
+            address {
+        id
+        city
+        address
+        location
+      }
+      inventoryLocations {
+        id
+        name
+      }
+      products {
+        id
+        name {
+          key
+          value
+        }
+        prices {
+          price {
+            amount
+            currency
+          }
+        }
+        gallery {
+          images {
+            featured
+            url
+          }
+        }
+        business {
+          name {
+            key
+            value
+          }
+        }
+      }
+    }
+    priceList {
+      name {
+        key
+        value
+      }
+    }
+    business {
+      name {
+        key
+        value
+      }
+    }
+        
+    }
+}

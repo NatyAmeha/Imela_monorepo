@@ -32,6 +32,7 @@ enum AddonInputType {
   DATE_INPUT
   DATE_TIME_INPUT
   MULTIPLE_SELECTION_INPUT
+  NO_INPUT_REQUIRED
   NUMBER_INPUT
   SINGLE_SELECTION_INPUT
   TEXT_INPUT
@@ -76,7 +77,7 @@ type Branch {
   createdAt: DateTime
   email: String
   id: ID
-  inventoryLocations: [String!]
+  inventoryLocations: [InventoryLocation!]
   isActive: Boolean
   name: [LocalizedField!]!
   phoneNumber: String!
@@ -294,6 +295,7 @@ input CreateProductAddonInput {
   additionalPrice: [PriceInput!]
   checkCalendar: Boolean
   inputType: AddonInputType!
+  isDateRange: Boolean
   isProduct: Boolean
   isRequired: Boolean
   maxAmount: Float
@@ -315,6 +317,7 @@ input CreateProductInput {
 
   """display name, will be shown on browsing sectioin """
   displayName: [LocalizedFieldInput!]
+  featured: Boolean
   gallery: GalleryInput!
   inventoryInfo: CreateInventoryInput!
   loyaltyPoint: Int! = 0
@@ -694,12 +697,14 @@ enum OpeningStatus {
 
 type PaymentOption {
   createdAt: DateTime
+  dueAfterDays: Float
   dueDate: DateTime
   id: String
   name: [LocalizedField!]!
   type: PaymentOptionType!
   updatedAt: DateTime
   upfrontPayment: Float
+  upfrontPaymentType: PaymentOptionUpfrontPaymentType
 }
 
 enum PaymentOptionType {
@@ -707,6 +712,11 @@ enum PaymentOptionType {
   FULL_PAYMENT
   INSTALLMENT
   PAY_LATER
+}
+
+enum PaymentOptionUpfrontPaymentType {
+  AMOUNT
+  PERCENTAGE
 }
 
 type Permission {
@@ -811,6 +821,7 @@ type Product {
   deliveryInfoId: String
   description: [LocalizedField!]!
   displayName: [LocalizedField!]
+  featured: Boolean!
   gallery: Gallery!
   id: String
   inventory: [Inventory!]
@@ -831,17 +842,20 @@ type Product {
   totalViews: Int!
   type: ProductType!
   updatedAt: DateTime
-  variants: [Product!]
+  variants: [Product!]!
   variantsId: [String!]
 }
 
 type ProductAddon {
   additionalPrice: [Price!]!
+  category: String
   checkCalendar: Boolean
   createdAt: DateTime
+  dependndentOnAddon: String
   id: ID!
   inputType: AddonInputType!
   isActive: Boolean!
+  isDateRange: Boolean
   isProduct: Boolean!
   isRequired: Boolean!
   maxAmount: Float
@@ -1105,6 +1119,7 @@ input UpdateProductAddonInput {
   checkCalendar: Boolean
   id: ID!
   inputType: AddonInputType
+  isDateRange: Boolean
   isProduct: Boolean
   isRequired: Boolean
   maxAmount: Float
@@ -1126,6 +1141,7 @@ input UpdateProductInput {
 
   """display name, will be shown on browsing sectioin """
   displayName: [LocalizedFieldInput!]
+  featured: Boolean
   gallery: GalleryInput
   inventoryInfo: CreateInventoryInput
   loyaltyPoint: Int = 0

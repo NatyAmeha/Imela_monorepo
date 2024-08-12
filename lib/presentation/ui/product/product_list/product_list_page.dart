@@ -62,6 +62,7 @@ class _ProductListPageState extends State<ProductListPage> {
           content: widget.displayStyle == ListDisplayStyle.Grid
               ? AppGridView(
                   controller: viewmodel.productListController,
+                  isStaggered: true,
                   itemBuilder: (context, product, index) {
                     return GridProductListItem(product: product, widgetFactory: appWidgetFactory);
                   },

@@ -40,7 +40,7 @@ class _BrowsePageState extends State<BrowsePage> {
         hasError: viewmodel.exception.value?.isMainError ?? false,
         showContent: viewmodel.browseData.value != null,
         content: ResponsiveWrapper(
-          smallScreen: SmallDiscoverScreen(homepageViewmodel: viewmodel, widgetFactory: appWidgetFactory, scaffoldScreen: this.widget),
+          smallScreen: SmallDiscoverScreen(homepageViewmodel: viewmodel, widgetFactory: appWidgetFactory, scaffoldScreen: widget),
         ),
       ),
     ));

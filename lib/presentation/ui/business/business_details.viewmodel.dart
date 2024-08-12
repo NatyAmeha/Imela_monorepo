@@ -24,6 +24,12 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
     @Named(GoRouterService.injectName) required this.router,
   });
+
+// widget controllers
+  final productListController = Get.put(CustomListController<Product>(), tag: 'AllProducts');
+  late TabController businessSectionTabControllers;
+   ScrollController businessHeaderScrollController = ScrollController();
+
   // page state variables
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
@@ -31,32 +37,28 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   var businessDetails = Rxn<BusinessResponse>();
   var isAppbarExpanded = true.obs;
 
+  Map<String, CustomListController<Product>> sectionsWithProductsControllers = {};
   static const businessUiHeaderHeight = 170;
 
   // getters
   Business? get businessData => businessDetails.value?.business;
   List<BusinessSection> get sections => businessDetails.value?.business?.sections ?? [];
+  List<Product> get featuredProducts => businessDetails.value?.products?.where((element) => element.featured == true).toList() ?? [];
 
-  Map<String, CustomListController<Product>> get businessSectionsWithProductListController {
-    var sectionsWithProducts = {'Overview': productListController};
+  void createBusinessSectionsWithProductListController() {
+    sectionsWithProductsControllers = {'Overview': productListController};
     for (var section in sections) {
-      if (section.name.localize().isNotEmpty == true) {
+      final sectionName = section.name.localize();
+      if (sectionName.isNotEmpty == true) {
         var products = productListController.items.where((element) => section.productIds?.contains(element.id) == true).toList();
-        final sectionName = section.name.localize();
         var newProductListController = Get.put(CustomListController<Product>(), tag: sectionName);
         newProductListController.addItems(products);
-        sectionsWithProducts[sectionName] = newProductListController;
+        sectionsWithProductsControllers[sectionName] = newProductListController;
       }
     }
-    return sectionsWithProducts;
   }
 
   List<String> get categories => businessDetails.value?.business?.categories ?? [];
-
-  // widget controllers
-  final productListController = Get.put(CustomListController<Product>(), tag: "AllProducts");
-  late TabController businessSectionTabControllers;
-  late ScrollController businessHeaderScrollController ;
 
   void assignTabController(int length, TickerProvider vsync) {
     businessSectionTabControllers = TabController(length: length, vsync: vsync);
@@ -64,31 +66,32 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
-    businessHeaderScrollController = ScrollController(); 
     super.initViewmodel(data: data);
     final businessId = data!['id'] as String;
-    getbusinessDetails(businessId);
+    getBusinessDetails(businessId);
   }
 
   void listenAppbarHeaderScroll() {
     businessHeaderScrollController.addListener(() {
-      if (businessHeaderScrollController.offset > businessUiHeaderHeight && isAppbarExpanded.value) {
+      if (businessHeaderScrollController.offset > businessUiHeaderHeight) {
         isAppbarExpanded(false);
-      } else if (businessHeaderScrollController.offset <= businessUiHeaderHeight && !isAppbarExpanded.value) {
+      } else if (businessHeaderScrollController.offset <= businessUiHeaderHeight) {
         isAppbarExpanded(true);
       }
     });
   }
 
-  Future<void> getbusinessDetails(String id) async {
+  Future<void> getBusinessDetails(String id) async {
     try {
       isLoading(true);
+      cleanupStateVariables();
       final result = await businessUsecase.getBusinessDetails(id);
       if (result == null) {
         exception(AppException(message: 'Business not found'));
       }
       businessDetails.value = result;
       productListController.addItems(result?.products);
+      createBusinessSectionsWithProductListController();
     } catch (e) {
       exception(exceptiionHandler.getException(e as Exception));
     } finally {
@@ -96,13 +99,17 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     }
   }
 
-  navigateToFeaturedProductListPage(BuildContext context) {
-    router.navigateTo(context, '${ProductListPage.baseRouteName}/featured', extra: {'title': 'Featured products', 'products': businessDetails.value?.products, 'displayStyle': ListDisplayStyle.List});
+  void navigateToFeaturedProductListPage(BuildContext context) {
+    router.navigateTo(context, '${ProductListPage.baseRouteName}/featured', extra: {'title': 'Featured products', 'products': featuredProducts, 'displayStyle': ListDisplayStyle.List});
+  }
+
+  void navigateToAllProductsPage(BuildContext context) {
+    router.navigateTo(context, '${ProductListPage.baseRouteName}/all', extra: {'title': 'All products', 'products': businessDetails.value?.products, 'displayStyle': ListDisplayStyle.Grid});
   }
 
   // Widget helpers
   List<Widget> getBusinessSectionTabs() {
-    return businessSectionsWithProductListController.keys.map((e) => Tab(text: e)).toList();
+    return sectionsWithProductsControllers.keys.map((e) => Tab(text: e)).toList();
   }
 
   // navigation helpers
@@ -110,11 +117,23 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.localize()});
   }
 
+  void cleanupStateVariables() {
+    businessDetails.value = null;
+    exception.value = null;
+    productListController.items.clear();
+    sectionsWithProductsControllers.forEach((key, value) {
+      value.items.clear();
+    });
+  }
 
   @override
   void dispose() {
-    businessHeaderScrollController.dispose();
-    productListController.dispose();
+    print("dispose business details viewmodel");
+    
+    // businessHeaderScrollController.dispose();
+    sectionsWithProductsControllers.forEach((key, value) {
+      value.dispose();
+    });
     super.dispose();
   }
 

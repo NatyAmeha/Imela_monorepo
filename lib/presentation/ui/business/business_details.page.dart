@@ -13,10 +13,10 @@ class BusinessDetailsPage extends StatefulWidget {
   static const baseRouteName = '/business';
   static const routeName = '$baseRouteName/:id';
   static const idQueryParameter = 'id';
-   BusinessDetailsViewModel? businessViewmodel;
+  BusinessDetailsViewModel? businessViewmodel;
   final String businessId;
   final String? businessName;
-   BusinessDetailsPage({super.key, required this.businessId, this.businessName, this.businessViewmodel}) {
+  BusinessDetailsPage({super.key, required this.businessId, this.businessName, this.businessViewmodel}) {
     businessViewmodel ??= Get.put(getIt<BusinessDetailsViewModel>());
   }
 
@@ -25,14 +25,14 @@ class BusinessDetailsPage extends StatefulWidget {
 
   static void navigateToBusinessDetailPage(BuildContext context, IRoutingService router, Business business, {Widget? previousPage}) {
     router.navigateTo(context, '${BusinessDetailsPage.baseRouteName}/${business.id}', extra: {'name': '${business.name?.localize()}', GoRouterService.PREVIOUS_PAGE_KEY: previousPage});
-  
   }
 }
 
 class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
+  bool get canShowContent => widget.businessViewmodel!.businessDetails.value != null && (widget.businessViewmodel!.exception.value == null || widget.businessViewmodel!.exception.value?.isMainError == false);
   void initializeViewmodel() {
     Future.delayed(Duration.zero, () {
-      widget.businessViewmodel!.initViewmodel(data : {'id' : widget.businessId});
+      widget.businessViewmodel!.initViewmodel(data: {'id': widget.businessId});
     });
   }
 
@@ -50,12 +50,13 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
         () => PageContentLoader(
           isLoading: widget.businessViewmodel!.isLoading.value,
           hasError: widget.businessViewmodel!.exception.value?.isMainError ?? false,
-          showContent: widget.businessViewmodel!.businessDetails.value != null,
+          showContent: canShowContent,
+          exception: widget.businessViewmodel!.exception.value,
+          onTryAgain: (){
+            initializeViewmodel();
+          },
           content: ResponsiveWrapper(
-            smallScreen: BusinessDetailsSmallScreen(
-              businessDetailsViewmodel: widget.businessViewmodel!,
-              businessName: widget.businessName,
-            ),
+            smallScreen: BusinessDetailsSmallScreen(businessDetailsViewmodel: widget.businessViewmodel!, businessName: widget.businessName),
           ),
         ),
       ),

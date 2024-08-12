@@ -56,6 +56,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           content: ResponsiveWrapper(
             smallScreen: SmallScreenProductDetail(viewmodel: viewmodel, widgetFactory: appWidgetFactory),
           ),
+          onTryAgain: (){
+            initializeViewmodel();
+          },
         ),
       ),
     );

@@ -45,6 +45,7 @@ query GetBusinessDetails($id: String!) {
         key
         value
       }
+      featured
       prices {
         price {
           amount
@@ -72,6 +73,17 @@ query GetBusinessDetails($id: String!) {
       }
       membersProductIds
       groupsId
+    }
+    paymentOptions{
+       id
+      name{
+        value
+      }
+      type
+      upfrontPayment
+      dueDate
+      
+      
     }
     
   }

@@ -16,6 +16,7 @@ class ProductListViewmodel extends GetxController with BaseViewmodel {
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
+    productListController.items.clear();
     var products = data?['products'] as List<Product>;
     if (products.isNotEmpty) {
       productListController.addItems(products);

@@ -15,6 +15,7 @@ query GetProductDetails($id : String!){
           currency
         }
       }
+      featured
       description {
         key
         value
