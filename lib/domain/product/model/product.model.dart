@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/branch/branch.model.dart';
-import 'package:melegna_customer/domain/branch/inventory.model.dart';
+import 'package:melegna_customer/domain/branch/model/branch.model.dart';
+import 'package:melegna_customer/domain/branch/model/inventory.model.dart';
+
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
 import 'package:melegna_customer/domain/product/model/product_price.model.dart';
@@ -15,39 +16,41 @@ part 'product.model.g.dart';
 @freezed
 class Product with _$Product {
   const Product._();
-  const factory Product(
-      {String? id,
-      List<LocalizedField>? name,
-      List<LocalizedField>? displayName,
-      List<LocalizedField>? description,
-      Gallery? gallery,
-      Business? business,
-      List<String>? tag,
-      @Default(1) int minimumOrderQty,
-      int? loyaltyPoint,
-      String? businessId,
-      List<String>? sectionId,
-      bool? isActive,
-      List<String>? category,
-      String? type,
-      DateTime? createdAt,
-      DateTime? updatedAt,
-      bool? canOrderOnline,
-      List<String>? reviewTopics,
-      String? sku,
-      List<ProductOption>? options,
-      List<String>? optionsIncluded,
-      List<String>? variantsId,
-      List<Product>? variants,
-      bool? mainProduct,
-      List<Inventory>? inventory,
-      String? callToAction,
-      List<String>? branchIds,
-      String? deliveryInfoId,
-      List<Branch>? branches,
-      List<ProductAddon>? addons,
-      int? totalViews,
-      List<ProductPrice>? prices}) = _Product;
+  const factory Product({
+    String? id,
+    List<LocalizedField>? name,
+    List<LocalizedField>? displayName,
+    List<LocalizedField>? description,
+    bool? featured,
+    Gallery? gallery,
+    Business? business,
+    List<String>? tag,
+    @Default(1) int minimumOrderQty,
+    int? loyaltyPoint,
+    String? businessId,
+    List<String>? sectionId,
+    bool? isActive,
+    List<String>? category,
+    String? type,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? canOrderOnline,
+    List<String>? reviewTopics,
+    String? sku,
+    List<ProductOption>? options,
+    List<String>? optionsIncluded,
+    List<String>? variantsId,
+    List<Product>? variants,
+    bool? mainProduct,
+    List<Inventory>? inventory,
+    String? callToAction,
+    List<String>? branchIds,
+    String? deliveryInfoId,
+    List<Branch>? branches,
+    List<ProductAddon>? addons,
+    int? totalViews,
+    List<ProductPrice>? prices,
+  }) = _Product;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
 
@@ -82,7 +85,7 @@ class Product with _$Product {
     return 'Min Order - $minimumOrderQty';
   }
 
-  String getCallToAction(){
+  String getCallToAction() {
     return callToAction ?? 'Order';
   }
 }

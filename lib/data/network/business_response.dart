@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:melegna_customer/data/base_response.dart';
-import 'package:melegna_customer/domain/branch/branch.model.dart';
+import 'package:melegna_customer/domain/branch/model/branch.model.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 

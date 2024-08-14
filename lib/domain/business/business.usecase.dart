@@ -10,7 +10,7 @@ class BusinessUsecase {
   const BusinessUsecase(@Named(BusinessRepository.injectName) this._businessRepository);
 
   Future<BusinessResponse?> getBusinessDetails(String businessId) async {
-    var result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    var result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
     return result;
   }
 }
