@@ -13,6 +13,7 @@ import 'package:melegna_customer/presentation/ui/product/components/grid_product
 import 'package:melegna_customer/presentation/ui/shared/app_tabview.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 
 class BusinessDetailsSmallScreen extends StatefulWidget {
   final BusinessDetailsViewModel businessDetailsViewmodel;
@@ -87,7 +88,6 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               crossAxisSpacing: 8,
               mainAxisSpacing: 16,
               primary: false,
-             
               itemBuilder: (context, productData, index) {
                 return GridProductListItem(
                   product: productData,
@@ -113,9 +113,10 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
     }
     widget.businessDetailsViewmodel.dispose();
     super.dispose();
-  } 
+  }
 
-  Widget buildBusinessOverview( WidgetFactory widgetFactory) {
+  Widget buildBusinessOverview(WidgetFactory widgetFactory) {
+    final businessDescription = widget.businessDetailsViewmodel.businessData?.description;
     return SingleChildScrollView(
       primary: true,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -128,18 +129,19 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (widget.businessDetailsViewmodel.businessData?.description?.isNotEmpty == true) ...[
-                  appWidgetFactory.createText(context, '${widget.businessDetailsViewmodel.businessData?.description.localize()}', style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
-                ],
+                appWidgetFactory.createText(context, businessDescription.localize(), style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis).showIfTrue(businessDescription?.isNotEmpty == true),
                 const SizedBox(height: 16),
                 const BusinessAddressQuickActionComponenet(),
                 const SizedBox(height: 16),
-                appWidgetFactory.createButton(context: context, content: const Text('Get more info'), onPressed: () {}),
-                const SizedBox(height: 16),
+                OutlinedButton(onPressed: (){
+                  widget.businessDetailsViewmodel.showBusinessInfoDialog(context, widgetFactory);
+                  
+                }, child: Text("Get More")),
+                
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           AppGridView(
             shrinkWrap: true,
             // controller: widget.businessDetailsViewmodel.productListController,
@@ -158,15 +160,23 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               },
             ),
             itemBuilder: (context, productData, index) {
-              return GridProductListItem(product: productData, imageHeight: 150, imageWidth: double.infinity, widgetFactory: widgetFactory, onTap: () {
-                widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
-              });
+              return GridProductListItem(
+                  product: productData,
+                  imageHeight: 150,
+                  imageWidth: double.infinity,
+                  widgetFactory: widgetFactory,
+                  onTap: () {
+                    widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
+                  });
             },
           ),
           const SizedBox(height: 24),
-          widgetFactory.createButton(context: context, content: const Text('View all products'), onPressed: () {
-            widget.businessDetailsViewmodel.navigateToAllProductsPage(context);
-          }),
+          widgetFactory.createButton(
+              context: context,
+              content: const Text('View all products'),
+              onPressed: () {
+                widget.businessDetailsViewmodel.navigateToAllProductsPage(context);
+              }),
         ],
       ),
     );

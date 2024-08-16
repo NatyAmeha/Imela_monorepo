@@ -5,6 +5,7 @@ part 'address.model.g.dart';
 
 @freezed
 class Address with _$Address {
+  const Address._();
   const factory Address({
     String? id,
     String? address,

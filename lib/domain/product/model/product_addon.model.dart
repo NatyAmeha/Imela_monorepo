@@ -17,6 +17,7 @@ enum AddonInputType {
   DATE_INPUT,
   TIME_INPUT,
   DATE_TIME_INPUT,
+  DATE_RANGE_INPUT,
 }
 
 @freezed

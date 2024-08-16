@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
@@ -14,7 +15,7 @@ class VerticalProductListItem extends StatelessWidget {
   final double? imageWidth;
   final WidgetFactory widgetFactory;
   final bool showBusiness;
-  final bool showMinOrderQty;
+  final bool showRemainingQty;
   final Function()? onTap;
   const VerticalProductListItem({
     super.key,
@@ -23,13 +24,15 @@ class VerticalProductListItem extends StatelessWidget {
     this.imageHeight,
     this.imageWidth = double.infinity,
     this.showBusiness = false,
-    this.showMinOrderQty = true,
+    this.showRemainingQty = true,
     this.onTap,
   });
 
   String? get productOptionValue => product.getProductOptionInfo();
 
   bool get isProductOptionAvailable => productOptionValue != null && productOptionValue!.isNotEmpty;
+  String get remainingQtyInfo => '${product.remainingAmount} remaining';
+  bool get canShowRemainingQty => showRemainingQty &&  (product.remainingAmount?.isLowerThan(10) ?? false);
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +64,9 @@ class VerticalProductListItem extends StatelessWidget {
                   children: [
                     widgetFactory.createIcon(materialIcon: Icons.book, size: 16),
                     const SizedBox(width: 4),
-                    widgetFactory.createText(context, product.getMinOrderQty(), style: Theme.of(context).textTheme.bodySmall),
+                    widgetFactory.createText(context, remainingQtyInfo, style: Theme.of(context).textTheme.bodySmall),
                   ],
-                ).showIfTrue(showMinOrderQty),
+                ).showIfTrue(canShowRemainingQty),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisSize: MainAxisSize.min,

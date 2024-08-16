@@ -21,7 +21,7 @@ class DiscoveryRepository implements IDiscoveryRepository {
     final request = GGetDiscoveryDataReq(
       (b) => b..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
-    final result = await _graphQLDataSource.query<GGetDiscoveryDataData>(request, type: "BROWSE", isMainError: true);
+    final result = await _graphQLDataSource.request<GGetDiscoveryDataData>(request, type: "BROWSE", isMainError: true);
     if (result == null) {
       return null;
     }

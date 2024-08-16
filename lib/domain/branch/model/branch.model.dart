@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/branch/inventory_location.model.dart';
+import 'package:melegna_customer/domain/branch/model/inventory_location.model.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/product/model/pricelist.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
@@ -12,8 +12,8 @@ part 'branch.model.freezed.dart';
 part 'branch.model.g.dart';
 
 @freezed
-// @JsonSerializable(explicitToJson: true)
-class Branch with _$Branch {
+class Branch with _$Branch { 
+  const Branch._();
   const factory Branch({
     String? id,
     List<LocalizedField>? name,
@@ -37,4 +37,11 @@ class Branch with _$Branch {
   }) = _Branch;
 
   factory Branch.fromJson(Map<String, dynamic> json) => _$BranchFromJson(json);
+
+  String get getAddressInfo {
+    if(address?.address != null) {
+      return '${address?.city}, ${address?.address}';
+    }
+    return address?.city ?? '';
+  }
 }

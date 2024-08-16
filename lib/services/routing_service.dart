@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart' as AppProduct;
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.page.dart';
+import 'package:melegna_customer/presentation/ui/cart/cart_list_page.dart';
 import 'package:melegna_customer/presentation/ui/home/home.page.dart';
 import 'package:melegna_customer/presentation/ui/product/product_details/product_details.page.dart';
 import 'package:melegna_customer/presentation/ui/product/product_list/product_list_page.dart';
@@ -88,7 +89,13 @@ class GoRouterService implements IRoutingService {
           final bundleName = arguments[BundleDetailPage.nameQueryKey];
           return buildPageWithCustomTransition(state, BundleDetailPage(id: bundleId!, bundleName: bundleName), previousScreen: prevScreen);
         },
-      )
+      ),
+      GoRoute(
+        path: CartListPage.routeName,
+        pageBuilder: (context, state) {
+          return buildPageWithCustomTransition(state, CartListPage());
+        },
+      ),
     ],
   );
   @override

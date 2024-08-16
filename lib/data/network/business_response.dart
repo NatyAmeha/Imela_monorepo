@@ -10,7 +10,6 @@ part 'business_response.freezed.dart';
 @freezed
 class BusinessResponse with _$BusinessResponse {
   const factory BusinessResponse({
-    BaseResponse? baseResponse,
     Business? business,
     List<Business>? businesses,
     List<Branch>? branches,

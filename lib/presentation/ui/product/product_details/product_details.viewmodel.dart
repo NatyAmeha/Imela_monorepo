@@ -1,28 +1,40 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
+import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/data/network/product_response.dart';
+import 'package:melegna_customer/domain/business/model/business.model.dart';
+import 'package:melegna_customer/domain/order/model/order_config.model.dart';
+import 'package:melegna_customer/domain/order/order.usecase.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
 import 'package:melegna_customer/domain/product/product.usecase.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:melegna_customer/presentation/resources/values.dart';
+import 'package:melegna_customer/presentation/ui/app_controller.dart';
+import 'package:melegna_customer/presentation/ui/cart/cart_list_page.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_addon_modal.dart';
+import 'package:melegna_customer/presentation/ui/product/components/product_order_config_modal.dart';
 import 'package:melegna_customer/presentation/ui/product/components/product_features_list.dart';
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
+import 'package:melegna_customer/presentation/utils/order_utils.dart';
+import 'package:melegna_customer/presentation/utils/string_utils.dart';
 import 'package:melegna_customer/services/routing_service.dart';
 
 @injectable
 class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   final ProductUsecase productUsecase;
+  final OrderUsecase orderUsecase;
   final IExceptiionHandler exceptiionHandler;
   final IRoutingService router;
 
   ProductDetailsViewmodel({
     required this.productUsecase,
+    required this.orderUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
     @Named(GoRouterService.injectName) required this.router,
   });
@@ -36,41 +48,51 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   String get productName => productDetails.value?.product?.name.localize() ?? '';
   String get getProductDescription => productDetails.value?.product?.description?.localize() ?? '';
   List<String> get getProductImage => productDetails.value!.product?.gallery?.getImages() ?? [];
+  Business get businessInfo => productDetails.value!.product!.business!;
 
   var isAppbarExpanded = true.obs;
+
+  var selectedProductQty = 1.0.obs;
 
   var selectedProductOption = Rxn<Product>();
   bool get isOptionSelected => productOptions.isNotEmpty ? selectedProductOption.value != null : true;
   bool isProductOptionSelected(Product product) => selectedProductOption.value?.id == product.id;
 
-  var selectedAddonDateRange = <String, DateTimeRange>{}.obs;
-  DateTimeRange? getSelectedDateRange(String addonId) => selectedAddonDateRange[addonId];
-
-  var selectedSingleOptions = <String, String>{}.obs;
-  String? getSelectedSingleOptionOfAddon(String addonId) => selectedSingleOptions[addonId];
-
   var addonsSelectedQtyChange = <String, double>{}.obs;
   double? getSelectedAddonQty(String addonId) => addonsSelectedQtyChange[addonId];
 
-  void selectDefaultAddons() {
-    productInfo?.addons?.where((addon) => addon.isRequired == true).forEach((addon) {
-      if (addon.isNumberInput) {
-        addonsSelectedQtyChange.addAll({addon.id!: addon.minAmount});
-      } else if (addon.isSingleSelectionInput && addon.options.isNotEmpty == true) {
-        selectedSingleOptions.addAll({addon.id!: addon.options.first.name.localize()});
-      }
-    });
+  var productOrderConfig = <OrderConfig>[].obs;
+  void addOrUpdateOrderConfig(OrderConfig config) {
+    final index = productOrderConfig.indexWhere((element) => element.addonId == config.addonId);
+    if (index != -1) {
+      productOrderConfig[index] = config;
+    } else {
+      productOrderConfig.add(config);
+    }
   }
 
+  OrderConfig? getAddonOrderConfig(String addonId) {
+    return productOrderConfig.value.firstWhereOrNull((config) => config.addonId == addonId);
+  }
+
+  // void selectDefaultOrderConfig() {
+  //   productInfo?.addons?.where((addon) => addon.isRequired == true).forEach((addon) {
+  //     if (addon.isNumberInput) {
+  //     } else if (addon.isSingleSelectionInput && addon.options.isNotEmpty == true) {
+  //       selectedSingleOptions.addAll({addon.id!: addon.options.first.name.localize()});
+  //     }
+  //   });
+  // }
+
   bool get canEnableAddonContinueBtn {
-    bool isDateSelected = false;
     final requiredAddons = productInfo?.addons?.where((addon) => addon.isRequired);
-    requiredAddons?.forEach((addon) {
-      if (addon.isDateInput || addon.isDateTimeInput || addon.isTimeINput) {
-        isDateSelected = selectedAddonDateRange.containsKey(addon.id);
-      }
-    });
-    return isDateSelected;
+    if(requiredAddons.isBlank == true){
+      return true;
+    } 
+    return requiredAddons?.any((addon) {
+          return productOrderConfig.isContainAddonId(addon.id!);
+        }) ??
+        true;
   }
 
   List<Product> get productOptions => productDetails.value?.variants ?? [];
@@ -109,11 +131,18 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     try {
       cleanupStateVariables();
       isLoading(true);
-      productDetails.value = await productUsecase.getProductDetails(productId);
+      ProductResponse? response;
+      response = await productUsecase.getProductDetails(productId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
+      final isCacheFetchSucessful = response?.isProductFetchSuccessfull() ?? false;
+      if (!isCacheFetchSucessful) {
+        response = await productUsecase.getProductDetails(productId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+      }
+      productDetails.value = response;
+      selectedProductQty(productDetails.value?.product?.minimumOrderQty.toDouble() ?? 1.0);
       if (productOptions.isNotEmpty) {
         productOptionListController.addItems(productOptions);
       }
-      selectDefaultAddons();
+      // selectDefaultOrderConfig();
     } on AppException catch (e) {
       exception.value = e;
     } catch (e) {
@@ -136,46 +165,78 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   }
 
   void handleJourney(BuildContext context, WidgetFactory widgetFactory) async {
-    if (productInfo?.addons?.isNotEmpty == true) {
-      double screenHeight = MediaQuery.sizeOf(context).height;
-      const double addonWidgetHeight = 100.0;
+    double screenHeight = MediaQuery.sizeOf(context).height;
+    const double addonWidgetHeight = 100.0;
 
-      // Calculate the total height required for all addons
-      double totalHeight = productInfo!.addons!.length * addonWidgetHeight + 200;
+    // Calculate the total height required for all addons
+    double totalHeight = productInfo!.addons!.length * addonWidgetHeight + 200;
 
-      // Normalize the height to a value between 0 and 1
-      double normalizedHeight = totalHeight / screenHeight;
-      normalizedHeight = normalizedHeight.clamp(0.0, 1.0);
-      print("normalized height $normalizedHeight");
-      normalizedHeight = normalizedHeight <= 0.5 ? 0.52 : normalizedHeight;
-      var initialHeight = normalizedHeight <= 0.85 ? normalizedHeight : 0.5;
+    // Normalize the height to a value between 0 and 1
+    double normalizedHeight = totalHeight / screenHeight;
+    normalizedHeight = normalizedHeight.clamp(0.0, 1.0);
+    print("normalized height $normalizedHeight");
+    normalizedHeight = normalizedHeight <= 0.5 ? 0.52 : normalizedHeight;
+    var initialHeight = normalizedHeight <= 0.85 ? normalizedHeight : 0.5;
 
-      await widgetFactory.createModalBottomSheet(
-        context,
-        content: (scrollController) => ProductAddonModal(
+    await widgetFactory.createModalBottomSheet(
+      context,
+      content: (scrollController) => Obx(
+        () => ProductOrderConfigModal(
+          product: productInfo!,
+          qty: selectedProductQty.value,
           widgetFactory: widgetFactory,
-          addons: productInfo!.addons!,
           scrollController: scrollController,
           productDetailsViewmodel: this,
-          onContinue: () {
-            router.goBack(context);
+          onQtyChange: (newQtyValue) {
+            if (productInfo?.canOrderWithQty(newQtyValue) == true) {
+              selectedProductQty(newQtyValue);
+            }
+          },
+          onContinue: () async {
+            await router.goBack(context);
+            addtoCart(context);
           },
         ),
-        initialHeight: initialHeight,
-        maxHeight: normalizedHeight,
-      );
+      ),
+      initialHeight: initialHeight,
+      maxHeight: normalizedHeight,
+    );
+  }
+
+  Future<void> addtoCart(BuildContext context) async {
+    try {
+      isLoading(true);
+      final result = await orderUsecase.addToCart(businessInfo.id!, businessInfo.name!, [selectedProduct.getOrderItem(selectedProductQty.value, config: productOrderConfig.value)]);
+      if (result?.success == true) {
+        print("cart added successfully");
+        AppController.getInstance.addToCart([result!.cart!]);
+      }
+    } catch (e) {
+      exception.value = exceptiionHandler.getException(e as Exception);
+      if (exception.value?.code == ErrorResourceValues.UnAUTHORIZED_EXCEPTION_CODE) {
+        navigateToLoginPage(context);
+      }
+    } finally {
+      isLoading.value = false;
     }
   }
 
+  void navigateToLoginPage(BuildContext context) {
+    router.navigateTo(context, CartListPage.routeName);
+  }
+
   void handleAddonDateSelection(BuildContext context, ProductAddon addon, WidgetFactory widgetFactory) async {
-    final pickedDate = await widgetFactory.showDateRangePickerUI(context, initialDateRange: getSelectedDateRange(addon.id!));
+    final selectedDateRange = getAddonOrderConfig(addon.id!)?.multipleValue.toDateRange();
+    final pickedDate = await widgetFactory.showDateRangePickerUI(context, initialDateRange: selectedDateRange);
     if (pickedDate != null) {
-      selectedAddonDateRange.addAll({addon.id!: pickedDate});
+      final config = OrderConfig.createDateRangeOrderConfig(addon.name!, pickedDate, addon.id!);
+      addOrUpdateOrderConfig(config);
     }
   }
 
   void handleProductAddonsingleSelection(BuildContext context, ProductAddon addon, {required String value, required WidgetFactory widgetFactory}) async {
-    selectedSingleOptions.addAll({addon.id!: value});
+    final config = OrderConfig.createSingleSelectOrderConfig(addon.name!, value, addon.id!);
+    productOrderConfig.add(config);
   }
 
   void handleProductAddonQtyChange(BuildContext context, ProductAddon addon, {required double value, required WidgetFactory widgetFactory}) async {
@@ -183,8 +244,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   }
 
   void cleanupStateVariables() {
-    selectedAddonDateRange.clear();
-    selectedSingleOptions.clear();
+    productOrderConfig.clear();
     addonsSelectedQtyChange.clear();
     selectedProductOption(null);
     exception.value = null;

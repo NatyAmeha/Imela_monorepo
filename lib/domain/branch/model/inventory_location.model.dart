@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/branch/branch.model.dart';
+import 'package:melegna_customer/domain/branch/model/branch.model.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 
 part 'inventory_location.model.freezed.dart';
@@ -8,6 +8,7 @@ part 'inventory_location.model.g.dart';
 @freezed
 // @JsonSerializable(explicitToJson: true)
 class InventoryLocation with _$InventoryLocation {
+  const InventoryLocation._();
   const factory InventoryLocation({
     String? id,
     String? name,

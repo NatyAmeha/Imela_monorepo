@@ -22,7 +22,7 @@ class ProductRepository implements IProductRepository {
         ..vars.id = id
         ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
-    final result = await _graphQLDataSource.query<GGetProductDetailsData>(request, type: GET_PRODUCT_DETAILS, isMainError: true);
+    final result = await _graphQLDataSource.request<GGetProductDetailsData>(request, type: GET_PRODUCT_DETAILS, isMainError: true);
     if (result == null) {
       return null;
     }

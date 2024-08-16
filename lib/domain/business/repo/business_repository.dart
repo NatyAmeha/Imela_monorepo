@@ -25,7 +25,7 @@ class BusinessRepository implements IBusinessrepository {
         ..vars.id = id
         ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
-    final result = await _graphQLDataSource.query<GGetBusinessDetailsData?>(request, type: "GET_BUSINESS_DETAILS", isMainError: true);
+    final result = await _graphQLDataSource.request<GGetBusinessDetailsData?>(request, type: "GET_BUSINESS_DETAILS", isMainError: true);
     if (result?.getBusinessDetails == null) {
       return null;
     }

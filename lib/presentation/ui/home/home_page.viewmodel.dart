@@ -17,6 +17,7 @@ import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.page.dart';
+import 'package:melegna_customer/presentation/ui/cart/cart_list_page.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/home/components/feature_promo_banner.dart';
 import 'package:melegna_customer/presentation/ui/home/discover/discover.page.dart';
@@ -81,6 +82,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
             homepageViewmodel: this,
           )),
       Destination(title: 'For You', icon: widgetFactory.createIcon(materialIcon: Icons.search, cupertinoIcon: CupertinoIcons.search), page: const ForYouPage()),
+      Destination(title: 'Cart', icon: widgetFactory.createIcon(materialIcon: Icons.shopping_cart, cupertinoIcon: CupertinoIcons.cart), page: CartListPage()),
     ];
   }
 
@@ -105,7 +107,9 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   // data operation
 
   Future<void> getBrowseData() async {
-    isBrowseDataLoading.value = true;
+    exception(null);
+    isBrowseDataLoading(true);
+    browseData.value = null;
     try {
       final response = await discoverUsecase.getDiscoveryDetails();
       if (response == null) {
@@ -161,10 +165,10 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   }
 
   void moveToBundleDetailPage(BuildContext context, ProductBundle bundle, {Widget? previousPage}) {
-    BundleDetailPage.navigateToBundleDetailPage(context, router, bundle, previousPage: null); 
+    BundleDetailPage.navigateToBundleDetailPage(context, router, bundle, previousPage: null);
   }
- 
-  @override 
+
+  @override
   void dispose() {
     _autoScrollTimer?.cancel();
     super.dispose();

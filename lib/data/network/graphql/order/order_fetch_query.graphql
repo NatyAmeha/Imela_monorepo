@@ -1,0 +1,28 @@
+query GetOrders{
+     
+  getUserOrders {
+    success
+    orders {
+      id
+      items {
+        name {
+          key
+          value
+        }
+        quantity
+        config {
+          type
+          name {
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          productIds
+        }
+      }
+    }
+  }
+
+
+}

@@ -78,6 +78,9 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                     widget.widgetFactory.createText(context, widget.viewmodel.getProductDescription, maxLines: 4, style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 16),
                     ProductFeaturesListComponent(widgetFactory: widget.widgetFactory, features: widget.viewmodel.getProductFeatures()),
+                    widget.widgetFactory.createText(context, 'Minimum order: ${widget.viewmodel.selectedProduct.minimumOrderQty}', style: Theme.of(context).textTheme.labelMedium),
+                                        widget.widgetFactory.createText(context, 'Remaining items: ${widget.viewmodel.productDetails.value?.product?.remainingAmount}', style: Theme.of(context).textTheme.labelMedium),
+
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,15 +117,20 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
           Positioned(
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: Obx(
-                () => ProductCallToActionBottomComponenet(
-                  product: widget.viewmodel.selectedProduct,
-                  widgetFactory: widget.widgetFactory,
-                  enableCallToActionBtn: widget.viewmodel.isOptionSelected,
-                  onPressed: () async {
-                    widget.viewmodel.handleJourney(context, widget.widgetFactory);
-                  },
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Obx(
+                    () => ProductCallToActionBottomComponenet(
+                      product: widget.viewmodel.selectedProduct,
+                      widgetFactory: widget.widgetFactory,
+                      enableCallToActionBtn: widget.viewmodel.isOptionSelected,
+                      onPressed: ()  {
+                        widget.viewmodel.handleJourney(context, widget.widgetFactory);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           )

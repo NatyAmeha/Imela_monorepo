@@ -1,15 +1,7 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:melegna_customer/data/network/graphql_datasource.dart';
 
-part 'base_response.freezed.dart';
-part 'base_response.g.dart';
+abstract class BaseResponse {
+  const BaseResponse._();
+  bool isSuccsess({ApiDataFetchPolicy? fetchPolicy});
 
-@freezed
-class BaseResponse with _$BaseResponse {
-  const factory BaseResponse({
-    bool? success,
-    String? message,
-    int? code,
-  }) = _BaseResponse;
-
-  factory BaseResponse.fromJson(Map<String, dynamic> json) => _$BaseResponseFromJson(json);
 }

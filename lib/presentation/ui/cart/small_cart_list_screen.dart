@@ -1,0 +1,40 @@
+import 'package:flutter/material.dart';
+import 'package:melegna_customer/domain/order/model/cart.model.dart';
+import 'package:melegna_customer/presentation/ui/cart/cart_list.viewmodel.dart';
+import 'package:melegna_customer/presentation/ui/cart/components/cart_list_item.dart';
+import 'package:melegna_customer/presentation/ui/cart/components/empty_cart.dart';
+import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+
+import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
+
+class SmallCartListScreen extends StatelessWidget {
+  final CartListViewmodel viewmodel;
+  final WidgetFactory widgetFactory;
+  const SmallCartListScreen({super.key, required this.viewmodel, required this.widgetFactory});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Carts')),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          viewmodel.getCartsFromApi();
+        },
+        child: viewmodel.carts.isNotEmpty
+            ? AppListView<Cart>(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                controller: viewmodel.cartListController,
+                itemBuilder: (context, cartInfo, index) {
+                  return CartListItem(
+                    cartInfo: cartInfo,
+                    widgetFactory: widgetFactory,
+                    onclick: () {},
+                  );
+                },
+              )
+            : EmptyCartCard(widgetFactory: widgetFactory),
+      ),
+    );
+  }
+}

@@ -25,7 +25,7 @@ class AppListView<T> extends StatelessWidget {
     this.width = double.infinity,
     this.height,
     this.shrinkWrap = false,
-    this.separator = const Divider(),
+    this.separator = const SizedBox(),
     this.primary = true,
     this.padding = const EdgeInsets.all(0),
     this.contentPadding = const EdgeInsets.all(0),

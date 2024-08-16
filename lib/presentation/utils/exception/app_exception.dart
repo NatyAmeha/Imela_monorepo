@@ -34,6 +34,7 @@ class AppExceptionHandler implements IExceptiionHandler {
 
   @override
   AppException getException(Exception excetpion) {
+    print("exception type ${excetpion.runtimeType}");
     if (excetpion is GraphqlException) {
       return excetpion.serialize();
     }

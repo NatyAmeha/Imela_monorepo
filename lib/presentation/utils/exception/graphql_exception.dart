@@ -7,6 +7,9 @@ class GraphqlException extends AppException {
 
   @override
   AppException serialize() {
+    if(isUnAuthorizedException()){
+      return AppException(message: 'UnAuthorized', code: '401', type: 'UnAuthorized', isMainError: isMainError);
+    }
     message = errors?.map((e) {
       final buffer = StringBuffer();
       buffer.writeln('Message: ${e.message}');
@@ -21,6 +24,10 @@ class GraphqlException extends AppException {
       }
       return buffer.toString();
     }).join('\n');
-    return GraphqlException(message: message, code: code, type: type, isMainError: isMainError, errors: errors);
+    return AppException(message: message, code: code, type: type, isMainError: isMainError);
+  }
+
+  bool isUnAuthorizedException() {
+    return errors?.any((element) => element.extensions?['code'] == '401' || element.extensions?['code'] == 401) ?? false;
   }
 }

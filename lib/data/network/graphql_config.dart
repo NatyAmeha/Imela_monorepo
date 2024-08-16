@@ -23,7 +23,8 @@ class GraphQLConfig {
       // final store = HiveStore(box);
       final cache = Cache(store: store);
       final link = HttpLink('http://192.168.211.134:3000/graphql');
-      final timeoutLink = TimeoutLink(const Duration(seconds: 30), link);
+      final finalHttpLInk =  getAuthToken().concat(link);
+      final timeoutLink = TimeoutLink(const Duration(seconds: 30), finalHttpLInk);
       _ferryGraphQlClient = Client(link: timeoutLink, cache: cache);
       return _ferryGraphQlClient!;
     } catch (e) {
@@ -31,6 +32,25 @@ class GraphQLConfig {
       return Future.error('error initializing graphql client');
     }
   }
+}
+
+Link getAuthToken() {
+  return Link.function((request, [forward]) {
+    final headers = <String, String>{};
+    const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjFmODk0ZjVkYjAzOTJlNWRkZmY2NzYiLCJ1c2VybmFtZSI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJlbWFpbCI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJpYXQiOjE3MjM4MTY3NjUsImV4cCI6MTcyMzkwMzE2NX0.iZtx_csTJJ4Dmt1afbcbCk29sLjLRugJa5MF3gcXl8k';
+    if (authToken.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $authToken';
+    }
+    request = request.updateContextEntry<HttpLinkHeaders>(
+      (existingHeaders) => HttpLinkHeaders(
+        headers: {
+          ...?existingHeaders?.headers,
+          ...headers,
+        },
+      ),
+    );
+    return forward!(request);
+  });
 }
 
 class TimeoutLink extends Link {

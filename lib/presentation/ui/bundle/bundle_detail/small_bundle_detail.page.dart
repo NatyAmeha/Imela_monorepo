@@ -47,7 +47,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                       product: product,
                       widgetFactory: widgetFactory,
                       imageHeight: 150,
-                      showMinOrderQty: false,
+                      showRemainingItem: false,
                       onTap: () {
                         viewmodel.displayBundleProductConfigModal(context, product, widgetFactory);
                       },

@@ -1,0 +1,36 @@
+query GetUserCart{
+    getUserCarts {
+    success
+    carts {
+      id
+      name {
+        key
+        value
+      }
+      businessId
+      userId
+      createdAt
+      updatedAt
+      items {
+        name {
+          key
+          value
+        }
+        productId
+        branchId
+        image
+        tax
+        quantity
+        subTotal
+        discount {
+          id
+          name {
+            key
+            value
+          }
+          amount
+        }
+      }
+    }
+  }
+}

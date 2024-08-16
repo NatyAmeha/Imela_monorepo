@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
@@ -15,7 +16,7 @@ class GridProductListItem extends StatelessWidget {
   final double? imageWidth;
   final WidgetFactory widgetFactory;
   final bool showBusiness;
-  final bool showMinOrderQty;
+  final bool showRemainingItem;
   final Function()? onTap;
   const GridProductListItem({
     super.key,
@@ -24,12 +25,14 @@ class GridProductListItem extends StatelessWidget {
     this.imageHeight,
     this.imageWidth = double.infinity,
     this.showBusiness = false,
-    this.showMinOrderQty = true,
+    this.showRemainingItem = true,
     this.onTap,
   });
 
   String? get productOptionValue => product.getProductOptionInfo();
   bool get hasProductOption => productOptionValue != null && productOptionValue!.isNotEmpty;
+  String get remainingQtyInfo => '${product.remainingAmount} remaining';
+  bool get canShowRemainingQty => showRemainingItem && (product.remainingAmount?.isLowerThan(10) ?? false);
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +56,7 @@ class GridProductListItem extends StatelessWidget {
               children: [
                 widgetFactory.createIcon(materialIcon: Icons.star, color: ColorManager.tertiary, size: 16),
                 const SizedBox(width: 2),
-                widgetFactory.createText(context, '4.5 Rating', style: Theme.of(context).textTheme.titleSmall, color: ColorManager.tertiary),
+                widgetFactory.createText(context, '4.5', style: Theme.of(context).textTheme.titleSmall, color: ColorManager.tertiary),
               ],
             ),
             const SizedBox(height: 4),
@@ -62,9 +65,9 @@ class GridProductListItem extends StatelessWidget {
               children: [
                 widgetFactory.createIcon(materialIcon: Icons.book, size: 16),
                 const SizedBox(width: 4),
-                widgetFactory.createText(context, product.getMinOrderQty(), style: Theme.of(context).textTheme.bodySmall),
+                widgetFactory.createText(context, remainingQtyInfo, style: Theme.of(context).textTheme.bodySmall),
               ],
-            ).showIfTrue(showMinOrderQty),
+            ).showIfTrue(canShowRemainingQty),
             const SizedBox(height: 6),
             Row(
               mainAxisSize: MainAxisSize.min,

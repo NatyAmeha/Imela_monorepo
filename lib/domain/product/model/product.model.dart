@@ -1,9 +1,12 @@
-import 'package:collection/collection.dart';
+
+import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:melegna_customer/domain/branch/model/branch.model.dart';
 import 'package:melegna_customer/domain/branch/model/inventory.model.dart';
 
 import 'package:melegna_customer/domain/business/model/business.model.dart';
+import 'package:melegna_customer/domain/order/model/order_config.model.dart';
+import 'package:melegna_customer/domain/order/model/order_item.model.dart';
 import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
 import 'package:melegna_customer/domain/product/model/product_price.model.dart';
 import 'package:melegna_customer/domain/shared/gallery.model.dart';
@@ -69,7 +72,7 @@ class Product with _$Product {
     if (prices?.length == 1) {
       return prices?.firstOrNull?.price;
     }
-    final defaultPrice = prices?.firstWhereOrNull((price) => price.isDefault == true);
+    final defaultPrice = prices?.firstOrNullWhere((price) => price.isDefault == true);
     return defaultPrice?.price ?? prices?.firstOrNull?.price;
   }
 
@@ -81,12 +84,51 @@ class Product with _$Product {
     return '$productOptionCount options';
   }
 
-  String getMinOrderQty() {
-    return 'Min Order - $minimumOrderQty';
+  double? get remainingAmount {
+    final selectedInventory = inventory?.firstOrNull;
+    if (selectedInventory?.qty != null) {
+      return selectedInventory!.qty;
+    }
+    return null;
+  }
+
+  bool canOrderWithQty(double qty) {
+    if (isActive ?? false || remainingAmount == null) {
+      return false;
+    }
+    return qty.inRange(DoubleRange(minimumOrderQty.toDouble(), remainingAmount!));
   }
 
   String getCallToAction() {
     return callToAction ?? 'Order';
+  }
+
+  applyDefaultAddonValue(){
+    final orderConfig = <OrderConfig>[];
+    addons?.forEach((addon) {
+      if(addon.isSingleSelectionInput){
+        orderConfig.add(OrderConfig.createSingleSelectOrderConfig(addon.name!, addon.options.first.id!, addon.id!));
+      }
+      else if(addon.isMultiSelectionInput){
+        orderConfig.add(OrderConfig.createMultipleSelectOrderConfig(addon.name!, addon.options.map((e) => e.id!).toList(), addon.id!));
+      }
+      if (addon.isSingleSelectionInput && addon.options.isNotEmpty == true) {
+        orderConfig.add(OrderConfig.createSingleSelectOrderConfig(addon.name!, addon.options.first.id!, addon.id!));
+      }
+    });
+
+  }
+
+  OrderItem getOrderItem(double selectedQty, {List<OrderConfig> config = const []}){
+    return OrderItem(
+      name: name,
+      productId: id,
+      image: getImageUrl(),
+      subTotal: getPrice()?.firstOrNull?.amount,
+      discount: [],
+      config: config,
+      quantity: selectedQty,
+    );
   }
 }
 

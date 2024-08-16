@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/business_response.dart';
+import 'package:melegna_customer/domain/branch/model/branch.model.dart';
 import 'package:melegna_customer/domain/business/business.usecase.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/business/model/business.section.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:melegna_customer/presentation/ui/business/component/business_info.dart';
+import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/product/product_list/product_list_page.dart';
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
@@ -28,7 +31,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 // widget controllers
   final productListController = Get.put(CustomListController<Product>(), tag: 'AllProducts');
   late TabController businessSectionTabControllers;
-   ScrollController businessHeaderScrollController = ScrollController();
+  ScrollController businessHeaderScrollController = ScrollController();
 
   // page state variables
   var isLoading = false.obs;
@@ -44,6 +47,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   Business? get businessData => businessDetails.value?.business;
   List<BusinessSection> get sections => businessDetails.value?.business?.sections ?? [];
   List<Product> get featuredProducts => businessDetails.value?.products?.where((element) => element.featured == true).toList() ?? [];
+  List<Branch> get businessBranches => businessDetails.value?.branches ?? [];
 
   void createBusinessSectionsWithProductListController() {
     sectionsWithProductsControllers = {'Overview': productListController};
@@ -99,6 +103,14 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     }
   }
 
+  void showBusinessInfoDialog(BuildContext context, WidgetFactory widgetFactory) {
+    widgetFactory.createModalBottomSheet(context, initialHeight: 1.0, content: (scrollController) {
+      return BusinessInfoDialog(business: businessData!, branches: businessBranches, widgetFactory: widgetFactory, onClose: (){
+        router.goBack(context);
+      },);
+    });
+  }
+
   void navigateToFeaturedProductListPage(BuildContext context) {
     router.navigateTo(context, '${ProductListPage.baseRouteName}/featured', extra: {'title': 'Featured products', 'products': featuredProducts, 'displayStyle': ListDisplayStyle.List});
   }
@@ -129,7 +141,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   @override
   void dispose() {
     print("dispose business details viewmodel");
-    
+
     // businessHeaderScrollController.dispose();
     sectionsWithProductsControllers.forEach((key, value) {
       value.dispose();

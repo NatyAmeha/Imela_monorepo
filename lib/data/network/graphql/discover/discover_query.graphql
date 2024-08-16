@@ -24,6 +24,14 @@ query GetDiscoveryData {
             url
           }
         }
+        inventory {
+          qty
+          unit
+          minOrderQty
+          maxOrderQty
+          isAvailable
+          optionsIncluded
+        }
         business{
           name{
             key

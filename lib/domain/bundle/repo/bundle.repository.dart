@@ -22,7 +22,7 @@ class BundleRepository implements IBundleRepository {
         ..vars.id = bundleId
         ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
-    final result = await _graphQLDataSource.query<GGetBundleDetailData>(request, type: GET_BUNDLE_DETAILS, isMainError: true);
+    final result = await _graphQLDataSource.request<GGetBundleDetailData>(request, type: GET_BUNDLE_DETAILS, isMainError: true);
     if (result == null) {
       return null;
     }
