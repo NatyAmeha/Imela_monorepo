@@ -10,7 +10,7 @@ class BranchUsecase {
   const BranchUsecase(@Named(BranchRepository.injectName) this._businessRepository);
 
   Future<BranchResponse?> getBusinessDetails(String businessId, String branchId) async {
-    var result = await _businessRepository.getBranchDetailsFromApi(businessId, branchId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    var result = await _businessRepository.getBranchDetailsFromApi(businessId, branchId, fetchPolicy: ApiDataFetchPolicy.cacheAndNetwork);
     return result;
   }
 }

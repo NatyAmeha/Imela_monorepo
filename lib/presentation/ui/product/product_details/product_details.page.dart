@@ -49,7 +49,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isLoading: viewmodel.isLoading.value,
+          isDataLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: viewmodel.productDetails.value != null,
           loadingWidget: const ProductDetailLoadingComponent(),

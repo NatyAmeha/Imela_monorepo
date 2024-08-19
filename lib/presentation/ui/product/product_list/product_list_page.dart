@@ -56,7 +56,7 @@ class _ProductListPageState extends State<ProductListPage> {
       ),
       body: Obx(
         () => PageContentLoader(
-          isLoading: viewmodel.isLoading.value,
+          isDataLoading: viewmodel.isLoading.value,
           showContent: viewmodel.productListController.items.isNotEmpty,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           content: widget.displayStyle == ListDisplayStyle.Grid

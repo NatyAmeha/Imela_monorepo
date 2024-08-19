@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import 'package:melegna_customer/domain/order/model/cart.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart' as AppProduct;
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.page.dart';
+import 'package:melegna_customer/presentation/ui/cart/cart_detail_page.dart';
 import 'package:melegna_customer/presentation/ui/cart/cart_list_page.dart';
+import 'package:melegna_customer/presentation/ui/cart/order_configure/order_configure_page.dart';
 import 'package:melegna_customer/presentation/ui/home/home.page.dart';
+import 'package:melegna_customer/presentation/ui/order/order_confirmation/order_confirmation_page.dart';
+import 'package:melegna_customer/presentation/ui/order/order_details/order_details_page.dart';
+import 'package:melegna_customer/presentation/ui/order/order_list/order_list_page.dart';
 import 'package:melegna_customer/presentation/ui/product/product_details/product_details.page.dart';
 import 'package:melegna_customer/presentation/ui/product/product_list/product_list_page.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_display_style.constants.dart';
@@ -94,6 +100,44 @@ class GoRouterService implements IRoutingService {
         path: CartListPage.routeName,
         pageBuilder: (context, state) {
           return buildPageWithCustomTransition(state, CartListPage());
+        },
+      ),
+      GoRoute(
+        path: CartDetailPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final Cart cartInfo = arguments[CartDetailPage.CART_DATA];
+          return buildPageWithCustomTransition(state, CartDetailPage(selectedCart: cartInfo));
+        },
+      ),
+      GoRoute(
+        path: OrderConfigurePage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final Cart cartInfo = arguments['cart'];
+          return buildPageWithCustomTransition(state, OrderConfigurePage(cartInfo: cartInfo));
+        },
+      ),
+      GoRoute(
+        path: OrderConfirmationPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          return buildPageWithCustomTransition(state, OrderConfirmationPage());
+        },
+      ),
+      GoRoute(
+        path: OrderListPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          return buildPageWithCustomTransition(state, OrderListPage());
+        },
+      ),
+      GoRoute(
+        path: OrderDetailPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final String orderId = arguments["id"];
+          return buildPageWithCustomTransition(state, OrderDetailPage(ORderId: orderId));
         },
       ),
     ],

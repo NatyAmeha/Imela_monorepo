@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:melegna_customer/domain/branch/model/branch.model.dart';
 import 'package:melegna_customer/domain/business/model/business.section.dart';
+import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
 import 'package:melegna_customer/domain/product/model/pricelist.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
@@ -40,6 +41,7 @@ class Business extends BaseModel with _$Business {
     List<String>? trialPeriodUsedServiceIds,
     @Default(0) int? totalViews,
     List<PriceList>? priceLists,
+    List<PaymentOption>? paymentOptions,
 
     // DeliveryInfo? deliveryInfo
     ProductBundle? bundles,

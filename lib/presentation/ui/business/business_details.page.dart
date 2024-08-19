@@ -48,7 +48,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isLoading: widget.businessViewmodel!.isLoading.value,
+          isDataLoading: widget.businessViewmodel!.isLoading.value,
           hasError: widget.businessViewmodel!.exception.value?.isMainError ?? false,
           showContent: canShowContent,
           exception: widget.businessViewmodel!.exception.value,

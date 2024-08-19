@@ -19,7 +19,11 @@ class CustomListController<T> extends GetxController {
 
   // Method to update an item
   void updateItem(int index, T newItem) {
-    items[index] = newItem;
+    items.value = List<T>.from(items.value)..[index] = newItem;
+  }
+
+  void removeItems(List<int> indexs ){
+    items.value = List<T>.from(items.value)..removeWhere((element) => indexs.contains(items.value.indexOf(element)));
   }
 
   @override

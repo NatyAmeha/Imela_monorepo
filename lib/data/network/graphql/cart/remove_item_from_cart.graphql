@@ -1,4 +1,4 @@
-mutation RemoveItemsFromCart($cartId : String!, $productIds : [String!]) {
+mutation RemoveItemsFromCart($cartId : String!, $productIds: [String!]!) {
     removeItemsFromCart(cartId: $cartId, productIds: $productIds) {
         success
         message

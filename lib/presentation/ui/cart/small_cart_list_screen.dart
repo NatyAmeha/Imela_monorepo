@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:melegna_customer/domain/order/model/cart.model.dart';
 import 'package:melegna_customer/presentation/ui/cart/cart_list.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/cart/components/cart_list_item.dart';
@@ -14,27 +15,30 @@ class SmallCartListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Carts')),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          viewmodel.getCartsFromApi();
-        },
-        child: viewmodel.carts.isNotEmpty
-            ? AppListView<Cart>(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-                contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                controller: viewmodel.cartListController,
-                itemBuilder: (context, cartInfo, index) {
-                  return CartListItem(
-                    cartInfo: cartInfo,
-                    widgetFactory: widgetFactory,
-                    onclick: () {},
-                  );
-                },
-              )
-            : EmptyCartCard(widgetFactory: widgetFactory),
-      ),
+    return RefreshIndicator(
+      onRefresh: () async {
+        viewmodel.getCartsFromApi();
+      },
+      child: Scaffold(
+          appBar: AppBar(title: const Text('Carts')),
+          body: Obx(
+            () => viewmodel.carts.isNotEmpty
+                ? AppListView<Cart>(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    controller: viewmodel.cartListController,
+                    itemBuilder: (context, cartInfo, index) {
+                      return CartListItem(
+                        cartInfo: cartInfo,
+                        widgetFactory: widgetFactory,
+                        onclick: () {
+                          viewmodel.handleCartSelection(context, cartInfo);
+                        },
+                      );
+                    },
+                  )
+                : EmptyCartCard(widgetFactory: widgetFactory),
+          )),
     );
   }
 }

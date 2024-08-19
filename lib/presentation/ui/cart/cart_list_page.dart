@@ -41,7 +41,7 @@ class _CartListPageState extends State<CartListPage> {
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isLoading: viewmodel.isLoading.value,
+          isDataLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: true,
           exception: viewmodel.exception.value,

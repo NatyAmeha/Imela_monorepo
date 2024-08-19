@@ -36,7 +36,7 @@ class _BrowsePageState extends State<BrowsePage> {
     return Scaffold(
         body: Obx(
       () => PageContentLoader(
-        isLoading: viewmodel.isBrowseDataLoading.value,
+        isDataLoading: viewmodel.isBrowseDataLoading.value,
         hasError: viewmodel.exception.value?.isMainError ?? false,
         showContent: viewmodel.browseData.value != null,
         content: ResponsiveWrapper(

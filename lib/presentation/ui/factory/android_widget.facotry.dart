@@ -1,7 +1,6 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/base_widget.factory.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AndroidWidgetFactory extends BaseWidgetFactory {
   final GlobalKey _key = GlobalKey();
@@ -56,7 +55,15 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
 
   @override
   Widget createLoadingIndicator(BuildContext context, {double? width = 20, double height = 20}) {
-    return SizedBox(width: width, height: height, child: const CircularProgressIndicator());
+    return createCard(
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: ColorManager.primaryBackground, width: 1),
+      color: Colors.grey[100],
+      padding: const EdgeInsets.all(12),
+      width: 60,
+      height: 60,
+      child: SizedBox(width: width, height: height, child: const CircularProgressIndicator()),
+    );
   }
 
   @override

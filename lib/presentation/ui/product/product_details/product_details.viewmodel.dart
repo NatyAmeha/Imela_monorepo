@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/data/network/product_response.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
+import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
 import 'package:melegna_customer/domain/order/model/order_config.model.dart';
 import 'package:melegna_customer/domain/order/order.usecase.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
@@ -14,6 +15,7 @@ import 'package:melegna_customer/domain/shared/gallery.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/resources/values.dart';
 import 'package:melegna_customer/presentation/ui/app_controller.dart';
+import 'package:melegna_customer/presentation/ui/cart/cart_detail_page.dart';
 import 'package:melegna_customer/presentation/ui/cart/cart_list_page.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/product/components/product_order_config_modal.dart';
@@ -49,6 +51,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   String get getProductDescription => productDetails.value?.product?.description?.localize() ?? '';
   List<String> get getProductImage => productDetails.value!.product?.gallery?.getImages() ?? [];
   Business get businessInfo => productDetails.value!.product!.business!;
+  List<PaymentOption> get productPaymentOption => productDetails.value?.product?.business?.paymentOptions ?? [];
 
   var isAppbarExpanded = true.obs;
 
@@ -86,9 +89,9 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
 
   bool get canEnableAddonContinueBtn {
     final requiredAddons = productInfo?.addons?.where((addon) => addon.isRequired);
-    if(requiredAddons.isBlank == true){
+    if (requiredAddons.isBlank == true) {
       return true;
-    } 
+    }
     return requiredAddons?.any((addon) {
           return productOrderConfig.isContainAddonId(addon.id!);
         }) ??
@@ -138,6 +141,8 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
         response = await productUsecase.getProductDetails(productId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
       }
       productDetails.value = response;
+            print("product payment option ${productPaymentOption.length}");
+
       selectedProductQty(productDetails.value?.product?.minimumOrderQty.toDouble() ?? 1.0);
       if (productOptions.isNotEmpty) {
         productOptionListController.addItems(productOptions);
@@ -206,12 +211,15 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   Future<void> addtoCart(BuildContext context) async {
     try {
       isLoading(true);
-      final result = await orderUsecase.addToCart(businessInfo.id!, businessInfo.name!, [selectedProduct.getOrderItem(selectedProductQty.value, config: productOrderConfig.value)]);
-      if (result?.success == true) {
-        print("cart added successfully");
-        AppController.getInstance.addToCart([result!.cart!]);
+      final item = selectedProduct.getOrderItem(selectedProductQty.value, config: productOrderConfig.value);
+      final result = await orderUsecase.addToCart(businessInfo.id!, businessInfo.name!, [item], paymentOptions: productPaymentOption);
+      if (result?.success == true && result?.cart != null) {
+        final updatedCart = result!.cart!.addPaymentOption(productPaymentOption);
+        AppController.getInstance.addCartToCartList(updatedCart, paymentOptions: productPaymentOption);
+        CartDetailPage.navigateToCartDetailPage(context, router, updatedCart);
       }
     } catch (e) {
+      print(" add to cart exception ${e.toString()}");
       exception.value = exceptiionHandler.getException(e as Exception);
       if (exception.value?.code == ErrorResourceValues.UnAUTHORIZED_EXCEPTION_CODE) {
         navigateToLoginPage(context);

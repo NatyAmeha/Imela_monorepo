@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:melegna_customer/injection.dart';
 import 'package:melegna_customer/presentation/ui/home/home_page.viewmodel.dart';
+import 'package:melegna_customer/services/routing_service.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,6 +13,10 @@ class HomePage extends StatefulWidget {
 
   @override
   State<HomePage> createState() => _HomePageState();
+
+  static void navigate(BuildContext context, IRoutingService router, {bool replace = false}) {
+    router.navigateTo(context, routeName, replace: replace);
+  }
 }
 
 class _HomePageState extends State<HomePage> {
@@ -33,10 +38,13 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: PersistentTabView(
         controller: viewmodel.persistentTabController,
-        tabs: viewmodel.getDistinations(context).map((destination) => PersistentTabConfig(
-          screen: destination.page,
-          item: ItemConfig(title: destination.title, icon: destination.icon),
-        )).toList(),
+        tabs: viewmodel
+            .getDistinations(context)
+            .map((destination) => PersistentTabConfig(
+                  screen: destination.page,
+                  item: ItemConfig(title: destination.title, icon: destination.icon),
+                ))
+            .toList(),
         navBarBuilder: (navbarConfig) => Style7BottomNavBar(navBarConfig: navbarConfig),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:melegna_customer/presentation/utils/exception/app_exception.dart
 class PageContentLoader extends StatelessWidget {
   final Widget content;
   final bool showContent;
+  final bool isDataLoading;
   final bool isLoading;
   final Widget? loadingWidget;
   final Widget? errorWidget;
@@ -13,17 +14,7 @@ class PageContentLoader extends StatelessWidget {
   final bool hasError;
   final AppException? exception;
 
-  const PageContentLoader({
-    super.key,
-    required this.content,
-    this.showContent = true,
-    this.isLoading = false,
-    this.loadingWidget,
-    this.hasError = false,
-    this.errorWidget,
-    this.onTryAgain,
-    this.exception
-  });
+  const PageContentLoader({super.key, required this.content, this.showContent = true, this.isDataLoading = false, this.isLoading = false, this.loadingWidget, this.hasError = false, this.errorWidget, this.onTryAgain, this.exception});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +26,8 @@ class PageContentLoader extends StatelessWidget {
       return Stack(
         children: [
           if (showContent) content,
-          if (isLoading) loadingWidget ?? Center(child: appWidgetFactory.createLoadingIndicator(context)),
+          if (isDataLoading) showContent ? Center(child: appWidgetFactory.createLoadingIndicator(context)) : loadingWidget ?? Center(child: appWidgetFactory.createLoadingIndicator(context)),
+          
         ],
       );
     }

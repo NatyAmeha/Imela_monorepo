@@ -8,7 +8,6 @@ import 'package:melegna_customer/data/network/graphql/order/__generated__/order_
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/domain/order/model/order.model.dart' as OrderModel;
 import 'package:melegna_customer/domain/order/model/order.response.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
 import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
 import 'package:melegna_customer/presentation/utils/graphql_input_utils.dart';
 
@@ -38,7 +37,7 @@ class OrderRepository implements IOrderRepository {
   }
 
   @override
-  Future<OrderResponse> createOrder({String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork}) async {
+  Future<OrderResponse> createOrder({String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
     final request = GCreateOrderReq((b) => b
       ..vars.cartId = cartId
       ..vars.orderInput.update(

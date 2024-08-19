@@ -37,7 +37,7 @@ class GraphQLConfig {
 Link getAuthToken() {
   return Link.function((request, [forward]) {
     final headers = <String, String>{};
-    const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjFmODk0ZjVkYjAzOTJlNWRkZmY2NzYiLCJ1c2VybmFtZSI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJlbWFpbCI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJpYXQiOjE3MjM4MTY3NjUsImV4cCI6MTcyMzkwMzE2NX0.iZtx_csTJJ4Dmt1afbcbCk29sLjLRugJa5MF3gcXl8k';
+    const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjFmODk0ZjVkYjAzOTJlNWRkZmY2NzYiLCJ1c2VybmFtZSI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJlbWFpbCI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJpYXQiOjE3MjQwNTgxMDQsImV4cCI6MTcyNDE0NDUwNH0.RXM4zkA7Ul1Ultialr4jDW8G_eexMEDeYwqCNxXm-Dc';
     if (authToken.isNotEmpty) {
       headers['Authorization'] = 'Bearer $authToken';
     }

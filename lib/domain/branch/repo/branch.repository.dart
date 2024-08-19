@@ -1,4 +1,3 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/graphql/branch/__generated__/branch_details.data.gql.dart';
 import 'package:melegna_customer/data/network/graphql/branch/__generated__/branch_details.req.gql.dart';

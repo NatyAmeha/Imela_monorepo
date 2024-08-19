@@ -56,7 +56,7 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
       ),
       body: Obx(
         () => PageContentLoader(
-          isLoading: viewmodel.isLoading.value,
+          isDataLoading: viewmodel.isLoading.value,
           showContent: viewmodel.bundle != null,
           content: ResponsiveWrapper(
             smallScreen: SmallBundleDetailScreen(viewmodel: viewmodel, widgetFactory: appWidgetFactory, scaffoldScreen: widget),

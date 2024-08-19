@@ -261,6 +261,7 @@ type Cart {
   businessId: String!
   userId: String!
   items: [OrderItem!]!
+  paymentOptions: [PaymentOption!]
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -308,6 +309,7 @@ input CreateBusinessSectionInput {
 input CreateCartInput {
   name: [LocalizedFieldInput!]!
   items: [CreateOrderItemInput!]!
+  paymentOptions: [CreatePaymentOptionInput!]
 }
 
 input CreateInventoryInput {

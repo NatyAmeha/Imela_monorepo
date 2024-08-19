@@ -5,7 +5,8 @@ import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.vie
 class AppListView<T> extends StatelessWidget {
   final Axis scrollDirection;
   final Widget? header;
-  final CustomListController<T> controller;
+  final CustomListController<T>? controller;
+  final List<T>? items;
   final ItemBuilder<T> itemBuilder;
   final double? width;
   final double? height;
@@ -20,7 +21,8 @@ class AppListView<T> extends StatelessWidget {
     super.key,
     this.scrollDirection = Axis.vertical,
     this.header,
-    required this.controller,
+    this.controller,
+    this.items,
     required this.itemBuilder,
     this.width = double.infinity,
     this.height,
@@ -33,37 +35,54 @@ class AppListView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (header != null) ...[
-            header!,
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (header != null) ...[
+          header!,
+        ],
+        if (shrinkWrap) ...[
+          SizedBox(
+            height: height,
+            width: width,
+            child: ListView.separated(
+              shrinkWrap: shrinkWrap,
+              primary: primary,
+              physics: !primary ? const NeverScrollableScrollPhysics() : null,
+              scrollDirection: scrollDirection,
+              padding: padding,
+              itemCount: controller?.items.length ?? items!.length,
+              separatorBuilder: (context, index) => separator,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: contentPadding,
+                  child: itemBuilder(context, controller?.items.elementAt(index) ?? items![index], index),
+                );
+              },
+            ),
+          ),
+        ] else ...[
           Expanded(
             child: Obx(
               () => ListView.separated(
-                shrinkWrap: shrinkWrap,
                 primary: primary,
                 physics: !primary ? const NeverScrollableScrollPhysics() : null,
                 scrollDirection: scrollDirection,
                 padding: padding,
-                itemCount: controller.items.length,
+                itemCount: controller?.items.length ?? items!.length,
                 separatorBuilder: (context, index) => separator,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: contentPadding,
-                    child: itemBuilder(context, controller.items[index], index),
+                    child: itemBuilder(context, controller?.items.elementAt(index) ?? items![index], index),
                   );
                 },
               ),
             ),
           ),
-        ],
-      ),
+        ]
+      ],
     );
   }
 }

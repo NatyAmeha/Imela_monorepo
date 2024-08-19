@@ -4,22 +4,34 @@ mutation AddToBusinessCart($businessId : String!, $cartInput: CreateCartInput!) 
         message
         cart {
             id
-            name {
-                key
-                value
-            }
-            businessId
-            userId
-            createdAt
-            updatedAt
-            items {
-                id
-                name {
-                    key
-                    value
-                }
-                
-            }
+      name {
+        key
+        value
+      }
+      businessId
+      userId
+      createdAt
+      updatedAt
+      items {
+        name {
+          key
+          value
+        }
+        productId
+        branchId
+        image
+        tax
+        quantity
+        subTotal
+        discount {
+          id
+          name {
+            key
+            value
+          }
+          amount
+        }
+      }
         }
     }
 

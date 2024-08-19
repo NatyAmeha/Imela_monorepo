@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:melegna_customer/domain/order/model/order_config.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
@@ -5,10 +6,8 @@ import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 part 'order_item.model.freezed.dart';
 part 'order_item.model.g.dart';
 
-
 @freezed
 class OrderItem with _$OrderItem {
-
   const OrderItem._();
   const factory OrderItem({
     String? id,
@@ -24,10 +23,28 @@ class OrderItem with _$OrderItem {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _OrderItem;
-  
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => _$OrderItemFromJson(json);
 
+  OrderItem updateQuantity(double qty) {
+    return copyWith(quantity: qty);
+  }
+
+  double getSubtotal() {
+    return (subTotal ?? 0) * (quantity);
+  }
+
+  double getTotalDiscountAmount() {
+    return discount?.sumBy((element) => element.amount ?? 0) ?? 0;
+  }
+
+  double getTotalTaxAmount() {
+    return tax ?? 0;
+  }
+
+  double get getTotalAmount {
+    return getSubtotal() + getTotalTaxAmount() - getTotalDiscountAmount();
+  }
 }
 
 @freezed
@@ -39,8 +56,6 @@ class ItemDiscount with _$ItemDiscount {
     List<LocalizedField>? name,
     double? amount,
   }) = _ItemDiscount;
-  
 
   factory ItemDiscount.fromJson(Map<String, dynamic> json) => _$ItemDiscountFromJson(json);
-
 }

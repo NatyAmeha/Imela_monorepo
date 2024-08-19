@@ -6,6 +6,7 @@ import 'package:melegna_customer/domain/branch/model/branch.model.dart';
 import 'package:melegna_customer/domain/business/business.usecase.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/business/model/business.section.dart';
+import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/ui/business/component/business_info.dart';
@@ -48,6 +49,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   List<BusinessSection> get sections => businessDetails.value?.business?.sections ?? [];
   List<Product> get featuredProducts => businessDetails.value?.products?.where((element) => element.featured == true).toList() ?? [];
   List<Branch> get businessBranches => businessDetails.value?.branches ?? [];
+  List<PaymentOption> get businessPaymentOption => businessData?.paymentOptions ?? [];
 
   void createBusinessSectionsWithProductListController() {
     sectionsWithProductsControllers = {'Overview': productListController};

@@ -50,7 +50,7 @@ class SmallDiscoverScreen extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         controller: homepageViewmodel.businessListController,
                         shrinkWrap: true,
-                        height: 300,
+                        height: 250,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                         itemBuilder: (context, business, index) {
@@ -110,7 +110,7 @@ class SmallDiscoverScreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       controller: homepageViewmodel.bundleListController,
                       shrinkWrap: true,
-                      height: 270,
+                      height: 200,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                       itemBuilder: (context, bundle, index) {
                         return BundleListItem(

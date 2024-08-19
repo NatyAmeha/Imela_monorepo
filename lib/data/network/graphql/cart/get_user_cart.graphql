@@ -11,6 +11,17 @@ query GetUserCart{
       userId
       createdAt
       updatedAt
+      paymentOptions {
+        id
+        name {
+          key
+          value
+        }
+        type
+        upfrontPayment
+        upfrontPaymentType
+        dueDate
+      }
       items {
         name {
           key
@@ -29,6 +40,18 @@ query GetUserCart{
             value
           }
           amount
+        }
+        config{
+          name{
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          type
+          productIds
+          additionalPrice
+          addonId
         }
       }
     }

@@ -111,6 +111,16 @@ query GetProductDetails($id : String!){
           key
           value
         }
+        paymentOptions{
+          id
+          name{
+            key
+            value
+          }
+          type
+          upfrontPayment
+          dueDate
+        }
       }
     }
     inventories {

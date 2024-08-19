@@ -1,4 +1,5 @@
 import 'package:melegna_customer/data/network/graphql/__generated__/schema.schema.gql.dart';
+import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
 import 'package:melegna_customer/domain/order/model/order_item.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 
@@ -48,19 +49,21 @@ extension GraphqlOrderInput on List<OrderItem> {
         ..productId = item.productId
         ..branchId = item.branchId
         ..image = item.image
-        ..subTotal = item.subTotal
+        ..subTotal = item.getSubtotal()
         ..discount.addAll(item.discount.toOrderDiscountInput())
         ..config.addAll(item.config?.map(
-              (config) => GCreateOrderConfigInput((configInput) => configInput
-                ..addonId = config.addonId
-                ..name.addAll(config.name!.toLocalizedFieldInput())
-                ..type = config.type
-                ..singleValue = config.singleValue
-                ..multipleValue.addAll(config.multipleValue ?? [])
-                ..additionalPrice = config.additionalPrice
-                ..productIds.addAll(config.productIds?.map((e) => e) ?? [])),
+              (config) => GCreateOrderConfigInput(
+                (configInput) => configInput
+                  ..addonId = config.addonId
+                  ..name.addAll(config.name!.toLocalizedFieldInput())
+                  ..type = config.type
+                  ..singleValue = config.singleValue
+                  ..multipleValue.addAll(config.multipleValue ?? [])
+                  ..additionalPrice = config.additionalPrice
+                  ..productIds.addAll(config.productIds?.map((e) => e) ?? []),
+              ),
             ) ??
-            []) 
+            [])
         ..quantity = item.quantity),
     ).toList();
   }
@@ -74,6 +77,24 @@ extension GraphqlDiscountInput on List<ItemDiscount>? {
           (discount) => GOrderItemDiscountInput((discountInput) => discountInput
             ..amount = discount.amount
             ..name.addAll(discount.name!.toLocalizedFieldInput())),
+        )
+        .toList();
+  }
+}
+
+extension GraphqlPaymentOptionInput on List<PaymentOption>? {
+  List<GCreatePaymentOptionInput> toPaymentOptionInput() {
+    if (this == null || this!.isEmpty) return [];
+    return this!
+        .map(
+          (paymentOption) => GCreatePaymentOptionInput(
+            (paymentOptionInput) => paymentOptionInput
+              ..name.addAll(paymentOption.name!.toLocalizedFieldInput())
+              ..type = paymentOption.type.toPaymentOptionTypeInput
+              ..upfrontPayment = paymentOption.upfrontPayment
+              ..dueDate
+              ..dueDate.update((dueDate) => dueDate.value = (paymentOption.dueDate ?? DateTime.now()).toIso8601String()),
+          ),
         )
         .toList();
   }
