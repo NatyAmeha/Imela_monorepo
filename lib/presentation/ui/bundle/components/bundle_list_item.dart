@@ -3,6 +3,7 @@ import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
+import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
 import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 
 class BundleListItem extends StatelessWidget {
@@ -96,24 +97,16 @@ class BundleListItem extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: ListView(
-                    shrinkWrap: true,
-                    
-                    scrollDirection: Axis.horizontal,
-                    children: productImages
-                        .map((image) => AppImage(
-                              imageUrl: image,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              borderRadius: BorderRadius.circular(8),
-                            ))
-                        .toList(),
-                  ).showIfNotNull(productImages.isNotEmpty),
-                ),
+                child: AppListView(
+                  shrinkWrap: true,
+                  height: 50,
+                  scrollDirection: Axis.horizontal,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  items: productImages.toList(),
+                  itemBuilder: (context, imageUrl, index) {
+                    return AppImage(imageUrl: imageUrl, width: 50, height: 50, fit: BoxFit.cover, borderRadius: BorderRadius.circular(8));
+                  },
+                ).showIfNotNull(productImages.isNotEmpty),
               ),
             ],
           ),

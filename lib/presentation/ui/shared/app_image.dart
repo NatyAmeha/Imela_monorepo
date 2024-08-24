@@ -42,7 +42,7 @@ class AppImage extends StatelessWidget {
     if (gradient != null) {
       image = Stack(
         children: [
-          image,
+          Positioned.fill(child: image),
           Container(decoration: BoxDecoration(gradient: gradient, borderRadius: borderRadius)),
         ],
       );

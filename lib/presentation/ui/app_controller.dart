@@ -1,14 +1,20 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:melegna_customer/data/network/graphql_config.dart';
 import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
 import 'package:melegna_customer/domain/order/model/cart.model.dart';
 import 'package:melegna_customer/domain/order/model/order_item.model.dart';
 import 'package:melegna_customer/domain/shared/price_currency.model.dart';
+import 'package:melegna_customer/presentation/ui/authentication/auth_selection_page.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:melegna_customer/services/routing_service.dart';
 
 class AppController extends GetxController {
   static AppController get getInstance {
     return Get.isRegistered<AppController>() ? Get.find<AppController>() : Get.put(AppController());
   }
+
+  final router = getIt<GoRouterService>(instanceName: GoRouterService.injectNameBeta);
 
   AppLanguage selectedLanguage = AppLanguage.ENGLISH;
 
@@ -69,6 +75,13 @@ class AppController extends GetxController {
 
   void removeCart(String cartId) {
     carts.removeWhere((element) => element.id == cartId);
+  }
+
+
+  void logout(BuildContext context, {String? redirectUrl}) {
+    carts.clear();
+    changeCartApiFetchStatus(true);
+    AuthSelectionPage.navigate(context, router, redirectT: redirectUrl);
   }
 
   changeCartApiFetchStatus(bool status) {

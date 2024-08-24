@@ -24,6 +24,8 @@ class AppTabView extends StatelessWidget {
           TabBar(
             controller: controller,
             tabs: tabs,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             indicatorColor: Theme.of(context).primaryColor,
             labelColor: Theme.of(context).primaryColor,
             unselectedLabelColor: Theme.of(context).unselectedWidgetColor,
