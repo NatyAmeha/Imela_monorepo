@@ -6,8 +6,9 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class IosWidgetFactory extends BaseWidgetFactory {
   @override
-  Widget createButton({required BuildContext context, required Widget content, Widget? icon, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
+  Widget createButton({required BuildContext context, required Widget content, Widget? icon, Key? key, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
     return CupertinoButton.filled(
+      key: key,
       onPressed: (onPressed == null || isLoading)
           ? null
           : () async {
@@ -24,7 +25,7 @@ class IosWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, final Border? border, Function()? onTap}) {
+  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, final Border? border, Gradient? gradient, Function()? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -32,7 +33,7 @@ class IosWidgetFactory extends BaseWidgetFactory {
         margin: margin,
         width: width,
         height: height,
-        decoration: BoxDecoration(color: color, border: border, borderRadius: borderRadius ?? BorderRadius.circular(8.0), boxShadow: boxShadow),
+        decoration: BoxDecoration(color: color, border: border, borderRadius: borderRadius ?? BorderRadius.circular(8.0), boxShadow: boxShadow, gradient: gradient),
         child: child,
       ),
     );

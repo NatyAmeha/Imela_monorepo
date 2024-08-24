@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/domain/order/model/cart.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart' as AppProduct;
+import 'package:melegna_customer/presentation/ui/authentication/auth_selection_page.dart';
+import 'package:melegna_customer/presentation/ui/authentication/phone_login_page.dart';
+import 'package:melegna_customer/presentation/ui/authentication/phone_verify_page.dart';
 import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.page.dart';
 import 'package:melegna_customer/presentation/ui/cart/cart_detail_page.dart';
@@ -27,6 +30,7 @@ abstract class IRoutingService {
 @Named(GoRouterService.injectName)
 class GoRouterService implements IRoutingService {
   static const injectName = 'GoRouterService';
+  static const injectNameBeta = 'GoRouterServiceBeta';
   static GoRouterService? instance;
   static final navigatorKey = GlobalKey<NavigatorState>();
   static String PREVIOUS_PAGE_KEY = 'PREVIOUS_PAGE_KEY';
@@ -128,7 +132,6 @@ class GoRouterService implements IRoutingService {
       GoRoute(
         path: OrderListPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
           return buildPageWithCustomTransition(state, OrderListPage());
         },
       ),
@@ -136,8 +139,32 @@ class GoRouterService implements IRoutingService {
         path: OrderDetailPage.routeName,
         pageBuilder: (context, state) {
           final arguments = state.extra as Map<String, dynamic>;
-          final String orderId = arguments["id"];
+          final orderId = state.pathParameters['id'] as String;
           return buildPageWithCustomTransition(state, OrderDetailPage(ORderId: orderId));
+        },
+      ),
+      GoRoute(
+        path: AuthSelectionPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>?;
+          final redirectUrl = arguments?[AuthSelectionPage.REDIRECT_URL_KEY] as String?;
+          return buildPageWithCustomTransition(
+              state,
+              AuthSelectionPage(
+                redirectionRoute: redirectUrl,
+              ));
+        },
+      ),
+      GoRoute(
+        path: PhoneLoginPage.routeName,
+        pageBuilder: (context, state) {
+          return buildPageWithCustomTransition(state, PhoneLoginPage());
+        },
+      ),
+      GoRoute(
+        path: PhoneVerifyPage.routeName,
+        pageBuilder: (context, state) {
+          return buildPageWithCustomTransition(state, PhoneVerifyPage());
         },
       ),
     ],

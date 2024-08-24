@@ -9,7 +9,7 @@ import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/respo
 
 class CartListPage extends StatefulWidget {
   static const routeName = '/carts';
-  late  CartListViewmodel? cartListViewmodel;
+  late CartListViewmodel? cartListViewmodel;
 
   CartListPage({super.key, this.cartListViewmodel}) {
     cartListViewmodel ??= Get.put(getIt<CartListViewmodel>());
@@ -22,17 +22,16 @@ class CartListPage extends StatefulWidget {
 class _CartListPageState extends State<CartListPage> {
   CartListViewmodel get viewmodel => widget.cartListViewmodel!;
 
-
-  void initializeViewmodel() {
+  void initializeViewmodel(BuildContext context) {
     Future.delayed(Duration.zero, () {
-      widget.cartListViewmodel!.initViewmodel();
+      widget.cartListViewmodel!.initViewmodel(data: {'context': context});
     });
   }
 
   @override
   void initState() {
     super.initState();
-    initializeViewmodel();
+    initializeViewmodel(context);
   }
 
   @override
@@ -46,11 +45,9 @@ class _CartListPageState extends State<CartListPage> {
           showContent: true,
           exception: viewmodel.exception.value,
           onTryAgain: () {
-            initializeViewmodel();
+            initializeViewmodel(context);
           },
-          content: ResponsiveWrapper(
-            smallScreen:  SmallCartListScreen(viewmodel: viewmodel, widgetFactory: appWidgetFactory)
-          ),
+          content: ResponsiveWrapper(smallScreen: SmallCartListScreen(viewmodel: viewmodel, widgetFactory: appWidgetFactory)),
         ),
       ),
     );

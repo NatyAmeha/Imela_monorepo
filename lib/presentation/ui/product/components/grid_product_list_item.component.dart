@@ -39,53 +39,57 @@ class GridProductListItem extends StatelessWidget {
     return widgetFactory.createCard(
         border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
         borderRadius: BorderRadius.circular(8),
-        padding: const EdgeInsets.all(8),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppImage(imageUrl: product.gallery?.getImages().firstOrNull, width: imageWidth, height: imageHeight, borderRadius: BorderRadius.circular(16)), // (1
-            const SizedBox(height: 4),
-            widgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.titleSmall, maxLines: 3, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 8),
-            widgetFactory.createText(context, product.getPrice().toSelectedPriceString(), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
-            widgetFactory.createText(context, product.getPrice().toSelectedPriceString(), style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Row(
+            AppImage(imageUrl: product.gallery?.getImages().firstOrNull, width: imageWidth, height: imageHeight, borderRadius: BorderRadius.vertical(top: Radius.circular(8))), // (1
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                widgetFactory.createIcon(materialIcon: Icons.star, color: ColorManager.tertiary, size: 16),
-                const SizedBox(width: 2),
-                widgetFactory.createText(context, '4.5', style: Theme.of(context).textTheme.titleSmall, color: ColorManager.tertiary),
+                widgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.titleSmall, maxLines: 3, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 8),
+                widgetFactory.createText(context, product.getPrice().toSelectedPriceString(), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
+                widgetFactory.createText(context, product.getPrice().toSelectedPriceString(), style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    widgetFactory.createIcon(materialIcon: Icons.star, color: ColorManager.tertiary, size: 16),
+                    const SizedBox(width: 2),
+                    widgetFactory.createText(context, '4.5', style: Theme.of(context).textTheme.titleSmall, color: ColorManager.tertiary),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    widgetFactory.createIcon(materialIcon: Icons.book, size: 16),
+                    const SizedBox(width: 4),
+                    widgetFactory.createText(context, remainingQtyInfo, style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ).showIfTrue(canShowRemainingQty),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    widgetFactory.createIcon(materialIcon: Icons.keyboard_option_key, size: 16),
+                    const SizedBox(width: 2),
+                    widgetFactory.createText(context, productOptionValue ?? '', style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ).showIfTrue(hasProductOption),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    widgetFactory.createIcon(materialIcon: Icons.business, size: 16),
+                    const SizedBox(width: 4),
+                    widgetFactory.createText(context, '${product.business?.name.localize()}', style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ).showIfTrue(showBusiness),
               ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                widgetFactory.createIcon(materialIcon: Icons.book, size: 16),
-                const SizedBox(width: 4),
-                widgetFactory.createText(context, remainingQtyInfo, style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ).showIfTrue(canShowRemainingQty),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                widgetFactory.createIcon(materialIcon: Icons.keyboard_option_key, size: 16),
-                const SizedBox(width: 2),
-                widgetFactory.createText(context, productOptionValue ?? '', style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ).showIfTrue(hasProductOption),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                widgetFactory.createIcon(materialIcon: Icons.business, size: 16),
-                const SizedBox(width: 4),
-                widgetFactory.createText(context, '${product.business?.name.localize()}', style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ).showIfTrue(showBusiness),
+            ).withPaddingSymetric(vertical: 4, horizontal: 8),
           ],
         ),
         onTap: () {

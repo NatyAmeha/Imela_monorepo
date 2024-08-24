@@ -11,6 +11,9 @@ class DiscoveryUsecase {
 
   Future<DiscoveryResponse?> getDiscoveryDetails({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork}) async {
     var result = await _discoveryRepo.browse(fetchPolicy: fetchPolicy);
+    if(result == null){
+      throw Exception('Failed to fetch data');
+    }
     return result;
   }
 }

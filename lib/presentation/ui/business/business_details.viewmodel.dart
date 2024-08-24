@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/business_response.dart';
+
 import 'package:melegna_customer/domain/branch/model/branch.model.dart';
+import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
 import 'package:melegna_customer/domain/business/business.usecase.dart';
 import 'package:melegna_customer/domain/business/model/business.model.dart';
 import 'package:melegna_customer/domain/business/model/business.section.dart';
 import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:melegna_customer/presentation/ui/business/component/business_info.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/product/product_list/product_list_page.dart';
@@ -51,6 +54,8 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   List<Branch> get businessBranches => businessDetails.value?.branches ?? [];
   List<PaymentOption> get businessPaymentOption => businessData?.paymentOptions ?? [];
 
+  List<ProductBundle> get businessBundles  => businessData?.bundles ?? [];
+
   void createBusinessSectionsWithProductListController() {
     sectionsWithProductsControllers = {'Overview': productListController};
     for (var section in sections) {
@@ -89,15 +94,16 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   Future<void> getBusinessDetails(String id) async {
     try {
-      isLoading(true);
       cleanupStateVariables();
-      final result = await businessUsecase.getBusinessDetails(id);
-      if (result == null) {
+      isLoading(true);
+      var response = await businessUsecase.getBusinessDetails(id);
+      if (response?.isBusinessDetailFetchSuccessfull() == true) {
+        businessDetails.value = response;
+        productListController.addItems(response!.products);
+        createBusinessSectionsWithProductListController();
+      } else {
         exception(AppException(message: 'Business not found'));
       }
-      businessDetails.value = result;
-      productListController.addItems(result?.products);
-      createBusinessSectionsWithProductListController();
     } catch (e) {
       exception(exceptiionHandler.getException(e as Exception));
     } finally {
@@ -107,9 +113,14 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   void showBusinessInfoDialog(BuildContext context, WidgetFactory widgetFactory) {
     widgetFactory.createModalBottomSheet(context, initialHeight: 1.0, content: (scrollController) {
-      return BusinessInfoDialog(business: businessData!, branches: businessBranches, widgetFactory: widgetFactory, onClose: (){
-        router.goBack(context);
-      },);
+      return BusinessInfoDialog(
+        business: businessData!,
+        branches: businessBranches,
+        widgetFactory: widgetFactory,
+        onClose: () {
+          router.goBack(context);
+        },
+      );
     });
   }
 
@@ -131,7 +142,12 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.localize()});
   }
 
+  void navigateToBundleDetailPage(BuildContext context, ProductBundle bundle, {Widget? previousPage}) {
+    BundleDetailPage.navigateToBundleDetailPage(context, router, bundle);
+  }
+
   void cleanupStateVariables() {
+    isLoading(false);
     businessDetails.value = null;
     exception.value = null;
     productListController.items.clear();

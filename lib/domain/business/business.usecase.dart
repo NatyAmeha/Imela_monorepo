@@ -9,8 +9,12 @@ class BusinessUsecase {
 
   const BusinessUsecase(@Named(BusinessRepository.injectName) this._businessRepository);
 
-  Future<BusinessResponse?> getBusinessDetails(String businessId) async {
-    var result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
+  Future<BusinessResponse?> getBusinessDetails(String businessId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    BusinessResponse? result;
+     result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: fetchPolicy);
+    if(fetchPolicy == ApiDataFetchPolicy.cacheFirst && result?.isBusinessDetailFetchSuccessfull() == false){
+      result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    }
     return result;
   }
 }

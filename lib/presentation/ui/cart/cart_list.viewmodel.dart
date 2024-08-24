@@ -31,12 +31,16 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
 
   List<Cart> get carts => appController.carts;
 
+  late BuildContext context;
+
   //controller
   var cartListController = Get.put(CustomListController<Cart>(), tag: 'CART_LIST_CONTROLLER');
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     final fetchCartFromApi = data?[FETCH_CART_FROM_API_KEY] as bool? ?? true;
+    context = data?['context'] as BuildContext;
+    print("context is ${context.isPortrait}");
     super.initViewmodel(data: data);
     if (fetchCartFromApi) {
       getCartsFromApi();
@@ -54,8 +58,10 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
       }
       cartListController.setItems( appController.carts);
     } catch (ex) {
-      print("exception ${ex.toString()}");
       exception.value = exceptiionHandler.getException(ex as Exception);
+      if(exception.value!.isUnAuthorizedException){
+        appController.logout(context);
+      }
     } finally {
       isLoading(false);
     }

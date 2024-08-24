@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
 import 'package:melegna_customer/domain/product/model/product.model.dart';
 import 'package:melegna_customer/domain/shared/list_header.component.dart';
 import 'package:melegna_customer/domain/shared/localized_field.model.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
+import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
+import 'package:melegna_customer/presentation/ui/bundle/components/bundle_list_item.dart';
 import 'package:melegna_customer/presentation/ui/business/business_details.viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/business/component/business_details_header.componenet.dart';
 import 'package:melegna_customer/presentation/ui/business/component/business_quick_action.component.dart';
@@ -12,6 +16,7 @@ import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:melegna_customer/presentation/ui/shared/app_tabview.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
+import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
 import 'package:melegna_customer/presentation/utils/localization_utils.dart';
 import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 
@@ -27,25 +32,28 @@ class BusinessDetailsSmallScreen extends StatefulWidget {
 class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen> with SingleTickerProviderStateMixin {
   late TabController controller;
   late WidgetFactory appWidgetFactory;
+
+  BusinessDetailsViewModel get viewmodel => widget.businessDetailsViewmodel;
+
   @override
   void initState() {
     super.initState();
-    widget.businessDetailsViewmodel.assignTabController(widget.businessDetailsViewmodel.sectionsWithProductsControllers.keys.length, this);
-    widget.businessDetailsViewmodel.listenAppbarHeaderScroll();
+    viewmodel.assignTabController(viewmodel.sectionsWithProductsControllers.keys.length, this);
+    viewmodel.listenAppbarHeaderScroll();
   }
 
   @override
   Widget build(BuildContext context) {
     appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return NestedScrollView(
-      controller: widget.businessDetailsViewmodel.businessHeaderScrollController,
+      controller: viewmodel.businessHeaderScrollController,
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         Obx(
           () => SliverAppBar(
             expandedHeight: 225,
             collapsedHeight: 60,
             pinned: true,
-            title: widget.businessDetailsViewmodel.isAppbarExpanded.value ? null : Text('${widget.businessDetailsViewmodel.businessData?.getLocalizedBusinessName(AppLanguage.ENGLISH.name)}'),
+            title: viewmodel.isAppbarExpanded.value ? null : Text('${viewmodel.businessData?.getLocalizedBusinessName(AppLanguage.ENGLISH.name)}'),
             floating: false,
             backgroundColor: ColorManager.alternate,
             automaticallyImplyLeading: false,
@@ -61,31 +69,31 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               centerTitle: true,
               expandedTitleScale: 1.0,
               background: BusinessDetailsHeader(
-                business: widget.businessDetailsViewmodel.businessData!,
+                business: viewmodel.businessData!,
                 width: double.infinity,
                 height: 150,
                 controller: PageController(initialPage: 0),
               ),
             ),
-            bottom: widget.businessDetailsViewmodel.isAppbarExpanded.value ? null : TabBar(controller: widget.businessDetailsViewmodel.businessSectionTabControllers, tabs: widget.businessDetailsViewmodel.getBusinessSectionTabs()),
+            bottom: viewmodel.isAppbarExpanded.value ? null : TabBar(controller: viewmodel.businessSectionTabControllers, tabs: viewmodel.getBusinessSectionTabs()),
           ),
         ),
       ],
       body: AppTabView(
-        tabs: widget.businessDetailsViewmodel.getBusinessSectionTabs(),
-        controller: widget.businessDetailsViewmodel.businessSectionTabControllers,
-        tabViews: widget.businessDetailsViewmodel.sectionsWithProductsControllers.entries.map((entry) {
+        tabs: viewmodel.getBusinessSectionTabs(),
+        controller: viewmodel.businessSectionTabControllers,
+        tabViews: viewmodel.sectionsWithProductsControllers.entries.map((entry) {
           if (entry.key == 'Overview') {
             return buildBusinessOverview(appWidgetFactory);
           }
           return SingleChildScrollView(
             primary: true,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: AppGridView(
               items: entry.value.items,
               crossAxisCount: 2,
               shrinkWrap: true,
               isStaggered: true,
-              crossAxisSpacing: 8,
               mainAxisSpacing: 16,
               primary: false,
               itemBuilder: (context, productData, index) {
@@ -95,7 +103,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   imageWidth: double.infinity,
                   widgetFactory: appWidgetFactory,
                   onTap: () {
-                    widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
+                    viewmodel.navigateToProductDetails(context, productData);
                   },
                 );
               },
@@ -111,15 +119,14 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
     if (kDebugMode) {
       print('business details dispose');
     }
-    widget.businessDetailsViewmodel.dispose();
+    viewmodel.dispose();
     super.dispose();
   }
 
   Widget buildBusinessOverview(WidgetFactory widgetFactory) {
-    final businessDescription = widget.businessDetailsViewmodel.businessData?.description;
+    final businessDescription = viewmodel.businessData?.description;
     return SingleChildScrollView(
       primary: true,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -131,32 +138,57 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               children: [
                 appWidgetFactory.createText(context, businessDescription.localize(), style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis).showIfTrue(businessDescription?.isNotEmpty == true),
                 const SizedBox(height: 16),
-                const BusinessAddressQuickActionComponenet(),
-                const SizedBox(height: 16),
-                OutlinedButton(onPressed: (){
-                  widget.businessDetailsViewmodel.showBusinessInfoDialog(context, widgetFactory);
-                  
-                }, child: Text("Get More")),
-                
+                // const BusinessAddressQuickActionComponenet(),
+                // const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () {
+                    viewmodel.showBusinessInfoDialog(context, widgetFactory);
+                  },
+                  child: Text("Get more info"),
+                ),
               ],
             ),
           ),
+          AppListView<ProductBundle>(
+            header: AppListHeader(
+              title: 'Bundles',
+              padding: const EdgeInsets.all(16),
+              trailing: widgetFactory.createIcon(materialIcon: Icons.arrow_forward_ios, cupertinoIcon: CupertinoIcons.chevron_right),
+              onActionClicked: () {},
+            ),
+            scrollDirection: Axis.horizontal,
+            items: viewmodel.businessBundles,
+            shrinkWrap: true,
+            height: 225,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+            itemBuilder: (context, bundle, index) {
+              return BundleListItem(
+                bundleData: bundle,
+                width: 300,
+                widgetFactory: widgetFactory,
+                onTap: () {
+                  viewmodel.navigateToBundleDetailPage(context, bundle);
+                },
+              );
+            },
+          ).showIfTrue(viewmodel.businessBundles.isNotEmpty),
           const SizedBox(height: 24),
           AppGridView(
             shrinkWrap: true,
-            // controller: widget.businessDetailsViewmodel.productListController,
-            items: widget.businessDetailsViewmodel.featuredProducts,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            items: viewmodel.featuredProducts,
             crossAxisCount: 2,
-            crossAxisSpacing: 8,
             mainAxisSpacing: 16,
             primary: false,
             isStaggered: true,
             header: AppListHeader(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               title: 'Featured Products',
               subtitle: 'View all fetured products from this business',
               trailing: appWidgetFactory.createIcon(materialIcon: Icons.arrow_forward_ios, color: Theme.of(context).primaryColor, backgroundColor: Theme.of(context).colorScheme.primaryContainer, padding: const EdgeInsets.all(8)),
               onActionClicked: () {
-                widget.businessDetailsViewmodel.navigateToFeaturedProductListPage(context);
+                viewmodel.navigateToFeaturedProductListPage(context);
               },
             ),
             itemBuilder: (context, productData, index) {
@@ -166,17 +198,19 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   imageWidth: double.infinity,
                   widgetFactory: widgetFactory,
                   onTap: () {
-                    widget.businessDetailsViewmodel.navigateToProductDetails(context, productData);
+                    viewmodel.navigateToProductDetails(context, productData);
                   });
             },
           ),
           const SizedBox(height: 24),
           widgetFactory.createButton(
-              context: context,
-              content: const Text('View all products'),
-              onPressed: () {
-                widget.businessDetailsViewmodel.navigateToAllProductsPage(context);
-              }),
+            context: context,
+            content: const Text('View all products'),
+            onPressed: () {
+              viewmodel.navigateToAllProductsPage(context);
+            },
+          ),
+          const SizedBox(height: 50),
         ],
       ),
     );

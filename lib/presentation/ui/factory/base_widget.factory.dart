@@ -2,9 +2,12 @@ import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bottom_sheet/bottom_sheet.dart';
+import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:melegna_customer/presentation/utils/button_style.dart';
+import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class BaseWidgetFactory implements WidgetFactory {
@@ -21,13 +24,13 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Widget createButton({required BuildContext context, required Widget content, Widget? icon, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
+  Widget createButton({required BuildContext context, required Widget content, Widget? icon, Key? key, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
     // TODO: implement createButton
     throw UnimplementedError();
   }
 
   @override
-  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, Border? border, Function()? onTap}) {
+  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, Border? border, Gradient? gradient, Function()? onTap}) {
     // TODO: implement createCard
     throw UnimplementedError();
   }
@@ -65,17 +68,7 @@ class BaseWidgetFactory implements WidgetFactory {
   @override
   Future<T?> createModalBottomSheet<T>(BuildContext context, {required Widget Function(ScrollController) content, bool dismissable = true, double initialHeight = 0.5, double minHeight = 0, double? maxHeight = 1.0, BorderRadius? borderRadius}) {
     return showFlexibleBottomSheet(
-      context: context,
-      builder: (context, controller, _) => content(controller),
-      minHeight: minHeight,
-      initHeight: initialHeight,
-      maxHeight: maxHeight,
-      isSafeArea: true,
-      isDismissible: dismissable,
-      anchors: [0, (maxHeight! - 0.01), (maxHeight)],
-      bottomSheetBorderRadius: borderRadius ?? BorderRadius.circular(16),
-      isModal: true
-    );
+        context: context, builder: (context, controller, _) => content(controller), minHeight: minHeight, initHeight: initialHeight, maxHeight: maxHeight, isSafeArea: true, isDismissible: dismissable, anchors: [0, (maxHeight! - 0.01), (maxHeight)], bottomSheetBorderRadius: borderRadius ?? BorderRadius.circular(16), isModal: true);
   }
 
   @override
@@ -94,7 +87,7 @@ class BaseWidgetFactory implements WidgetFactory {
   Widget createText(BuildContext context, String text, {TextStyle? style, TextDecoration? textDecoration, EdgeInsetsGeometry? padding, TextAlign? textAlign, TextOverflow? overflow, int? maxLines, Color? color, bool enableResize = false}) {
     return Padding(
       padding: padding ?? EdgeInsets.zero,
-      child: enableResize ? AutoSizeText(text, style: style?.copyWith(color: color, decoration: textDecoration), textAlign: textAlign, maxLines: maxLines, overflow: overflow, minFontSize: 10 ) : Text(text, style: style?.copyWith(color: color, decoration: textDecoration), textAlign: textAlign, maxLines: maxLines, overflow: overflow),
+      child: enableResize ? AutoSizeText(text, style: style?.copyWith(color: color, decoration: textDecoration), textAlign: textAlign, maxLines: maxLines, overflow: overflow, minFontSize: 10) : Text(text, style: style?.copyWith(color: color, decoration: textDecoration), textAlign: textAlign, maxLines: maxLines, overflow: overflow),
     );
   }
 
@@ -168,5 +161,39 @@ class BaseWidgetFactory implements WidgetFactory {
   @override
   Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable = true}) async {
     throw UnimplementedError();
+  }
+
+  Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked}) async {
+    FlashController<Object?>? flashController;
+    showFlash(
+      context: context,
+      duration: isPersistent ? null : Duration(seconds: durationInSecond),
+      builder: (context, controller) {
+        flashController = controller;
+        return FlashBar(
+          controller: controller,
+          position: position == ToastPosition.top ? FlashPosition.top : FlashPosition.bottom,
+          behavior: FlashBehavior.floating,
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          margin: margin ?? const EdgeInsets.all(0),
+          icon: Icon(icon ?? Icons.info, color: textColor),
+          content: Row(
+            children: [
+              Expanded(child: Text(message, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: textColor))),
+              createButton(
+                context: context,
+                content: Text(actionText ?? 'OK'),
+                style: AppButtonStyle.textButtonStyle(context, padding: EdgeInsets.zero),
+                onPressed: () {
+                  onActinClicked?.call();
+                  controller.dismiss();
+                },
+              ).showIfTrue(actionText != null)
+            ],
+          ),
+          actions: null,
+        );
+      },
+    );
   }
 }

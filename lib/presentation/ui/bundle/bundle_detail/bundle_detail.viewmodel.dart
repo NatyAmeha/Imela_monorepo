@@ -124,7 +124,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToProductDetailPage(BuildContext context, Product product, {Widget? previousPage}) {
-    ProductDetailPage.navigateToProductDetailPage(context, router, product, previousPage: previousPage);
+    ProductDetailPage.navigate(context, router, product, previousPage: previousPage);
   }
 
   void displayBundleProductConfigModal(BuildContext context, Product product, WidgetFactory widgetFactory) async {

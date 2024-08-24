@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/base_widget.factory.dart';
+import 'package:melegna_customer/presentation/utils/button_style.dart';
 
 class AndroidWidgetFactory extends BaseWidgetFactory {
   final GlobalKey _key = GlobalKey();
 
   @override
-  Widget createButton({required BuildContext context, required Widget content, Widget? icon, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
+  Widget createButton({required BuildContext context, required Widget content, Widget? icon, Key? key, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
     if (icon != null) {
       return FilledButton.icon(
-        key: _key,
+        key: key,
         icon: (showLoadingIndicator && isLoading) ? createLoadingIndicator(context) : icon,
         label: content,
-        style: style,
+        style: style ?? AppButtonStyle.filledbuttonStyle(),
         onPressed: (onPressed == null || isLoading)
             ? null
             : () async {
@@ -21,8 +22,8 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
       );
     }
     return FilledButton(
-      key: _key,
-      style: style,
+      key: key,
+      style: style ?? AppButtonStyle.filledbuttonStyle(),
       onPressed: (onPressed == null || isLoading)
           ? null
           : () async {
@@ -39,7 +40,7 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, Border? border, Function()? onTap}) {
+  Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, Border? border, Gradient? gradient, Function()? onTap}) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -47,7 +48,8 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
         margin: margin,
         width: width,
         height: height,
-        decoration: BoxDecoration(color: color, border: border, borderRadius: borderRadius ?? BorderRadius.circular(8.0), boxShadow: boxShadow),
+        
+        decoration: BoxDecoration(color: color, border: border, borderRadius: borderRadius ?? BorderRadius.circular(8.0), boxShadow: boxShadow, gradient: gradient),
         child: child,
       ),
     );
@@ -148,7 +150,7 @@ class AndroidWidgetFactory extends BaseWidgetFactory {
       bool enabled = true,
       bool autocorrect = true,
       int maxLines = 1,
-      int maxLength = 0,
+      int? maxLength,
       String? Function(String?)? validator,
       void Function(String)? onChanged,
       Widget? suffixIcon,

@@ -11,7 +11,7 @@ import '../../../../injection.dart';
 
 class OrderListPage extends StatefulWidget {
   static const routeName = '/orders';
-  late final OrderListViewmodel? orderListViewmodel;
+  late OrderListViewmodel? orderListViewmodel;
 
   OrderListPage({super.key, this.orderListViewmodel}) {
     orderListViewmodel ??= Get.put(getIt<OrderListViewmodel>());
@@ -50,7 +50,7 @@ class _OrderListPageState extends State<OrderListPage> {
             initializeViewmodel();
           },
           content: ResponsiveWrapper(
-            smallScreen: SmallScreenOrderList(orderListViewmodel: viewmodel, widgetFactory: appWidgetfactory),
+            smallScreen: SmallScreenOrderList(viewmodel: viewmodel, widgetFactory: appWidgetfactory),
           ),
         ),
       ),

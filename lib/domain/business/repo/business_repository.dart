@@ -1,11 +1,11 @@
-
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/business_response.dart';
 import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.data.gql.dart';
 import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.req.gql.dart';
+import 'package:melegna_customer/data/network/graphql_config.dart';
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/domain/shared/repository.intereface.dart';
-
+import 'package:melegna_customer/injection.dart';
 
 abstract class IBusinessrepository extends IRepository {
   Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
@@ -17,9 +17,10 @@ class BusinessRepository implements IBusinessrepository {
   static const injectName = 'BUSINESS_REPOSITORY_INJECTION';
   final IGraphQLDataSource _graphQLDataSource;
 
-  const BusinessRepository(@Named( GraphqlDatasource.injectName) this._graphQLDataSource);
+  const BusinessRepository(@Named(GraphqlDatasource.injectName) this._graphQLDataSource);
   @override
   Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
     final request = GGetBusinessDetailsReq(
       (b) => b
         ..vars.id = id
@@ -29,6 +30,7 @@ class BusinessRepository implements IBusinessrepository {
     if (result?.getBusinessDetails == null) {
       return null;
     }
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
     return BusinessResponse.fromJson(result!.getBusinessDetails.toJson());
   }
 }

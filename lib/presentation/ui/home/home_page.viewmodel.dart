@@ -22,6 +22,7 @@ import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/ui/home/components/feature_promo_banner.dart';
 import 'package:melegna_customer/presentation/ui/home/discover/discover.page.dart';
 import 'package:melegna_customer/presentation/ui/home/foryou.page.dart';
+import 'package:melegna_customer/presentation/ui/order/order_list/order_list_page.dart';
 import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
@@ -83,6 +84,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
           )),
       Destination(title: 'For You', icon: widgetFactory.createIcon(materialIcon: Icons.search, cupertinoIcon: CupertinoIcons.search), page: const ForYouPage()),
       Destination(title: 'Cart', icon: widgetFactory.createIcon(materialIcon: Icons.shopping_cart, cupertinoIcon: CupertinoIcons.cart), page: CartListPage()),
+      Destination(title: 'Orders', icon: widgetFactory.createIcon(materialIcon: Icons.paid, cupertinoIcon: CupertinoIcons.paw_solid), page: OrderListPage()),
     ];
   }
 
@@ -95,31 +97,27 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     }
     if (fetchBrowseData) {
       await getBrowseData();
-      if (browseData.value != null) {
-        sequenceZeroproductListController.setItems(sequenceOneProductResponse.map((e) => e.items).flatten().toList());
-        sequence1productListController.setItems(browseProductsResponse?[1]?.map((e) => e.items).flatten().toList() ?? []);
-        bundleListController.setItems(bundleResponse.map((bundleRes) => bundleRes.items).flatten().toList());
-        businessListController.setItems(browseBusinessesResponse?[0]?.map((e) => e.items).flatten().toList() ?? []);
-      }
     }
   }
 
   // data operation
 
   Future<void> getBrowseData() async {
-    exception(null);
-    isBrowseDataLoading(true);
-    browseData.value = null;
     try {
+      cleanupStateVariables();
       final response = await discoverUsecase.getDiscoveryDetails();
-      if (response == null) {
-        exception(AppException(message: 'No data found'));
+      if (response?.isBrowseDataFetchSuccessfull() == true) {
+        browseData.value = response;
+        sequenceZeroproductListController.setItems(sequenceOneProductResponse.map((e) => e.items).flatten().toList());
+        sequence1productListController.setItems(browseProductsResponse?[1]?.map((e) => e.items).flatten().toList() ?? []);
+        bundleListController.setItems(bundleResponse.map((bundleRes) => bundleRes.items).flatten().toList());
+        businessListController.setItems(browseBusinessesResponse?[0]?.map((e) => e.items).flatten().toList() ?? []);
       }
-      browseData.value = response;
     } catch (e) {
+      print("exception ${e.toString()}");
       exception.value = exceptiionHandler.getException(e as Exception);
     } finally {
-      isBrowseDataLoading.value = false;
+      isBrowseDataLoading(false);
     }
   }
 
@@ -166,6 +164,13 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
 
   void moveToBundleDetailPage(BuildContext context, ProductBundle bundle, {Widget? previousPage}) {
     BundleDetailPage.navigateToBundleDetailPage(context, router, bundle, previousPage: null);
+  }
+
+
+  void cleanupStateVariables() {
+    exception.value = null;
+    isBrowseDataLoading.value = true;
+    browseData.value = null;
   }
 
   @override

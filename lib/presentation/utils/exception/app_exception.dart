@@ -13,6 +13,10 @@ class AppException implements Exception {
 
   AppException({this.message, this.code, this.type, this.isMainError = false, this.exception});
 
+  bool get isUnAuthorizedException {
+    return code == '401';
+  }
+
   AppException serialize() {
     return AppException(message: message, code: code, type: type, isMainError: isMainError, exception: exception);
   }
@@ -23,7 +27,7 @@ class AppException implements Exception {
 }
 
 abstract class IExceptiionHandler {
-  AppException getException(Exception excetpion); 
+  AppException getException(Exception excetpion);
 }
 
 @Named(AppExceptionHandler.injectName)

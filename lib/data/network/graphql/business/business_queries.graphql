@@ -44,6 +44,28 @@ query GetBusinessDetails($id: String!) {
         }
         productIds
       }
+      bundles{
+        id
+        name{
+          key
+          value
+        }
+        description{
+          key
+          value
+        }
+        productIds
+        startDate
+        endDate
+        products{
+          gallery{
+            images{
+              url
+              featured
+            }
+          }
+        }
+      }
     }
     products {
       id

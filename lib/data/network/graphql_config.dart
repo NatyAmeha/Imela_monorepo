@@ -23,8 +23,8 @@ class GraphQLConfig {
       // final store = HiveStore(box);
       final cache = Cache(store: store);
       final link = HttpLink('http://192.168.211.134:3000/graphql');
-      final finalHttpLInk =  getAuthToken().concat(link);
-      final timeoutLink = TimeoutLink(const Duration(seconds: 30), finalHttpLInk);
+      final finalHttpLInk = link;
+      final timeoutLink = ClientInterceptor(const Duration(seconds: 30), finalHttpLInk);
       _ferryGraphQlClient = Client(link: timeoutLink, cache: cache);
       return _ferryGraphQlClient!;
     } catch (e) {
@@ -34,13 +34,25 @@ class GraphQLConfig {
   }
 }
 
-Link getAuthToken() {
-  return Link.function((request, [forward]) {
+
+
+class ClientInterceptor extends Link {
+  final Duration timeout;
+  final Link _link;
+
+  static const BYPASS_TOKEN_VALIDATION = 'token';
+
+  ClientInterceptor(this.timeout, this._link);
+
+  @override
+  Stream<Response> request(Request request, [NextLink? forward]) {
     final headers = <String, String>{};
-    const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjFmODk0ZjVkYjAzOTJlNWRkZmY2NzYiLCJ1c2VybmFtZSI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJlbWFpbCI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJpYXQiOjE3MjQwNTgxMDQsImV4cCI6MTcyNDE0NDUwNH0.RXM4zkA7Ul1Ultialr4jDW8G_eexMEDeYwqCNxXm-Dc';
+    const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjFmODk0ZjVkYjAzOTJlNWRkZmY2NzYiLCJ1c2VybmFtZSI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJlbWFpbCI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJpYXQiOjE3MjQxNDQ2NTYsImV4cCI6MTcyNDIzMTA1Nn0.XOKN1QpXYyGxSILiKkh9t1gxJ9jjq5yZt2EEvEU2rJA';
+    final bypasstoken = getIt<bool>(instanceName: BYPASS_TOKEN_VALIDATION);
     if (authToken.isNotEmpty) {
       headers['Authorization'] = 'Bearer $authToken';
     }
+    headers[BYPASS_TOKEN_VALIDATION] = bypasstoken.toString();
     request = request.updateContextEntry<HttpLinkHeaders>(
       (existingHeaders) => HttpLinkHeaders(
         headers: {
@@ -49,22 +61,10 @@ Link getAuthToken() {
         },
       ),
     );
-    return forward!(request);
-  });
-}
-
-class TimeoutLink extends Link {
-  final Duration timeout;
-  final Link _link;
-
-  TimeoutLink(this.timeout, this._link);
-
-  @override
-  Stream<Response> request(Request request, [NextLink? forward]) {
     final result = _link.request(request, forward);
     return result.timeout(timeout, onTimeout: (sink) {
       sink.addError(TimeoutException('Request timed out'));
       sink.close();
     });
-  }
+  }  
 }

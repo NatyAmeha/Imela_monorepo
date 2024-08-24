@@ -63,16 +63,32 @@ class _ProductListPageState extends State<ProductListPage> {
               ? AppGridView(
                   controller: viewmodel.productListController,
                   isStaggered: true,
+                  padding: const EdgeInsets.all(12),
                   itemBuilder: (context, product, index) {
-                    return GridProductListItem(product: product, widgetFactory: appWidgetFactory);
+                    return GridProductListItem(
+                      product: product,
+                      widgetFactory: appWidgetFactory,
+                      onTap: () {
+                        viewmodel.navigateToProductDetail(context, product);
+                      },
+                    );
                   },
                 )
               : AppListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   scrollDirection: Axis.vertical,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
                   controller: viewmodel.productListController,
                   itemBuilder: (context, product, index) {
-                    return VerticalProductListItem(product: product, imageHeight: 150, imageWidth: 130, widgetFactory: appWidgetFactory);
+                    return VerticalProductListItem(
+                      product: product,
+                      imageHeight: 140,
+                      imageWidth: 125,
+                      widgetFactory: appWidgetFactory,
+                      onTap: () {
+                        viewmodel.navigateToProductDetail(context, product);
+                      },
+                    );
                   },
                 ),
         ),

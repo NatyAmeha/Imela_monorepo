@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:melegna_customer/domain/order/model/order.model.dart';
+import 'package:melegna_customer/presentation/resources/colors.dart';
 import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
 import 'package:melegna_customer/presentation/utils/date_utils.dart';
 import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
@@ -26,7 +27,8 @@ class OrderListItem extends StatelessWidget {
       onTap: () {
         onSelected?.call();
       },
-      border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
+      padding: const EdgeInsets.all(16),
+      border: Border.all(color: ColorManager.primaryBackground, width: 1),
       borderRadius: BorderRadius.circular(8),
       width: width,
       height: height,
@@ -34,7 +36,9 @@ class OrderListItem extends StatelessWidget {
         children: [
           Row(children: [
             Expanded(
-              child: Column(children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 widgetFactory.createText(context, "Order #1", style: Theme.of(context).textTheme.bodyLarge),
                 widgetFactory.createText(context, order.createdAt.toFormattedString(), style: Theme.of(context).textTheme.titleSmall),
               ]),
@@ -46,7 +50,7 @@ class OrderListItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, "${order.items} items", style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, "${order.items?.length} items", style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, "${order.totalAmount} birr", style: Theme.of(context).textTheme.headlineSmall, color: Theme.of(context).colorScheme.primary),
             ],
           ).withPaddingSymetric(vertical: 8),

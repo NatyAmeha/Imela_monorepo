@@ -37,6 +37,9 @@ class VerticalProductListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return widgetFactory.createCard(
+      onTap: (){
+        onTap?.call();
+      },
       child: Row(
         children: [
           AppImage(imageUrl: product.gallery?.getImages().firstOrNull, width: imageWidth, height: imageHeight, borderRadius: BorderRadius.circular(16)), // (1

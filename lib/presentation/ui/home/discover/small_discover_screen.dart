@@ -12,6 +12,7 @@ import 'package:melegna_customer/presentation/ui/product/components/grid_product
 import 'package:melegna_customer/presentation/ui/product/product_details/product_details.page.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
 import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
+import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
 
 class SmallDiscoverScreen extends StatelessWidget {
   final HomepageViewmodel homepageViewmodel;
@@ -22,11 +23,11 @@ class SmallDiscoverScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await homepageViewmodel.getBrowseData();
-          },
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await homepageViewmodel.getBrowseData();
+        },
+        child: SafeArea(
           child: SingleChildScrollView(
             child: Obx(
               () => Column(
@@ -64,7 +65,7 @@ class SmallDiscoverScreen extends StatelessWidget {
                             },
                           );
                         },
-                      );
+                      ).showIfTrue(homepageViewmodel.businessListController.items.isNotEmpty);
                     },
                   ),
                   const SizedBox(height: 24),
@@ -90,40 +91,42 @@ class SmallDiscoverScreen extends StatelessWidget {
                             imageWidth: double.infinity,
                             widgetFactory: widgetFactory,
                             onTap: () {
-                              ProductDetailPage.navigateToProductDetailPage(context, homepageViewmodel.router, productData, previousPage: this);
+                              ProductDetailPage.navigate(context, homepageViewmodel.router, productData, previousPage: this);
                             },
                           );
                         },
-                      );
+                      ).showIfTrue(homepageViewmodel.sequenceZeroproductListController.items.isNotEmpty);
                     },
                   ),
                   const SizedBox(height: 24),
-                  ...homepageViewmodel.bundleResponse.map((bundleResponse) {
-                    return AppListView(
-                      header: AppListHeader(
-                        title: bundleResponse.title,
-                        subtitle: bundleResponse.subtitle,
-                        padding: const EdgeInsets.all(16),
-                        trailing: widgetFactory.createIcon(materialIcon: Icons.arrow_forward_ios, cupertinoIcon: CupertinoIcons.chevron_right),
-                        onActionClicked: () {},
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      controller: homepageViewmodel.bundleListController,
-                      shrinkWrap: true,
-                      height: 200,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                      itemBuilder: (context, bundle, index) {
-                        return BundleListItem(
-                          bundleData: bundle,
-                          width: 300,
-                          widgetFactory: widgetFactory,
-                          onTap: () {
-                            homepageViewmodel.moveToBundleDetailPage(context, bundle, previousPage: scaffoldScreen);
-                          },
-                        );
-                      },
-                    );
-                  }),
+                  ...homepageViewmodel.bundleResponse.map(
+                    (bundleResponse) {
+                      return AppListView(
+                        header: AppListHeader(
+                          title: bundleResponse.title,
+                          subtitle: bundleResponse.subtitle,
+                          padding: const EdgeInsets.all(16),
+                          trailing: widgetFactory.createIcon(materialIcon: Icons.arrow_forward_ios, cupertinoIcon: CupertinoIcons.chevron_right),
+                          onActionClicked: () {},
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        controller: homepageViewmodel.bundleListController,
+                        shrinkWrap: true,
+                        height: 200,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                        itemBuilder: (context, bundle, index) {
+                          return BundleListItem(
+                            bundleData: bundle,
+                            width: 300,
+                            widgetFactory: widgetFactory,
+                            onTap: () {
+                              homepageViewmodel.moveToBundleDetailPage(context, bundle, previousPage: scaffoldScreen);
+                            },
+                          );
+                        },
+                      ).showIfTrue(homepageViewmodel.bundleListController.items.isNotEmpty);
+                    },
+                  ),
                   const SizedBox(height: 124),
                 ],
               ),

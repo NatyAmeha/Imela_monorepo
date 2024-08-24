@@ -34,15 +34,19 @@ class _BrowsePageState extends State<BrowsePage> {
   Widget build(BuildContext context) {
     final appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
-        body: Obx(
-      () => PageContentLoader(
-        isDataLoading: viewmodel.isBrowseDataLoading.value,
-        hasError: viewmodel.exception.value?.isMainError ?? false,
-        showContent: viewmodel.browseData.value != null,
-        content: ResponsiveWrapper(
-          smallScreen: SmallDiscoverScreen(homepageViewmodel: viewmodel, widgetFactory: appWidgetFactory, scaffoldScreen: widget),
+      body: Obx(
+        () => PageContentLoader(
+          isDataLoading: viewmodel.isBrowseDataLoading.value,
+          hasError: viewmodel.exception.value?.isMainError ?? false,
+          showContent: viewmodel.browseData.value != null,
+          content: ResponsiveWrapper(
+            smallScreen: SmallDiscoverScreen(homepageViewmodel: viewmodel, widgetFactory: appWidgetFactory, scaffoldScreen: widget),
+          ),
+          onTryAgain: () {
+            viewmodel.getBrowseData();
+          },
         ),
       ),
-    ));
+    );
   }
 }

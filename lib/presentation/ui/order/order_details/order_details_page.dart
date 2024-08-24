@@ -7,11 +7,12 @@ import 'package:melegna_customer/presentation/ui/order/order_details/order_detai
 import 'package:melegna_customer/presentation/ui/order/order_details/small_screen_order_detail.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
-
+import 'package:melegna_customer/services/routing_service.dart';
 
 class OrderDetailPage extends StatefulWidget {
-  static const routeName = '/orders';
-  late final OrderDetailviewmodel? orderDetailViewmodel;
+  static const baseRouteName = '/order_detail';
+  static const routeName = '$baseRouteName/:id';
+  late OrderDetailviewmodel? orderDetailViewmodel;
   final String ORderId;
   final String? orderName;
 
@@ -21,6 +22,10 @@ class OrderDetailPage extends StatefulWidget {
 
   @override
   State<OrderDetailPage> createState() => _OrderDetailPageState();
+
+  static void navigate(BuildContext context, IRoutingService router, String orderId) {
+    router.navigateTo(context, '$baseRouteName/$orderId', extra: {'id': orderId});
+  }
 }
 
 class _OrderDetailPageState extends State<OrderDetailPage> {

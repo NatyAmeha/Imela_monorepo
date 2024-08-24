@@ -44,7 +44,7 @@ class Business extends BaseModel with _$Business {
     List<PaymentOption>? paymentOptions,
 
     // DeliveryInfo? deliveryInfo
-    ProductBundle? bundles,
+    List<ProductBundle>? bundles,
   }) = _Business;
 
   factory Business.fromJson(Map<String, dynamic> json) => _$BusinessFromJson(json);

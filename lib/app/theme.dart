@@ -76,6 +76,7 @@ class AppThemeManager {
         labelMedium: AppTypography.of(context).labelMedium.copyWith(color: ColorManager.secondaryTextDark),
         labelSmall: AppTypography.of(context).labelSmall.copyWith(color: ColorManager.secondaryTextDark),
       ),
+      
       appBarTheme: const AppBarTheme().copyWith(
         backgroundColor: ColorManager.alternateDark,
         centerTitle: true,

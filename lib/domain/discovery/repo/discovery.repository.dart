@@ -1,8 +1,10 @@
 import 'package:injectable/injectable.dart';
 import 'package:melegna_customer/data/network/graphql/discover/__generated__/discover_query.data.gql.dart';
 import 'package:melegna_customer/data/network/graphql/discover/__generated__/discover_query.req.gql.dart';
+import 'package:melegna_customer/data/network/graphql_config.dart';
 import 'package:melegna_customer/data/network/graphql_datasource.dart';
 import 'package:melegna_customer/domain/discovery/model/discovery_response.dart';
+import 'package:melegna_customer/injection.dart';
 
 abstract class IDiscoveryRepository {
   Future<DiscoveryResponse?> browse({required ApiDataFetchPolicy fetchPolicy});
@@ -18,13 +20,13 @@ class DiscoveryRepository implements IDiscoveryRepository {
 
   @override
   Future<DiscoveryResponse?> browse({required ApiDataFetchPolicy fetchPolicy}) async {
-    final request = GGetDiscoveryDataReq(
-      (b) => b..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
-    );
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
+    final request = GGetDiscoveryDataReq((b) => b..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy));
     final result = await _graphQLDataSource.request<GGetDiscoveryDataData>(request, type: "BROWSE", isMainError: true);
     if (result == null) {
       return null;
     }
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
     return DiscoveryResponse.fromJson(result.getDiscoveryData.toJson());
   }
 }

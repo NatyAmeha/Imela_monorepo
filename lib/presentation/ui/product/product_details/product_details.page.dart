@@ -22,7 +22,7 @@ class ProductDetailPage extends StatefulWidget {
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 
-  static void navigateToProductDetailPage(BuildContext context, IRoutingService router, Product product, {Widget? previousPage}) {
+  static void navigate(BuildContext context, IRoutingService router, Product product, {Widget? previousPage}) {
     router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize()}', GoRouterService.PREVIOUS_PAGE_KEY: previousPage});
   }
 }
