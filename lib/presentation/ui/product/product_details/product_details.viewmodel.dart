@@ -2,30 +2,30 @@ import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/data/network/product_response.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/order_config.model.dart';
-import 'package:melegna_customer/domain/order/order.usecase.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
-import 'package:melegna_customer/domain/product/product.usecase.dart';
-import 'package:melegna_customer/domain/shared/gallery.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/values.dart';
-import 'package:melegna_customer/presentation/ui/app_controller.dart';
-import 'package:melegna_customer/presentation/ui/cart/cart_detail_page.dart';
-import 'package:melegna_customer/presentation/ui/cart/cart_list_page.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_order_config_modal.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_features_list.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/presentation/utils/order_utils.dart';
-import 'package:melegna_customer/presentation/utils/string_utils.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/data/network/product_response.dart';
+import 'package:imela/domain/business/model/business.model.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/order_config.model.dart';
+import 'package:imela/domain/order/order.usecase.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/product/model/product_addon.model.dart';
+import 'package:imela/domain/product/product.usecase.dart';
+import 'package:imela/domain/shared/gallery.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/values.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
+import 'package:imela/presentation/ui/cart/cart_list_page.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/components/product_order_config_modal.dart';
+import 'package:imela/presentation/ui/product/components/product_features_list.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/presentation/utils/order_utils.dart';
+import 'package:imela/presentation/utils/string_utils.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
@@ -141,7 +141,6 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
         response = await productUsecase.getProductDetails(productId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
       }
       productDetails.value = response;
-            print("product payment option ${productPaymentOption.length}");
 
       selectedProductQty(productDetails.value?.product?.minimumOrderQty.toDouble() ?? 1.0);
       if (productOptions.isNotEmpty) {

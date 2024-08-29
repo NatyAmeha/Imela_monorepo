@@ -31,6 +31,18 @@ mutation AddToBusinessCart($businessId : String!, $cartInput: CreateCartInput!) 
           }
           amount
         }
+        config{
+          name{
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          type
+          productIds
+          additionalPrice
+          addonId
+        }
       }
         }
     }

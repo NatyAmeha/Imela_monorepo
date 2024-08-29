@@ -1,13 +1,13 @@
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/qty_modifier.component.dart';
-import 'package:melegna_customer/presentation/utils/date_utils.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/product/model/product_addon.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/qty_modifier.component.dart';
+import 'package:imela/presentation/utils/date_utils.dart';
+import 'package:imela/presentation/utils/localization_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class ProductAddonListItem extends StatelessWidget {
   final ProductAddon addon;

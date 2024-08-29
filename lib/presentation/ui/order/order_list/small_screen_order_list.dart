@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/order/components/order_list_item.dart';
-import 'package:melegna_customer/presentation/ui/order/order_list/order_list.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/order/components/order_list_item.dart';
+import 'package:imela/presentation/ui/order/order_list/order_list.viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 
 class SmallScreenOrderList extends StatelessWidget {
   final OrderListViewmodel viewmodel;

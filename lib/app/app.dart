@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:melegna_customer/app/theme.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/app/theme.dart';
+import 'package:imela/services/routing_service.dart';
 
 class MelegnaCustomerApp extends StatelessWidget {
   const MelegnaCustomerApp._();

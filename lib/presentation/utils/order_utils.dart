@@ -1,4 +1,4 @@
-import 'package:melegna_customer/domain/order/model/order_config.model.dart';
+import 'package:imela/domain/order/model/order_config.model.dart';
 
 class ORderUtils{
 

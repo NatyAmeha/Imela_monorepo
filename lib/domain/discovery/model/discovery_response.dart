@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/discovery/model/bundle_discovery.model.dart';
-import 'package:melegna_customer/domain/discovery/model/business_discovery.model.dart';
-import 'package:melegna_customer/domain/discovery/model/product_discovery.model.dart';
+import 'package:imela/domain/discovery/model/bundle_discovery.model.dart';
+import 'package:imela/domain/discovery/model/business_discovery.model.dart';
+import 'package:imela/domain/discovery/model/product_discovery.model.dart';
 
 part 'discovery_response.freezed.dart';
 part 'discovery_response.g.dart';

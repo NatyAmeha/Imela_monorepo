@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/data/network/graphql_config.dart';
-import 'package:melegna_customer/presentation/ui/authentication/auth.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/button_style.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/data/network/graphql_config.dart';
+import 'package:imela/presentation/ui/authentication/auth.viewmodel.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/utils/button_style.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
+import 'package:imela/services/routing_service.dart';
 
 class PhoneLoginPage extends StatelessWidget {
   static const routeName = '/phone_login';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/bundle/model/product_bundle.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/app_image.dart';
+import 'package:imela/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class BundleListItem extends StatelessWidget {
   final ProductBundle bundleData;
@@ -51,44 +51,48 @@ class BundleListItem extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     )
                     .showIfNotNull(bundleData.description),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          widgetFactory.createText(context, 'Total price', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
-                          widgetFactory.createText(context, '${bundleData.products?.length}', style: Theme.of(context).textTheme.titleSmall, enableResize: true),
-                        ],
+                widgetFactory.createCard(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            widgetFactory.createText(context, 'Total price', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
+                            widgetFactory.createText(context, '${bundleData.products?.length}', style: Theme.of(context).textTheme.bodySmall, enableResize: true),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 30, child: VerticalDivider(thickness: 1)),
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          widgetFactory.createText(context, 'Products', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
-                          widgetFactory.createText(context, bundleData.getBundleProducts(), style: Theme.of(context).textTheme.labelSmall, enableResize: true),
-                        ],
+                      const SizedBox(height: 30, child: VerticalDivider(thickness: 1)),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            widgetFactory.createText(context, 'Products', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
+                            widgetFactory.createText(context, bundleData.getBundleProducts(), style: Theme.of(context).textTheme.bodyMedium, enableResize: true,maxLines: 1),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 30, child: VerticalDivider(thickness: 1)),
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          widgetFactory.createText(context, 'Ends with', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
-                          widgetFactory.createText(context, '4h : 32m : 12s', style: Theme.of(context).textTheme.bodySmall, enableResize: true, maxLines: 1),
-                        ],
+                      const SizedBox(height: 30, child: VerticalDivider(thickness: 1)),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            widgetFactory.createText(context, 'Ends with', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
+                            widgetFactory.createText(context, '4h : 32m : 12s', style: Theme.of(context).textTheme.bodySmall, enableResize: true, maxLines: 1),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

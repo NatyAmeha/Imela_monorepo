@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class PaymentOptionListItem extends StatelessWidget {
+  final double totalAmount;
   final PaymentOption paymentOption;
   final String selectedPaymentOptionId;
   final WidgetFactory widgetFactory;
@@ -13,6 +15,7 @@ class PaymentOptionListItem extends StatelessWidget {
   final Function? onSelected;
   const PaymentOptionListItem({
     super.key,
+    required this.totalAmount,
     required this.paymentOption,
     required this.selectedPaymentOptionId,
     required this.widgetFactory,
@@ -21,9 +24,13 @@ class PaymentOptionListItem extends StatelessWidget {
     this.onSelected,
   });
 
+  bool get isSelected => paymentOption.id == selectedPaymentOptionId;
+
   IconData get icon {
-    return paymentOption.id == selectedPaymentOptionId ? Icons.check_circle : Icons.radio_button_unchecked;
+    return isSelected ? Icons.check_circle : Icons.radio_button_unchecked;
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +39,7 @@ class PaymentOptionListItem extends StatelessWidget {
         onSelected?.call();
       },
       padding: const EdgeInsets.all(16),
-      border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
+      border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer, width: 1),
       width: width,
       height: height,
       borderRadius: BorderRadius.circular(8),
@@ -45,8 +52,7 @@ class PaymentOptionListItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    widgetFactory.createText(context, paymentOption.name.localize(), style: Theme.of(context).textTheme.titleLarge),
-                    widgetFactory.createText(context, paymentOption.type.toString(), style: Theme.of(context).textTheme.bodyMedium),
+                    widgetFactory.createText(context, paymentOption.name.localize(), style: Theme.of(context).textTheme.titleMedium),
                   ],
                 ),
               ),
@@ -57,24 +63,22 @@ class PaymentOptionListItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, "Current payment", style: Theme.of(context).textTheme.bodyMedium),
-              widgetFactory.createText(context, "130 Birr", style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createText(context, 'Current payment', style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, paymentOption.currentPayment(totalAmount).toString(), style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
             ],
-          ).withPaddingSymetric(vertical: 4),
+          ).withPaddingSymetric(vertical: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, "Remaining amount", style: Theme.of(context).textTheme.bodyMedium),
-              widgetFactory.createText(context, "400 Birr", style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createText(context, 'Remaining amount', style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, paymentOption.remainingPayment(totalAmount).toString(), style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
             ],
-          ).withPaddingSymetric(vertical: 4),
+          ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption()),
           Row(
             children: [
-              widgetFactory.createIcon(materialIcon: Icons.read_more_outlined),
-              const SizedBox(width: 8),
-              widgetFactory.createText(context, "Pay remaining on delivery", style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createText(context, 'Pay remaining on delivery', style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),
             ],
-          ).withPaddingSymetric(vertical: 4)
+          ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption())
         ],
       ),
     );

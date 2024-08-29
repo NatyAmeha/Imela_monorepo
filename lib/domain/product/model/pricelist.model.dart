@@ -1,7 +1,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/shared/base.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:imela/domain/shared/base.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
 
 part 'pricelist.model.freezed.dart';
 part 'pricelist.model.g.dart';

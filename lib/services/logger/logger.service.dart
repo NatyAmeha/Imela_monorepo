@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
-import 'package:melegna_customer/services/logger/log.model.dart';
-import 'package:melegna_customer/services/logger/log_output.service.dart';
+import 'package:imela/services/logger/log.model.dart';
+import 'package:imela/services/logger/log_output.service.dart';
 
 abstract class ILogService {
   List<LogData> errorLogs = [];

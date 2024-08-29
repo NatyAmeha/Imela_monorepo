@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
+import 'package:imela/presentation/resources/colors.dart';
 
 class AppTypography {
   late TextStyle displayLarge;

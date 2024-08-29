@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.melegna_customer.app" "\0"
-            VALUE "FileDescription", "melegna_customer" "\0"
+            VALUE "CompanyName", "com.imela.app" "\0"
+            VALUE "FileDescription", "imela" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "melegna_customer" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.melegna_customer.app. All rights reserved." "\0"
-            VALUE "OriginalFilename", "melegna_customer.exe" "\0"
-            VALUE "ProductName", "melegna_customer" "\0"
+            VALUE "InternalName", "imela" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.imela.app. All rights reserved." "\0"
+            VALUE "OriginalFilename", "imela.exe" "\0"
+            VALUE "ProductName", "imela" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

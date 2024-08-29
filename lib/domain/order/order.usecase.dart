@@ -1,12 +1,12 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/order.model.dart' as OrderModel;
-import 'package:melegna_customer/domain/order/model/order.response.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/order/repo/cart.repository.dart';
-import 'package:melegna_customer/domain/order/repo/order.repository.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/order.model.dart' as OrderModel;
+import 'package:imela/domain/order/model/order.response.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/order/repo/cart.repository.dart';
+import 'package:imela/domain/order/repo/order.repository.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
 
 @injectable
 class OrderUsecase {
@@ -37,6 +37,7 @@ class OrderUsecase {
 
   Future<OrderResponse?> getOrders() async {
     final result = await _orderRepo.getOrders();
+    print("order result ${result?.orders?.map((item) => item.status).toList()}");
     return result;
   }
 

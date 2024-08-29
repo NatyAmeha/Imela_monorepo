@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/domain/shared/gallery.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_choicechip_group.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/domain/shared/gallery.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/app_choicechip_group.component.dart';
+import 'package:imela/presentation/ui/shared/app_image.dart';
 
 class BranchBannerCard extends StatelessWidget {
   final Branch branch;

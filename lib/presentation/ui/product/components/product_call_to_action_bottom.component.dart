@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/presentation/resources/values.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/currency_utils.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/presentation/resources/values.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/utils/currency_utils.dart';
 
 class ProductCallToActionBottomComponenet extends StatelessWidget {
   final Product product;

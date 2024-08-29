@@ -1,8 +1,8 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/product/model/pricelist.model.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/price.model.dart';
+import 'package:imela/domain/product/model/pricelist.model.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/shared/price.model.dart';
 
 part 'product_price.model.freezed.dart';
 part 'product_price.model.g.dart';

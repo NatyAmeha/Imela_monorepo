@@ -1,4 +1,4 @@
-package com.melegna_customer.app.melegna_customer
+package com.imela.app
 
 import io.flutter.embedding.android.FlutterActivity
 

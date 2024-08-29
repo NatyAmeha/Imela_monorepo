@@ -2,18 +2,18 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
 
-import 'package:melegna_customer/domain/business/model/payment_method.model.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/domain/order/model/order.model.dart' as OrderModel;
-import 'package:melegna_customer/domain/order/order.usecase.dart';
-import 'package:melegna_customer/presentation/ui/app_controller.dart';
-import 'package:melegna_customer/presentation/ui/home/home.page.dart';
-import 'package:melegna_customer/presentation/ui/order/order_confirmation/order_confirmation_page.dart';
+import 'package:imela/domain/business/model/payment_method.model.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/domain/order/model/order.model.dart' as OrderModel;
+import 'package:imela/domain/order/order.usecase.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/home/home.page.dart';
+import 'package:imela/presentation/ui/order/order_confirmation/order_confirmation_page.dart';
 
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
@@ -39,6 +39,11 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
 
   var selectedPaymentOption = Rxn<PaymentOption>();
   String get selectedPaymentOptionId => selectedPaymentOption.value!.id!;
+
+  double get totalAmount {
+    return selectedPaymentOption.value?.currentPayment(cartInfo.value!.getTotalPrice) ?? 0.0;
+  }
+ 
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {

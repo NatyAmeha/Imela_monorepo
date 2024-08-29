@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/home/home_page.viewmodel.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/home/home_page.viewmodel.dart';
+import 'package:imela/services/routing_service.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class HomePage extends StatefulWidget {

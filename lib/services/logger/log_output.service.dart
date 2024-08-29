@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
-import 'package:melegna_customer/services/logger/log.model.dart';
+import 'package:imela/services/logger/log.model.dart';
 
 abstract class ILogOutput extends LogOutput {}
 

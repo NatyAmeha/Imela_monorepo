@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/utils/screen_size_utils.dart';
+import 'package:imela/presentation/utils/screen_size_utils.dart';
 
 class ResponsiveWrapper extends StatelessWidget {
   final Widget smallScreen;

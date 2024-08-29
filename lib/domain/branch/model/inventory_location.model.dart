@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/domain/business/model/business.model.dart';
 
 part 'inventory_location.model.freezed.dart';
 part 'inventory_location.model.g.dart';

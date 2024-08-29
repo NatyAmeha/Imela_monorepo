@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/product/product.usecase.dart';
-import 'package:melegna_customer/presentation/ui/product/product_details/product_details.page.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/product/product.usecase.dart';
+import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class ProductListViewmodel extends GetxController with BaseViewmodel {

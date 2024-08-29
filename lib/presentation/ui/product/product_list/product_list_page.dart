@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/grid_product_list_item.component.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_list_item.dart';
-import 'package:melegna_customer/presentation/ui/product/product_list/product_list.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_display_style.constants.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
+import 'package:imela/presentation/ui/product/components/product_list_item.dart';
+import 'package:imela/presentation/ui/product/product_list/product_list.viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
+import 'package:imela/presentation/ui/shared/list/list_display_style.constants.dart';
+import 'package:imela/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 
 class ProductListPage extends StatefulWidget {
   static const baseRouteName = '/products';

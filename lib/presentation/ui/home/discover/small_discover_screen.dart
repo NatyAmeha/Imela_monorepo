@@ -1,18 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/list_header.component.dart';
-import 'package:melegna_customer/presentation/ui/bundle/components/bundle_list_item.dart';
-import 'package:melegna_customer/presentation/ui/business/component/business_list_tile.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/home/components/feature_promo_banner.dart';
-import 'package:melegna_customer/presentation/ui/home/home_page.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/product/components/grid_product_list_item.component.dart';
-import 'package:melegna_customer/presentation/ui/product/product_details/product_details.page.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/shared/list_header.component.dart';
+import 'package:imela/presentation/ui/bundle/components/bundle_list_item.dart';
+import 'package:imela/presentation/ui/business/component/business_list_tile.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/home/components/feature_promo_banner.dart';
+import 'package:imela/presentation/ui/home/home_page.viewmodel.dart';
+import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
+import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
+import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
+import 'package:imela/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class SmallDiscoverScreen extends StatelessWidget {
   final HomepageViewmodel homepageViewmodel;

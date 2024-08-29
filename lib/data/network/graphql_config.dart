@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:gql_exec/gql_exec.dart';
 import 'package:gql_http_link/gql_http_link.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:melegna_customer/data/network/graphql_cache_config.dart';
+import 'package:imela/data/network/graphql_cache_config.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -22,7 +22,7 @@ class GraphQLConfig {
       final store = ExpiringStore(box, cacheDuration);
       // final store = HiveStore(box);
       final cache = Cache(store: store);
-      final link = HttpLink('http://192.168.211.134:3000/graphql');
+      final link = HttpLink('http://192.168.1.16:3000/graphql');
       final finalHttpLInk = link;
       final timeoutLink = ClientInterceptor(const Duration(seconds: 30), finalHttpLInk);
       _ferryGraphQlClient = Client(link: timeoutLink, cache: cache);
@@ -47,7 +47,7 @@ class ClientInterceptor extends Link {
   @override
   Stream<Response> request(Request request, [NextLink? forward]) {
     final headers = <String, String>{};
-    const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjFmODk0ZjVkYjAzOTJlNWRkZmY2NzYiLCJ1c2VybmFtZSI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJlbWFpbCI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJpYXQiOjE3MjQxNDQ2NTYsImV4cCI6MTcyNDIzMTA1Nn0.XOKN1QpXYyGxSILiKkh9t1gxJ9jjq5yZt2EEvEU2rJA';
+    const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NjFmODk0ZjVkYjAzOTJlNWRkZmY2NzYiLCJ1c2VybmFtZSI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJlbWFpbCI6Im5hdHlhbWVoYUBnbWFpbC5jb20iLCJpYXQiOjE3MjQ1MjIzNTgsImV4cCI6MTcyNDYwODc1OH0.1v_i9ogbhHDQyptwjU8xxPvYrgVnhN8CHTKGIy0YT1A';
     final bypasstoken = getIt<bool>(instanceName: BYPASS_TOKEN_VALIDATION);
     if (authToken.isNotEmpty) {
       headers['Authorization'] = 'Bearer $authToken';

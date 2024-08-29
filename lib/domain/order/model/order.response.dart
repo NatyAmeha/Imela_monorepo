@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/domain/order/model/order.model.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/domain/order/model/order.model.dart';
 
 part 'order.response.freezed.dart';
 part 'order.response.g.dart';

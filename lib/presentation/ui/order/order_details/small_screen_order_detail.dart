@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/order/order_details/order_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/date_utils.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/order/order_details/order_details.viewmodel.dart';
+import 'package:imela/presentation/utils/date_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class SmallScreenOrderDetail extends StatelessWidget {
   final OrderDetailviewmodel viewmodel;

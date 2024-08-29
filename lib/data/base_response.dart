@@ -1,4 +1,4 @@
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
 
 abstract class BaseResponse {
   const BaseResponse._();

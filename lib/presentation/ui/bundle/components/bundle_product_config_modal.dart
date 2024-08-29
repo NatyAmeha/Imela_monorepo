@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_option_item.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
+import 'package:imela/presentation/ui/product/components/product_option_item.dart';
+import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class BundleProductConfigModal extends StatefulWidget {
   final Product product;
   final WidgetFactory widgetFactory;
   final ScrollController? controller;
+  final bool Function(Product productOption)? isOptionSelected;
   final Function(Product selectedProduct) onConfirm;
-  const BundleProductConfigModal({super.key, required this.product, required this.widgetFactory, required this.onConfirm, this.controller});
+  const BundleProductConfigModal({super.key, required this.product, required this.widgetFactory, this.isOptionSelected, required this.onConfirm, this.controller});
 
   @override
   State<BundleProductConfigModal> createState() => _BundleProductConfigModalState();
@@ -59,7 +60,7 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
                       itemBuilder: (context, productOption, index) {
                         return ProductOptionItemComponent(
                           productOption: productOption,
-                          isOptionSelected: isProductOptionSelected(productOption),
+                          isOptionSelected: isOptionSelected(productOption),
                           widgetFactory: widget.widgetFactory,
                           onOptionSelected: () {
                             setState(() {
@@ -93,11 +94,7 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
     );
   }
 
-  bool isProductOptionSelected(Product selecteProduct){
-    if(selectedProductOption == null){
-      return false;
-    }
-    return selectedProductOption!.id == selecteProduct.id;
-
+  isOptionSelected(Product productOption) {
+    return (widget.isOptionSelected?.call(productOption) ?? false) || selectedProductOption == productOption;
   }
 }

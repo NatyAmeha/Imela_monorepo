@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/ui/factory/android_widget.facotry.dart';
-import 'package:melegna_customer/presentation/ui/factory/ios_widget.factory.dart';
+import 'package:imela/presentation/ui/factory/android_widget.facotry.dart';
+import 'package:imela/presentation/ui/factory/ios_widget.factory.dart';
 
 enum ToastPosition { top, bottom, center }
 
@@ -29,7 +29,7 @@ abstract class WidgetFactory {
   Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable = true});
   Future<DateTime?> showDateTimePicker(BuildContext context, DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable);
 
-  Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked});
+  Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked});
 
   Widget createTextField(
       {required TextEditingController controller,

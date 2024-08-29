@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/authentication/auth.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/pin_input.dart';
-import 'package:melegna_customer/presentation/utils/button_style.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/authentication/auth.viewmodel.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/pin_input.dart';
+import 'package:imela/presentation/utils/button_style.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
+import 'package:imela/services/routing_service.dart';
 
 class PhoneVerifyPage extends StatelessWidget {
   static const routeName = '/phone_verify';

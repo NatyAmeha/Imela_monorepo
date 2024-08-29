@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/business_response.dart';
-import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/business/__generated__/business_queries.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql_config.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/shared/repository.intereface.dart';
-import 'package:melegna_customer/injection.dart';
+import 'package:imela/data/network/business_response.dart';
+import 'package:imela/data/network/graphql/business/__generated__/business_queries.data.gql.dart';
+import 'package:imela/data/network/graphql/business/__generated__/business_queries.req.gql.dart';
+import 'package:imela/data/network/graphql_config.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/shared/repository.intereface.dart';
+import 'package:imela/injection.dart';
 
 abstract class IBusinessrepository extends IRepository {
   Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});

@@ -1,15 +1,15 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql/order/__generated__/create_order.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/order/__generated__/create_order.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql/order/__generated__/order_detail.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/order/__generated__/order_detail.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql/order/__generated__/order_fetch_query.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/order/__generated__/order_fetch_query.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/order/model/order.model.dart' as OrderModel;
-import 'package:melegna_customer/domain/order/model/order.response.dart';
-import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
-import 'package:melegna_customer/presentation/utils/graphql_input_utils.dart';
+import 'package:imela/data/network/graphql/order/__generated__/create_order.data.gql.dart';
+import 'package:imela/data/network/graphql/order/__generated__/create_order.req.gql.dart';
+import 'package:imela/data/network/graphql/order/__generated__/order_detail.data.gql.dart';
+import 'package:imela/data/network/graphql/order/__generated__/order_detail.req.gql.dart';
+import 'package:imela/data/network/graphql/order/__generated__/order_fetch_query.data.gql.dart';
+import 'package:imela/data/network/graphql/order/__generated__/order_fetch_query.req.gql.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/order/model/order.model.dart' as OrderModel;
+import 'package:imela/domain/order/model/order.response.dart';
+import 'package:imela/presentation/utils/exception/graphql_exception.dart';
+import 'package:imela/presentation/utils/graphql_input_utils.dart';
 
 abstract class IOrderRepository {
   Future<OrderResponse?> getOrders({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});

@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/order/model/order.model.dart' as OrderModel;
+import 'package:imela/domain/order/model/order.model.dart' as OrderModel;
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/order/order.usecase.dart';
-import 'package:melegna_customer/presentation/ui/order/order_details/order_details_page.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/order/order.usecase.dart';
+import 'package:imela/presentation/ui/order/order_details/order_details_page.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class OrderListViewmodel extends GetxController with BaseViewmodel {

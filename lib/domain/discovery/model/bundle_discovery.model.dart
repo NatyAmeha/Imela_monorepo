@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
+import 'package:imela/domain/bundle/model/product_bundle.model.dart';
 part 'bundle_discovery.model.freezed.dart';
 part 'bundle_discovery.model.g.dart';
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/countdown_timer.component.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/bundle/model/product_bundle.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/countdown_timer.component.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class BundleSummary extends StatelessWidget {
   final double width;
@@ -65,7 +65,7 @@ class BundleSummary extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 widgetFactory.createText(context, 'Time remaining', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
-                CountdownTimer(duration: viewmodel.getRemainingTime(), backgroundColor: ColorManager.error),
+                CountdownTimer(duration: viewmodel.remainingTime, backgroundColor: ColorManager.error),
               ],
             ),
           ),

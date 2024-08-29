@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/order/order_list/order_list.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/order/order_list/small_screen_order_list.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/order/order_list/order_list.viewmodel.dart';
+import 'package:imela/presentation/ui/order/order_list/small_screen_order_list.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 
 import '../../../../injection.dart';
 

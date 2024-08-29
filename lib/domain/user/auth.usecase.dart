@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/user/model/user.response.dart';
-import 'package:melegna_customer/domain/user/repo/auth.repository.dart';
+import 'package:imela/domain/user/model/user.response.dart';
+import 'package:imela/domain/user/repo/auth.repository.dart';
 
 @injectable
 class AuthUsecase {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/order/model/order_config.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/order/model/order_config.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class OrderItemConfigListITemTile extends StatelessWidget {
   final WidgetFactory widgetFactory;
@@ -18,11 +18,14 @@ class OrderItemConfigListITemTile extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [widgetFactory.createText(context, config.name.localize(), style: Theme.of(context).textTheme.bodyLarge), widgetFactory.createText(context, configValue).showIfTrue(configValue.isNotEmpty)],
+            children: [
+              widgetFactory.createText(context, config.name.localize(), style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, configValue, style: Theme.of(context).textTheme.bodySmall, color: Theme.of(context).colorScheme.secondary).showIfTrue(configValue.isNotEmpty),
+            ],
           ),
         ),
-        const SizedBox(width: 24),
-        widgetFactory.createText(context, config.getAdditionalPrice(selectedCurrency), style: Theme.of(context).textTheme.titleMedium)
+        const SizedBox(width: 16),
+        widgetFactory.createText(context, config.getAdditionalPrice(selectedCurrency), style: Theme.of(context).textTheme.titleSmall)
       ],
     );
   }

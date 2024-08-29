@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/resources/typography.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/resources/typography.dart';
 
 class AppThemeManager {
   late BuildContext context;
@@ -39,12 +39,13 @@ class AppThemeManager {
         labelMedium: AppTypography.of(context).labelMedium.copyWith(color: ColorManager.secondaryText),
         labelSmall: AppTypography.of(context).labelSmall.copyWith(color: ColorManager.secondaryText),
       ),
+      dividerTheme: const DividerThemeData(color: ColorManager.primaryBackground, thickness: 1),
       appBarTheme: const AppBarTheme().copyWith(
         backgroundColor: ColorManager.alternate,
         centerTitle: true,
         elevation: 2,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: AppTypography.of(context).headlineSmall.copyWith(color: ColorManager.primaryText),
+        titleTextStyle: AppTypography.of(context).titleLarge.copyWith(color: ColorManager.primaryText),
       ),
     );
   }
@@ -76,7 +77,7 @@ class AppThemeManager {
         labelMedium: AppTypography.of(context).labelMedium.copyWith(color: ColorManager.secondaryTextDark),
         labelSmall: AppTypography.of(context).labelSmall.copyWith(color: ColorManager.secondaryTextDark),
       ),
-      
+      dividerTheme: const DividerThemeData(color: ColorManager.primaryBackground, thickness: 1),
       appBarTheme: const AppBarTheme().copyWith(
         backgroundColor: ColorManager.alternateDark,
         centerTitle: true,

@@ -1,9 +1,9 @@
 import 'package:dartx/dartx.dart';
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
 
 part 'cart.model.freezed.dart';
 part 'cart.model.g.dart';
@@ -20,7 +20,6 @@ class Cart with _$Cart {
     DateTime? createdAt,
     DateTime? updatedAt,
 
-    // @JsonKey(includeToJson: false, includeFromJson: false)
     List<PaymentOption>? paymentOptions,
   }) = _Cart;
 

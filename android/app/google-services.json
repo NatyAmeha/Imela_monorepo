@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "78981459340",
+    "project_id": "imela-consumer-app",
+    "storage_bucket": "imela-consumer-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:78981459340:android:ac38402e544e412ec83aa9",
+        "android_client_info": {
+          "package_name": "com.imela.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3cOHpYwFgoIpCDtjAFR4rBZYhp4HNjcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

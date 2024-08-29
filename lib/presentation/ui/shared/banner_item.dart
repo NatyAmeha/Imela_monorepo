@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
 
 class BannerItemComponent extends StatelessWidget {
   final double width;

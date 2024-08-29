@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/domain/business/model/business.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class BusinessInfoDialog extends StatelessWidget {
   final Business business;

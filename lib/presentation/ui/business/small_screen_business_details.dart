@@ -2,23 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/list_header.component.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
-import 'package:melegna_customer/presentation/ui/bundle/components/bundle_list_item.dart';
-import 'package:melegna_customer/presentation/ui/business/business_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/business/component/business_details_header.componenet.dart';
-import 'package:melegna_customer/presentation/ui/business/component/business_quick_action.component.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/grid_product_list_item.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_tabview.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/bundle/model/product_bundle.model.dart';
+import 'package:imela/domain/shared/list_header.component.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/bundle/components/bundle_list_item.dart';
+import 'package:imela/presentation/ui/business/business_details.viewmodel.dart';
+import 'package:imela/presentation/ui/business/component/business_details_header.componenet.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
+import 'package:imela/presentation/ui/shared/app_tabview.dart';
+import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
+import 'package:imela/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/utils/button_style.dart';
+import 'package:imela/presentation/utils/localization_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class BusinessDetailsSmallScreen extends StatefulWidget {
   final BusinessDetailsViewModel businessDetailsViewmodel;
@@ -140,12 +138,14 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                 const SizedBox(height: 16),
                 // const BusinessAddressQuickActionComponenet(),
                 // const SizedBox(height: 16),
-                OutlinedButton(
-                  onPressed: () {
-                    viewmodel.showBusinessInfoDialog(context, widgetFactory);
-                  },
-                  child: Text("Get more info"),
-                ),
+                widgetFactory.createButton(
+                    context: context,
+                    content: const Text('Get more info'),
+                    style: AppButtonStyle.outlinedButtonStyle(context, borderRadius: 32, padding: const EdgeInsets.all(4)),
+                    onPressed: () {
+                      viewmodel.showBusinessInfoDialog(context, widgetFactory);
+                    }),
+                
               ],
             ),
           ),
@@ -176,7 +176,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
           const SizedBox(height: 24),
           AppGridView(
             shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             items: viewmodel.featuredProducts,
             crossAxisCount: 2,
             mainAxisSpacing: 16,
@@ -202,14 +202,14 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   });
             },
           ),
-          const SizedBox(height: 24),
           widgetFactory.createButton(
             context: context,
             content: const Text('View all products'),
+            style: AppButtonStyle.outlinedButtonStyle(context),
             onPressed: () {
               viewmodel.navigateToAllProductsPage(context);
             },
-          ),
+          ).withPaddingAll(16),
           const SizedBox(height: 50),
         ],
       ),

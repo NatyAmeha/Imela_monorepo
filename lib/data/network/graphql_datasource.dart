@@ -4,10 +4,10 @@ import 'package:ferry/ferry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gql_exec/gql_exec.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
-import 'package:melegna_customer/services/logger/log.model.dart';
-import 'package:melegna_customer/services/logger/logger.service.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/presentation/utils/exception/graphql_exception.dart';
+import 'package:imela/services/logger/log.model.dart';
+import 'package:imela/services/logger/logger.service.dart';
 
 enum ApiDataFetchPolicy { cacheFirst, cacheAndNetwork, networkOnly, cacheOnly, noCache }
 

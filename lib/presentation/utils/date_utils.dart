@@ -5,7 +5,21 @@ class DateHelper {
     if (startDate == null || endDate == null) {
       return Duration.zero;
     }
-    return endDate.difference(startDate);
+    var diff =  endDate.difference(startDate);
+    return diff;
+  }
+
+  static DateTimeRange? getDateRange(List<String> stringArray){
+     if(stringArray.length != 2){
+      return null;
+     }
+
+     final startDate= DateTime.tryParse(stringArray[0]);
+     final endDate = DateTime.tryParse(stringArray[1]);
+     if(startDate == null || endDate == null){
+      return null;
+     }
+     return DateTimeRange(start: startDate, end: endDate);
   }
 }
 

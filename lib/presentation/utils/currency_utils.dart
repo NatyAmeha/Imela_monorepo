@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/shared/price.model.dart';
-import 'package:melegna_customer/presentation/ui/app_controller.dart';
+import 'package:imela/domain/shared/price.model.dart';
+import 'package:imela/domain/shared/price_currency.model.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 
 extension CurrencyUtils on List<Price>? {
   String toSelectedPriceString() {
@@ -18,4 +19,11 @@ extension CurrencyUtils on List<Price>? {
     final selectedCurrencyType = AppController.getInstance.selectedCurrency;
     return this!.firstWhereOrNull((element) => element.currency == selectedCurrencyType.name) ?? this!.first;
   }
+}
+
+extension StringCurrencyUtil on String{
+   String withCurrencySymbol(){
+    final selectedCurrencyType = AppController.getInstance.selectedCurrency;
+    return '${selectedCurrencyType.name} $this';
+   }
 }

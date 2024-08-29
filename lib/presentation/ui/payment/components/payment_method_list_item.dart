@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:melegna_customer/domain/business/model/payment_method.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/domain/business/model/payment_method.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
 
 class PaymentMethodListItem extends StatelessWidget {
   final PaymentMethod paymentMethod;

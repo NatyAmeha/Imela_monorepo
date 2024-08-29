@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_addon_list_item.dart';
-import 'package:melegna_customer/presentation/ui/product/product_details/product_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/qty_modifier.component.dart';
-import 'package:melegna_customer/presentation/utils/string_utils.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/components/product_addon_list_item.dart';
+import 'package:imela/presentation/ui/product/product_details/product_details.viewmodel.dart';
+import 'package:imela/presentation/ui/shared/qty_modifier.component.dart';
+import 'package:imela/presentation/utils/string_utils.dart';
 
 class ProductOrderConfigModal extends StatelessWidget {
   final Product product;
@@ -104,16 +104,19 @@ class ProductOrderConfigModal extends StatelessWidget {
           Positioned(
             right: 0,
             left: 0,
-            bottom: 16,
+            bottom: 0,
             child: Obx(
-              () => widgetFactory.createButton(
-                context: context,
-                content: const Text('Continue'),
-                onPressed: productDetailsViewmodel.canEnableAddonContinueBtn
-                    ? () {
-                        onContinue?.call();
-                      }
-                    : null,
+              () => widgetFactory.createCard(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: widgetFactory.createButton(
+                  context: context,
+                  content: const Text('Continue'),
+                  onPressed: productDetailsViewmodel.canEnableAddonContinueBtn
+                      ? () {
+                          onContinue?.call();
+                        }
+                      : null,
+                ),
               ),
             ),
           )

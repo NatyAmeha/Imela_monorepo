@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
+import 'package:imela/presentation/utils/exception/graphql_exception.dart';
 
 class AppException implements Exception {
   String? message;
@@ -24,6 +24,7 @@ class AppException implements Exception {
   static AppException unexpectedError(Object exception) {
     return AppException(message: 'An unexpected error occured $exception', isMainError: false, exception: exception);
   }
+
 }
 
 abstract class IExceptiionHandler {
@@ -37,11 +38,12 @@ class AppExceptionHandler implements IExceptiionHandler {
   AppExceptionHandler();
 
   @override
-  AppException getException(Exception excetpion) {
-    print("exception type ${excetpion.runtimeType}");
-    if (excetpion is GraphqlException) {
-      return excetpion.serialize();
+  AppException getException(Exception exception) {
+    if (exception is GraphqlException) {
+      return exception.serialize();
+    } else if (exception is AppException) {
+      return exception;
     }
-    return AppException(message: excetpion.toString());
+    return AppException(message: exception.toString());
   }
 }

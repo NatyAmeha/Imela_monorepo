@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/cart/cart_list.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/cart/small_cart_list_screen.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
+import 'package:imela/presentation/ui/cart/small_cart_list_screen.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 
 class CartListPage extends StatefulWidget {
   static const routeName = '/carts';
@@ -42,12 +42,14 @@ class _CartListPageState extends State<CartListPage> {
         () => PageContentLoader(
           isDataLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
-          showContent: true,
+          showContent: viewmodel.isCartFetchSuccessfull.value,
           exception: viewmodel.exception.value,
           onTryAgain: () {
             initializeViewmodel(context);
           },
-          content: ResponsiveWrapper(smallScreen: SmallCartListScreen(viewmodel: viewmodel, widgetFactory: appWidgetFactory)),
+          content: ResponsiveWrapper(
+            smallScreen: SmallCartListScreen(viewmodel: viewmodel, widgetFactory: appWidgetFactory),
+          ),
         ),
       ),
     );

@@ -1,11 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/product/model/discount.model.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/gallery.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/domain/business/model/business.model.dart';
+import 'package:imela/domain/product/model/discount.model.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/shared/gallery.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/utils/localization_utils.dart';
 
 part 'product_bundle.model.freezed.dart';
 part 'product_bundle.model.g.dart';
@@ -40,7 +40,7 @@ class ProductBundle with _$ProductBundle {
   }
 
   String getBundleProducts() {
-    return '${productIds?.length} products';
+    return '${productIds?.length} items';
   }
 
   List<String?> getBundleProductImages() {

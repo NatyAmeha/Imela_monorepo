@@ -1,8 +1,8 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql/product/__generated__/product_detail_queries.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/product/__generated__/product_detail_queries.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/data/network/product_response.dart';
+import 'package:imela/data/network/graphql/product/__generated__/product_detail_queries.data.gql.dart';
+import 'package:imela/data/network/graphql/product/__generated__/product_detail_queries.req.gql.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/data/network/product_response.dart';
 
 abstract class IProductRepository {
   Future<ProductResponse?> getProductDetails(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});

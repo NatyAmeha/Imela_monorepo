@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/order/repo/order.repository.dart';
+import 'package:imela/domain/order/repo/order.repository.dart';
 
 @injectable
 class OrderUsecase {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/gallery.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
-import 'package:melegna_customer/presentation/utils/currency_utils.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/shared/gallery.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/app_image.dart';
+import 'package:imela/presentation/utils/currency_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class VerticalProductListItem extends StatelessWidget {
   final Product product;

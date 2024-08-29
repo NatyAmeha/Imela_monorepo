@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/order/order_details/order_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/order/order_details/small_screen_order_detail.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/order/order_details/order_details.viewmodel.dart';
+import 'package:imela/presentation/ui/order/order_details/small_screen_order_detail.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela/services/routing_service.dart';
 
 class OrderDetailPage extends StatefulWidget {
   static const baseRouteName = '/order_detail';
@@ -51,7 +51,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         () => PageContentLoader(
           isDataLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
-          showContent: true,
+          showContent: viewmodel.orderInfo.value != null,
           exception: viewmodel.exception.value,
           onTryAgain: () {
             initializeViewmodel();

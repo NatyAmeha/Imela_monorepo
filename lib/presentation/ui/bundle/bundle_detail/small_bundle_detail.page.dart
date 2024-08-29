@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/shared/list_header.component.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/bundle/components/bundle_summary.dart';
-import 'package:melegna_customer/presentation/ui/bundle/components/selected_product_from_bundle.list_item.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/grid_product_list_item.component.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
-import 'package:melegna_customer/presentation/utils/currency_utils.dart';
+import 'package:imela/domain/shared/list_header.component.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
+import 'package:imela/presentation/ui/bundle/components/bundle_summary.dart';
+import 'package:imela/presentation/ui/bundle/components/selected_product_from_bundle.list_item.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
+import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
+import 'package:imela/presentation/utils/currency_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class SmallBundleDetailScreen extends StatelessWidget {
   final WidgetFactory widgetFactory;
@@ -16,7 +17,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
   final Widget scaffoldScreen;
   const SmallBundleDetailScreen({super.key, required this.widgetFactory, required this.viewmodel, required this.scaffoldScreen});
 
-  double get getSelectedProductContainerHeight => viewmodel.selectedBundleProducts.isNotEmpty ? 160 : 0;
+  double get getSelectedProductContainerHeight => viewmodel.selectedBundleProducts.isNotEmpty ? 125 : 0;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +49,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                       widgetFactory: widgetFactory,
                       imageHeight: 150,
                       showRemainingItem: false,
+                      isSelected: viewmodel.isProductSelected(product),
                       onTap: () {
                         viewmodel.displayBundleProductConfigModal(context, product, widgetFactory);
                       },
@@ -78,16 +80,16 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     child: ListView(
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
-                      children: viewmodel.selectedBundleProducts.value
+                      children: viewmodel.selectedBundleProducts.values
                           .map(
                             (product) => SelectedProductFromBundlListItem(
                               name: product.name.localize(),
                               image: product.getImageUrl(),
                               price: product.getPrice().toSelectedPriceString(),
-                              width: 130,
+                              width: 100,
                               widgetFactory: widgetFactory,
                               onRemove: () {
-                                viewmodel.handleBundleProductSelection(product);
+                                viewmodel.removeConfiguredProduct(product);
                               },
                             ),
                           )
@@ -95,7 +97,6 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
                 Obx(
                   () => Row(
                     children: [
@@ -103,16 +104,30 @@ class SmallBundleDetailScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleMedium),
-                            widgetFactory.createText(context, viewmodel.getBundlePrice, style: Theme.of(context).textTheme.titleLarge),
+                            widgetFactory.createText(context, viewmodel.remainingStatusMsg.value).showIfTrue(viewmodel.remainingStatusMsg.value.isNotEmpty),
+                            Row(
+                              children: [
+                                widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleSmall),
+                                const SizedBox(width: 8),
+                                widgetFactory.createText(
+                                  context,
+                                  '${viewmodel.originalProductPrice}'.withCurrencySymbol(),
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                  textDecoration: TextDecoration.lineThrough,
+                                )
+                              ],
+                            ),
+                            widgetFactory.createText(context, '${viewmodel.bundlePrice}'.withCurrencySymbol(), style: Theme.of(context).textTheme.titleLarge),
                           ],
                         ),
-                      ),
-                      widgetFactory.createButton(
-                        context: context,
-                        content: const Text('Continue to buy'),
-                        onPressed: viewmodel.enableBundlePurchase ? () {} : null,
-                      )
+                      ).showIfTrue(viewmodel.originalProductPrice > 0),
+                      Expanded(
+                        child: widgetFactory.createButton(
+                          context: context,
+                          content: const Text('Order'),
+                          onPressed: viewmodel.enableBundlePurchase ? () {} : null,
+                        ),
+                      ).showIfTrue(viewmodel.originalProductPrice > 0),
                     ],
                   ),
                 ),

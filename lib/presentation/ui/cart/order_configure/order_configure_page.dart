@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/cart/order_configure/order_configure.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/cart/order_configure/small_screen_order_configure.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/cart/order_configure/order_configure.viewmodel.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/cart/order_configure/small_screen_order_configure.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela/services/routing_service.dart';
 
 class OrderConfigurePage extends StatefulWidget {
   static const routeName = '/order_configure';

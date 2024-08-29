@@ -1,7 +1,7 @@
 import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/order/model/order_config.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:imela/domain/order/model/order_config.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
 
 part 'order_item.model.freezed.dart';
 part 'order_item.model.g.dart';

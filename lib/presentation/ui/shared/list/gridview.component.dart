@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 
 class AppGridView<T> extends StatelessWidget {
   final Axis? scrollDirection;

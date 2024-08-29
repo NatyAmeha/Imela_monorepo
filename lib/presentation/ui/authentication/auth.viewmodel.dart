@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/user/auth.usecase.dart';
-import 'package:melegna_customer/presentation/ui/app_controller.dart';
-import 'package:melegna_customer/presentation/ui/authentication/phone_login_page.dart';
-import 'package:melegna_customer/presentation/ui/authentication/phone_verify_page.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
+import 'package:imela/domain/user/auth.usecase.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/authentication/phone_login_page.dart';
+import 'package:imela/presentation/ui/authentication/phone_verify_page.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
 
 @injectable
 class AuthViewmodel extends GetxController with BaseViewmodel {

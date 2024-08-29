@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/ui/branch/branch_details/branch_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/branch/component/branch_banner_card.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/branch/branch_details/branch_details.viewmodel.dart';
+import 'package:imela/presentation/ui/branch/component/branch_banner_card.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
 
 class SmallScreenBranchDetailPage extends StatelessWidget {
   final BranchDetailViewmodel branchDetailViewmodel;

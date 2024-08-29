@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/branch/model/inventory_location.model.dart';
-import 'package:melegna_customer/domain/shared/price_currency.model.dart';
+import 'package:imela/domain/branch/model/inventory_location.model.dart';
+import 'package:imela/domain/shared/price_currency.model.dart';
 
 part 'inventory.model.freezed.dart';
 part 'inventory.model.g.dart';

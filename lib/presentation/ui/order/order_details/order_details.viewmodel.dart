@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/order/model/order.model.dart' as OrderModel;
+import 'package:imela/domain/order/model/order.model.dart' as OrderModel;
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/order/order.usecase.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/order/order.usecase.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class OrderDetailviewmodel extends GetxController with BaseViewmodel {
@@ -43,6 +43,8 @@ class OrderDetailviewmodel extends GetxController with BaseViewmodel {
   Future<void> getOrderDetails(String orderId) async {
     try {
       isLoading(true);
+      exception.value = null;
+      orderInfo.value = null;
       final orderResponse = await orderUsecase.getOrderDetails(orderId);
       if (orderResponse?.success == true) {
         orderInfo.value = orderResponse?.order;

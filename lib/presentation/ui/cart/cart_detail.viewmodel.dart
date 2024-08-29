@@ -1,18 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/order/order.usecase.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/app_controller.dart';
-import 'package:melegna_customer/presentation/ui/cart/cart_detail_page.dart';
-import 'package:melegna_customer/presentation/ui/cart/order_configure/order_configure_page.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/order/order.usecase.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
+import 'package:imela/presentation/ui/cart/order_configure/order_configure_page.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class CartDetailViewmodel extends GetxController with BaseViewmodel {
@@ -57,7 +57,10 @@ class CartDetailViewmodel extends GetxController with BaseViewmodel {
       final cartId = selectedCart.value?.id;
       final result = await orderUsecase.removeItemsFromCart(cartId!, productIds);
       if (result.success == true && result.cart != null) {
-        appController.removeItemsFromCartState(cartId, productIds);
+        var updatedCart = appController.removeItemsFromCartState(cartId, productIds);
+        if (updatedCart != null) {
+          selectedCart.value = updatedCart;
+        }
         cartListController.removeItems(indexs);
       }
     } catch (ex) {
@@ -79,7 +82,10 @@ class CartDetailViewmodel extends GetxController with BaseViewmodel {
         final result = await orderUsecase.addToCart(selectedCart.value!.businessId!, selectedCart.value!.name!, [updatedITem]);
         if (result?.success == true && result?.cart != null) {
           cartListController.updateItem(index, updatedITem);
-          appController.updateItemInSelectedCartState(cartId, updatedITem);
+          var updatedCart = appController.updateItemInSelectedCartState(cartId, updatedITem);
+          if (updatedCart != null) {
+            selectedCart.value = updatedCart;
+          }
         }
       }
     } catch (ex) {

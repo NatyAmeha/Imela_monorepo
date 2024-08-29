@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/resources/string_values.dart';
-import 'package:melegna_customer/presentation/ui/authentication/auth.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
-import 'package:melegna_customer/presentation/utils/button_style.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/resources/string_values.dart';
+import 'package:imela/presentation/ui/authentication/auth.viewmodel.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/app_image.dart';
+import 'package:imela/presentation/utils/button_style.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class SmallScreenAuthSelection extends StatelessWidget {
   final AuthViewmodel viewmodel;

@@ -1,7 +1,7 @@
-import 'package:melegna_customer/data/network/graphql/__generated__/schema.schema.gql.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:imela/data/network/graphql/__generated__/schema.schema.gql.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
 
 extension LanguageKey on String? {
   GLanguageKey? get toLanguageKeyInput {

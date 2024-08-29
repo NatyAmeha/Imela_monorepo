@@ -1,9 +1,9 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql/branch/__generated__/branch_details.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/branch/__generated__/branch_details.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/data/network/response.model.dart/branch.response.dart';
-import 'package:melegna_customer/domain/shared/repository.intereface.dart';
+import 'package:imela/data/network/graphql/branch/__generated__/branch_details.data.gql.dart';
+import 'package:imela/data/network/graphql/branch/__generated__/branch_details.req.gql.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/data/network/response.model.dart/branch.response.dart';
+import 'package:imela/domain/shared/repository.intereface.dart';
 
 abstract class  IBranchRepository extends IRepository {
   Future<BranchResponse?> getBranchDetailsFromApi(String businessId , String branchId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});

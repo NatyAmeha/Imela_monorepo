@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/injection.dart';
-import 'package:melegna_customer/presentation/ui/business/business_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/business/small_screen_business_details.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:melegna_customer/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/business/model/business.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/business/business_details.viewmodel.dart';
+import 'package:imela/presentation/ui/business/small_screen_business_details.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela/services/routing_service.dart';
 
 class BusinessDetailsPage extends StatefulWidget {
   static const baseRouteName = '/business';

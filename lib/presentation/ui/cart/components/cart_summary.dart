@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
 
 class CartSummary extends StatelessWidget {
   final WidgetFactory widgetFactory;
@@ -54,7 +54,7 @@ class CartSummary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween, 
             children: [
               widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleMedium),
-              widgetFactory.createText(context, '${cart.getTotalPrice} ETB', style: Theme.of(context).textTheme.displaySmall),
+              widgetFactory.createText(context, '${cart.getTotalPrice} ETB', style: Theme.of(context).textTheme.headlineMedium),
             ],
           ),
           const SizedBox(height: 16),

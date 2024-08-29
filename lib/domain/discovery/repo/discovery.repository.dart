@@ -1,10 +1,10 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql/discover/__generated__/discover_query.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/discover/__generated__/discover_query.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql_config.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/discovery/model/discovery_response.dart';
-import 'package:melegna_customer/injection.dart';
+import 'package:imela/data/network/graphql/discover/__generated__/discover_query.data.gql.dart';
+import 'package:imela/data/network/graphql/discover/__generated__/discover_query.req.gql.dart';
+import 'package:imela/data/network/graphql_config.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/discovery/model/discovery_response.dart';
+import 'package:imela/injection.dart';
 
 abstract class IDiscoveryRepository {
   Future<DiscoveryResponse?> browse({required ApiDataFetchPolicy fetchPolicy});

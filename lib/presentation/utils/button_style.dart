@@ -31,10 +31,6 @@ class AppButtonStyle {
       backgroundColor: Colors.transparent,
       foregroundColor: color ?? Theme.of(context).colorScheme.secondary,
       padding: padding,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
-        side: border,
-      ),
     );
   }
 }

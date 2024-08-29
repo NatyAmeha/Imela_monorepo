@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/domain/shared/price.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/domain/shared/price.model.dart';
 
 part 'product_addon.model.freezed.dart';
 part 'product_addon.model.g.dart';

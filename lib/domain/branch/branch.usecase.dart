@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/data/network/response.model.dart/branch.response.dart';
-import 'package:melegna_customer/domain/branch/repo/branch.repository.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/data/network/response.model.dart/branch.response.dart';
+import 'package:imela/domain/branch/repo/branch.repository.dart';
 
 @injectable
 class BranchUsecase {

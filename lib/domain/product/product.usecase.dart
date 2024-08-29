@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/data/network/product_response.dart';
-import 'package:melegna_customer/domain/product/repo/product.repository.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/data/network/product_response.dart';
+import 'package:imela/domain/product/repo/product.repository.dart';
 
 @injectable
 class ProductUsecase {

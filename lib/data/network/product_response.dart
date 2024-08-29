@@ -1,10 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/data/base_response.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/domain/branch/model/inventory.model.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
+import 'package:imela/data/base_response.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/domain/branch/model/inventory.model.dart';
+import 'package:imela/domain/business/model/business.model.dart';
+import 'package:imela/domain/product/model/product.model.dart';
 part 'product_response.freezed.dart';
 part 'product_response.g.dart';
 

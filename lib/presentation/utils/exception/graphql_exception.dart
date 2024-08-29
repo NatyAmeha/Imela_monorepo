@@ -1,5 +1,5 @@
 import 'package:gql_exec/gql_exec.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
 
 class GraphqlException extends AppException {
   final List<GraphQLError>? errors;

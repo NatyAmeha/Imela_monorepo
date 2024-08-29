@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/shared/repository.intereface.dart';
-import 'package:melegna_customer/domain/user/model/user.response.dart';
+import 'package:imela/domain/shared/repository.intereface.dart';
+import 'package:imela/domain/user/model/user.response.dart';
 
 abstract class IAuthRepository extends IRepository {
   Future<UserResponse> loginWithPhoneNumber(String phoneNumber);

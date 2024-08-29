@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/cart/components/order_item_config.list_tile.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
-import 'package:melegna_customer/presentation/ui/shared/qty_modifier.component.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/app_image.dart';
+import 'package:imela/presentation/ui/shared/qty_modifier.component.dart';
+import 'package:imela/presentation/utils/button_style.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class CartItemListItem extends StatelessWidget {
   final OrderItem item;
@@ -35,6 +37,7 @@ class CartItemListItem extends StatelessWidget {
       child: Column(
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Column(
@@ -57,25 +60,35 @@ class CartItemListItem extends StatelessWidget {
                   ],
                 ),
               ),
-              widgetFactory.createIcon(materialIcon: Icons.delete, color: ColorManager.error, onPressed: () {
-                 onRemove?.call();
-              })
+              widgetFactory.createButton(
+                context: context,
+                content: const Text('Remove'),
+                style: AppButtonStyle.textButtonStyle(context, padding: const EdgeInsets.all(0), color: ColorManager.error),
+                onPressed: () {
+                  onRemove?.call();
+                },
+              )
             ],
           ),
-          const SizedBox(height: 16),
-          if (item.config?.isNotEmpty == true)
+          const SizedBox(height: 8),
+          if (item.config?.isNotEmpty == true) ...[
             widgetFactory.createCard(
-              margin: const EdgeInsets.all(8),
+              color: Theme.of(context).colorScheme.primaryContainer,
+              // borderRadius: BorderRadius.zero,
               padding: const EdgeInsets.all(8),
               child: Column(
                 children: item.config!.map((config) {
-                  return OrderItemConfigListITemTile(config: config, widgetFactory: widgetFactory, selectedCurrency: selectedCurrency);
+                  return OrderItemConfigListITemTile(config: config, widgetFactory: widgetFactory, selectedCurrency: selectedCurrency).withPaddingSymetric(horizontal: 6, vertical: 4);
                 }).toList(),
               ),
             ),
+            const SizedBox(height: 8),
+          ],
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              SizedBox(
+                width: 150,
                 child: QuantityModifierComponent(
                   currentQty: item.quantity,
                   onQtyChange: (newValue) {
@@ -84,7 +97,6 @@ class CartItemListItem extends StatelessWidget {
                   widgetFactory: widgetFactory,
                 ),
               ),
-              const Spacer(),
               widgetFactory.createText(context, item.getTotalAmount.toString(), style: Theme.of(context).textTheme.titleLarge),
             ],
           ),

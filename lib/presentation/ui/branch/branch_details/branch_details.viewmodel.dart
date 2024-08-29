@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/response.model.dart/branch.response.dart';
-import 'package:melegna_customer/domain/branch/branch.usecase.dart';
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/data/network/response.model.dart/branch.response.dart';
+import 'package:imela/domain/branch/branch.usecase.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class BranchDetailViewmodel extends GetxController with BaseViewmodel {

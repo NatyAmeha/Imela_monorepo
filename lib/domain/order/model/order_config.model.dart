@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:imela/domain/product/model/product_addon.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/utils/date_utils.dart';
 
 part 'order_config.model.freezed.dart';
 part 'order_config.model.g.dart';
@@ -22,6 +23,10 @@ class OrderConfig with _$OrderConfig {
   factory OrderConfig.fromJson(Map<String, dynamic> json) => _$OrderConfigFromJson(json);
 
   String selectedConfigValue() {
+    if(type == AddonInputType.DATE_RANGE_INPUT.name){
+      final dateRange = DateHelper.getDateRange(multipleValue!.take(2).toList());
+      return dateRange.toFormattedString();
+    }
     if (singleValue != null) {
       return '$singleValue';
     } else if (multipleValue != null) {

@@ -1,17 +1,17 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql/cart/__generated__/add_to_business_cart.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/cart/__generated__/add_to_business_cart.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql/cart/__generated__/get_user_cart.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/cart/__generated__/get_user_cart.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql/cart/__generated__/remove_item_from_cart.data.gql.dart';
-import 'package:melegna_customer/data/network/graphql/cart/__generated__/remove_item_from_cart.req.gql.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/order.response.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/utils/exception/graphql_exception.dart';
-import 'package:melegna_customer/presentation/utils/graphql_input_utils.dart';
+import 'package:imela/data/network/graphql/cart/__generated__/add_to_business_cart.data.gql.dart';
+import 'package:imela/data/network/graphql/cart/__generated__/add_to_business_cart.req.gql.dart';
+import 'package:imela/data/network/graphql/cart/__generated__/get_user_cart.data.gql.dart';
+import 'package:imela/data/network/graphql/cart/__generated__/get_user_cart.req.gql.dart';
+import 'package:imela/data/network/graphql/cart/__generated__/remove_item_from_cart.data.gql.dart';
+import 'package:imela/data/network/graphql/cart/__generated__/remove_item_from_cart.req.gql.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/order.response.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/utils/exception/graphql_exception.dart';
+import 'package:imela/presentation/utils/graphql_input_utils.dart';
 
 abstract class ICartRepository {
   Future<OrderResponse?> getCarts({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
@@ -37,9 +37,11 @@ class CartRepository implements ICartRepository {
 
   @override
   Future<OrderResponse> addtoCart(String businessId, List<LocalizedField> cartName, List<OrderItem> items, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly, List<PaymentOption>? paymentOptions}) async {
+    print("order item config ${items.map((i) => i.config?.map((c) => c.toJson()))}");
+    
     final request = GAddToBusinessCartReq((b) => b
       ..vars.businessId = businessId
-      ..vars.cartInput.update((input) {
+      ..vars.cartInput.update((input) { 
         input.name.addAll(cartName.toLocalizedFieldInput());
         input.paymentOptions.addAll(paymentOptions.toPaymentOptionInput());
         input.items.addAll(items.toOrderItemInput());

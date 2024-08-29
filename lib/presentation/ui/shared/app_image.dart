@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:melegna_customer/presentation/resources/asset_manager.dart';
+import 'package:imela/presentation/resources/asset_manager.dart';
 
 class AppImage extends StatelessWidget {
   final String? imageUrl;

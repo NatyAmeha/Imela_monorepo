@@ -4,10 +4,10 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/button_style.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/utils/button_style.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class BaseWidgetFactory implements WidgetFactory {
@@ -163,7 +163,7 @@ class BaseWidgetFactory implements WidgetFactory {
     throw UnimplementedError();
   }
 
-  Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked}) async {
+  Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked}) async {
     FlashController<Object?>? flashController;
     showFlash(
       context: context,
@@ -172,14 +172,15 @@ class BaseWidgetFactory implements WidgetFactory {
         flashController = controller;
         return FlashBar(
           controller: controller,
+          backgroundColor: backgroundColor,
           position: position == ToastPosition.top ? FlashPosition.top : FlashPosition.bottom,
           behavior: FlashBehavior.floating,
-          padding: const EdgeInsets.symmetric(vertical: 3),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           margin: margin ?? const EdgeInsets.all(0),
           icon: Icon(icon ?? Icons.info, color: textColor),
           content: Row(
             children: [
-              Expanded(child: Text(message, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: textColor))),
+              Expanded(child: Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor))),
               createButton(
                 context: context,
                 content: Text(actionText ?? 'OK'),

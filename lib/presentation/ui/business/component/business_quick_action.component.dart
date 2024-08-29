@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
 
 class BusinessAddressQuickActionComponenet extends StatelessWidget {
   const BusinessAddressQuickActionComponenet({super.key});

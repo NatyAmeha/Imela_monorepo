@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/business_response.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/business/repo/business_repository.dart';
+import 'package:imela/data/network/business_response.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/business/repo/business_repository.dart';
 
 @injectable
 class BusinessUsecase {

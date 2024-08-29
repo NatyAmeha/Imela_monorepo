@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/business_response.dart';
+import 'package:imela/data/network/business_response.dart';
 
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
-import 'package:melegna_customer/domain/business/business.usecase.dart';
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/business/model/business.section.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
-import 'package:melegna_customer/presentation/ui/business/component/business_info.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/product_list/product_list_page.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_display_style.constants.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/domain/bundle/model/product_bundle.model.dart';
+import 'package:imela/domain/business/business.usecase.dart';
+import 'package:imela/domain/business/model/business.model.dart';
+import 'package:imela/domain/business/model/business.section.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
+import 'package:imela/presentation/ui/business/component/business_info.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/product_list/product_list_page.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_display_style.constants.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
@@ -96,7 +96,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     try {
       cleanupStateVariables();
       isLoading(true);
-      var response = await businessUsecase.getBusinessDetails(id);
+      final response = await businessUsecase.getBusinessDetails(id);
       if (response?.isBusinessDetailFetchSuccessfull() == true) {
         businessDetails.value = response;
         productListController.addItems(response!.products);

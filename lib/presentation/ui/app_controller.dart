@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/data/network/graphql_config.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/shared/price_currency.model.dart';
-import 'package:melegna_customer/presentation/ui/authentication/auth_selection_page.dart';
-import 'package:melegna_customer/presentation/utils/localization_utils.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/data/network/graphql_config.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/shared/price_currency.model.dart';
+import 'package:imela/presentation/ui/authentication/auth_selection_page.dart';
+import 'package:imela/presentation/utils/localization_utils.dart';
+import 'package:imela/services/routing_service.dart';
 
 class AppController extends GetxController {
   static AppController get getInstance {
@@ -42,17 +42,19 @@ class AppController extends GetxController {
   }
   
 
-  void updateCartState(Cart newCartInfo) {
+  Cart? updateCartState(Cart newCartInfo) {
     final index = carts.indexWhere((element) => element.id == newCartInfo.id);
     if (index != -1) {
       carts[index] = newCartInfo;
+      return carts[index];
     }
   }
 
-  void removeItemsFromCartState(String cartId, List<String> productIds) {
+  Cart? removeItemsFromCartState(String cartId, List<String> productIds) {
     final index = carts.indexWhere((element) => element.id == cartId);
     if (index != -1) {
       carts[index] =  carts[index].removeItems(productIds);
+      return carts[index];
     }
   }
 
@@ -65,11 +67,12 @@ class AppController extends GetxController {
     return null;
   }
 
-  void updateItemInSelectedCartState(String cartId, OrderItem item) {
+  Cart? updateItemInSelectedCartState(String cartId, OrderItem item) {
     final cart = getCartById(cartId);
     if (cart != null) {
       final index = cart.items!.indexWhere((element) => element.productId == item.productId);
       carts[index] = cart.updateOrderItem(item);
+      return carts[index];
     }
   }
 

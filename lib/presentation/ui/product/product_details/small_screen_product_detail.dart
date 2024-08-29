@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/shared/gallery.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/values.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_features_list.dart';
-import 'package:melegna_customer/presentation/ui/product/components/product_option_item.dart';
-import 'package:melegna_customer/presentation/ui/product/product_details/product_details.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/app_image.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/gridview.component.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/shared/gallery.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/values.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
+import 'package:imela/presentation/ui/product/components/product_features_list.dart';
+import 'package:imela/presentation/ui/product/components/product_option_item.dart';
+import 'package:imela/presentation/ui/product/product_details/product_details.viewmodel.dart';
+import 'package:imela/presentation/ui/shared/app_image.dart';
+import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class SmallScreenProductDetail extends StatefulWidget {
   final WidgetFactory widgetFactory;

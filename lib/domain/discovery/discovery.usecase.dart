@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/graphql_datasource.dart';
-import 'package:melegna_customer/domain/discovery/model/discovery_response.dart';
-import 'package:melegna_customer/domain/discovery/repo/discovery.repository.dart';
+import 'package:imela/data/network/graphql_datasource.dart';
+import 'package:imela/domain/discovery/model/discovery_response.dart';
+import 'package:imela/domain/discovery/repo/discovery.repository.dart';
 
 @injectable
 class DiscoveryUsecase {

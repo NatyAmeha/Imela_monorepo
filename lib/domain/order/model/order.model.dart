@@ -1,12 +1,21 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/business/model/payment_option.model.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/order/model/order_payment_method.model.dart';
+import 'package:imela/domain/business/model/payment_option.model.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/order/model/order_payment_method.model.dart';
 
 import 'cart.model.dart';
 
 part 'order.model.freezed.dart';
 part 'order.model.g.dart';
+
+enum OrderStatus{
+  PENDING,
+  PROCESSING,
+  COMPLETED,
+  CANCELLED,
+  REFUNDED,
+  FAILED,
+}
 
 @freezed
 class Order with _$Order {

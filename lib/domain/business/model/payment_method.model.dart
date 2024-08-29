@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
 part 'payment_method.model.freezed.dart';
 part 'payment_method.model.g.dart';
 

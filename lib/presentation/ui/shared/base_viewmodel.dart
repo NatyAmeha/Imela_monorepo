@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/services/routing_service.dart';
 
 mixin class BaseViewmodel {
   void initViewmodel({Map<String, dynamic>? data}) {}

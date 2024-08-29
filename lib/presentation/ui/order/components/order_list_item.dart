@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/domain/order/model/order.model.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/date_utils.dart';
-import 'package:melegna_customer/presentation/utils/widget_extesions.dart';
+import 'package:imela/domain/order/model/order.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/utils/date_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 
 class OrderListItem extends StatelessWidget {
   final Order order;
@@ -36,28 +35,26 @@ class OrderListItem extends StatelessWidget {
         children: [
           Row(children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 widgetFactory.createText(context, "Order #1", style: Theme.of(context).textTheme.bodyLarge),
                 widgetFactory.createText(context, order.createdAt.toFormattedString(), style: Theme.of(context).textTheme.titleSmall),
               ]),
             ),
-            Chip(label: widgetFactory.createText(context, "${order.status}", style: Theme.of(context).textTheme.bodyMedium)),
-            widgetFactory.createIcon(materialIcon: Icons.check_circle, color: Colors.green),
+            Chip(label: widgetFactory.createText(context, "${order.status}", color: Colors.white
+            , style: Theme.of(context).textTheme.bodySmall), backgroundColor: order.status == OrderStatus.PENDING.name ? Colors.orange : Colors.green),
           ]),
           const Divider(),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, 
             children: [
-              widgetFactory.createText(context, "${order.items?.length} items", style: Theme.of(context).textTheme.bodyMedium),
-              widgetFactory.createText(context, "${order.totalAmount} birr", style: Theme.of(context).textTheme.headlineSmall, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createText(context, '${order.items?.length} items', style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, "ETB ${order.subTotal}", style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).colorScheme.primary),
             ],
-          ).withPaddingSymetric(vertical: 8),
+          ).withPaddingSymetric(vertical: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, "Remaining amount", style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, "Remaining amount", style: Theme.of(context).textTheme.labelMedium),
               widgetFactory.createText(context, "400 Birr", style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
             ],
           ),

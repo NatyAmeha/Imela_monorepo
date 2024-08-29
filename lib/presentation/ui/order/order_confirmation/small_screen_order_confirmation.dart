@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/ui/cart/order_configure/order_configure.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/cart/order_configure/order_configure.viewmodel.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
 
 class SmallScreenOrderConfirmation extends StatelessWidget {
   final OrderConfigureViewmodel viewmodel;

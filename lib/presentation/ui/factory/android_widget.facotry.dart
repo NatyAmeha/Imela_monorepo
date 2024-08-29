@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:melegna_customer/presentation/resources/colors.dart';
-import 'package:melegna_customer/presentation/ui/factory/base_widget.factory.dart';
-import 'package:melegna_customer/presentation/utils/button_style.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/factory/base_widget.factory.dart';
+import 'package:imela/presentation/utils/button_style.dart';
 
 class AndroidWidgetFactory extends BaseWidgetFactory {
   final GlobalKey _key = GlobalKey();

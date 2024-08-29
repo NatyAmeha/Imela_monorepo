@@ -1,17 +1,17 @@
 
 import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:melegna_customer/domain/branch/model/branch.model.dart';
-import 'package:melegna_customer/domain/branch/model/inventory.model.dart';
+import 'package:imela/domain/branch/model/branch.model.dart';
+import 'package:imela/domain/branch/model/inventory.model.dart';
 
-import 'package:melegna_customer/domain/business/model/business.model.dart';
-import 'package:melegna_customer/domain/order/model/order_config.model.dart';
-import 'package:melegna_customer/domain/order/model/order_item.model.dart';
-import 'package:melegna_customer/domain/product/model/product_addon.model.dart';
-import 'package:melegna_customer/domain/product/model/product_price.model.dart';
-import 'package:melegna_customer/domain/shared/gallery.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/domain/shared/price.model.dart';
+import 'package:imela/domain/business/model/business.model.dart';
+import 'package:imela/domain/order/model/order_config.model.dart';
+import 'package:imela/domain/order/model/order_item.model.dart';
+import 'package:imela/domain/product/model/product_addon.model.dart';
+import 'package:imela/domain/product/model/product_price.model.dart';
+import 'package:imela/domain/shared/gallery.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/domain/shared/price.model.dart';
 
 part 'product.model.freezed.dart';
 part 'product.model.g.dart';

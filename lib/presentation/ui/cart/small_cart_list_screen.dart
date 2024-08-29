@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/presentation/ui/cart/cart_list.viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/cart/components/cart_list_item.dart';
-import 'package:melegna_customer/presentation/ui/cart/components/empty_cart.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
+import 'package:imela/presentation/ui/cart/components/cart_list_item.dart';
+import 'package:imela/presentation/ui/cart/components/empty_cart.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
 
-import 'package:melegna_customer/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 
 class SmallCartListScreen extends StatelessWidget {
   final CartListViewmodel viewmodel;

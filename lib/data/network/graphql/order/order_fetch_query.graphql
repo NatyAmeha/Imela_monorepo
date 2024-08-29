@@ -4,11 +4,21 @@ query GetOrders{
     success
     orders {
       id
+      orderNumber
+      status
+      userId
+      remainingAmount
+      subTotal
+      totalAmount
+      createdAt
       items {
         name {
           key
           value
         }
+        subTotal
+        tax
+        image
         quantity
         config {
           type

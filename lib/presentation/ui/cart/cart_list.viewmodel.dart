@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/domain/order/model/cart.model.dart';
-import 'package:melegna_customer/domain/order/order.usecase.dart';
-import 'package:melegna_customer/presentation/ui/app_controller.dart';
-import 'package:melegna_customer/presentation/ui/cart/cart_detail_page.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/domain/order/model/cart.model.dart';
+import 'package:imela/domain/order/order.usecase.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class CartListViewmodel extends GetxController with BaseViewmodel {
@@ -29,6 +29,8 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
 
   AppController get appController => AppController.getInstance;
 
+  var isCartFetchSuccessfull = false.obs;
+
   List<Cart> get carts => appController.carts;
 
   late BuildContext context;
@@ -40,7 +42,6 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
   void initViewmodel({Map<String, dynamic>? data}) {
     final fetchCartFromApi = data?[FETCH_CART_FROM_API_KEY] as bool? ?? true;
     context = data?['context'] as BuildContext;
-    print("context is ${context.isPortrait}");
     super.initViewmodel(data: data);
     if (fetchCartFromApi) {
       getCartsFromApi();
@@ -51,15 +52,16 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     try {
       isLoading(true);
       exception(null);
-      
+
       final response = await orderUsecase.getUserCartList();
-      if (response?.success == true && response?.carts?.isNotEmpty == true) {
+      if (response?.success == true) {
+        isCartFetchSuccessfull(true);
         appController.addCartsToCartList(response?.carts ?? [], clearPrevious: true);
       }
-      cartListController.setItems( appController.carts);
+      cartListController.setItems(appController.carts);
     } catch (ex) {
       exception.value = exceptiionHandler.getException(ex as Exception);
-      if(exception.value!.isUnAuthorizedException){
+      if (exception.value!.isUnAuthorizedException) {
         appController.logout(context);
       }
     } finally {
@@ -70,8 +72,6 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
   void handleCartSelection(BuildContext context, Cart cart) {
     CartDetailPage.navigateToCartDetailPage(context, router, cart);
   }
-
-
 
   @override
   void dispose() {

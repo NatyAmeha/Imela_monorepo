@@ -2,24 +2,25 @@ import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:injectable/injectable.dart';
-import 'package:melegna_customer/data/network/response.model.dart/bundle.reponse.dart';
-import 'package:melegna_customer/domain/bundle/bundle.usecase.dart';
-import 'package:melegna_customer/domain/bundle/model/product_bundle.model.dart';
-import 'package:melegna_customer/domain/product/model/discount.model.dart';
-import 'package:melegna_customer/domain/product/model/product.model.dart';
-import 'package:melegna_customer/domain/shared/localized_field.model.dart';
-import 'package:melegna_customer/presentation/resources/values.dart';
-import 'package:melegna_customer/presentation/ui/app_controller.dart';
-import 'package:melegna_customer/presentation/ui/bundle/components/bundle_product_config_modal.dart';
-import 'package:melegna_customer/presentation/ui/factory/widget.factory.dart';
-import 'package:melegna_customer/presentation/ui/product/product_details/product_details.page.dart';
-import 'package:melegna_customer/presentation/ui/shared/base_viewmodel.dart';
-import 'package:melegna_customer/presentation/ui/shared/list/list_componenet.viewmodel.dart';
-import 'package:melegna_customer/presentation/utils/currency_utils.dart';
-import 'package:melegna_customer/presentation/utils/date_utils.dart';
-import 'package:melegna_customer/presentation/utils/exception/app_exception.dart';
-import 'package:melegna_customer/presentation/utils/number_utils.dart';
-import 'package:melegna_customer/services/routing_service.dart';
+import 'package:imela/data/network/response.model.dart/bundle.reponse.dart';
+import 'package:imela/domain/bundle/bundle.usecase.dart';
+import 'package:imela/domain/bundle/model/product_bundle.model.dart';
+import 'package:imela/domain/product/model/discount.model.dart';
+import 'package:imela/domain/product/model/product.model.dart';
+import 'package:imela/domain/shared/localized_field.model.dart';
+import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/resources/values.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/bundle/components/bundle_product_config_modal.dart';
+import 'package:imela/presentation/ui/factory/widget.factory.dart';
+import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
+import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
+import 'package:imela/presentation/utils/currency_utils.dart';
+import 'package:imela/presentation/utils/date_utils.dart';
+import 'package:imela/presentation/utils/exception/app_exception.dart';
+import 'package:imela/presentation/utils/number_utils.dart';
+import 'package:imela/services/routing_service.dart';
 
 @injectable
 class BundleDetailViewmodel extends GetxController with BaseViewmodel {
@@ -36,7 +37,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   var exception = Rxn<AppException>();
 
   var bundleResponse = Rxn<BundleResponse>();
-  var selectedBundleProducts = <Product>[].obs;
+  var selectedBundleProducts = Map<String, Product>.of({}).obs; // this can be variant of the main product
 
   // getters
   ProductBundle? get bundle => bundleResponse.value?.bundle;
@@ -56,47 +57,59 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
 
   String get getDiscountValue => bundle?.discount != null ? bundle!.discount!.getDiscountValueString(AppController.getInstance.selectedCurrency.name) : '';
   String? get discountCondition => bundle?.discount != null ? bundle!.discount!.getDiscountConditionDescription(AppController.getInstance.selectedCurrency.name) : '';
+
+  var remainingStatusMsg = ''.obs;
   bool get enableBundlePurchase {
+    final bool canEnable;
     final condition = bundle?.discount?.condition;
-    final totalPrice = calculateBundlePrice();
     if (condition == null) {
-      return totalPrice.isGreaterThan(0);
+      remainingStatusMsg.value = '';
+      return bundlePrice.isGreaterThan(0);
     }
+    final conditionValue = (bundle!.discount!.conditionValue ?? 0.0);
     if (condition == DiscountCondition.MAXIMUM_PURCHASE.name) {
-      return totalPrice <= (bundle!.discount!.conditionValue ?? 0.0);
+      canEnable = bundlePrice <= conditionValue;
+      remainingStatusMsg.value = '${conditionValue - bundlePrice} remaining';
+      return canEnable;
     } else if (condition == DiscountCondition.MINIMUM_PURCHASE.name) {
-      return totalPrice >= (bundle!.discount!.conditionValue ?? 0.0);
+      canEnable = bundlePrice >= (bundle!.discount!.conditionValue ?? 0.0);
+      remainingStatusMsg.value = bundlePrice >= conditionValue ? '' : 'ETB ${conditionValue - bundlePrice} remaining';
+      return canEnable;
     } else if (condition == DiscountCondition.PURCHASE_ALL_ITEMS.name) {
       final bundleProductsLength = bundle?.products?.length;
       var items = bundleProductsLength == selectedBundleProducts.length;
+      remainingStatusMsg.value = 'Purchase all products';
       return items;
     } else {
-      return totalPrice.isGreaterThan(0);
+      return bundlePrice.isGreaterThan(0);
     }
-  }
-
-  String get getBundlePrice {
-    final totalAmount = calculateBundlePrice();
-    final currency = AppController.getInstance.selectedCurrency.name;
-    return ' $currency ${totalAmount.toPrecision(2)}';
   }
 
   String get totalProductcount => '${bundleProducts.length} Products';
 
   String get bundleDescription => bundle?.description?.localize() ?? '';
 
-  String getProductCount() { 
-    return bundleProducts.length.toString(); 
+  String getProductCount() {
+    return bundleProducts.length.toString();
   }
 
-  Duration getRemainingTime() {
+  Duration get remainingTime {
+        print('diff: ${bundle?.startDate} ${bundle?.endDate}');
+
     return DateHelper.getDateDifference(startDate: bundle?.startDate, endDate: bundle?.endDate);
   }
 
-  double calculateBundlePrice() {
-    final selectedProductPrices = selectedBundleProducts.map((product) => product.getPrice().toSelectedPrice()).toList();
-    var totalAmount = selectedProductPrices.sumBy((price) => price?.amount ?? 0.0);
+  bool get isBundleExpired {
+    return remainingTime == Duration.zero;
+  }
 
+  double get originalProductPrice {
+    final selectedProductPrices = selectedBundleProducts.values.map((product) => product.getPrice().toSelectedPrice()).toList();
+    return selectedProductPrices.sumBy((price) => price?.amount ?? 0.0);
+  }
+
+  double get bundlePrice {
+    var totalAmount = originalProductPrice;
     final discountValue = bundle?.discount?.value;
     if (discountValue != null) {
       if (bundle!.discount!.type == DiscountType.PERCENTAGE.name) {
@@ -111,8 +124,15 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   // data operation
   Future<void> getBundleDetails(String bundleId) async {
     try {
+      cleanupStateVariable();
       isLoading(true);
-      bundleResponse.value = await bundleUsecase.getBundleDetails(bundleId);
+
+      final result = await bundleUsecase.getBundleDetails(bundleId);
+      if (!(result?.isSuccessful ?? false)) {
+        exception.value = AppException(message: 'Bundle not found', isMainError: true);
+        return;
+      }
+      bundleResponse.value = result;
       productListController.setItems(bundleProducts);
     } on AppException catch (e) {
       exception.value = e;
@@ -128,6 +148,10 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   }
 
   void displayBundleProductConfigModal(BuildContext context, Product product, WidgetFactory widgetFactory) async {
+    if(isBundleExpired){
+      widgetFactory.showFlashMessage(context, message: 'Bundle expired ', backgroundColor: ColorManager.error);
+      return;
+    }
     await widgetFactory.createModalBottomSheet(
       context,
       content: (scrollController) {
@@ -135,26 +159,43 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
           product: product,
           controller: scrollController,
           widgetFactory: widgetFactory,
+          isOptionSelected: (productOption) => isProductConfiguredInBundle(productOption),
           onConfirm: (selectedProduct) {
             router.goBack(context);
-            handleBundleProductSelection(selectedProduct, replace: true);
+            handleBundleProductSelection(product.id!, selectedProduct, replace: true);
           },
         );
       },
     );
   }
 
-  void handleBundleProductSelection(Product product, {bool replace = false}) {
-    final index = selectedBundleProducts.indexWhere((element) => element.id == product.id);
-    if (index == -1) {
-      selectedBundleProducts.add(product);
-    } else {
-      if (replace) {
-        selectedBundleProducts[index] = product;
-      } else {
-        selectedBundleProducts.removeAt(index);
-      }
-    }
+  // selected product configuration operation
+  bool isProductConfiguredInBundle(Product product) {
+    return selectedBundleProducts.values.contains(product);
+  }
+
+  void handleBundleProductSelection(String parentProductId, Product product, {bool replace = false}) {
+    selectedBundleProducts[parentProductId] = product;
+    productListController.items.refresh();
+  }
+
+  void removeConfiguredProduct(Product product) {
+    selectedBundleProducts.removeWhere((key, value) => value.id == product.id || key == product.id);
+    productListController.items.refresh();
+  }
+
+  bool isProductSelected(Product product) {
+    // update the product list controller
+    var isExistInConfiguredList = selectedBundleProducts.values.toList().contains(product) || selectedBundleProducts.keys.contains(product.id);
+    return isExistInConfiguredList;
+  }
+
+  void cleanupStateVariable() {
+    exception.value = null;
+    isLoading.value = false;
+    bundleResponse.value = null;
+    selectedBundleProducts.value = {};
+    
   }
 
   @override
