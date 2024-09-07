@@ -1,0 +1,160 @@
+query GetBundleDetail($id : String!){
+   getBundleDetail(bundleId: $id) {
+		success
+		bundle {
+			id
+			name {
+				key
+				value
+			}
+			description{
+				key
+				value
+			}
+			type
+			startDate
+			endDate
+			gallery {
+				images {
+					url
+				}
+			}
+			discount {
+				type
+				value
+				condition
+			}
+			business {
+				id
+				name {
+					key
+					value
+				}
+				paymentOptions{
+					id
+					name{
+						key
+						value
+					}
+					type
+					upfrontPayment
+					dueDate
+        		}
+			}
+			createdAt
+			updatedAt
+
+			products {
+				id
+				name {
+					key
+					value
+				}
+				description {
+					key
+					value
+				}
+				prices {
+          			price {
+            			amount
+            			currency
+          			}
+        		}
+				gallery {
+					images {
+						featured
+						url
+					}
+				}
+				loyaltyPoint
+				minimumOrderQty
+				addons {
+        			id
+        			name {
+          				key
+          				value
+        			}
+        			inputType
+					minAmount
+					maxAmount
+					tag
+					isActive
+					isRequired
+					isProduct
+					productIds
+					additionalPrice {
+						id
+						amount
+						currency
+					}
+      			}
+				inventory {
+					qty
+					unit
+					minOrderQty
+					maxOrderQty
+					isAvailable
+					optionsIncluded
+				}
+				variants {
+					id
+					name {
+						key
+						value
+					}
+					gallery {
+						images {
+							featured
+							url
+						}
+					}
+					prices{
+            			price{
+              				amount
+              				currency
+            			}
+          			}
+					description {
+						key
+						value
+					}
+					inventory {
+						qty
+						unit
+						minOrderQty
+						maxOrderQty
+						isAvailable
+						optionsIncluded
+        			}
+				}
+
+				business {
+					name {
+						key
+						value
+					}
+				}
+			}
+			business {
+				id
+				name {
+					value
+				}
+				type
+			}
+			branches {
+				id
+				name {
+					value
+				}
+				business {
+					name {
+						value
+					}
+				}
+			}
+		}
+	}
+
+
+}
