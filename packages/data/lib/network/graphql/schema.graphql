@@ -1,0 +1,1637 @@
+type Access {
+  id: ID
+  name: [LocalizedField!]
+  resourceId: String
+  role: String
+  permissions: [Permission!]
+  owner: String!
+  ownerType: AccessOwnerType!
+  dateCreated: DateTime
+  dateUpdated: DateTime
+  permissionType: PermissionType!
+}
+
+enum AccessOwnerType {
+  USER
+  BUSINESS
+  PLATFORM
+}
+
+type AccessResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  accesses: [Access!]
+  deleteAccessCount: Int
+}
+
+"""The account type"""
+enum AccountType {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum AddonInputType {
+  NUMBER_INPUT
+  TEXT_INPUT
+  SINGLE_SELECTION_INPUT
+  MULTIPLE_SELECTION_INPUT
+  DATE_INPUT
+  TIME_INPUT
+  DATE_TIME_INPUT
+  NO_INPUT_REQUIRED
+}
+
+type Address {
+  id: ID
+  address: String
+  city: String!
+  location: String
+}
+
+input AddressInput {
+  address: String
+  city: String!
+  location: String
+}
+
+input AdminSignUpInput {
+  email: String!
+  phoneNumber: String!
+  password: String
+  firstName: String!
+  lastName: String
+  profileImageUrl: String
+}
+
+type AuthResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  user: User
+  accessToken: String
+  refreshToken: String
+  isNewUser: Boolean
+}
+
+type BaseResponse {
+  success: Boolean!
+  message: String
+  code: Int
+}
+
+type Benefit {
+  id: ID!
+  name: [LocalizedField!]!
+  perkType: MembershipPerkType
+}
+
+type BenefitInfo {
+  tags: [String!]
+  descriptions: [LocalizedField!]!
+}
+
+input BenefitInfoInput {
+  tags: [String!]
+  descriptions: [LocalizedFieldInput!]!
+}
+
+input BenefitInput {
+  name: [LocalizedFieldInput!]!
+  perkType: MembershipPerkType
+}
+
+type Branch {
+  id: ID
+  name: [LocalizedField!]!
+  phoneNumber: String!
+  email: String
+  website: String
+  address: Address!
+  productIds: [String!]
+  products: [Product!]!
+  businessId: String!
+  business: Business!
+  staffsId: [String!]
+  staffs: [Staff!]
+  createdAt: DateTime
+  updatedAt: DateTime
+  isActive: Boolean
+  inventoryLocations: [InventoryLocation!]
+  bundles: [ProductBundle!]
+  productPrices: [ProductPrice!]
+  priceLists: [PriceList!]
+}
+
+type BranchResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  branch: Branch
+  products: [Product!]
+  business: Business
+  priceList: [PriceList!]
+  bundles: [ProductBundle!]
+  branches: [Branch!]
+}
+
+type BundleDiscovery {
+  title: String!
+  subtitle: String
+  sequence: Float!
+  items: [ProductBundle!]!
+}
+
+type BundleResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  bundle: ProductBundle!
+}
+
+enum BundleType {
+  DEFAULT
+  SERVICE_BUNDLE
+  TIMELY_BUNDLE
+}
+
+type Business {
+  id: ID
+  type: String!
+  categories: [String!]!
+  isActive: Boolean
+  gallery: Gallery!
+  createdAt: DateTime
+  updatedAt: DateTime
+  creator: String!
+  customersId: [String!]
+  openingStatus: OpeningStatus!
+  sections: [BusinessSection!]
+  productIds: [String!]
+  products: [Product!]!
+  mainAddress: Address!
+  phoneNumber: String!
+  email: String
+  website: String
+  branchIds: [String!]
+  branches: [Branch!]!
+  stage: BusinessRegistrationStage!
+  staffs: [Staff!]
+  activeSubscriptionId: String
+  subscriptionIds: [String!]
+  trialPeriodUsedServiceIds: [String!]
+  name: [LocalizedField!]!
+  description: [LocalizedField!]
+  customers: [Customer!]
+  deliveryInfo: [DeliveryInfo!]
+  bundles: [ProductBundle!]
+  paymentOptions: [PaymentOption!]
+  priceLists: [PriceList!]
+  totalViews: Int
+}
+
+type BusinessDiscovery {
+  title: String!
+  subtitle: String
+  sequence: Float!
+  items: [Business!]!
+}
+
+type BusinessMembership {
+  id: ID!
+  createdAt: DateTime
+  updatedAt: DateTime
+  name: [LocalizedField!]!
+  description: [LocalizedField!]
+  price: [Price!]!
+  category: [String!]
+  benefits: [Benefit!]!
+  duration: Int!
+  trialPeriod: Int
+  type: String!
+  owner: String!
+  isActive: Boolean!
+  groupsId: [String!]!
+  subscriptionsId: [String!]
+  membersProductIds: [String!]
+}
+
+enum BusinessRegistrationStage {
+  BUSINESS_CREATED
+  PRODUCT_SELECTED
+  PAYMENT_STAGE
+  COMPLETED
+}
+
+type BusinessResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  business: Business
+  businesses: [Business!]
+  products: [Product!]
+  branches: [Branch!]
+  branchAdded: [Branch!]
+  branchUpdated: [Branch!]
+  paymentOptions: [PaymentOption!]
+  memberships: [BusinessMembership!]
+  accesses: [Access!]
+}
+
+type BusinessSection {
+  id: String!
+  name: [LocalizedField!]!
+  categoryId: String
+  productIds: [String!]
+  images: [String!]
+  description: [LocalizedField!]
+}
+
+enum CallToActionType {
+  Order
+  Call
+  Book
+  Reserve
+}
+
+type Cart {
+  id: ID!
+  name: [LocalizedField!]!
+  businessId: String!
+  userId: String!
+  items: [OrderItem!]!
+  paymentOptions: [PaymentOption!]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input CreateBranchInput {
+  name: [LocalizedFieldInput!]!
+  address: AddressInput!
+  phoneNumber: String!
+  email: String
+}
+
+input CreateBundleInput {
+  name: [LocalizedFieldInput!]!
+  description: [LocalizedFieldInput!]!
+  productIds: [String!]!
+  type: BundleType!
+  startDate: DateTime
+  endDate: DateTime
+  gallery: GalleryInput!
+  discountType: DiscountType
+  discountValue: Float
+  condition: DiscountCondition = NONE
+  conditionValue: Float
+}
+
+input CreateBusinessInput {
+  name: [LocalizedFieldInput!]!
+  description: [LocalizedFieldInput!]
+  categories: [String!]!
+  creator: String!
+  mainAddress: AddressInput!
+  phoneNumber: String!
+  email: String
+  website: String
+  gallery: GalleryInput!
+  paymentOptions: [CreatePaymentOptionInput!]
+}
+
+input CreateBusinessSectionInput {
+  name: [LocalizedFieldInput!]!
+  images: [String!]
+  description: [LocalizedFieldInput!]
+}
+
+input CreateCartInput {
+  name: [LocalizedFieldInput!]!
+  items: [CreateOrderItemInput!]!
+  paymentOptions: [CreatePaymentOptionInput!]
+}
+
+input CreateInventoryInput {
+  priceInfo: [PriceInfoInput!]!
+  qty: Float
+  unit: String
+  minOrderQty: Int
+  inventoryLocationId: String!
+}
+
+input CreateInventoryLocationInput {
+  name: String!
+  city: String
+  location: String!
+  phoneNumber: String!
+}
+
+input CreateMembershipInput {
+  name: [LocalizedFieldInput!]!
+  description: [LocalizedFieldInput!]
+  benefits: [BenefitInput!]!
+  price: [PriceInput!]!
+  category: [String!]
+  duration: Int!
+  type: MembershipType!
+  isActive: Boolean = true
+}
+
+input CreateOrderConfigInput {
+  name: [LocalizedFieldInput!]!
+  singleValue: String
+  multipleValue: [String!]
+  productIds: [String!]
+  additionalPrice: Float! = 0
+  addonId: String
+  type: String!
+}
+
+input CreateOrderInput {
+  items: [CreateOrderItemInput!]!
+  orderNumber: Float
+  paymentType: PaymentOptionType!
+  remainingAmount: Float
+  subTotal: Float!
+  discount: [OrderItemDiscountInput!]
+  totalAmount: Float
+  paymentMethods: [OrderPaymentMethodInput!]
+  isOnlineOrder: Boolean
+  note: String
+  branchId: String
+}
+
+input CreateOrderItemInput {
+  name: [LocalizedFieldInput!]!
+  quantity: Float!
+  branchId: String
+  image: String!
+  productId: String!
+  subTotal: Float!
+  discount: [OrderItemDiscountInput!]
+  config: [CreateOrderConfigInput!]
+}
+
+input CreatePaymentOptionInput {
+  type: PaymentOptionType!
+  upfrontPayment: Float = 0
+  name: [LocalizedFieldInput!]!
+  dueDate: DateTime
+}
+
+input CreatePermissionInput {
+  action: String!
+  resourceType: String!
+  resourceTarget: String!
+  effect: String!
+  groups: [PermissionGroupInput!]
+}
+
+input CreatePlatformServiceInput {
+  name: [LocalizedFieldInput!]!
+  type: PlatformServiceType!
+  description: [LocalizedFieldInput!]
+  features: [LocalizedFieldInput!]
+  basePrice: Float!
+  customizationCategories: [CustomizationCategoryInput!]
+  subscriptionRenewalInfo: [SubscriptionRenewalInfoInput!]!
+}
+
+input CreatePlatformSubscriptionInput {
+  owner: String!
+  selectedPlatformServices: [SelectedPlatformServiceForSubscription!]
+}
+
+input CreatePriceListInput {
+  name: [LocalizedFieldInput!]!
+  description: [LocalizedFieldInput!]
+  branchIds: [String!]
+  isActive: Boolean = true
+}
+
+input CreateProductAddonInput {
+  name: [LocalizedFieldInput!]!
+  inputType: AddonInputType!
+  options: [ProductAddonOptionInput!]
+  checkCalendar: Boolean
+  isProduct: Boolean
+  isRequired: Boolean
+  isDateRange: Boolean
+  productIds: [String!]
+  additionalPrice: [PriceInput!]
+  minAmount: Float
+  maxAmount: Float
+  tag: [String!]
+}
+
+input CreateProductInput {
+  """Variant name for the main product"""
+  name: [LocalizedFieldInput!]!
+
+  """display name, will be shown on browsing sectioin """
+  displayName: [LocalizedFieldInput!]
+  description: [LocalizedFieldInput!]
+  defaultPrice: [PriceInput!]!
+  featured: Boolean
+  gallery: GalleryInput!
+  tag: [String!]
+  mainProduct: Boolean = false
+  loyaltyPoint: Int! = 0
+  sectionId: [String!]
+  category: [String!]!
+  type: ProductType!
+  inventoryInfo: CreateInventoryInput!
+  options: [ProductOptionInput!]
+  optionsIncluded: [String!]!
+  reviewTopics: [String!]
+  callToAction: String = "Order"
+  branchIds: [String!]
+  canOrderOnline: Boolean! = false
+  deliveryInfoId: String
+}
+
+input CreateProductPriceInput {
+  branchId: String
+  priceListId: String
+  price: [PriceInput!]!
+  isDefault: Boolean!
+}
+
+input CreateStaffInput {
+  name: String!
+  pin: Float!
+  roles: [String!]!
+  branchId: String
+  businessId: String
+}
+
+input CreateSubscriptionPlanInput {
+  benefits: [BenefitInfoInput!]!
+  description: [LocalizedFieldInput!]
+  name: [LocalizedFieldInput!]!
+
+  """PLATFORM, BUSEINSS, PRODUCT, SERVICE"""
+  type: SubscriptionType!
+  category: [String!]!
+  price: Float!
+  trialPeriod: Float!
+  owner: String
+  duration: Float!
+}
+
+enum Currency {
+  USD
+  ETB
+}
+
+enum CurrencyKey {
+  USD
+  ETB
+}
+
+type Customer {
+  id: ID
+  userId: String!
+  branchesId: [String!]
+  branches: [Branch!]
+}
+
+type Customization {
+  id: ID
+  name: [LocalizedField!]!
+  actionIdentifier: String!
+  value: String!
+  additionalPrice: Float
+  default: Boolean
+}
+
+type CustomizationCategory {
+  id: ID
+  name: [LocalizedField!]!
+  description: [LocalizedField!]
+  selectionType: SelectionType
+  customizations: [Customization!]!
+  selectionRequired: Boolean
+}
+
+input CustomizationCategoryInput {
+  name: [LocalizedFieldInput!]!
+  description: [LocalizedFieldInput!]
+  selectionType: SelectionType
+  customizations: [CustomizationInput!]!
+  selectionRequired: Boolean
+}
+
+type CustomizationInfo {
+  id: ID
+  customizationId: String!
+  action: String!
+}
+
+input CustomizationInfoInput {
+  customizationId: String!
+  action: String!
+}
+
+input CustomizationInput {
+  name: [LocalizedFieldInput!]!
+  actionIdentifier: String!
+  value: String!
+  additionalPrice: Float
+  default: Boolean
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DeliveryInfo {
+  id: ID
+  name: String!
+  deliveryAvailable: Boolean!
+  price: Float
+
+  """Number of hour to finish the delivery"""
+  deliveryTime: Int
+
+  """Number of hour to prepare the delivery."""
+  timeToPrepare: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Discount {
+  type: DiscountType!
+  value: Float!
+  condition: DiscountCondition!
+  conditionValue: Float
+}
+
+enum DiscountCondition {
+  NONE
+  PURCHASE_ALL_ITEMS
+  MINIMUM_PURCHASE
+  MAXIMUM_PURCHASE
+  QUANTITY
+}
+
+enum DiscountType {
+  PERCENTAGE
+  AMOUNT
+}
+
+type DiscoveryResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  productsResponse: [ProductDiscovery!]
+  businessesResponse: [BusinessDiscovery!]
+  bundlesResponse: [BundleDiscovery!]
+  membershipsResponse: [MembershipDiscovery!]
+}
+
+input FavoriteBusienssInput {
+  businessId: String!
+  businessName: [LocalizedFieldInput!]!
+  image: String
+}
+
+type FavoriteBusinessInfo {
+  id: ID!
+  businessName: [LocalizedField!]!
+  businessId: String!
+  image: String
+}
+
+type ForYouResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  favoriteBusinesses: [Business!]
+  topProductsByBusiness: [ProductDiscovery!]
+  bundles: [BundleDiscovery!]
+}
+
+type Gallery {
+  id: ID
+
+  """The logo image of the gallery"""
+  logoImage: String
+
+  """The cover image of the gallery"""
+  coverImage: String
+
+  """The images in the gallery"""
+  images: [GalleryData!]
+
+  """The videos in the gallery"""
+  videos: [GalleryData!]
+}
+
+type GalleryData {
+  url: ID!
+  featured: Boolean
+}
+
+input GalleryDataInput {
+  url: ID!
+  featured: Boolean
+}
+
+input GalleryInput {
+  """The logo image of the gallery"""
+  logoImage: String
+
+  """The cover image of the gallery"""
+  coverImage: String
+
+  """The images in the gallery"""
+  images: [GalleryDataInput!]
+
+  """The videos in the gallery"""
+  videos: [GalleryDataInput!]
+}
+
+type Group {
+  id: ID!
+  name: [LocalizedField!]!
+  members: [GroupMember!]!
+  default: Boolean!
+  membershipId: String
+  membership: Membership
+}
+
+type GroupMember {
+  user: User
+  activeSubscription: Subscription
+  userId: String!
+  memberStatus: String!
+  activeSubscriptionId: String
+  dateJoined: DateTime!
+}
+
+type Inventory {
+  id: ID!
+  name: String!
+  sku: String!
+  priceInfo: [PriceInfo!]!
+  qty: Float!
+  unit: ProductUnitType
+  minOrderQty: Int
+  maxOrderQty: Int
+  isAvailable: Boolean!
+  optionsIncluded: [String!]!
+  inventoryLocationId: String!
+  inventoryLocation: InventoryLocation
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type InventoryLocation {
+  id: ID!
+  name: String!
+  city: String
+  location: String!
+  address: String
+  phoneNumber: String!
+  createdAt: DateTime
+  updatedAt: DateTime
+  branchId: String!
+  branch: Branch
+  businessId: String!
+  business: Business
+}
+
+type InventoryResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  inventory: Inventory
+  inventories: [Inventory!]
+  location: InventoryLocation
+  locations: [InventoryLocation!]
+}
+
+enum LanguageKey {
+  ENGLISH
+  AMHARIC
+  OROMIC
+}
+
+type LocalizedField {
+  """the name of the language, ex. english, amharic"""
+  key: LanguageKey!
+  value: String!
+}
+
+input LocalizedFieldInput {
+  """the name of the language, ex. english, amharic"""
+  key: LanguageKey!
+  value: String!
+}
+
+type Membership {
+  id: ID!
+  createdAt: DateTime
+  updatedAt: DateTime
+  name: [LocalizedField!]!
+  description: [LocalizedField!]
+  price: [Price!]!
+  category: [String!]
+  benefits: [Benefit!]!
+  duration: Int!
+  trialPeriod: Int
+  type: String!
+  owner: String!
+  isActive: Boolean!
+  groupsId: [String!]!
+  groups: [Group!]
+  subscriptionsId: [String!]
+  subscriptions: [Subscription!]
+  membersProductIds: [String!]
+}
+
+type MembershipDiscovery {
+  title: String!
+  subtitle: String
+  sequence: Float!
+  items: [Membership!]!
+}
+
+enum MembershipPerkType {
+  DISCOUNT_ON_MEMBERS_PRODUCT
+  DISCOUNT
+  FREE
+  CASHBACK
+  POINTS
+  OTHER
+}
+
+type MembershipProduct {
+  id: String!
+  name: [LocalizedField!]!
+  gallery: Gallery!
+  tag: [String!]
+  loyaltyPoint: Int!
+  businessId: String!
+  isActive: Boolean!
+  category: [String!]!
+  type: String!
+  canOrderOnline: Boolean!
+  reviewTopics: [String!]
+  variantsId: [String!]
+  mainProduct: Boolean
+  callToAction: String
+  branchIds: [String!]
+}
+
+type MembershipResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  membership: Membership
+  memberships: [Membership!]
+  products: [MembershipProduct!]
+  currentUserSubscription: Subscription
+}
+
+enum MembershipType {
+  BUSINESS
+}
+
+type Mutation {
+  createUserAccountUsingEmailPassword(signup: SignupInput!): AuthResponse!
+  createAdminAccountUsingEmailPassword(signup: AdminSignUpInput!): AuthResponse!
+  signInWithEmailAndPassword(email: String!, password: String!): AuthResponse!
+  signInWithPhoneNumber(phone: String!): AuthResponse!
+  logout: Boolean!
+  updateProfileInfo(user: UpdateUserInput!): Boolean!
+
+  """
+  Returns success boolean value to indicate if the operation was successful or not
+  """
+  addBusinessToFavorites(input: [FavoriteBusienssInput!]!): UserResponse!
+  removeBusinessFromFavorites(businessIds: [String!]!): UserResponse!
+  addPermissionToUserAccess(user: String!, access: String!, permissions: [CreatePermissionInput!]!): [Permission!]!
+  removePermissionFromUserAccess(user: String!, access: String!, permissions: [String!]!): Boolean!
+  createBusiness(data: CreateBusinessInput!): BusinessResponse!
+  createBusinessSection(businessId: String!, sections: [CreateBusinessSectionInput!]!): BaseResponse!
+  removeBusinessSection(businessId: String!, sectionsId: [String!]!): BaseResponse!
+  updateBusinessInfo(businessId: String!, data: UpdateBusinessInput!): BusinessResponse!
+  verifyBusinessRegistration(businessId: String!): BusinessResponse!
+  addPaymentOptions(businessId: String!, paymentOptions: [CreatePaymentOptionInput!]!): BusinessResponse!
+  deletePaymentOption(businessId: String!, paymentOptionsId: [String!]!): BusinessResponse!
+  addPriceListTobusiness(businessId: String!, input: [CreatePriceListInput!]!): BusinessResponse!
+  updateBusinessPriceList(businessId: String!, input: [UpdatePriceListInput!]!): BusinessResponse!
+  deleteBusinessPriceLlist(businessId: String!, priceListIds: [String!]!): BusinessResponse!
+  createBranch(businessId: String!, branchInfo: CreateBranchInput!): BusinessResponse!
+  updateBranchInfo(branchId: String!, branchInfo: UpdateBranchInput!): BusinessResponse!
+  deleteBranch(businessId: String!, branchId: String!): BranchResponse!
+
+  """
+  Create products with varaints. returns list of products created. inside products field
+  """
+  createBusinessProducts(businessId: String!, productInfo: [CreateProductInput!]!): ProductResponse!
+
+  """returns the created bundle inside bundle field of the response object"""
+  createBundle(businessId: String!, branchIds: [String!]!, bundle: CreateBundleInput!): BundleResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  updateBundle(businessId: String!, bundleId: String!, bundleData: UpdateBundleInput!): BundleResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  addProductToBundle(businessId: String!, bundleId: String!, productIds: [String!]!): BundleResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  removeProductFromBundle(businessId: String!, bundleId: String!, productIds: [String!]!): BundleResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  addProductBundleToBranch(businessId: String!, bundleId: String!, branchIds: [String!]!): BundleResponse!
+
+  """returns the updated bundle inside bundle field of the response object"""
+  removeBundleFromBranch(businessId: String!, bundleId: String!, branchIds: [String!]!): BundleResponse!
+  deleteProductBundle(businessId: String!, bundleId: String!): BundleResponse!
+  updateBusinessProductInfo(businessId: String!, productId: String!, product: UpdateProductInput!): ProductResponse!
+  getBusinessProducts(businessId: String!, page: Float, limit: Float): ProductResponse!
+  addProductToBranch(businessId: String!, productIds: [String!]!, branchIds: [String!]!): ProductResponse!
+  removeProductFromBranch(businessId: String!, productIds: [String!]!, branchIds: [String!]!): ProductResponse!
+
+  """
+  Returns boolean value to indicate the payment option is assigned to product
+  """
+  assignPaymentOptionToProduct(businessId: String!, productId: String!, paymentOptionId: [String!]!): ProductResponse!
+  removePaymentOptionFromProduct(businessId: String!, productId: String!, paymentOptionId: [String!]!): ProductResponse!
+  createProductPrice(businessId: String!, productId: String!, input: [CreateProductPriceInput!]!): ProductResponse!
+  updateProductPricing(businessId: String!, productId: String!, input: [UpdateProductPriceInput!]!): ProductResponse!
+
+  """
+  Return a boolean value to indicate if the product addon is created successfully or not
+  """
+  createProductAddon(businessId: String!, productId: String!, input: [CreateProductAddonInput!]!): ProductResponse!
+
+  """
+  Add addon id alognside with new addon info to update the product addon. return boolean value to indicate if the product addon is updated successfully
+  """
+  updateProductAddons(businessId: String!, productId: String!, input: [UpdateProductAddonInput!]!): ProductResponse!
+
+  """
+  Return a boolean value to indicate if the product addon is deleted successfully or not
+  """
+  deleteProductAddon(businessId: String!, productId: String!, addonId: String!): ProductResponse!
+  createStaff(staffInput: CreateStaffInput!): StaffResponse!
+  assignStaffToBranch(branchId: String!, staffId: String!): StaffResponse!
+  assignStaffToBusiness(businessId: String!, staffId: String!): StaffResponse!
+  unAssignStaffFromBranch(branchId: String!, staffId: String!): StaffResponse!
+  unAssignStaffFromBusiness(businessId: String!, staffId: String!): StaffResponse!
+
+  """
+  Returns the created inventory location in location field of inventoryResponse object
+  """
+  createInventoryLocationForBranch(businessId: String!, branchId: String!, locationData: CreateInventoryLocationInput!): InventoryResponse!
+  updateInventoryLocation(locationId: String!, inventoryLocationInfo: UpdateInventoryLocationInput!): InventoryResponse!
+  createNewInventoryOnInventoryLocation(businessId: String!, productId: String!, inventoryData: CreateInventoryInput!): InventoryResponse!
+  updateProductInventoryInformations(businessId: String!, productId: String!, inventoryInfos: [UpdateInventoryInput!]!): InventoryResponse!
+  addToBusinessCart(businessId: String!, cartInput: CreateCartInput!): OrderResponse!
+  removeItemsFromCart(cartId: String!, productIds: [String!]!): OrderResponse!
+  placeOrderFromOnlineStore(orderInput: CreateOrderInput!, cartId: String): OrderResponse!
+  createPlatformSubscriptionPlan(plan: CreateSubscriptionPlanInput!): SubscriptionPlan!
+  createBusinessSubscriptionPlan(plan: CreateSubscriptionPlanInput!): SubscriptionPlan!
+  subscribeBusinessToPlatformServices(
+    """id of the business"""
+    businessId: String!
+    input: CreatePlatformSubscriptionInput!
+  ): SubscriptionResponse!
+  renewBusienssPlatformSubscription(id: String!, subscriptionUpdateInfo: SubscriptionUpgradeInput!): SubscriptionResponse!
+  changeSubscriptionStatus(subscription: String!, status: Boolean!): Boolean!
+  updateSubscriptionPlan(id: String!, data: UpdateSubscriptionPlanInput!): SubscriptionResponse!
+  deleteSubscriptionPlan(id: String!): SubscriptionResponse!
+  createPlatformService(serviceInfo: CreatePlatformServiceInput!): PlatformServiceResponse!
+  createMembershipPlan(businessId: String!, input: CreateMembershipInput!): MembershipResponse!
+  updateMembershipInfo(businessId: String!, membershipId: String!, input: UpdateMembershipInput!): MembershipResponse!
+  assignProductsToMembershipPlan(businessId: String!, membershipId: String!, productIds: [String!]!): MembershipResponse!
+  joinMemership(membershipId: String!): MembershipResponse!
+  approveMembershipRequest(businessId: String!, membershipId: String!, membersId: [String!]!): MembershipResponse!
+}
+
+enum OpeningStatus {
+  OPEN
+  CLOSED
+  TEMPORARILY_CLOSED
+}
+
+type Order {
+  id: ID!
+  orderNumber: Float
+  status: OrderStatus!
+  items: [OrderItem!]!
+  userId: String!
+  user: User
+  paymentType: String!
+  remainingAmount: Float
+  subTotal: Float!
+  discount: [OrderItemDiscount!]
+  totalAmount: Float
+  paymentMethods: [OrderPaymentMethod!]
+  isOnlineOrder: Boolean
+  note: String
+  businessId: [String!]
+  branchId: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type OrderConfig {
+  name: [LocalizedField!]!
+  type: String!
+  singleValue: String
+  multipleValue: [String!]
+  productIds: [String!]
+  additionalPrice: Float!
+  addonId: String
+}
+
+type OrderItem {
+  id: ID!
+  name: [LocalizedField!]!
+  quantity: Float!
+  branchId: String
+  image: String!
+  productId: String!
+  subTotal: Float!
+  tax: Float
+  discount: [OrderItemDiscount!]
+  config: [OrderConfig!]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type OrderItemDiscount {
+  id: ID!
+  name: [LocalizedField!]!
+  amount: Float!
+}
+
+input OrderItemDiscountInput {
+  name: [LocalizedFieldInput!]!
+  amount: Float!
+}
+
+type OrderPaymentMethod {
+  name: [LocalizedField!]!
+  amount: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input OrderPaymentMethodInput {
+  name: [LocalizedFieldInput!]!
+  amount: Float!
+}
+
+type OrderResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  cart: Cart!
+  carts: [Cart!]!
+  order: Order!
+  orders: [Order!]!
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  FAILED
+}
+
+type PaymentOption {
+  id: String
+  name: [LocalizedField!]!
+  type: PaymentOptionType!
+  upfrontPayment: Float
+  upfrontPaymentType: PaymentOptionUpfrontPaymentType
+  dueDate: DateTime
+  dueAfterDays: Float
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+enum PaymentOptionType {
+  FULL_PAYMENT
+  INSTALLMENT
+  DEPOSIT
+  PAY_LATER
+}
+
+enum PaymentOptionUpfrontPaymentType {
+  PERCENTAGE
+  AMOUNT
+}
+
+type Permission {
+  id: ID
+  name: [LocalizedField!]
+  action: String!
+  resourceType: String!
+  resourceTarget: String!
+  effect: String!
+  groups: [PermissionGroup!]
+  userGenerated: Boolean
+  resourcTargetName: String
+}
+
+type PermissionGroup {
+  id: String!
+  key: String!
+  name: [LocalizedField!]!
+}
+
+input PermissionGroupInput {
+  name: [LocalizedFieldInput!]!
+  key: String!
+}
+
+enum PermissionType {
+  BUSINESS_MANAGEMENT_PERMISSION
+  PLATFORM_SERVICE_ACCESS_PERMISSION
+  PLATFORM_SERVICE_CUSTOMIZATION_PERMISSION
+}
+
+type PlatformService {
+  id: ID
+  name: [LocalizedField!]!
+  type: PlatformServiceType!
+  description: [LocalizedField!]
+  basePrice: Float!
+  image: String
+  features: [LocalizedField!]
+  customizationCategories: [CustomizationCategory!]
+  relatedServicesId: [String!]
+  relatedServices: [PlatformService!]
+  subscriptionRenewalInfo: [SubscriptionRenewalInfo!]!
+}
+
+type PlatformServiceResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  service: PlatformService!
+}
+
+enum PlatformServiceType {
+  POINT_OF_SALE
+  INVENTORY
+  ONLINE_STORE
+  SUBSCRIPTION
+  MEMBERSHIP
+}
+
+type PlatfromServiceSubscription {
+  id: ID
+  serviceId: ID!
+  serviceName: String!
+  startDate: DateTime!
+  endDate: DateTime!
+  isTrialPeriod: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime!
+  selectedCustomizationInfo: [CustomizationInfo!]!
+}
+
+type Price {
+  id: ID
+  amount: Float!
+  currency: String!
+}
+
+type PriceInfo {
+  amount: Float!
+  currency: Currency!
+}
+
+input PriceInfoInput {
+  amount: Float!
+  currency: Currency! = ETB
+}
+
+input PriceInput {
+  amount: Float!
+  currency: CurrencyKey! = ETB
+}
+
+type PriceList {
+  id: ID!
+  name: [LocalizedField!]!
+  description: [LocalizedField!]!
+  branchIds: [String!]
+  isActive: Boolean!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Product {
+  id: String
+  name: [LocalizedField!]!
+  displayName: [LocalizedField!]
+  featured: Boolean!
+  description: [LocalizedField!]!
+  gallery: Gallery!
+  business: Business!
+  tag: [String!]
+  minimumOrderQty: Int
+  loyaltyPoint: Int!
+  businessId: String!
+  sectionId: [String!]
+  isActive: Boolean!
+  category: [String!]!
+  type: ProductType!
+  createdAt: DateTime
+  updatedAt: DateTime
+  canOrderOnline: Boolean!
+  reviewTopics: [String!]
+  sku: String!
+  options: [Productoption!]!
+  optionsIncluded: [String!]!
+  variantsId: [String!]
+  variants: [Product!]!
+  mainProduct: Boolean
+  prices(branchId: String, priceListId: String): [ProductPrice!]!
+  inventory(locationId: String): [Inventory!]!
+  callToAction: CallToActionType
+  branchIds: [String!]
+  deliveryInfoId: String
+  branches: [Branch!]
+  addons: [ProductAddon!]
+  paymentOptionsId: [String!]
+  membershipIds: [String!]
+  totalViews: Int!
+}
+
+type ProductAddon {
+  id: ID!
+  name: [LocalizedField!]!
+  inputType: AddonInputType!
+  minAmount: Float
+  maxAmount: Float
+  options: [ProductAddonOption!]
+  checkCalendar: Boolean
+  tag: [String!]
+  isActive: Boolean!
+  isRequired: Boolean!
+  isProduct: Boolean!
+  isDateRange: Boolean
+  productIds: [String!]
+  additionalPrice: [Price!]!
+  createdAt: DateTime
+  updatedAt: DateTime
+  category: String
+  dependndentOnAddon: String
+}
+
+type ProductAddonOption {
+  id: ID
+  name: [LocalizedField!]!
+  images: [String!]
+}
+
+input ProductAddonOptionInput {
+  name: [LocalizedFieldInput!]!
+  images: [String!] = []
+}
+
+type ProductBundle {
+  id: ID!
+  name: [LocalizedField!]!
+  description: [LocalizedField!]!
+  type: BundleType!
+  productIds: [String!]!
+  branchIds: [String!]!
+  businessId: String!
+  startDate: DateTime
+  endDate: DateTime
+  gallery: Gallery!
+  discount: Discount
+  products: [Product!]!
+  business: Business
+  branches: [Branch!]
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ProductDiscovery {
+  title: String!
+  subtitle: String
+  sequence: Float!
+  items: [Product!]!
+}
+
+type Productoption {
+  key: String!
+  value: [String!]!
+}
+
+input ProductOptionInput {
+  key: String!
+  value: [String!]!
+}
+
+type ProductPrice {
+  id: ID!
+  productId: String!
+  branchId: String
+  priceListId: String
+  price: [Price!]!
+  isActive: Boolean!
+  isDefault: Boolean!
+  createdAt: DateTime
+  updatedAt: DateTime
+  product: Product!
+  priceList: PriceList
+}
+
+type ProductResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  product: Product
+  inventories: [Inventory!]
+  variants: [Product!]
+  products: [Product!]
+  branches: [Branch!]
+  business: Business
+  productPrices: [ProductPrice!]
+}
+
+enum ProductType {
+  PRODUCT
+  SERVICE
+  GIFT_CARD
+  MEMBERSHIP
+}
+
+enum ProductUnitType {
+  Unit
+  Kg
+  KG
+  Litre
+}
+
+type Query {
+  placeholder: User!
+  refreshToken: AuthResponse!
+  me: UserResponse!
+  getAccesses(ownerId: String!, owenrType: AccessOwnerType!, permissionType: PermissionType!): AccessResponse!
+  getBusinessDetails(id: String!): BusinessResponse!
+  getUserBusinesses: BusinessResponse!
+  getBranchDetails(businessId: String!, branchId: String!): BranchResponse!
+  getBranchDetailsForPOS(businessId: String!, branchId: String!): BranchResponse!
+
+  """Get product details with inventory, variants"""
+  getProductDetail(productId: String!, branchId: String, locationId: String, priceListId: String): ProductResponse!
+
+  """Get bundle details with products, business, and branches info"""
+  getBundleDetail(bundleId: String!): BundleResponse!
+  getBusinessStaffs(businessId: String!): StaffResponse!
+  getBranchStaffs(branchId: String!): StaffResponse!
+  getForYouData: ForYouResponse!
+  getDiscoveryData: DiscoveryResponse!
+  getUserCarts: OrderResponse!
+  getUserOrders: OrderResponse!
+  getOrderDetails(orderId: String!): OrderResponse!
+  getSubscriptionPlans(type: SubscriptionType, owner: String): [SubscriptionPlan!]!
+  getPriceInfoToUpgradeSubscription(
+    """Subscritpion id"""
+    id: String!
+    subscriptionUpdateInfo: SubscriptionUpgradeInput!
+  ): SubscriptionUpgradeResponse!
+  getBusienssSubscriptionPlans(type: SubscriptionType, owner: String): [SubscriptionPlan!]!
+  getPlatformServices: [PlatformService!]!
+  getMembershipDetails(membershipId: String!): MembershipResponse!
+}
+
+input SelectedPlatformServiceForSubscription {
+  serviceId: String!
+  serviceName: String!
+  selectedCustomizationInfo: [CustomizationInfoInput!]!
+  selectedRenewalId: String!
+}
+
+enum SelectionType {
+  SINGLE_SELECTION
+  MULTI_SELECTION
+}
+
+input SignupInput {
+  email: String!
+  phoneNumber: String!
+  password: String
+  firstName: String!
+  lastName: String
+  profileImageUrl: String
+}
+
+type Staff {
+  id: ID
+  name: String!
+  pin: Int!
+  roles: [String!]!
+  branchId: String
+  branch: Branch
+  businessId: String
+  business: Business
+  isActive: Boolean!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type StaffResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  staff: Staff
+  staffs: [Staff!]
+}
+
+type Subscription {
+  id: ID
+  startDate: DateTime!
+  endDate: DateTime!
+  amountPaid: Float
+  subscriptioinPlanId: String
+  isTrialPeriod: Boolean!
+  type: SubscriptionType!
+  subscribedTo: String
+
+  """
+  owner of the subscription. it will be a business id for platform service subscription and user id for business subscription
+  """
+  owner: String
+  createdAt: DateTime
+  updatedAt: DateTime!
+  plan: SubscriptionPlan
+  isActive: Boolean
+  platformServices: [PlatfromServiceSubscription!]
+}
+
+type SubscriptionPlan {
+  id: ID
+  name: [LocalizedField!]
+  description: [LocalizedField!]
+  price: Float
+  category: [String!]
+  benefits: [BenefitInfo!]
+  duration: Int
+  trialPeriod: Int
+
+  """PLATFORM, BUSEINSS, PRODUCT, SERVICE"""
+  type: SubscriptionType
+  owner: String
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+  subscriptions: [Subscription!]
+}
+
+type SubscriptionRenewalInfo {
+  id: ID
+  name: [LocalizedField!]!
+  duration: Int!
+  trialPeriod: Int!
+  discountAmount: Int!
+}
+
+input SubscriptionRenewalInfoInput {
+  name: [LocalizedFieldInput!]!
+  duration: Int! = 90
+  trialPeriod: Int! = 90
+  discountAmount: Int! = 0
+}
+
+type SubscriptionResponse {
+  success: Boolean!
+  message: String
+  code: Int
+
+  """subscription info created"""
+  subscription: Subscription
+
+  """Subscription plan info that is subscribed"""
+  plan: SubscriptionPlan
+
+  """subscriptions"""
+  subscriptions: [Subscription!]
+
+  """existing subscription available for requested by planId and owner"""
+  existingActiveSubscriptions: [Subscription!]
+  deletedSubscritpions: [Subscription!]
+  addedPlatformServices: [PlatfromServiceSubscription!]
+  existingPlatformService: [PlatfromServiceSubscription!]
+  platformServices: [PlatformService!]
+  platformServicehavingFreeTrial: [String!]
+}
+
+enum SubscriptionType {
+  PLATFORM
+  BUSINESS
+  PRODUCT
+  MEMBERSHIP
+}
+
+input SubscriptionUpgradeInput {
+  businessId: String!
+  addedServices: [UpdatePlatformSubscriptionInput!]
+  removedServices: [UpdatePlatformSubscriptionInput!]
+}
+
+type SubscriptionUpgradeResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  owner: String!
+  price: Float!
+  addedPlatformServices: [PlatformService!]
+  removedPlatformServices: [PlatformService!]
+}
+
+input UpdateBranchInput {
+  name: [LocalizedFieldInput!]
+  address: AddressInput
+  phoneNumber: String
+  email: String
+}
+
+input UpdateBundleInput {
+  name: [LocalizedFieldInput!]
+  description: [LocalizedFieldInput!]
+  productIds: [String!]
+  type: BundleType
+  startDate: DateTime
+  endDate: DateTime
+  gallery: GalleryInput
+  discountType: DiscountType
+  discountValue: Float
+  condition: DiscountCondition = NONE
+  conditionValue: Float
+}
+
+input UpdateBusinessInput {
+  name: [LocalizedFieldInput!]
+  description: [LocalizedFieldInput!]
+  categories: [String!]
+  mainAddress: AddressInput
+  phoneNumber: String
+  email: String
+  website: String
+  gallery: GalleryInput
+  paymentOptions: [CreatePaymentOptionInput!]
+}
+
+input UpdateInventoryInput {
+  priceInfo: [PriceInfoInput!]!
+  qty: Float
+  unit: String
+  minOrderQty: Int
+  id: String!
+}
+
+input UpdateInventoryLocationInput {
+  name: String
+  city: String
+  address: String
+  location: String
+  phoneNumber: String
+  branchId: String!
+  businessId: String!
+}
+
+input UpdateMembershipInput {
+  name: [LocalizedFieldInput!]
+  description: [LocalizedFieldInput!]
+  benefits: [BenefitInput!]
+  price: [PriceInput!]
+  category: [String!]
+  duration: Int
+  isActive: Boolean = true
+}
+
+input UpdatePlatformSubscriptionInput {
+  serviceId: String!
+  selectedCustomizationInfo: [CustomizationInfoInput!]
+}
+
+input UpdatePriceListInput {
+  name: [LocalizedFieldInput!]
+  description: [LocalizedFieldInput!]
+  branchIds: [String!]
+  isActive: Boolean = true
+  id: String!
+}
+
+input UpdateProductAddonInput {
+  name: [LocalizedFieldInput!]
+  inputType: AddonInputType
+  options: [ProductAddonOptionInput!]
+  checkCalendar: Boolean
+  isProduct: Boolean
+  isRequired: Boolean
+  isDateRange: Boolean
+  productIds: [String!]
+  additionalPrice: [PriceInput!]
+  minAmount: Float
+  maxAmount: Float
+  tag: [String!]
+  id: ID!
+  productId: String
+}
+
+input UpdateProductInput {
+  """Variant name for the main product"""
+  name: [LocalizedFieldInput!]
+
+  """display name, will be shown on browsing sectioin """
+  displayName: [LocalizedFieldInput!]
+  description: [LocalizedFieldInput!]
+  defaultPrice: [PriceInput!]
+  featured: Boolean
+  gallery: GalleryInput
+  tag: [String!]
+  mainProduct: Boolean = false
+  loyaltyPoint: Int = 0
+  sectionId: [String!]
+  category: [String!]
+  type: ProductType
+  inventoryInfo: CreateInventoryInput
+  options: [ProductOptionInput!]
+  optionsIncluded: [String!]
+  reviewTopics: [String!]
+  callToAction: String = "Order"
+  canOrderOnline: Boolean = false
+  deliveryInfoId: String
+}
+
+input UpdateProductPriceInput {
+  branchId: String
+  priceListId: String
+  price: [PriceInput!]
+  isDefault: Boolean
+  id: String!
+}
+
+input UpdateSubscriptionPlanInput {
+  benefits: [BenefitInfoInput!]
+  description: [LocalizedFieldInput!]
+  name: [LocalizedFieldInput!]
+
+  """PLATFORM, BUSEINSS, PRODUCT, SERVICE"""
+  type: SubscriptionType
+  category: [String!]
+  price: Float
+  trialPeriod: Float
+  owner: String
+  duration: Float
+}
+
+input UpdateUserInput {
+  email: String
+  phoneNumber: String
+  password: String
+  firstName: String
+  lastName: String
+  profileImageUrl: String
+  accountStatus: String
+}
+
+type User {
+  id: ID
+  email: String
+  phoneNumber: String
+  username: String
+  isUsernamePlaceholder: Boolean
+  password: String
+  firstName: String
+  lastName: String
+  profileImageUrl: String
+  refreshToken: String
+  accountStatus: String
+  isEmailPlaceholder: Boolean
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  accesses: [Access!]
+  accessIds: [String!]
+  accountType: AccountType!
+  favoriteBusinesses: [FavoriteBusinessInfo!]
+}
+
+type UserResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  user: User
+  accesses: [Access!]
+}

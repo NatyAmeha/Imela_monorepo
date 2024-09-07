@@ -1,0 +1,38 @@
+query GetOrders{
+     
+  getUserOrders {
+    success
+    orders {
+      id
+      orderNumber
+      status
+      userId
+      remainingAmount
+      subTotal
+      totalAmount
+      createdAt
+      items {
+        name {
+          key
+          value
+        }
+        subTotal
+        tax
+        image
+        quantity
+        config {
+          type
+          name {
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          productIds
+        }
+      }
+    }
+  }
+
+
+}

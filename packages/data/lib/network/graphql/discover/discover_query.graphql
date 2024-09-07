@@ -1,0 +1,82 @@
+query GetDiscoveryData {
+    getDiscoveryData() {
+    success
+    message
+    productsResponse {
+      title
+      subtitle
+      sequence
+      items {
+        id
+        variantsId
+        name {
+          key
+          value
+        } 
+        prices {
+          price {
+            amount
+            currency
+          }
+        }
+        gallery{
+          images{
+            url
+          }
+        }
+        inventory {
+          qty
+          unit
+          minOrderQty
+          maxOrderQty
+          isAvailable
+          optionsIncluded
+        }
+        business{
+          name{
+            key
+            value
+          }
+        }
+      }
+    }
+    businessesResponse{
+      title
+      subtitle
+      sequence
+      items{
+        id
+        name{
+          key
+          value
+        }
+        gallery{
+          images{
+            url
+            featured
+          }
+        }
+      }
+    }
+    bundlesResponse{
+      title
+      subtitle
+      sequence
+      items{
+        id
+        name{
+          key
+          value
+        }
+        productIds
+        products {
+          gallery {
+            images {
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+}

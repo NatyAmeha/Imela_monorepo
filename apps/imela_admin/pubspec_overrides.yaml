@@ -1,0 +1,10 @@
+# melos_managed_dependency_overrides: imela_core,imela_data,imela_utils,imela_ui_kit
+dependency_overrides:
+  imela_core:
+    path: ..\\..\\packages\\core
+  imela_data:
+    path: ..\\..\\packages\\data
+  imela_ui_kit:
+    path: ..\\..\\packages\\ui_kit
+  imela_utils:
+    path: ..\\..\\packages\\utils

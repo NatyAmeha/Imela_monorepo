@@ -1,0 +1,124 @@
+query GetBusinessDetails($id: String!) {
+  getBusinessDetails(id: $id) {
+    success
+    message
+    business {
+      id
+      totalViews
+      name {
+        key
+        value
+      }
+      description{
+        key
+        value
+      }
+      type
+      categories
+      email
+      phoneNumber
+      mainAddress{
+        city
+        location
+      }
+      isActive
+      creator
+      gallery{
+        logoImage
+        coverImage
+        images{
+          featured
+          url
+        }
+        videos{
+          featured
+          url
+        }
+        
+      }
+      sections{
+        id
+        name{
+          key
+          value
+        }
+        productIds
+      }
+      bundles{
+        id
+        name{
+          key
+          value
+        }
+        description{
+          key
+          value
+        }
+        productIds
+        startDate
+        endDate
+        products{
+          gallery{
+            images{
+              url
+              featured
+            }
+          }
+        }
+      }
+    }
+    products {
+      id
+      name {
+        key
+        value
+      }
+      featured
+      prices {
+        price {
+          amount
+          currency
+        }
+      }
+      gallery {
+        images {
+          featured
+          url
+        }
+      }
+      inventory {
+        qty
+        unit
+        minOrderQty
+        maxOrderQty
+        isAvailable
+        optionsIncluded
+      }
+    }
+    branches {
+      id
+      name {
+        value
+      }
+    }
+    memberships{
+      id
+      name{
+        key
+        value
+      }
+      membersProductIds
+      groupsId
+    }
+    paymentOptions{
+       id
+      name{
+        value
+      }
+      type
+      upfrontPayment
+      dueDate
+    }
+    
+  }
+}

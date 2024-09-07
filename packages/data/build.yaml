@@ -1,0 +1,14 @@
+targets:
+  $default:
+    builders:
+      ferry_generator|graphql_builder:
+        enabled: true
+        options:
+          schema: imela_data|lib/network/graphql/schema.graphql
+          queries_glob: imela_data|lib/network/graphql/**/*.graphql
+          output: lib/network/graphql/__generated__/operations.gql.dart
+      ferry_generator|serializer_builder:
+        enabled: true
+        options:
+          schema: imela_data|lib/network/graphql/schema.graphql
+          output: lib/network/graphql/__generated__/serializers.gql.dart

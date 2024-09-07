@@ -1,0 +1,14 @@
+mutation SignInWithPhone($phone: String!) {
+    signInWithPhoneNumber(phone: $phone) {
+        success
+        message
+        accessToken
+        refreshToken
+        isNewUser
+        code
+        user{
+            email
+            phoneNumber
+        }
+    }
+}

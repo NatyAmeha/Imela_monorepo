@@ -1,0 +1,57 @@
+query OrderDetail($orderId: String!) {
+  getOrderDetails(orderId: $orderId) {
+    success
+    order {
+      id
+      userId
+      businessId
+      status
+      paymentType
+      remainingAmount
+      subTotal
+      totalAmount
+      discount {
+        id
+        amount
+        name {
+          key
+          value
+        }
+      }
+      items {
+        id
+
+        name {
+          key
+          value
+        }
+        quantity
+        branchId
+        productId
+        subTotal
+        discount {
+          id
+          amount
+          name {
+            key
+            value
+          }
+        }
+
+        branchId
+        createdAt
+        updatedAt
+        config {
+          type
+          name {
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          productIds
+        }
+      }
+    }
+  }
+}

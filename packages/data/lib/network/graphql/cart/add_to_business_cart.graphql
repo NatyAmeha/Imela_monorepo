@@ -1,0 +1,50 @@
+mutation AddToBusinessCart($businessId : String!, $cartInput: CreateCartInput!) {
+    addToBusinessCart(businessId : $businessId, cartInput: $cartInput) {
+        success
+        message
+        cart {
+            id
+      name {
+        key
+        value
+      }
+      businessId
+      userId
+      createdAt
+      updatedAt
+      items {
+        name {
+          key
+          value
+        }
+        productId
+        branchId
+        image
+        tax
+        quantity
+        subTotal
+        discount {
+          id
+          name {
+            key
+            value
+          }
+          amount
+        }
+        config{
+          name{
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          type
+          productIds
+          additionalPrice
+          addonId
+        }
+      }
+        }
+    }
+
+}

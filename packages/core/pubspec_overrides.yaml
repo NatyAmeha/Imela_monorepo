@@ -1,0 +1,6 @@
+# melos_managed_dependency_overrides: imela_utils,imela_data
+dependency_overrides:
+  imela_data:
+    path: ..\\data
+  imela_utils:
+    path: ..\\utils

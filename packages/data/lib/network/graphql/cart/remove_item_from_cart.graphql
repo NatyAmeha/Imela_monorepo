@@ -1,0 +1,24 @@
+mutation RemoveItemsFromCart($cartId : String!, $productIds: [String!]!) {
+    removeItemsFromCart(cartId: $cartId, productIds: $productIds) {
+        success
+        message
+        cart {
+            id
+            name {
+                key
+                value
+            }
+            businessId
+            userId
+            createdAt
+            updatedAt
+            items {
+                id
+                name {
+                    key
+                    value
+                }
+            }
+        }
+    }
+}

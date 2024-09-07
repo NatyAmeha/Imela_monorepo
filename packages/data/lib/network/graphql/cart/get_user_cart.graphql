@@ -1,0 +1,59 @@
+query GetUserCart{
+    getUserCarts {
+    success
+    carts {
+      id
+      name {
+        key
+        value
+      }
+      businessId
+      userId
+      createdAt
+      updatedAt
+      paymentOptions {
+        id
+        name {
+          key
+          value
+        }
+        type
+        upfrontPayment
+        upfrontPaymentType
+        dueDate
+      }
+      items {
+        name {
+          key
+          value
+        }
+        productId
+        branchId
+        image
+        tax
+        quantity
+        subTotal
+        discount {
+          id
+          name {
+            key
+            value
+          }
+          amount
+        }
+        config{
+          name{
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          type
+          productIds
+          additionalPrice
+          addonId
+        }
+      }
+    }
+  }
+}
