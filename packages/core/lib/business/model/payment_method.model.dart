@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_utils/helpers/localization_utils.dart';
 import '../../shared/localized_field.model.dart';
 part 'payment_method.model.freezed.dart';
 part 'payment_method.model.g.dart';
@@ -21,4 +22,14 @@ class PaymentMethod with _$PaymentMethod {
   }) = _PaymentMethod;
 
   factory PaymentMethod.fromJson(Map<String, dynamic> json) => _$PaymentMethodFromJson(json);
+
+  static List<PaymentMethod> platformPaymentMethods() {
+    return [
+      PaymentMethod(
+        id: '1',
+        name: [LocalizedField(key: AppLanguage.ENGLISH.name, value: 'Pay using chapa')],
+      ),
+    
+    ];
+  }
 }

@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela_admin/ui/business_registration/business_signup_page.dart';
 import 'package:imela_core/business/business.usecase.dart';
 import 'package:imela_core/user/auth.usecase.dart';
+import 'package:imela_ui_kit/services/app_image_picker.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -20,5 +23,11 @@ class DashboardViewmodel extends GetxController{
         return 'Error: $e';
      }
   }
+
+  Future<void> navigatetoSignupPage(BuildContext context) async {
+    BusinessSignupPage.navigate(context);
+  }
+
+  
 
 }

@@ -11,17 +11,7 @@ void configureDependencies() => getIt.init();
 
 Future<void> setupGetIt() async {
   await configureCorePackageDIInjection();
-  getIt.registerSingleton(GoRouterService(), instanceName: 'newinstance');
+  getIt.registerSingleton(GoRouterService(), instanceName: GoRouterService.injectName);
   configureDependencies();
   await getIt.allReady();
 }
-
-//  void updateDIValue<T extends Object>(String key, value) {
-//     // Unregister the old token
-//     if (getIt.isRegistered<T>(instanceName: key)) {
-//       getIt.unregister<T>(instanceName: key);
-//     }
-
-//     // Register the new token
-//     getIt.registerSingleton<T>(value, instanceName: key);
-//   }

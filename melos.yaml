@@ -28,3 +28,7 @@ scripts:
     # Only run the test command when the package has a test directory
     run: melos exec --dir-exists=test -- "flutter test"
     description: Run `flutter test` in all packages
+  build:
+    run: |
+      melos clean && melos bootstrap && melos exec -- dart run build_runner build --delete-conflicting-outputs
+    description: Run build process for all packages

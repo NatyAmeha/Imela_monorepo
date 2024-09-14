@@ -50,6 +50,13 @@ class Business extends BaseModel with _$Business {
 
   factory Business.fromJson(Map<String, dynamic> json) => _$BusinessFromJson(json);
 
+  static List<Business> getFakeList = [
+    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 1')], createdAt: DateTime.now(), isActive: true),
+    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 2')], createdAt: DateTime.now(), isActive: true),
+    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 3')], createdAt: DateTime.now(), isActive: true),
+    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 4')], createdAt: DateTime.now(), isActive: true),
+  ];
+
   String? getLocalizedBusinessName(String locale) {
     return name?.localize(locale);
   }

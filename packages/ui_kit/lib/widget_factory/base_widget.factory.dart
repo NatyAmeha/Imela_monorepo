@@ -1,3 +1,4 @@
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:flash/flash.dart';
@@ -6,7 +7,6 @@ import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
 
 class BaseWidgetFactory implements WidgetFactory {
   @override
@@ -193,4 +193,48 @@ class BaseWidgetFactory implements WidgetFactory {
       },
     );
   }
+
+  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required T selectedValue, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder}) {
+    if (isMultiSelection) {
+      if (showSearch) {
+        return CustomDropdown.multiSelectSearch(
+          items: options,
+          decoration: CustomDropdownDecoration(),
+          listItemBuilder: itemBuilder,
+          onListChanged: (p0) {
+            onChanged(p0);
+          },
+        );
+      }
+      return CustomDropdown.multiSelect(
+        items: options,
+        listItemBuilder: itemBuilder,
+        onListChanged: (p0) {
+          onChanged(p0);
+        },
+      );
+    } else {
+      if (showSearch) {
+        return CustomDropdown<T>.search(
+          items: options,
+          listItemBuilder: itemBuilder,
+          initialItem: selectedValue,
+          excludeSelected: false,
+          onChanged: (p0) {
+            onChanged(p0 != null ? [p0] : []);
+          },
+        );
+      }
+      return CustomDropdown<T>(
+        items: options,
+        listItemBuilder: itemBuilder,
+        initialItem: selectedValue,
+        excludeSelected: false,
+        onChanged: (p0) {
+          onChanged(p0 != null ? [p0] : []);
+        },
+      );
+    }
+  }
+
 }

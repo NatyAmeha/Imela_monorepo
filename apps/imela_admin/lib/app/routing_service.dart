@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imela_admin/ui/business/business_list_page.dart';
+import 'package:imela_admin/ui/business_payment/business_payment_page.dart';
+import 'package:imela_admin/ui/business_registration/business_signup_page.dart';
+import 'package:imela_admin/ui/business_registration/business_signin_page.dart';
+import 'package:imela_admin/ui/business_registration/registration_page.dart';
+import 'package:imela_admin/ui/business_subscription/platform_service_list_page.dart';
 import 'package:imela_admin/ui/dashboard/dashboard_page.dart';
+import 'package:imela_core/subscription/model/platform_service.model.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:page_transition/page_transition.dart';
@@ -15,7 +22,6 @@ abstract class IRoutingService {
 @Named(GoRouterService.injectName)
 class GoRouterService implements IRoutingService {
   static const injectName = 'GoRouterService';
-  static const injectNameBeta = 'GoRouterServiceBeta';
   static GoRouterService? instance;
   static final navigatorKey = GlobalKey<NavigatorState>();
   static String PREVIOUS_PAGE_KEY = 'PREVIOUS_PAGE_KEY';
@@ -37,11 +43,20 @@ class GoRouterService implements IRoutingService {
     redirect: (context, state) async {},
     observers: [customNavigatorObserver],
     routes: [
+      GoRoute(path: DashboardPage.routeName, builder: (context, state) => const DashboardPage()),
+      GoRoute(path: BusinessSignupPage.routeName, builder: (context, state) => const BusinessSignupPage()),
+      GoRoute(path: BusinessSignInPage.routeName, builder: (context, state) => const BusinessSignInPage()),
+      GoRoute(path: BusinessRegistrationPage.routeName, builder: (context, state) => const BusinessRegistrationPage()),
+      GoRoute(path: PlatformServiceListPage.routeName, builder: (context, state) => const PlatformServiceListPage()),
       GoRoute(
-        path: DashboardPage.routeName,
-        builder: (context, state) => const DashboardPage(),
+        path: BusinessPaymentPage.routeName,
+        builder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final services = arguments[BusinessPaymentPage.selectedServiceArgKey] as List<PlatformService>;
+          return BusinessPaymentPage(selectedServices: services);
+        },
       ),
-      
+      GoRoute(path: BusinessListPage.routeName, builder: (context, state) => const BusinessListPage()),
     ],
   );
   @override

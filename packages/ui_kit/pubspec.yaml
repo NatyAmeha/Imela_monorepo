@@ -33,6 +33,16 @@ dependencies:
   shimmer: ^3.0.0
   flash: ^3.1.1
   badges: ^3.1.2
+  get: ^4.6.6
+  photo_view: ^0.15.0
+  cached_network_image: ^3.3.1
+  image_picker: ^1.1.2
+  intl_phone_field: ^3.2.0
+  animated_custom_dropdown: ^3.1.1
+  wolt_modal_sheet: ^0.9.2
+
+  # local packages
+  imela_utils: ^0.1.0
 
 dev_dependencies:
   build_runner: ^2.2.0
@@ -41,3 +51,7 @@ dev_dependencies:
     sdk: flutter
   mocktail: ^1.0.4
   very_good_analysis: ^6.0.0
+
+flutter:
+  assets:
+    - assets/images/

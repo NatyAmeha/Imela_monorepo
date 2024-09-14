@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/widgets.dart';
+import 'package:imela_admin/app/app_viewmodel.dart';
 import 'package:imela_admin/injection.dart';
-
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,9 +11,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
-
-
-  // Add cross-flavor configuration here
-
+  final appController = getIt<AppViewmodel>();
+  await appController.initViewmodel();
   runApp(await builder());
 }

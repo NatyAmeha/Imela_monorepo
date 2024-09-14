@@ -30,7 +30,7 @@ abstract class WidgetFactory {
   Future<DateTime?> showDateTimePicker(BuildContext context, DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable);
 
   Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked});
-
+  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required T selectedValue, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder});
   Widget createTextField(
       {required TextEditingController controller,
       required String hintText,

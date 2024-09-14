@@ -1,0 +1,6 @@
+class Constatnts{
+  static const imgDirectory = 'assets/images';
+
+  static const String productPlaceholderImage = '$imgDirectory/product_image_placeholder.png';
+  static const String businessPlaceholderImage = '$imgDirectory/business_placeholder2.png';
+}
