@@ -1,0 +1,10 @@
+mutation createProductAddon($businessId: ID!, $productId: ID!, $addons: [CreateProductAddonInput!]) {
+    createProductAddon(
+        businessId: $businessId,
+        productId: $productId,
+        input : $addons,
+    ){
+        success
+        message
+    }
+}

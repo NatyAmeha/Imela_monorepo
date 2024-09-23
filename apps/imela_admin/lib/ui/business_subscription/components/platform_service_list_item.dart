@@ -37,19 +37,19 @@ class PlatformServiceListItem extends StatelessWidget {
           const SizedBox(height: 8),
           widgetFactory.createText(context, platformService.getBasePriceString(currency), style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).colorScheme.tertiary),
           const SizedBox(height: 10),
-          widgetFactory.createText(context, platformService.description.localize(selectedLanguage), style: Theme.of(context).textTheme.labelLarge),
+          widgetFactory.createText(context, platformService.description.localize(selectedLanguage), style: Theme.of(context).textTheme.labelMedium, maxLines: 5),
          const SizedBox(height: 24),
           Row(
             children: [
-              widgetFactory.createIcon(materialIcon: Icons.check_circle, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createIcon(materialIcon: Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 16),
               Expanded(child: widgetFactory.createText(context, 'Options: ${platformService.renewalOptionsString()}', style: Theme.of(context).textTheme.bodyMedium)),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Row(
             children: [
-              widgetFactory.createIcon(materialIcon: Icons.check_circle, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createIcon(materialIcon: Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 16),
               Expanded(child: widgetFactory.createText(context, 'Price: ${platformService.getBasePriceString(currency)}', style: Theme.of(context).textTheme.bodyMedium)),
             ],

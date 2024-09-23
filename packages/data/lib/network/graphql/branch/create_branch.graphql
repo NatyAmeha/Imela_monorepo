@@ -1,0 +1,30 @@
+mutation GCreateBranch($businessId : String! , $branchInfo : CreateBranchInput!){
+    createBranch(businessId: $businessId, branchInfo: $branchInfo){
+        success
+		message
+		branchAdded {
+			id
+			name {
+				key
+				value
+			}
+
+			address {
+				city
+				address
+				location
+			}
+			phoneNumber
+		}
+		business {
+			id
+			name {
+				key
+				value
+			}
+			mainAddress {
+				address
+			}
+		}
+    }
+}

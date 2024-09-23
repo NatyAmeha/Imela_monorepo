@@ -1,0 +1,36 @@
+query GetBusinessProducts($businessId: String!, $page: Float!, $limit: Float) {
+    getBusinessProducts(businessId: $businessId, page: $page, limit: $limit) {
+        success
+        products {
+            name {
+                key
+                value
+            }
+            featured
+            isActive
+            gallery {
+                images {
+                    featured
+                    url
+                }
+            }
+            variantsId
+            prices {
+                isDefault
+                price {
+                    currency
+                    amount
+                }
+            }
+            business {
+                name {
+                    key
+                    value
+                }
+            }
+            category
+            createdAt
+            updatedAt
+        }
+    }
+}

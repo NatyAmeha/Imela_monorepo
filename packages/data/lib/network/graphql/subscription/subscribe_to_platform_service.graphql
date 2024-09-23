@@ -1,0 +1,17 @@
+mutation SubscribeToPlatformServices($businessId : String!, $serviceInput : CreatePlatformSubscriptionInput!){
+    subscribeBusinessToPlatformServices(businessId : $businessId, input : $serviceInput){
+        success
+        message
+        subscription {
+            id
+            isActive
+            platformServices {
+                startDate
+                endDate
+                isTrialPeriod
+            }
+            amountPaid
+        }
+        platformServicehavingFreeTrial
+    }
+}

@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/shared/graphql_input_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_data/network/graphql/__generated__/schema.schema.gql.dart';
 
 part 'payment_option.model.freezed.dart';
 part 'payment_option.model.g.dart';
@@ -18,6 +20,14 @@ class PaymentOption with _$PaymentOption {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _PaymentOption;
+
+  Function toGraphQLInput() {
+    return (b) => b
+      ..name.addAll(name!.toLocalizedFieldInput())
+      ..type = type!.toPaymentOptionTypeInput
+      ..upfrontPayment = upfrontPayment
+      ..dueDate.update(GraphqlInputUtils.toDateTimeInput);
+  }
 
   static PaymentOption defaultPaymentOption() {
     return PaymentOption(

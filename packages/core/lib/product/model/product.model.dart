@@ -15,6 +15,8 @@ import 'package:imela_core/shared/price.model.dart';
 part 'product.model.freezed.dart';
 part 'product.model.g.dart';
 
+enum ProductType { PRODUCT, SERVICE, GIFT_CARD, MEMBERSHIP }
+
 @freezed
 class Product with _$Product {
   const Product._();
@@ -23,7 +25,7 @@ class Product with _$Product {
     List<LocalizedField>? name,
     List<LocalizedField>? displayName,
     List<LocalizedField>? description,
-    bool? featured,
+    @Default(false) bool featured,
     Gallery? gallery,
     Business? business,
     List<String>? tag,
@@ -31,7 +33,7 @@ class Product with _$Product {
     int? loyaltyPoint,
     String? businessId,
     List<String>? sectionId,
-    bool? isActive,
+    @Default(true) bool isActive,
     List<String>? category,
     String? type,
     DateTime? createdAt,
@@ -52,7 +54,6 @@ class Product with _$Product {
     List<ProductAddon>? addons,
     int? totalViews,
     List<ProductPrice>? prices,
-
     double? qty,
   }) = _Product;
 
@@ -80,6 +81,10 @@ class Product with _$Product {
   double get totalPrice {
     final itemPrice = getPrice()?.toSelectedPrice('ETB')?.amount ?? 0.0;
     return itemPrice * (qty ?? 1);
+  }
+
+  String activeString() {
+    return isActive ? 'Active' : 'Inactive';
   }
 
   String? getProductOptionInfo() {

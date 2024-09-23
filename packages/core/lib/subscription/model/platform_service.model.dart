@@ -32,7 +32,7 @@ class PlatformService with _$PlatformService {
   factory PlatformService.fromJson(Map<String, dynamic> json) => _$PlatformServiceFromJson(json);
 
   String getBasePriceString(String currency) {
-    return 'starting at $currency $basePrice / month';
+    return 'Starting at $currency $basePrice / month';
   }
 
   String renewalOptionsString() {
@@ -52,14 +52,16 @@ class PlatformService with _$PlatformService {
     return selectedCustomization?.values.expand((element) => element).map((e) => e.name!.localize(selectedLanguage)).toList();
   }
 
-  double totalCustomizationPrice() {
+  double getTotalPrice() {
     final customizations = selectedCustomization?.values.flattened.toList();
     final totalAdditionalPrice = customizations?.sumBy((element) => element.additionalPrice ?? 0);
-    return basePrice! + (totalAdditionalPrice ?? 0);
+    final selectedRenewalPricing =  selectedSubscriptionRenewal?.getTotalPrice(basePrice ?? 0) ?? 0.0;
+    print('total ${selectedRenewalPricing + (totalAdditionalPrice ?? 0)}');
+    return selectedRenewalPricing + (totalAdditionalPrice ?? 0);
   }
 
   String totalCustomizationPriceString(String currency) {
-    return '$currency ${totalCustomizationPrice()}';
+    return '$currency ${getTotalPrice()}';
   }
 
   PlatformService updateSelectedCustomizationInfo(Map<String, List<Customization>> customizations) {
@@ -73,3 +75,5 @@ class PlatformService with _$PlatformService {
     return copyWith(selectedSubscriptionRenewal: subscriptionRenewal);
   }
 }
+
+

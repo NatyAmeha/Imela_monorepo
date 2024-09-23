@@ -194,13 +194,18 @@ class BaseWidgetFactory implements WidgetFactory {
     );
   }
 
-  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required T selectedValue, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder}) {
+  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required List<T> selectedValues, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder}) {
     if (isMultiSelection) {
       if (showSearch) {
         return CustomDropdown.multiSelectSearch(
           items: options,
-          decoration: CustomDropdownDecoration(),
+          initialItems: selectedValues,
+          hintBuilder: (context, items, isSelected) {
+            return Text(hintText ?? '');
+          },
+          decoration: const CustomDropdownDecoration(),
           listItemBuilder: itemBuilder,
+
           onListChanged: (p0) {
             onChanged(p0);
           },
@@ -208,6 +213,7 @@ class BaseWidgetFactory implements WidgetFactory {
       }
       return CustomDropdown.multiSelect(
         items: options,
+        initialItems: selectedValues,
         listItemBuilder: itemBuilder,
         onListChanged: (p0) {
           onChanged(p0);
@@ -218,7 +224,7 @@ class BaseWidgetFactory implements WidgetFactory {
         return CustomDropdown<T>.search(
           items: options,
           listItemBuilder: itemBuilder,
-          initialItem: selectedValue,
+          initialItem: selectedValues.first,
           excludeSelected: false,
           onChanged: (p0) {
             onChanged(p0 != null ? [p0] : []);
@@ -228,7 +234,7 @@ class BaseWidgetFactory implements WidgetFactory {
       return CustomDropdown<T>(
         items: options,
         listItemBuilder: itemBuilder,
-        initialItem: selectedValue,
+        initialItem: selectedValues.first,
         excludeSelected: false,
         onChanged: (p0) {
           onChanged(p0 != null ? [p0] : []);

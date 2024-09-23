@@ -1,4 +1,7 @@
 
+import 'package:flutter/cupertino.dart';
+import 'package:imela_utils/exception/exception_type.dart';
+
 class AppException implements Exception {
   String? message;
   String? code;

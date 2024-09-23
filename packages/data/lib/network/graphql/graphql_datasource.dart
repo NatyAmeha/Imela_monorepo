@@ -1,6 +1,7 @@
 import 'package:ferry/ferry.dart';
 import 'package:flutter/foundation.dart';
-import 'package:imela_data/network/graphql/branch/__generated__/branch_details.req.gql.dart';
+import 'package:imela_data/network/graphql_exception.dart';
+import 'package:imela_utils/exception/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
 enum ApiDataFetchPolicy { cacheFirst, cacheAndNetwork, networkOnly, cacheOnly, noCache }
@@ -70,18 +71,16 @@ class GraphqlDatasource implements IGraphQLDataSource {
           print('graphql errors ${response.graphqlErrors.toString()} ${response.linkException.toString()}');
         }
         // _loggerService.log(LogData(source: "Class name", message: 'Graphql error: ${response.graphqlErrors.toString()}', logLevel: LogLevel.ERROR));
-        throw Exception();
-        // throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
+        throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
       }
       // _loggerService.log(LogData(source: "Class Name", message: 'Graphql response: ${jsonEncode(response.data)}', logLevel: LogLevel.INFO));
       return response.data as T?;
     } catch (e) {
-      throw Exception();
-      // if (e is GraphqlException) {
-      //   rethrow;
-      // }
+      if (e is GraphqlException) {
+        rethrow;
+      }
       // _loggerService.log(LogData(source: "Class name", message: 'Graphql error: ${jsonEncode(response.graphqlErrors)}', logLevel: LogLevel.ERROR));
-      // throw AppException(exception: e, type: type, isMainError: isMainError);
+      throw AppException(exception: e, type: type, isMainError: isMainError);
     }
   }
 }

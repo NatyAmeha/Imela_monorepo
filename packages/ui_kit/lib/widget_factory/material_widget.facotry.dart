@@ -105,6 +105,8 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
       onChanged: (value) {
         onChanged(value);
       },
+      isDense: true,
+      underline: Container(),
       items: options.entries.map((item) {
         return DropdownMenuItem<T>(value: item.key, child: item.value);
       }).toList(),

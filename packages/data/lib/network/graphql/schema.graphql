@@ -185,7 +185,7 @@ type Business {
   description: [LocalizedField!]
   customers: [Customer!]
   deliveryInfo: [DeliveryInfo!]
-  bundles: [ProductBundle!]
+  bundles: [ProductBundle!]!
   paymentOptions: [PaymentOption!]
   priceLists: [PriceList!]
   totalViews: Int
@@ -237,6 +237,7 @@ type BusinessResponse {
   paymentOptions: [PaymentOption!]
   memberships: [BusinessMembership!]
   accesses: [Access!]
+  sections: [BusinessSection!]
 }
 
 type BusinessSection {
@@ -441,7 +442,7 @@ input CreateProductInput {
   sectionId: [String!]
   category: [String!]!
   type: ProductType!
-  inventoryInfo: CreateInventoryInput!
+  inventoryInfo: [CreateInventoryInput!]!
   options: [ProductOptionInput!]
   optionsIncluded: [String!]!
   reviewTopics: [String!]
@@ -817,7 +818,7 @@ type Mutation {
   addPermissionToUserAccess(user: String!, access: String!, permissions: [CreatePermissionInput!]!): [Permission!]!
   removePermissionFromUserAccess(user: String!, access: String!, permissions: [String!]!): Boolean!
   createBusiness(data: CreateBusinessInput!): BusinessResponse!
-  createBusinessSection(businessId: String!, sections: [CreateBusinessSectionInput!]!): BaseResponse!
+  createBusinessSection(businessId: String!, sections: [CreateBusinessSectionInput!]!): BusinessResponse!
   removeBusinessSection(businessId: String!, sectionsId: [String!]!): BaseResponse!
   updateBusinessInfo(businessId: String!, data: UpdateBusinessInput!): BusinessResponse!
   verifyBusinessRegistration(businessId: String!): BusinessResponse!
@@ -854,7 +855,6 @@ type Mutation {
   removeBundleFromBranch(businessId: String!, bundleId: String!, branchIds: [String!]!): BundleResponse!
   deleteProductBundle(businessId: String!, bundleId: String!): BundleResponse!
   updateBusinessProductInfo(businessId: String!, productId: String!, product: UpdateProductInput!): ProductResponse!
-  getBusinessProducts(businessId: String!, page: Float, limit: Float): ProductResponse!
   addProductToBranch(businessId: String!, productIds: [String!]!, branchIds: [String!]!): ProductResponse!
   removeProductFromBranch(businessId: String!, productIds: [String!]!, branchIds: [String!]!): ProductResponse!
 
@@ -1081,6 +1081,7 @@ type PlatformServiceResponse {
   message: String
   code: Int
   service: PlatformService!
+  platformServices: [PlatformService!]!
 }
 
 enum PlatformServiceType {
@@ -1297,6 +1298,7 @@ type Query {
 
   """Get bundle details with products, business, and branches info"""
   getBundleDetail(bundleId: String!): BundleResponse!
+  getBusinessProducts(businessId: String!, page: Float, limit: Float): ProductResponse!
   getBusinessStaffs(businessId: String!): StaffResponse!
   getBranchStaffs(branchId: String!): StaffResponse!
   getForYouData: ForYouResponse!
@@ -1311,7 +1313,7 @@ type Query {
     subscriptionUpdateInfo: SubscriptionUpgradeInput!
   ): SubscriptionUpgradeResponse!
   getBusienssSubscriptionPlans(type: SubscriptionType, owner: String): [SubscriptionPlan!]!
-  getPlatformServices: [PlatformService!]!
+  getPlatformServices: PlatformServiceResponse!
   getMembershipDetails(membershipId: String!): MembershipResponse!
 }
 
@@ -1566,7 +1568,7 @@ input UpdateProductInput {
   sectionId: [String!]
   category: [String!]
   type: ProductType
-  inventoryInfo: CreateInventoryInput
+  inventoryInfo: [CreateInventoryInput!]
   options: [ProductOptionInput!]
   optionsIncluded: [String!]
   reviewTopics: [String!]

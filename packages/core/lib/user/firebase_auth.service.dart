@@ -3,12 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:imela_core/user/model/auth_response.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:injectable/injectable.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+
+import 'package:imela_core/user/model/user.model.dart' as AppUser;
 
 abstract class IAuthService {
   Future<IAuthResponse> signInWithPhoneNumber(String phoneNumber);
   Future<IAuthResponse> verifyPhoneNumber(String verificationId, String smsCode);
   Future<void> signInWithGoogle();
   Future<void> signOut();
+  Future<AppUser.User?> getCurrentUser(String token);
 }
 
 @LazySingleton(as: IAuthService)
@@ -66,6 +70,18 @@ class FirebaseAuthService implements IAuthService {
     } catch (ex) {
       print('error: $ex');
       throw AppException(message: 'An error occured while trying to verify phone number');
+    }
+  }
+
+  // will be moved to a different service
+  @override
+  Future<AppUser.User?> getCurrentUser(String token) async {
+    try {
+      final jwtData = Jwt.parseJwt(token);
+      final user = AppUser.User.FromJwt(jwtData);
+      return user;
+    } catch (e) {
+      throw AppException(message: 'An error occured while trying to get current user');
     }
   }
 

@@ -27,6 +27,11 @@ class AuthResponse with _$AuthResponse implements IAuthResponse {
     }
     return false;
   }
+
+  bool isUserNew() {
+    return isNewUser ?? false;
+  }
+
 }
 
 class FirebaseAuthResponse implements IAuthResponse {

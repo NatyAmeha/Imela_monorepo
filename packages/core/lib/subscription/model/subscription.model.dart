@@ -24,4 +24,5 @@ class Subscription with _$Subscription {
   }) = _Subscription;
 
   factory Subscription.fromJson(Map<String, dynamic> json) => _$SubscriptionFromJson(json);
+
 }

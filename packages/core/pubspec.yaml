@@ -23,6 +23,8 @@ dependencies:
 
   injectable: ^2.4.2
   dartx: ^1.2.0
+  jwt_decode: ^0.3.1
+  excel: ^4.0.6
 
   # local packages
   imela_utils: ^0.1.0

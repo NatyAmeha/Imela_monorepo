@@ -1,0 +1,11 @@
+mutation SigninWithEmail($email: String!, $password: String!) {
+  signInWithEmailAndPassword(
+    email: $email,
+    password: $password
+  ) {
+    success
+    accessToken
+    refreshToken
+    isNewUser
+  }
+}

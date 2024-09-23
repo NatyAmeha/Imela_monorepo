@@ -1,0 +1,15 @@
+mutation createProductPrice($businessId: String!, $productId: String!, $input: [CreateProductPriceInput!]!) {
+    createProductPrice(businessId: $businessId, productId: $productId, input: $input) {
+        success
+		productPrices {
+			id
+			productId
+			branchId
+			price {
+				amount
+				currency
+				id
+			}
+		}
+    }
+}

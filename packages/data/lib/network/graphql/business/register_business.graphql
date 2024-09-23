@@ -1,0 +1,20 @@
+mutation CreateBusiness($businessInput: CreateBusinessInput!) {
+  createBusiness(data: $businessInput) {
+    success
+    business {
+      id
+      name {
+        key
+        value
+      }
+      type
+      categories
+      gallery {
+        images {
+          url
+          featured
+        }
+      }
+    }
+  }
+}

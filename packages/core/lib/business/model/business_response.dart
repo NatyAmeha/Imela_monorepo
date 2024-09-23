@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
+import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/product/model/product.model.dart';
 
 part 'business_response.freezed.dart';
@@ -18,6 +19,7 @@ class BusinessResponse with _$BusinessResponse {
     List<Branch>? branchAdded,
     List<Branch>? branchUpdated,
     List<Product>? products,
+    List<BusinessSection>? sections,
   }) = _BusinessResponse;
 
   // JSON serialization
@@ -25,6 +27,13 @@ class BusinessResponse with _$BusinessResponse {
 
   bool isBusinessDetailFetchSuccessfull() {
     if (success == true && business?.sections?.isNotEmpty == true &&  products?.isNotEmpty == true) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isBusinessListFetchSuccessfull() {
+    if (success == true) {
       return true;
     }
     return false;

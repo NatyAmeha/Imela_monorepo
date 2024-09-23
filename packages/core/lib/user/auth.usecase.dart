@@ -1,7 +1,9 @@
+import 'package:imela_core/user/dto/user_signup_input.dart';
+import 'package:imela_core/user/model/user.model.dart';
+
 import 'firebase_auth.service.dart';
 import 'model/auth_response.dart';
 import 'package:injectable/injectable.dart';
-import 'model/user.response.dart';
 import 'repo/auth.repository.dart';
 
 @injectable
@@ -14,18 +16,30 @@ class AuthUsecase {
     @Named(FirebaseAuthService.injectName) this._authService,
   );
 
-  Future<UserResponse> login(String email, String password) async {
-    return await _authRepo.loginWithEmail(email, password);
+  Future<User?> getCurrentUserInfoFromJwt() async {
+    final authResponse =  await _authRepo.getAuthInfoFromPreference();
+    if (authResponse.accessToken != null) {
+      final userInfo = await _authService.getCurrentUser(authResponse.accessToken!);
+      return userInfo;
+    }
+    return null;
   }
 
-  Future<AuthResponse> getAuthInfoFromPreference(){
-    return _authRepo.getAuthInfoFromPreference();
+  Future<AuthResponse?> signInWithEmailAndPassword(String email, String password) async {
+    final authResponse = await _authRepo.loginWithEmail(email, password);
+    if (authResponse.isSuccessfull) {
+      await _authRepo.saveAuthCredentialToPreference(authResponse);
+    }
+    return authResponse;
+  }
 
+  Future<AuthResponse> getAuthInfoFromPreference() async {
+    return await _authRepo.getAuthInfoFromPreference();
   }
 
   Future<IAuthResponse> continueWithPhoneNumber(String phoneNumber) async {
     final firebaseAuthResponse = await _authService.signInWithPhoneNumber(phoneNumber) as FirebaseAuthResponse;
-    if(firebaseAuthResponse.authenticated){
+    if (firebaseAuthResponse.authenticated) {
       final apiResponse = await _authRepo.signinOrSignupUsingPhoneNumber(phoneNumber);
       return apiResponse;
     }
@@ -33,17 +47,25 @@ class AuthUsecase {
     return firebaseAuthResponse;
   }
 
-  Future<AuthResponse> verifyPhoneNumber(String phoneNumber,  String verificationId, String smsCode) async {
+  Future<AuthResponse> verifyPhoneNumber(String phoneNumber, String verificationId, String smsCode) async {
     final firebaseAuthResponse = await _authService.verifyPhoneNumber(verificationId, smsCode) as FirebaseAuthResponse;
-    if(firebaseAuthResponse.authenticated){
+    if (firebaseAuthResponse.authenticated) {
       final apiResponse = await _authRepo.signinOrSignupUsingPhoneNumber(phoneNumber);
       return apiResponse;
     }
     return const AuthResponse(success: false, message: 'An error occured while trying to sign in with phone number');
   }
 
-  Future<UserResponse> register(String email, String password) async {
-    // return await _authRepo.register(email, password);
-    throw UnimplementedError();
+  Future<AuthResponse> register(String firstName, String email, String password) async {
+    final signupInfo = UserEmailSignupInput.getEmailSignupInput(firstName, email, password);
+    final authResponse = await _authRepo.registerUser(signupInfo);
+    if (authResponse.isSuccessfull) {
+      await _authRepo.saveAuthCredentialToPreference(authResponse);
+    }
+    return authResponse;
+  }
+
+  Future<bool> logout() async {
+    return await _authRepo.removeAuthCredentialFromPreference();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,9 @@ import 'package:imela_admin/ui/business_registration/business_signin_page.dart';
 import 'package:imela_admin/ui/business_registration/registration_page.dart';
 import 'package:imela_admin/ui/business_subscription/platform_service_list_page.dart';
 import 'package:imela_admin/ui/dashboard/dashboard_page.dart';
+import 'package:imela_admin/ui/dashboard/home_page.dart';
+import 'package:imela_admin/ui/product/create_product_page.dart';
+import 'package:imela_admin/ui/product/product_list/product_list_page.dart';
 import 'package:imela_core/subscription/model/platform_service.model.dart';
 import 'package:injectable/injectable.dart';
 
@@ -39,10 +43,12 @@ class GoRouterService implements IRoutingService {
 
   static final GoRouter routes = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: DashboardPage.routeName,
+    initialLocation: BusinessListPage.routeName,
     redirect: (context, state) async {},
     observers: [customNavigatorObserver],
     routes: [
+      GoRoute(path: HomePage.routeName, builder: (context, state) => HomePage()),
+      GoRoute(path: ProductListPage.routeName, builder: (context, state) => ProductListPage()),
       GoRoute(path: DashboardPage.routeName, builder: (context, state) => const DashboardPage()),
       GoRoute(path: BusinessSignupPage.routeName, builder: (context, state) => const BusinessSignupPage()),
       GoRoute(path: BusinessSignInPage.routeName, builder: (context, state) => const BusinessSignInPage()),
@@ -57,6 +63,13 @@ class GoRouterService implements IRoutingService {
         },
       ),
       GoRoute(path: BusinessListPage.routeName, builder: (context, state) => const BusinessListPage()),
+      GoRoute(
+          path: CreateProductPage.routeName,
+          builder: (context, state) {
+            final arguments = state.extra as Map<String, dynamic>;
+            final business = arguments[CreateProductPage.businessArgKey];
+            return CreateProductPage(selectedBusiness: business);
+          }),
     ],
   );
   @override

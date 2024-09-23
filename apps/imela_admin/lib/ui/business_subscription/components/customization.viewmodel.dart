@@ -17,9 +17,14 @@ class CustomizationViewmodel extends GetxController with BaseViewmodel {
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
-    customizationCategories.value = data!['customizationCategories'];
-
-    applyDefaultCustomization();
+    Future.delayed(Duration.zero, () {
+      selectedCustomization.clear();
+      customizationCategories.value = data!['customizationCategories'];
+      final applyDefaultCustomization = data['applyDefaultCustomization'] ?? true;
+      if (applyDefaultCustomization) {
+        applyDefaultCustomization();
+      }
+    });
   }
 
   void applyDefaultCustomization() {
@@ -28,8 +33,7 @@ class CustomizationViewmodel extends GetxController with BaseViewmodel {
       final defaultCustomization = category.customizations!.where((element) => element.defaultValue).firstOrNull ?? category.customizations!.first;
       if (category.selectionType == CustomizationSelectionType.SINGLE_SELECTION.name) {
         updateSingleSelectioncustomization(category.id!, defaultCustomization.id!);
-      }
-      else {
+      } else {
         updateMultiSelectioncustomization(category.id!, defaultCustomization.id!);
       }
     }
@@ -38,8 +42,6 @@ class CustomizationViewmodel extends GetxController with BaseViewmodel {
   List<String> getSelectedCustomizationForCategory(String categoryId) {
     return selectedCustomization[categoryId] ?? [];
   }
-
-
 
   void updateSingleSelectioncustomization(String categoryId, String customizationId) {
     final key = selectedCustomization.keys.firstWhereOrNull((key) => key == categoryId);
@@ -63,7 +65,7 @@ class CustomizationViewmodel extends GetxController with BaseViewmodel {
     } else {
       selectedCustomization.addAll({
         categoryId: [customizationId]
-      }); 
+      });
     }
     selectedCustomization.refresh();
   }

@@ -22,6 +22,7 @@ class AppModalSheet {
       (index, page) {
         return SliverWoltModalSheetPage(
           navBarHeight: 40,
+          // backgroundColor: Colors.white,
           leadingNavBarWidget: page.leading ??
               (index > 0
                   ? CircleAvatar(
@@ -64,6 +65,7 @@ class AppModalSheet {
     );
     return await WoltModalSheet.show(
       context: context,
+      
       barrierDismissible: dimissable,
       modalTypeBuilder: (context) => Responsive.isSmallScreen(context) ? WoltModalType.bottomSheet() : WoltModalType.sideSheet(),
       pageListBuilder: (modContext) {
@@ -90,6 +92,7 @@ class AppModalSheet {
       SliverWoltModalSheetPage(
         navBarHeight: 40,
         topBarTitle: page.title,
+        backgroundColor: Theme.of(context).drawerTheme.backgroundColor,
         leadingNavBarWidget: CircleAvatar(
           radius: 15,
           backgroundColor: Colors.grey,

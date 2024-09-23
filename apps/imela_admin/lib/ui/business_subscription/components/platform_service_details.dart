@@ -7,11 +7,11 @@ import 'package:imela_admin/ui/business_subscription/platform_service.viewmodel.
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/subscription/model/platform_service.model.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
+import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 
 class PlatformServiceDetails extends StatefulWidget {
   final PlatformService platformService;
-  final bool isEditMode;
-  const PlatformServiceDetails({super.key, required this.platformService, this.isEditMode = false});
+  const PlatformServiceDetails({super.key, required this.platformService});
 
   @override
   State<PlatformServiceDetails> createState() => _PlatformServiceDetailsState();
@@ -22,10 +22,10 @@ class _PlatformServiceDetailsState extends State<PlatformServiceDetails> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Future.delayed(Duration.zero, () {
       platformServiceViewmodel.updateSelectedPricingOption(widget.platformService.selectedSubscriptionRenewal);
+      platformServiceViewmodel.updateSelectedCustomizations(widget.platformService.selectedCustomization);
     });
   }
 
@@ -40,34 +40,35 @@ class _PlatformServiceDetailsState extends State<PlatformServiceDetails> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               widgetFactory.createCard(
-                height: 100,
                 width: double.infinity,
                 color: Theme.of(context).colorScheme.primaryContainer,
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     widgetFactory.createText(context, widget.platformService.name.localize('English'), style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 8),
-                    widgetFactory.createText(context, widget.platformService.getBasePriceString("ETB"), style: Theme.of(context).textTheme.bodyMedium),
+                    widgetFactory.createText(context, widget.platformService.getBasePriceString("ETB"), style: Theme.of(context).textTheme.titleSmall, color: Theme.of(context).colorScheme.tertiary),
+                    const SizedBox(height: 16),
+                    widgetFactory.createText(context, widget.platformService.description.localize('English'), style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              widgetFactory.createText(context, widget.platformService.description.localize('English'), style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               widgetFactory.createText(context, 'Features', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 16),
               AppListView(
                 shrinkWrap: true,
                 items: widget.platformService.features!,
                 itemBuilder: (context, feature, index) {
                   return Row(
                     children: [
-                      widgetFactory.createIcon(materialIcon: Icons.check_circle, color: Theme.of(context).colorScheme.primary),
+                      widgetFactory.createIcon(materialIcon: Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.primary),
                       const SizedBox(width: 16),
-                      Expanded(child: widgetFactory.createText(context, '${feature.value}', style: Theme.of(context).textTheme.bodyMedium)),
+                      Expanded(child: widgetFactory.createText(context, '${feature.value}', style: Theme.of(context).textTheme.labelMedium)),
                     ],
-                  );
+                  ).withPaddingSymetric(vertical: 4);
                 },
               ),
               const SizedBox(height: 32),
@@ -85,7 +86,7 @@ class _PlatformServiceDetailsState extends State<PlatformServiceDetails> {
                       () => SubscriptionRenewalListItem(
                         selectedPricingOptionId: platformServiceViewmodel.selectedPricingOptionId,
                         subscriptionRenewal: item,
-                        basePrice: 400,
+                        basePrice: widget.platformService.basePrice!,
                         width: 220,
                         onSelected: () {
                           platformServiceViewmodel.updateSelectedPricingOption(item);
@@ -101,34 +102,35 @@ class _PlatformServiceDetailsState extends State<PlatformServiceDetails> {
               if (widget.platformService.customizationCategories?.isNotEmpty == true) ...[
                 PlatformServcieCustomizationSelector(
                   customizationCategories: widget.platformService.customizationCategories!,
+                  applyDefaultCustomization: !platformServiceViewmodel.isSelectedServiceInEditMode.value,
                   onCustomizationSelected: (selectedCustomizations) {
                     platformServiceViewmodel.addToSelectedCustomization(selectedCustomizations);
                   },
                 ),
               ],
               const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(child: widgetFactory.createText(context, 'ETB 450 ', style: Theme.of(context).textTheme.titleLarge)),
-                  Expanded(
-                    child: widgetFactory.createButton(
-                      context: context,
-                      content: Text(widget.isEditMode ? 'Edit Service' : 'Add Service'),
-                      onPressed: () {
-                        handleEditOrAddClick();
-                      },
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(child: widgetFactory.createText(context, platformServiceViewmodel.getTotalPriceForSelectedService, style: Theme.of(context).textTheme.titleLarge)),
+                    Expanded(
+                      child: widgetFactory.createButton(
+                        context: context,
+                        content: Text(platformServiceViewmodel.saveOrEditButtonString),
+                        onPressed: platformServiceViewmodel.canEnableContinueBtn
+                            ? () {
+                                platformServiceViewmodel.handleEditOrAddClick(context, widget.platformService);
+                              }
+                            : null,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
       ],
     );
-  }
-
-  void handleEditOrAddClick() {
-    widget.isEditMode ? platformServiceViewmodel.editSelectedPlatformService(widget.platformService) : platformServiceViewmodel.addToSelectedPlatformServices(context, widget.platformService);
   }
 }

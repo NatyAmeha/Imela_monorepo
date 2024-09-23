@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela_admin/app/app_viewmodel.dart';
 import 'package:imela_admin/injection.dart';
-import 'package:imela_admin/ui/dashboard/dashboard.viewmodel.dart';
+import 'package:imela_admin/ui/dashboard/homepage.viewmodel.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_ui_kit/components/image/image_uploader.dart';
 
 class DashboardPage extends StatefulWidget {
-  static const String routeName = '/dashboard';
   static const String baseRoute = '/business';
+  static const String routeName = '$baseRoute/:id/dashboard';
   static const String routeNameBeta = '$baseRoute/:id/dashboard';
-  final DashboardViewmodel? dashboardViewmodel;
+  final HomePageViewmodel? dashboardViewmodel;
   const DashboardPage({super.key, this.dashboardViewmodel});
 
   @override
@@ -23,7 +23,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  DashboardViewmodel get viewmodel => widget.dashboardViewmodel ?? Get.put(getIt<DashboardViewmodel>());
+  HomePageViewmodel get viewmodel => widget.dashboardViewmodel ?? Get.put(getIt<HomePageViewmodel>());
 
   @override
   void initState() {
@@ -35,6 +35,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     final appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
+      appBar: AppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

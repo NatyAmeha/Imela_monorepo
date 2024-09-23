@@ -8,11 +8,13 @@ import 'package:imela_ui_kit/components/list/listview.component.dart';
 
 class PlatformServcieCustomizationSelector extends StatefulWidget {
   final List<CustomizationCategory> customizationCategories;
+  final bool applyDefaultCustomization;
   final Function(Map<String, List<String>> selectedCustomizations)? onCustomizationSelected;
   const PlatformServcieCustomizationSelector({
     super.key,
     required this.customizationCategories,
     this.onCustomizationSelected,
+    this.applyDefaultCustomization = true,
   });
 
   @override
@@ -28,7 +30,7 @@ class _PlatformServcieCustomizationSelectorState extends State<PlatformServcieCu
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
-      customizationViewmodel.initViewmodel(data: {'customizationCategories': widget.customizationCategories});
+      customizationViewmodel.initViewmodel(data: {'customizationCategories': widget.customizationCategories, 'applyDefaultCustomization': widget.applyDefaultCustomization});
     });
   }
 

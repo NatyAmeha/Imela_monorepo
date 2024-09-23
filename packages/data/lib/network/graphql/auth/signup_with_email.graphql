@@ -1,0 +1,8 @@
+mutation SignUpWithEmail($signUpInfo : SignupInput!){
+    createUserAccountUsingEmailPassword(signup : $signUpInfo){
+        success
+        accessToken
+        refreshToken
+        isNewUser
+    }
+}

@@ -8,6 +8,7 @@ class MultiInputTextfield extends StatefulWidget {
   final Map<String, String> values;
   final String selectedKey;
   final String? hintText;
+  final double? width;
   final TextInputViewmodel viewmodel;
   final Function(Map<String, String>)? onfinish;
 
@@ -17,6 +18,7 @@ class MultiInputTextfield extends StatefulWidget {
     required this.viewmodel,
     required this.values,
     required this.selectedKey,
+    this.width = double.infinity,
     this.hintText,
     this.onfinish,
   });
@@ -26,11 +28,10 @@ class MultiInputTextfield extends StatefulWidget {
 }
 
 class _MultiInputTextfieldState extends State<MultiInputTextfield> {
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, (){
+    Future.delayed(Duration.zero, () {
       widget.viewmodel.setOptions(widget.values, widget.selectedKey);
     });
   }
@@ -39,22 +40,35 @@ class _MultiInputTextfieldState extends State<MultiInputTextfield> {
   Widget build(BuildContext context) {
     return Obx(
       () => Focus(
-        onFocusChange: (value){
+        onFocusChange: (value) {
           widget.onfinish?.call(widget.viewmodel.options);
         },
-        child: widget.widgetFactory.createTextField(
-          controller: widget.viewmodel.controller,
-          hintText: widget.hintText ?? 'Enter value',
-          onChanged: (vlaue) {
-            widget.viewmodel.updateSelectedKeyValue(vlaue);
-          },
-          suffixIcon: widget.widgetFactory.createDropDown(
-            context: context,
-            value: widget.viewmodel.selectedKey.value,
-            options: widget.viewmodel.getOptionsUI(context),
-            onChanged: (value) {
-              widget.viewmodel.updateSelectedKey(value);
+        child: SizedBox(
+          width: widget.width,
+          child: widget.widgetFactory.createTextField(
+            controller: widget.viewmodel.controller,
+            decoration: InputDecoration(
+                suffix: widget.widgetFactory.createDropDown(
+                  context: context,
+                  value: widget.viewmodel.selectedKey.value,
+                  options: widget.viewmodel.getOptionsUI(context),
+                  onChanged: (value) {
+                    widget.viewmodel.updateSelectedKey(value);
+                  },
+                ),
+                border: OutlineInputBorder()),
+            hintText: widget.hintText ?? '   ',
+            onChanged: (vlaue) {
+              widget.viewmodel.updateSelectedKeyValue(vlaue);
             },
+            suffixIcon: widget.widgetFactory.createDropDown(
+              context: context,
+              value: widget.viewmodel.selectedKey.value,
+              options: widget.viewmodel.getOptionsUI(context),
+              onChanged: (value) {
+                widget.viewmodel.updateSelectedKey(value);
+              },
+            ),
           ),
         ),
       ),

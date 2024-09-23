@@ -2,6 +2,7 @@
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_core/shared/price.model.dart';
 import 'package:imela_data/network/graphql/__generated__/schema.schema.gql.dart';
 
 extension LanguageKey on String? {
@@ -30,6 +31,38 @@ extension LanguageKey on String? {
       return GPaymentOptionType.FULL_PAYMENT;
     }
   }
+
+  GCurrencyKey? get toCurrencyKeyInput {
+    if (this == null) return null;
+
+    if (this == GCurrencyKey.USD.name) {
+      return GCurrencyKey.USD;
+    } else if (this == GCurrencyKey.ETB.name) {
+      return GCurrencyKey.ETB;
+    } else {
+      return GCurrencyKey.ETB;
+    }
+  }
+
+  GAddonInputType? get toAddonInputType {
+    if (this == null) return null;
+
+    if (this == GAddonInputType.NUMBER_INPUT.name) {
+      return GAddonInputType.NUMBER_INPUT;
+    } else if (this == GAddonInputType.SINGLE_SELECTION_INPUT.name) {
+      return GAddonInputType.SINGLE_SELECTION_INPUT;
+    } else if (this == GAddonInputType.MULTIPLE_SELECTION_INPUT) {
+      return GAddonInputType.MULTIPLE_SELECTION_INPUT;
+    } else if (this == GAddonInputType.DATE_TIME_INPUT.name) {
+      return GAddonInputType.DATE_TIME_INPUT;
+    } else if (this == GAddonInputType.TEXT_INPUT.name) {
+      return GAddonInputType.TEXT_INPUT;
+    } else if (this == GAddonInputType.DATE_INPUT.name) {
+      return GAddonInputType.DATE_INPUT;
+    } else {
+      return GAddonInputType.TEXT_INPUT;
+    }
+  }
 }
 
 extension LocalizedFieldInput on List<LocalizedField> {
@@ -39,6 +72,16 @@ extension LocalizedFieldInput on List<LocalizedField> {
             ..key = e.key.toLanguageKeyInput
             ..value = e.value,
         )).toList();
+  }
+}
+
+extension PriceInput on List<Price>? {
+  List<GPriceInput> toPriceInput() {
+    if (this == null || this!.isEmpty) return [];
+    return this!.map((e) => GPriceInput((price) => price
+      ..amount = e.amount
+      ..currency = e.currency.toCurrencyKeyInput
+      )).toList();
   }
 }
 
@@ -100,3 +143,11 @@ extension GraphqlPaymentOptionInput on List<PaymentOption>? {
         .toList();
   }
 }
+
+class GraphqlInputUtils {
+  static GDateTimeBuilder toDateTimeInput(GDateTimeBuilder b){
+     b.value = DateTime.now().toIso8601String();
+     return b;
+  }
+}
+

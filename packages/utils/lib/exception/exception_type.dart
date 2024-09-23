@@ -1,0 +1,3 @@
+enum ExceptionType { USER_OWNED_BUSINESS_NOT_FOUND }
+
+enum ExceptionTypeActionKey { TRY_AGAIN_ACTION_KEY, CREATE_NEW_BUSINESS }

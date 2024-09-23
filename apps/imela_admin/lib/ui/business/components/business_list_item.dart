@@ -12,6 +12,7 @@ class BusinessListItem extends StatelessWidget {
   final double imageHeight;
   final double? height;
   final Function? onSelected;
+  final String callToActionString;
   const BusinessListItem({
     super.key,
     required this.business,
@@ -19,6 +20,7 @@ class BusinessListItem extends StatelessWidget {
     this.height,
     this.imageHeight = 100.0,
     this.onSelected,
+    required this.callToActionString,
   });
 
   String get selectedLanguage => AppViewmodel.getInstance().selectedLanguage;
@@ -50,7 +52,7 @@ class BusinessListItem extends StatelessWidget {
                 const SizedBox(height: 16),
                 widgetFactory.createButton(
                   context: context,
-                  content: const Text('Go to Business'),
+                  content: Text(callToActionString),
                   onPressed: () {
                     onSelected?.call();
                   },

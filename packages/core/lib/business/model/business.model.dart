@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
@@ -12,6 +13,13 @@ import 'package:imela_core/shared/localized_field.model.dart';
 
 part 'business.model.freezed.dart';
 part 'business.model.g.dart';
+
+enum BusinessRegistrationStages {
+  CREATED,
+  SERVICE_SELECTED,
+  PAYMENT_STAGE,
+  COMPLETED,
+}
 
 @freezed
 class Business extends BaseModel with _$Business {
@@ -57,9 +65,15 @@ class Business extends BaseModel with _$Business {
     Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 4')], createdAt: DateTime.now(), isActive: true),
   ];
 
+  BusinessRegistrationStages get getBusinessStage{
+    return BusinessRegistrationStages.values.firstWhereOrNull((e) => e.name == stage) ?? BusinessRegistrationStages.CREATED;
+  }
+
+  bool get isBusinessCreated => stage == BusinessRegistrationStages.CREATED.toString();
+  bool get isBusinessInPaymentStage => stage == BusinessRegistrationStages.PAYMENT_STAGE.toString();
+  bool get isBusinessRegistrationCompleted => stage == BusinessRegistrationStages.COMPLETED.toString();
+
   String? getLocalizedBusinessName(String locale) {
     return name?.localize(locale);
   }
-
 }
-

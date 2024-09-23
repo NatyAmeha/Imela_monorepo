@@ -1,0 +1,38 @@
+mutation CreateProduct($businessId: String!, $input: [CreateProductInput!]!) {
+	createBusinessProducts(businessId: $businessId, productInfo: $input) {
+		success
+		message
+		products {
+			id
+
+			type
+			name {
+				key
+				value
+			}
+			description {
+				key
+				value
+			}
+			gallery {
+				images {
+					url
+					featured
+				}
+			}
+			tag
+			category
+			callToAction
+			createdAt
+			updatedAt
+			canOrderOnline
+			options {
+				key
+				value
+			}
+			loyaltyPoint
+			businessId
+			isActive
+			}
+	}
+}

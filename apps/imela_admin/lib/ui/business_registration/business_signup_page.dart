@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imela_admin/app/app_viewmodel.dart';
-import 'package:imela_admin/ui/business_registration/viewmodel.business_registration.dart';
+import 'package:imela_admin/ui/business_registration/auth.viewmodel.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -13,14 +14,22 @@ class BusinessSignupPage extends StatefulWidget {
   @override
   State<BusinessSignupPage> createState() => _BusinessSignupPageState();
 
-  static void navigate(BuildContext context) {
+  static void navigate(BuildContext context, {bool replaceRoute = false}) {
     final router = AppViewmodel.getInstance().appRouter;
-    router.navigateTo(context, routeName);
+    router.navigateTo(context, routeName, replace: replaceRoute);
   }
 }
 
 class _BusinessSignupPageState extends State<BusinessSignupPage> {
   BusinessAuthViewmodel get viewmodel => BusinessAuthViewmodel.getInstance();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    viewmodel.initViewmodel(data: {'context': context});
+  }
+
   @override
   Widget build(BuildContext context) {
     final appWidgetFactory = WidgetFactory(Theme.of(context).platform);
@@ -39,7 +48,7 @@ class _BusinessSignupPageState extends State<BusinessSignupPage> {
                 border: Border.all(color: Theme.of(context).colorScheme.primaryContainer),
                 height: 200, // viewmodel.signupHeaderCard(context),
                 color: Theme.of(context).colorScheme.primaryContainer,
-                width: MediaQuery.sizeOf(context).width ,
+                width: MediaQuery.sizeOf(context).width,
                 child: const SizedBox(),
               ),
             ),
@@ -60,13 +69,21 @@ class _BusinessSignupPageState extends State<BusinessSignupPage> {
                     const SizedBox(height: 8),
                     appWidgetFactory.createText(context, 'Regisster with you email', style: Theme.of(context).textTheme.labelMedium),
                     const SizedBox(height: 16),
+                    appWidgetFactory.createTextField(controller: viewmodel.firstNameController, hintText: 'Enter you First name'),
+                    const SizedBox(height: 16),
                     appWidgetFactory.createTextField(controller: viewmodel.emailController, hintText: 'Enter you email'),
                     const SizedBox(height: 16),
                     appWidgetFactory.createTextField(controller: viewmodel.passwordController, hintText: 'Enter you password'),
                     const SizedBox(height: 40),
-                    appWidgetFactory.createButton(context: context, content: const Text('Sign up'), onPressed: () {
-                      viewmodel.navigateToBusinessRegistrationPage(context);
-                    }),
+                    Obx(
+                      () => appWidgetFactory.createButton(
+                          context: context,
+                          content: const Text('Sign up'),
+                          isLoading: viewmodel.isLoading.value,
+                          onPressed: () {
+                            viewmodel.registerWithEmail(context);
+                          }),
+                    ),
                     const Divider(),
                     appWidgetFactory.createText(context, 'or', textAlign: TextAlign.center),
                     const SizedBox(height: 16),

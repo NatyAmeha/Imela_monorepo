@@ -35,14 +35,12 @@ class AppListView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (header != null) ...[
-          header!,
-        ],
-        if (shrinkWrap) ...[
+    if (shrinkWrap) {
+      return Column(
+        children: [
+          if (header != null) ...[
+            header!,
+          ],
           SizedBox(
             height: height,
             width: width,
@@ -62,27 +60,25 @@ class AppListView<T> extends StatelessWidget {
               },
             ),
           ),
-        ] else ...[
-          Expanded(
-            child: Obx(
-              () => ListView.separated(
-                primary: primary,
-                physics: !primary ? const NeverScrollableScrollPhysics() : null,
-                scrollDirection: scrollDirection,
-                padding: padding,
-                itemCount: controller?.items.length ?? items!.length,
-                separatorBuilder: (context, index) => separator,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: contentPadding,
-                    child: itemBuilder(context, controller?.items.elementAt(index) ?? items![index], index),
-                  );
-                },
-              ),
-            ),
-          ),
-        ]
-      ],
-    );
+        ],
+      );
+    } else {
+      return Expanded(
+        child: ListView.separated(
+          primary: primary,
+          physics: !primary ? const NeverScrollableScrollPhysics() : null,
+          scrollDirection: scrollDirection,
+          padding: padding,
+          itemCount: controller?.items.length ?? items!.length,
+          separatorBuilder: (context, index) => separator,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: contentPadding,
+              child: itemBuilder(context, controller?.items.elementAt(index) ?? items![index], index),
+            );
+          },
+        ),
+      );
+    }
   }
 }

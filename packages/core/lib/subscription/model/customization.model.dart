@@ -38,4 +38,9 @@ class Customization with _$Customization {
   bool isSelected(List<String> selectedCustomizationId){
     return selectedCustomizationId.contains(id);
   }
+
+  String? additionalPriceString(){
+    if(additionalPrice == null || additionalPrice == 0) return null;
+    return '+${additionalPrice!.toStringAsFixed(2)}';
+  }
 }

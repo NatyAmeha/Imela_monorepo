@@ -26,7 +26,7 @@ class CustomizationList extends StatelessWidget {
           shrinkWrap: true,
           items: customizationCategory.customizations!,
           itemBuilder: (context, customization, index) {
-            if(customizationCategory.selectionType == CustomizationSelectionType.SINGLE_SELECTION.name) {
+            if (customizationCategory.selectionType == CustomizationSelectionType.SINGLE_SELECTION.name) {
               return _buildRadioListTile(context, customization);
             } else {
               return _buildCheckboxListTile(context, customization);
@@ -41,6 +41,7 @@ class CustomizationList extends StatelessWidget {
     return widgetFactory.createRadioListTile(
       context,
       title: customization.name.localize(selectedLanguage),
+      subtitle: customization.additionalPriceString(),
       value: customization.id,
       groupValue: selectedCustomizationIds.firstOrNull,
       onChanged: (value) {
@@ -53,6 +54,7 @@ class CustomizationList extends StatelessWidget {
     return widgetFactory.createCheckboxListTile(
       context,
       title: customization.name.localize(selectedLanguage),
+      subtitle: customization.additionalPriceString(),
       value: customization.isSelected(selectedCustomizationIds),
       onChanged: (value) {
         onCustomizationSelected(customization.id!, true);

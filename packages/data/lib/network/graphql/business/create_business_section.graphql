@@ -1,0 +1,13 @@
+mutation CreateBusinessSection($businessId: String!, $sections: [CreateBusinessSectionInput!]!) {
+    createBusinessSection(businessId: $businessId, sections: $sections) {
+        success
+		message
+		sections {
+			id
+			name {
+				key
+				value
+			}
+		}
+    }
+}

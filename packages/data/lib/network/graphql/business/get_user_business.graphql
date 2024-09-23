@@ -1,0 +1,29 @@
+query GetUserBusiness{
+    getUserBusinesses {
+		success
+		businesses {
+			id
+			categories
+			isActive
+			stage
+			name {
+				key
+				value
+			}
+			createdAt
+			gallery {
+				images {
+					url
+					featured
+				}
+			}
+			sections {
+				id
+				name {
+					key
+					value
+				}
+			}
+		}
+	}
+}

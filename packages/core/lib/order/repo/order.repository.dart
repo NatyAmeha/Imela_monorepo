@@ -55,7 +55,10 @@ class OrderRepository implements IOrderRepository {
       ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy));
     final result = await _graphQLDataSource.request<GCreateOrderData>(request, type: 'CREATE_ORDER', isMainError: true);
     if (result?.placeOrderFromOnlineStore == null) {
-      throw GraphqlException(message: 'Unable to create Order', type: 'CREATE_ORDER',);
+      throw GraphqlException(
+        message: 'Unable to create Order',
+        type: 'CREATE_ORDER',
+      );
     }
     return OrderResponse.fromJson(result!.placeOrderFromOnlineStore.toJson());
   }

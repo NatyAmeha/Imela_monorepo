@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 
 part 'subscription_renewal.model.freezed.dart';
 part 'subscription_renewal.model.g.dart';
@@ -17,4 +18,17 @@ class SubscriptionRenewal with _$SubscriptionRenewal {
   }) = _SubscriptionRenewal;
 
   factory SubscriptionRenewal.fromJson(Map<String, dynamic> json) => _$SubscriptionRenewalFromJson(json);
+
+  double getTotalPrice(double basePrice) {
+    if (trialPeriod > 0) {
+      return 0;
+    } else {
+      return (basePrice.getPercentage(discountAmount.toDouble())) * (duration / 30);
+    }
+  }
+
+  String getTotalPriceString(double basePrice) {
+    final totalPrice = getTotalPrice(basePrice);
+    return 'ETB $totalPrice';
+  }
 }

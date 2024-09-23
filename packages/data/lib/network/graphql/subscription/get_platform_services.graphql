@@ -1,0 +1,58 @@
+query GetPlatformServices{
+    getPlatformServices {
+        success
+        message
+        platformServices{
+            id
+            name {
+                key
+                value
+            }
+            description {
+                key
+                value
+            }
+            type
+            basePrice
+            features {
+                key
+                value
+            }
+            image
+            customizationCategories {
+                id
+                name {
+                    key
+                    value
+                }
+                description {
+                    key
+                    value
+                }
+                selectionType
+                customizations {
+                    id
+                    name {
+                    key
+                    value
+                    }
+                    actionIdentifier
+                    value
+                    additionalPrice
+                    default
+                }
+                selectionRequired
+                }
+                subscriptionRenewalInfo {
+                id
+                name {
+                    key
+                    value
+                }
+                duration
+                trialPeriod
+                discountAmount
+            }
+        }
+    }
+}

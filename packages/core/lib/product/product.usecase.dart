@@ -1,3 +1,4 @@
+import 'package:imela_core/product/dto/create_product.input.dart';
 import 'package:imela_core/product/model/product_response.dart';
 import 'package:imela_core/product/repo/product.repository.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
@@ -8,6 +9,14 @@ class ProductUsecase {
   final IProductRepository _productRepository;
 
   const ProductUsecase(@Named(ProductRepository.injectName) this._productRepository);
+
+  Future<ProductResponse?> getBusinessProducts(String businessId, {int page = 1, int pageSize = 20, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
+    return await _productRepository.getBusinessProducts(businessId, page: page, limit: pageSize, fetchPolicy: fetchPolicy);
+  }
+
+  Future<ProductResponse?> createProduct(String businessId, List<CreateProductInput> productInputs) async {
+    return await _productRepository.createProduct(businessId, productInputs);
+  }
 
   Future<ProductResponse?> getProductDetails(String productId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     var result = await _productRepository.getProductDetails(productId, fetchPolicy: fetchPolicy);

@@ -42,9 +42,19 @@ class SubscriptionRenewalListItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              widgetFactory.createText(context, subscriptionRenewal.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleMedium),
-              widgetFactory.createText(context, ' ETB ${basePrice}', style: Theme.of(context).textTheme.titleLarge),
+              widgetFactory.createText(context, subscriptionRenewal.name.localize(selectedLanguage), style: Theme.of(context).textTheme.bodyLarge),
+              widgetFactory.createText(context, subscriptionRenewal.getTotalPriceString(basePrice), style: Theme.of(context).textTheme.titleLarge),
               const Divider(),
+              if (subscriptionRenewal.getTotalPrice(basePrice) == 0) ...[
+                Row(
+                  children: [
+                    widgetFactory.createIcon(materialIcon: Icons.free_breakfast, size: 20, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(child: widgetFactory.createText(context, 'Use for free', style: Theme.of(context).textTheme.bodyMedium)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
               Row(
                 children: [
                   widgetFactory.createIcon(materialIcon: Icons.discount, size: 20, color: Theme.of(context).colorScheme.primary),
@@ -57,7 +67,7 @@ class SubscriptionRenewalListItem extends StatelessWidget {
                 children: [
                   widgetFactory.createIcon(materialIcon: Icons.do_disturb_alt_outlined, size: 20, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(width: 8),
-                  Expanded(child: widgetFactory.createText(context, ' ${subscriptionRenewal.duration} days / 3 month', style: Theme.of(context).textTheme.bodyMedium)),
+                  Expanded(child: widgetFactory.createText(context, ' ${subscriptionRenewal.duration} days', style: Theme.of(context).textTheme.bodyMedium)),
                 ],
               ),
             ],

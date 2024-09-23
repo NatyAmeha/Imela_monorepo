@@ -42,6 +42,7 @@ class AppThemeManager {
         labelSmall: AppTypography.of(context).labelSmall.copyWith(color: ColorManager.secondaryText),
       ),
       dividerTheme: const DividerThemeData(color: ColorManager.primaryBackground, thickness: 1),
+      // drawerTheme: const DrawerThemeData(backgroundColor: ColorManager.primaryBackground),
       appBarTheme: const AppBarTheme().copyWith(
         backgroundColor: ColorManager.alternate,
         centerTitle: true,
