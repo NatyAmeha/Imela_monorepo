@@ -14,6 +14,7 @@ import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/product/model/product_response.dart';
@@ -48,6 +49,13 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   final exception = Rxn<AppException>();
 
   final productDetails = Rxn<ProductResponse>();
+
+  var isAppbarExpanded = true.obs;
+  var selectedProductQty = 1.0.obs;
+  var selectedProductOption = Rxn<Product>();
+  var discounts = <Discount>[].obs;
+
+  // getters
   Product get selectedProduct => selectedProductOption.value ?? productDetails.value!.product!;
   String get productName => productDetails.value?.product?.name.localize('ENGLISH') ?? '';
   String get getProductDescription => productDetails.value?.product?.description?.localize('ENGLISH') ?? '';
@@ -55,11 +63,6 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   Business get businessInfo => productDetails.value!.product!.business!;
   List<PaymentOption> get productPaymentOption => productDetails.value?.product?.business?.paymentOptions ?? [];
 
-  var isAppbarExpanded = true.obs;
-
-  var selectedProductQty = 1.0.obs;
-
-  var selectedProductOption = Rxn<Product>();
   bool get isOptionSelected => productOptions.isNotEmpty ? selectedProductOption.value != null : true;
   bool isProductOptionSelected(Product product) => selectedProductOption.value?.id == product.id;
 
@@ -101,10 +104,9 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
-    print('product detail product viewmodel called');
     super.initViewmodel(data: data);
     productHeaderScrollController = ScrollController();
-
+    addDiscountList(data?['discounts'] as List<Discount>?);
     final productId = data!['id'] as String;
     getProductDetails(productId);
   }
@@ -142,6 +144,10 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
+  void addDiscountList(List<Discount>? discountList) {
+    discounts.addAll(discountList ?? []);
+  }
+
   // view helper methods
 
   List<ProductFeature> getProductFeatures() {
@@ -177,14 +183,15 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
           widgetFactory: widgetFactory,
           scrollController: scrollController,
           productDetailsViewmodel: this,
-          onQtyChange: (newQtyValue) {
-            if (productInfo?.canOrderWithQty(newQtyValue) == true) {
-              selectedProductQty(newQtyValue);
-            }
-          },
-          onContinue: () async {
+          // onQtyChange: (newQtyValue) {
+          //   if (productInfo?.canOrderWithQty(newQtyValue) == true) {
+          //     selectedProductQty(newQtyValue);
+          //   }
+          // },
+          onContinue: (selectedQty, selectedDynamicPRiceDiscounts) async {
             await router.goBack(context);
-            addtoCart(context);
+            final finalDiscounts = [...discounts, ...selectedDynamicPRiceDiscounts];
+            addtoCart(context, qty: selectedQty, selectedCurrency: appController.selectedCurrency.name, selectedDiscounts: finalDiscounts);
           },
         ),
       ),
@@ -193,21 +200,24 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     );
   }
 
-  Future<void> addtoCart(BuildContext context) async {
+  Future<void> addtoCart(BuildContext context, {required double qty, String selectedCurrency = 'ETB', List<Discount> selectedDiscounts = const [],  List<OrderConfig> orderConfigs = const []}) async {
     try {
       isLoading(true);
-      final item = selectedProduct.getOrderItem(selectedProductQty.value, config: productOrderConfig.value);
-      final result = await orderUsecase.addToCart(businessInfo.id!, businessInfo.name!, [item], paymentOptions: productPaymentOption);
+      final originalPrice = selectedProduct.getTotalPriceUpdated(selectedCurrency, qtyInput: qty);
+      final item = selectedProduct.getOrderItem(qty, config: productOrderConfig, originalPrice: originalPrice, selectedCurrency: selectedCurrency, discounts: selectedDiscounts);
+      final result = await orderUsecase.addToCart(businessInfo.id!, businessInfo.name!, [item], paymentOptions: productPaymentOption, orderConfigs: orderConfigs);
       if (result?.success == true && result?.cart != null) {
-        final updatedCart = result!.cart!.addPaymentOption(productPaymentOption);
+        final orderAddons = selectedProduct.business?.getSectionsOrderAddon(selectedProduct.sectionId ?? []);
+        final updatedCart = result!.cart!.addPaymentOption(productPaymentOption).addOrderAddons(orderAddons ?? []);
         AppController.getInstance.addCartToCartList(updatedCart, paymentOptions: productPaymentOption);
+        
         appController.getWidgetFactory(context).showFlashMessage(context, message: 'Item added to cart', actionText: 'View cart', onActinClicked: () {
           CartDetailPage.navigateToCartDetailPage(context, router, updatedCart);
         });
       }
     } catch (e) {
+      print(' add to cart exception  ${e.toString()}');
       exception.value = exceptiionHandler.getException(e as Exception);
-      print(' add to cart exception  ${exception.value?.code} ----- ${e.toString()}');
       if (exception.value?.code == ErrorResourceValues.UnAUTHORIZED_EXCEPTION_CODE) {
         navigateToLoginPage(context);
       }
@@ -216,7 +226,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-void navigateToLoginPage(BuildContext context) {
+  void navigateToLoginPage(BuildContext context) {
     router.navigateTo(context, CartListPage.routeName);
   }
 

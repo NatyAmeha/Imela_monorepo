@@ -1,5 +1,6 @@
 import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 import 'order_config.model.dart';
 import '../../shared/localized_field.model.dart';
 
@@ -17,6 +18,7 @@ class OrderItem with _$OrderItem {
     String? image,
     String? productId,
     double? subTotal,
+    double? total,
     double? tax,
     List<ItemDiscount>? discount,
     List<OrderConfig>? config,
@@ -31,19 +33,19 @@ class OrderItem with _$OrderItem {
   }
 
   double getSubtotal() {
-    return (subTotal ?? 0) * (quantity);
+    return (subTotal ?? 0);
   }
 
   double getTotalDiscountAmount() {
-    return discount?.sumBy((element) => element.amount ?? 0) ?? 0;
+    return (discount?.sumBy((element) => element.amount ?? 0) ?? 0).getPresision(2);
   }
 
   double getTotalTaxAmount() {
-    return tax ?? 0;
+    return (tax ?? 0).getPresision(2);
   }
 
   double get getTotalAmount {
-    return getSubtotal() + getTotalTaxAmount() - getTotalDiscountAmount();
+    return (total ?? 0).getPresision(2);
   }
 }
 

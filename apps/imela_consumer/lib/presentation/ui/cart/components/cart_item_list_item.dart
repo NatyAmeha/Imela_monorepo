@@ -16,6 +16,7 @@ class CartItemListItem extends StatelessWidget {
   final WidgetFactory widgetFactory;
   final String selectedCurrency;
   final Function(double)? onQtyChange;
+  final bool canRemoveItem;
   final Function? onRemove;
   const CartItemListItem({
     super.key,
@@ -23,6 +24,7 @@ class CartItemListItem extends StatelessWidget {
     required this.widgetFactory,
     required this.selectedCurrency,
     this.width = double.infinity,
+    this.canRemoveItem = true,
     this.onQtyChange,
     this.onRemove,
     this.height,
@@ -30,6 +32,7 @@ class CartItemListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('can remove item $canRemoveItem');
     return widgetFactory.createCard(
       padding: const EdgeInsets.all(16),
       width: width,
@@ -64,10 +67,8 @@ class CartItemListItem extends StatelessWidget {
                 context: context,
                 content: const Text('Remove'),
                 style: AppButtonStyle.textButtonStyle(context, padding: const EdgeInsets.all(0), color: ColorManager.error),
-                onPressed: () {
-                  onRemove?.call();
-                },
-              )
+                onPressed: canRemoveItem ? () => onRemove?.call() : null,
+              ),
             ],
           ),
           const SizedBox(height: 8),

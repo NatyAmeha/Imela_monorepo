@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:imela/presentation/resources/values.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class ProductCallToActionBottomComponenet extends StatelessWidget {
@@ -9,6 +11,7 @@ class ProductCallToActionBottomComponenet extends StatelessWidget {
   final Function? onPressed;
   final String? callToActionText;
   final bool enableCallToActionBtn;
+  final List<Discount> discounts;
   const ProductCallToActionBottomComponenet({
     super.key,
     required this.product,
@@ -16,6 +19,7 @@ class ProductCallToActionBottomComponenet extends StatelessWidget {
     this.callToActionText,
     this.onPressed,
     this.enableCallToActionBtn = true,
+    this.discounts = const [],
   });
 
   @override
@@ -31,21 +35,22 @@ class ProductCallToActionBottomComponenet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, 'ETB ${product.totalPrice}', style: Theme.of(context).textTheme.headlineMedium),
-                  widgetFactory.createText(context, '4 options', style: Theme.of(context).textTheme.bodyMedium, textDecoration: TextDecoration.underline),
+                  widgetFactory.createText(context, product.getTotalPriceUpdatedString('ETB'), style: Theme.of(context).textTheme.bodyMedium, textDecoration: TextDecoration.lineThrough),
+                  widgetFactory.createText(context, product.getTotalPriceUpdatedString('ETB', discounts: discounts), style: Theme.of(context).textTheme.titleMedium),
                 ],
-              ),
+              ).showIfTrue(enableCallToActionBtn)
             ),
             const SizedBox(width: 16),
             Expanded(
               child: widgetFactory.createButton(
-                context: context,
-                icon: const Icon(Icons.shopping_cart_sharp),
-                content: Text(callToActionText ?? product.getCallToAction()),
-                onPressed: enableCallToActionBtn ? () {
-                  onPressed?.call();
-                } : null
-              ),
+                  context: context,
+                  icon: const Icon(Icons.shopping_cart_sharp),
+                  content: Text(callToActionText ?? product.getCallToAction()),
+                  onPressed: enableCallToActionBtn
+                      ? () {
+                          onPressed?.call();
+                        }
+                      : null),
             )
           ],
         ));

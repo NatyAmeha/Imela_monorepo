@@ -7,6 +7,7 @@ import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/shared/price_currency.model.dart';
 import 'package:imela_core/user/model/auth_response.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -15,19 +16,19 @@ class AppController extends GetxController {
   static AppController get getInstance {
     return Get.isRegistered<AppController>() ? Get.find<AppController>() : Get.put(AppController());
   }
+  FirebaseAuthResponse? firebaseAuthInfo;
 
   final router = getIt<GoRouterService>(instanceName: GoRouterService.injectNameBeta);
 
   AppLanguage selectedLanguage = AppLanguage.ENGLISH;
-
   Currency selectedCurrency = Currency.ETB;
 
+  var collectedDiscounts  = <Discount>[].obs;
 
-  FirebaseAuthResponse? firebaseAuthInfo;
 
-  static  WidgetFactory? _widgetFactory;
+  static WidgetFactory? _widgetFactory;
   WidgetFactory getWidgetFactory(BuildContext context) {
-    _widgetFactory ??= WidgetFactory(Theme.of(context).platform); 
+    _widgetFactory ??= WidgetFactory(Theme.of(context).platform);
     return _widgetFactory!;
   }
 
@@ -58,6 +59,7 @@ class AppController extends GetxController {
       carts[index] = newCartInfo;
       return carts[index];
     }
+    return null;
   }
 
   Cart? removeItemsFromCartState(String cartId, List<String> productIds) {
@@ -66,13 +68,15 @@ class AppController extends GetxController {
       carts[index] = carts[index].removeItems(productIds);
       return carts[index];
     }
+    return null;
   }
 
   OrderItem? updateCartItem(String cartId, String productId, double qty) {
     final cart = getCartById(cartId);
-    if (cart != null) {
-      var item = cart.updateItemQty(productId, qty);
-      return item;
+    final index = cart?.items?.indexWhere((element) => element.productId == productId);
+    if (index != -1) {
+      cart?.items![index!] = cart.items![index].copyWith(quantity: qty);
+      return cart!.items![index!];
     }
     return null;
   }
@@ -84,10 +88,22 @@ class AppController extends GetxController {
       carts[index] = cart.updateOrderItem(item);
       return carts[index];
     }
+    return null;
   }
 
   void removeCart(String cartId) {
     carts.removeWhere((element) => element.id == cartId);
+  }
+
+  void addDiscounts(List<Discount> discounts, {bool clearPrevious = false}) {
+    if (clearPrevious) {
+      collectedDiscounts.clear();
+    }
+    collectedDiscounts.addAll(discounts);
+  }
+
+  void clearDiscounts() {
+    collectedDiscounts.clear();
   }
 
   void logout(BuildContext context, {String? redirectUrl}) {

@@ -7,23 +7,25 @@ import 'package:imela/presentation/ui/product/product_details/small_screen_produ
 import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela/services/routing_service.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  static const baseRouteName = '/product';
+  static const baseRouteName = '/product'; 
   static const routeName = '$baseRouteName/:id';
 
   final ProductDetailsViewmodel? productDetailViewmodel;
   final String productId;
   final String? productName;
-  const ProductDetailPage({super.key, this.productDetailViewmodel, required this.productId, this.productName});
+  final List<Discount>? discounts;
+  const ProductDetailPage({super.key, this.productDetailViewmodel, required this.productId, this.productName, this.discounts});
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 
-  static void navigate(BuildContext context, IRoutingService router, Product product, {Widget? previousPage}) {
-    router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize('ENGLISH')}', GoRouterService.PREVIOUS_PAGE_KEY: previousPage});
+  static void navigate(BuildContext context, IRoutingService router, Product product, {List<Discount>? discounts}) {
+    router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize('ENGLISH')}', 'discounts': discounts});
   }
 }
 
@@ -32,13 +34,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   void initializeViewmodel() {
     Future.delayed(Duration.zero, () {
-      viewmodel.initViewmodel(data: {'id': widget.productId});
+      viewmodel.initViewmodel(data: {'id': widget.productId, 'discounts': widget.discounts});
     });
   }
 
   @override
   void initState() {
-    print("bundle detail product product product detail page called");
     super.initState();
     initializeViewmodel();
   }

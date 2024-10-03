@@ -32,8 +32,22 @@ class BusinessResponse with _$BusinessResponse {
     return false;
   }
 
+  
+
   bool isBusinessListFetchSuccessfull() {
     if (success == true) {
+      return true;
+    }
+    return false;
+  }
+}
+
+extension BusinessResponseX on BusinessResponse? {
+  bool get isBusinessFetchForPOSSuccessfull {
+    if (this == null) {
+      return false;
+    } 
+    if (this!.success == true && this!.business != null) {
       return true;
     }
     return false;

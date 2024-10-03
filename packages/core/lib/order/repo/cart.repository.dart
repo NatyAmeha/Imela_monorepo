@@ -1,5 +1,6 @@
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/order.response.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/graphql_input_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
@@ -15,7 +16,7 @@ import 'package:injectable/injectable.dart';
 
 abstract class ICartRepository {
   Future<OrderResponse?> getCarts({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
-  Future<OrderResponse> addtoCart(String businessId, List<LocalizedField> cartName, List<OrderItem> items, {List<PaymentOption>? paymentOptions});
+  Future<OrderResponse> addtoCart(String businessId, List<LocalizedField> cartName, List<OrderItem> items, {List<OrderConfig> orderConfigs = const [], List<PaymentOption>? paymentOptions});
   Future<OrderResponse> removeItemsFromCart(String cartId, List<String> productIds);
 }
 
@@ -36,16 +37,17 @@ class CartRepository implements ICartRepository {
   }
 
   @override
-  Future<OrderResponse> addtoCart(String businessId, List<LocalizedField> cartName, List<OrderItem> items, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly, List<PaymentOption>? paymentOptions}) async {
-    
-    final request = GAddToBusinessCartReq((b) => b
-      ..vars.businessId = businessId
-      ..vars.cartInput.update((input) { 
-        input.name.addAll(cartName.toLocalizedFieldInput());
-        input.paymentOptions.addAll(paymentOptions.toPaymentOptionInput());
-        input.items.addAll(items.toOrderItemInput());
-      })
-      ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy));
+  Future<OrderResponse> addtoCart(String businessId, List<LocalizedField> cartName, List<OrderItem> items, {List<OrderConfig> orderConfigs = const [], List<PaymentOption>? paymentOptions}) async {
+    final request = GAddToBusinessCartReq(
+      (b) => b
+        ..vars.businessId = businessId
+        ..vars.cartInput.update((input) {
+          input.name.addAll(cartName.toLocalizedFieldInput());
+          input.paymentOptions.addAll(paymentOptions.toPaymentOptionInput());
+          input.configs.addAll(orderConfigs.toOrderConfigInput());
+          input.items.addAll(items.toOrderItemInput());
+        })
+    );
     final result = await _graphQLDataSource.request<GAddToBusinessCartData>(request, type: 'ADD_TO_CART', isMainError: false);
     if (result == null) {
       throw GraphqlException(

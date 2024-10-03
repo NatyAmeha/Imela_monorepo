@@ -44,7 +44,7 @@ mutation AddToBusinessCart($businessId : String!, $cartInput: CreateCartInput!) 
           addonId
         }
       }
-        }
     }
+  }
 
 }

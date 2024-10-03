@@ -29,6 +29,7 @@ dependencies:
   # local packages
   imela_utils: ^0.1.0
   imela_data: ^0.1.0
+  imela_ui_kit: ^0.1.0
 
 dev_dependencies:
   flutter_test:

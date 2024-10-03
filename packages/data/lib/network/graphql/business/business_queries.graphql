@@ -44,6 +44,14 @@ query GetBusinessDetails($id: String!) {
         }
         productIds
       }
+      discounts {
+        type
+        value
+        condition
+        conditionValue
+        startDate
+        endDate
+      }
       bundles{
         id
         name{
@@ -85,6 +93,14 @@ query GetBusinessDetails($id: String!) {
           featured
           url
         }
+      }
+      discounts {
+        type
+        value
+        condition
+        conditionValue
+        startDate
+        endDate
       }
       inventory {
         qty

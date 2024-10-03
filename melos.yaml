@@ -30,5 +30,5 @@ scripts:
     description: Run `flutter test` in all packages
   build:
     run: |
-      melos clean && melos bootstrap && melos exec -- dart run build_runner build --delete-conflicting-outputs
+      melos clean && melos bootstrap && melos exec flutter pub get && melos exec -- flutter run build_runner watch --delete-conflicting-outputs && melos exec -- flutter gen-l10n
     description: Run build process for all packages

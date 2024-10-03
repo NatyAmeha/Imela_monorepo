@@ -14,7 +14,6 @@ import 'package:imela_utils/exception/app_exception.dart';
 import 'package:injectable/injectable.dart';
 import 'package:imela_core/order/model/order.model.dart' as OrderModel;
 
-
 @injectable
 class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
   final IExceptiionHandler exceptiionHandler;
@@ -43,7 +42,6 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
   double get totalAmount {
     return selectedPaymentOption.value?.currentPayment(cartInfo.value!.getTotalPrice) ?? 0.0;
   }
- 
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
@@ -67,9 +65,9 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
       }
       isLoading(true);
       final orderInfo = OrderModel.Order.createOrderInfo(cartInfo.value!, selectedPaymentOption.value!);
-      var placeOrderResult = await orderUsecase.placeOrder(cartInfo.value!.id!, orderInfo);
+      var placeOrderResult = await orderUsecase.placeOrderForBusiness(cartInfo.value!.businessId!, cartInfo.value!.id!, orderInfo);
       if (placeOrderResult.success == true) {
-        appController.removeCart(cartInfo!.value!.id!);
+        appController.removeCart(cartInfo.value!.id!);
         OrderConfirmationPage.navigate(context, router, placeOrderResult.order!);
       } else {
         errorMessage(placeOrderResult.message);

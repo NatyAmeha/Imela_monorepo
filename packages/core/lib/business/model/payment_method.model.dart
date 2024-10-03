@@ -13,15 +13,18 @@ enum PaymentMethodType {
 
 @freezed
 class PaymentMethod with _$PaymentMethod {
-  const PaymentMethod._(); 
+  const PaymentMethod._();
   factory PaymentMethod({
     String? id,
     List<LocalizedField>? name,
     String? type,
-   
   }) = _PaymentMethod;
 
   factory PaymentMethod.fromJson(Map<String, dynamic> json) => _$PaymentMethodFromJson(json);
+
+  String enteredAmount(Map<String, double> paymentMethodsIdsWithAmount) {
+    return paymentMethodsIdsWithAmount[id]?.toString() ?? '0';
+  }
 
   static List<PaymentMethod> platformPaymentMethods() {
     return [
@@ -29,7 +32,19 @@ class PaymentMethod with _$PaymentMethod {
         id: '1',
         name: [LocalizedField(key: AppLanguage.ENGLISH.name, value: 'Pay using chapa')],
       ),
-    
+    ];
+  }
+
+  static List<PaymentMethod> getFakePaymentMethods() {
+    return [
+      PaymentMethod(
+        id: '2',
+        name: [LocalizedField(key: AppLanguage.ENGLISH.name, value: 'Cash')],
+      ),
+      PaymentMethod(
+        id: '3',
+        name: [LocalizedField(key: AppLanguage.ENGLISH.name, value: 'Mobile Banking')],
+      ),
     ];
   }
 }

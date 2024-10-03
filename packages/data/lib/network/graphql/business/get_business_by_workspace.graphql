@@ -1,0 +1,42 @@
+query GetBusinessByWorkspace($workspace: String!) {
+  getBusinessByWorkspaceUrl(workspaceUrl: $workspace) {
+    success
+    business {
+      id
+      name {
+        key
+        value
+      }
+      workspaceUrl
+      gallery{
+        images{
+          url
+          featured
+        }
+      }
+      isActive
+      sections{
+        id
+        name{
+          key
+          value
+          
+        }
+        productIds
+        images
+      }
+      paymentOptions {
+        id
+        name {
+          key
+          value
+        }
+        type
+        upfrontPayment
+        dueDate
+        dueAfterDays
+      }
+    }
+    
+  }
+} 

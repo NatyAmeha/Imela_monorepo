@@ -17,9 +17,23 @@ class BusinessUsecase {
 
   Future<BusinessResponse?> getBusinessDetails(String businessId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     BusinessResponse? result;
-     result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: fetchPolicy);
-    if(fetchPolicy == ApiDataFetchPolicy.cacheFirst && result?.isBusinessDetailFetchSuccessfull() == false){
+    result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: fetchPolicy);
+    if (fetchPolicy == ApiDataFetchPolicy.cacheFirst && result?.isBusinessDetailFetchSuccessfull() == false) {
       result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    }
+    return result;
+  }
+
+  Future<BusinessResponse?> getBusinessByWorkspaceUrl(String workspaceUrl) async {
+    final result = await _businessRepository.getBusinessByWorkspace(workspaceUrl, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    if (result?.business == null) {
+      throw Exception("Business not found");
+    }
+
+    final posBusiness = result!.business?.toPOSBusinessEntity();
+    final saveToDBResult = await _businessRepository.saveBusinessToDB(workspaceUrl, posBusiness!);
+    if (!saveToDBResult) {
+      throw Exception("Failed to save business to DB");
     }
     return result;
   }
@@ -27,7 +41,7 @@ class BusinessUsecase {
   Future<BusinessResponse?> getUserOwnedBusinesses({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
     BusinessResponse? result;
     result = await _businessRepository.getUserOwnedBusinesses(fetchPolicy: fetchPolicy);
-    if(fetchPolicy == ApiDataFetchPolicy.cacheFirst && result?.isBusinessListFetchSuccessfull() == false){
+    if (fetchPolicy == ApiDataFetchPolicy.cacheFirst && result?.isBusinessListFetchSuccessfull() == false) {
       result = await _businessRepository.getUserOwnedBusinesses(fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
     return result;

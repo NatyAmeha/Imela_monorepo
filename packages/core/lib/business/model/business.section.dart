@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/product/model/product_addon.model.dart';
 import '../../shared/localized_field.model.dart';
 
 part 'business.section.freezed.dart';
@@ -13,6 +14,7 @@ class BusinessSection with _$BusinessSection {
     List<String>? productIds,
     List<String>? images,
     List<LocalizedField>? description,
+    List<ProductAddon>? orderAddons,
   }) = _BusinessSection;
 
   factory BusinessSection.fromJson(Map<String, dynamic> json) => _$BusinessSectionFromJson(json);

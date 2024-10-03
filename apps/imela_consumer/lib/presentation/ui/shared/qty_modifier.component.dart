@@ -9,7 +9,7 @@ class QuantityModifierComponent extends StatelessWidget {
   final double currentQty;
   final bool addQtyDisabled;
   final bool deductQtyDisabled;
-  final Function onQtyChange;
+  final Function(double) onQtyChange;
   final WidgetFactory widgetFactory;
   const QuantityModifierComponent({
     super.key,

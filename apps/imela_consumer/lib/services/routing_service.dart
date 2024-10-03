@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:injectable/injectable.dart';
 
@@ -76,8 +77,8 @@ class GoRouterService implements IRoutingService {
           final productId = state.pathParameters["id"];
           final arguments = state.extra as Map<String, dynamic>;
           final productName = arguments['name'];
-          final prevScreen = arguments[GoRouterService.PREVIOUS_PAGE_KEY] as Widget?;
-          return buildPageWithCustomTransition(state, ProductDetailPage(productId: productId!, productName: productName), previousScreen: prevScreen);
+          final discounts = arguments['discounts'] as List<Discount>?;
+          return buildPageWithCustomTransition(state, ProductDetailPage(productId: productId!, productName: productName, discounts: discounts));
         },
       ),
       GoRoute(

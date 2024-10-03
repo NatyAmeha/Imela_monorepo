@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela/presentation/utils/localization_utils.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
-import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
@@ -18,6 +18,7 @@ class GridProductListItem extends StatelessWidget {
   final bool showBusiness;
   final bool showRemainingItem;
   final bool isSelected;
+  final List<Discount> discounts;
   final Function()? onTap;
   const GridProductListItem({
     super.key,
@@ -28,6 +29,7 @@ class GridProductListItem extends StatelessWidget {
     this.showBusiness = false,
     this.showRemainingItem = true,
     this.isSelected = false,
+    this.discounts = const [],
     this.onTap,
   });
 
@@ -54,8 +56,8 @@ class GridProductListItem extends StatelessWidget {
                   children: [
                     widgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 8),
-                    widgetFactory.createText(context, product.getPrice()?.toSelectedPriceString('ETB') ?? '', style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
-                    widgetFactory.createText(context, product.getPrice()?.toSelectedPriceString('ETB') ?? '', style: Theme.of(context).textTheme.titleMedium),
+                    widgetFactory.createText(context, product.getPriceRangeString('ETB'), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
+                    widgetFactory.createText(context, product.getPriceRangeString('ETB', discounts: discounts), style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.min,

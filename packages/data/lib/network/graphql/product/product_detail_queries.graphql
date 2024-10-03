@@ -15,6 +15,15 @@ query GetProductDetails($id : String!){
           currency
         }
       }
+      discounts {
+        type
+        value
+        condition
+        conditionValue
+        startDate
+        endDate
+      }
+      sectionId
       featured
       businessId
       description {
@@ -120,6 +129,21 @@ query GetProductDetails($id : String!){
           type
           upfrontPayment
           dueDate
+        }
+        sections {
+          id
+          name {
+            key
+            value
+          }
+          orderAddons {
+            id
+            inputType
+            name {
+              key
+              value
+            }
+          }
         }
       }
     }

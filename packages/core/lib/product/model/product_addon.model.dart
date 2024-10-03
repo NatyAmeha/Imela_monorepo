@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -52,18 +51,51 @@ class ProductAddon with _$ProductAddon {
   bool get isDateInput => inputType == AddonInputType.DATE_INPUT.name;
   bool get isTimeINput => inputType == AddonInputType.TIME_INPUT.name;
   bool get isDateTimeInput => inputType == AddonInputType.DATE_TIME_INPUT.name;
-  
 
   Map<String, Widget>? getAddonOptions(String selectedLanguage) {
     var sampleOption = options;
-    if (sampleOption == null || sampleOption.isEmpty == true) {
-      sampleOption =  ProductAddonOption.getSampleProductADdongOption();
+    if (sampleOption.isEmpty == true) {
+      sampleOption = ProductAddonOption.getSampleProductADdongOption();
     }
     Map<String, Widget>? optionsUI = {};
     for (var option in sampleOption) {
       optionsUI.addAll({option.id!: Text(option.name.localize(selectedLanguage))});
     }
     return optionsUI;
+  }
+
+  static List<ProductAddon> getSampleProductAddon() {
+    return [
+      ProductAddon(
+        id: '1',
+        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 1')],
+        inputType: AddonInputType.SINGLE_SELECTION_INPUT.name,
+        options: ProductAddonOption.getSampleProductADdongOption(),
+      ),
+      ProductAddon(
+        id: '2',
+        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 2')],
+        inputType: AddonInputType.MULTIPLE_SELECTION_INPUT.name,
+        options: ProductAddonOption.getSampleProductADdongOption(),
+      ),
+      ProductAddon(
+        id: '3',
+        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 3')],
+        inputType: AddonInputType.NUMBER_INPUT.name,
+        minAmount: 4,
+        maxAmount: 10,
+      ),
+      ProductAddon(
+        id: '4',
+        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 4')],
+        inputType: AddonInputType.DATE_INPUT.name,
+      ),
+      ProductAddon(
+        id: '5',
+        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 5')],
+        inputType: AddonInputType.TIME_INPUT.name,
+      ),
+    ];
   }
 }
 

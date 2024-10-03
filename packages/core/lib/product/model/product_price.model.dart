@@ -1,5 +1,6 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'pricelist.model.dart';
 import 'product.model.dart';
 import '../../shared/price.model.dart';
@@ -24,6 +25,7 @@ class ProductPrice  with _$ProductPrice {
     Product? product,
 
     PriceList? priceList,
+    List<Discount>? discounts,
   }) = _ProductPrice;
 
   factory ProductPrice.fromJson(Map<String, dynamic> json) => _$ProductPriceFromJson(json);

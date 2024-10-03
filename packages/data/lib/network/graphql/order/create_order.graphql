@@ -1,5 +1,5 @@
-mutation CreateOrder($cartId : String,  $orderInput: CreateOrderInput!) {
-    placeOrderFromOnlineStore(cartId: $cartId, orderInput: $orderInput) {
+mutation CreateOrder($cartId : String, $businessId: String,  $orderInput: CreateOrderInput!) {
+    placeOrderFromOnlineStore(cartId: $cartId, businessId: $businessId, orderInput: $orderInput) {
         success
         message
         order {

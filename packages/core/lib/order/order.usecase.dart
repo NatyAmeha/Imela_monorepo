@@ -1,5 +1,6 @@
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/order.response.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/order/repo/cart.repository.dart';
 import 'package:imela_core/order/repo/order.repository.dart';
@@ -26,13 +27,13 @@ class OrderUsecase {
     return result;
   }
 
-  Future<OrderResponse?> addToCart(String businessId, List<LocalizedField> cartName, List<OrderItem> items, {List<PaymentOption>? paymentOptions}) async {
-    final result = await _cartRepo.addtoCart(businessId, cartName, items, paymentOptions: paymentOptions);
+  Future<OrderResponse?> addToCart(String businessId, List<LocalizedField> cartName, List<OrderItem> items, {List<PaymentOption>? paymentOptions, List<OrderConfig> orderConfigs = const []}) async {
+    final result = await _cartRepo.addtoCart(businessId, cartName, items, paymentOptions: paymentOptions, orderConfigs: orderConfigs);
     return result;
   }
 
-  Future<OrderResponse> placeOrder(String? cartId, OrderModel.Order orderInfo) async {
-    final result = await _orderRepo.createOrder(cartId: cartId, orderInfo: orderInfo);
+  Future<OrderResponse> placeOrderForBusiness(String businessId, String? cartId, OrderModel.Order orderInfo) async {
+    final result = await _orderRepo.createBusinessOrder(businessId: businessId, cartId: cartId, orderInfo: orderInfo);
     return result;
   }
 

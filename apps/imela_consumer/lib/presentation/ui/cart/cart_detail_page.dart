@@ -18,6 +18,7 @@ class CartDetailPage extends StatefulWidget {
 
   late CartDetailViewmodel? cartDetailViewmodel;
 
+
   static void navigateToCartDetailPage(BuildContext context, IRoutingService router, Cart cart) {
     router.navigateTo(context, CartDetailPage.routeName, extra: {CartDetailPage.CART_DATA: cart});
   }

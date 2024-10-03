@@ -4,14 +4,17 @@ import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
 import 'package:imela/presentation/ui/cart/order_configure/order_configure_page.dart';
+import 'package:imela/presentation/ui/product/components/product_addon_modal/product_addon_list_modal.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/order/order.usecase.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
+import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
@@ -27,10 +30,7 @@ class CartDetailViewmodel extends GetxController with BaseViewmodel {
   });
 
   static CartDetailViewmodel getInstance() {
-    if (!Get.isRegistered<CartDetailViewmodel>()) {
-      Get.lazyPut(() => getIt<CartDetailViewmodel>());
-    }
-    return Get.find<CartDetailViewmodel>();
+    return BaseViewmodel.isViewmodelInitialized(getIt<CartDetailViewmodel>());
   }
 
   AppController get appController => AppController.getInstance;
@@ -40,8 +40,15 @@ class CartDetailViewmodel extends GetxController with BaseViewmodel {
   final exception = Rxn<AppException>();
 
   var selectedCart = Rxn<Cart>();
+  var orderAddonsConfigured = false.obs;
+
   var cartListController = Get.put(CustomListController<OrderItem>(), tag: 'CartItemListController');
+
+  // getters
   List<PaymentOption> get businessPaymentOptions => selectedCart.value?.paymentOptions ?? [];
+  String get callToActionText {
+    return orderAddonsConfigured.value == false && selectedCart.value?.hasOrderAddons() == true ? 'Configure your order' : 'Proceed to Payment';
+  }
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
@@ -96,7 +103,21 @@ class CartDetailViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-  void navigateToOrderConfigurePage(BuildContext context) {
+  void changeOrderConfigs(BuildContext context) async {
+    final configResult = await AppModalSheet.showModal<List<OrderConfig>>(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
+      ModalContent(
+        title: const Text('Order Configurations'),
+        content: ProductAddonModal(productAddons: selectedCart.value!.orderAddons!, initialOrderConfigs: selectedCart.value?.configs ?? []),
+      ),
+    ]);
+    orderAddonsConfigured.value = true;
+    selectedCart.value = selectedCart.value!.addSelectedOrderConfigs(configResult, );
+  }
+
+  void handleNextScreenNavigation(BuildContext context) async {
+    if (orderAddonsConfigured.value == false && selectedCart.value!.hasOrderAddons() == true) {
+      changeOrderConfigs(context);
+    }
     OrderConfigurePage.navigateToOrderConfigurePage(context, router, cartInfo: selectedCart.value!);
   }
 }

@@ -6,6 +6,7 @@ import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/bundle/components/bundle_list_item.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:imela/presentation/ui/shared/app_tabview.dart';
+import 'package:imela/presentation/ui/shared/discount/business_discount_card.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 import 'package:imela/presentation/utils/localization_utils.dart';
@@ -100,6 +101,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   imageHeight: 150,
                   imageWidth: double.infinity,
                   widgetFactory: appWidgetFactory,
+                  discounts: viewmodel.businessDiscounts,
                   onTap: () {
                     viewmodel.navigateToProductDetails(context, productData);
                   },
@@ -123,6 +125,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
 
   Widget buildBusinessOverview(WidgetFactory widgetFactory) {
     final businessDescription = viewmodel.businessData?.description;
+    print('businessDiscounts: ${viewmodel.businessDiscounts.length}');
     return SingleChildScrollView(
       primary: true,
       child: Column(
@@ -134,6 +137,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (viewmodel.businessDiscounts.isNotEmpty) BusinessDiscountCard(discounts: viewmodel.businessDiscounts, selectedCurrency: 'ETB', onDiscountSelected: (discount) {}),
                 appWidgetFactory.createText(context, businessDescription.localize('ENGLISH'), style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis).showIfTrue(businessDescription?.isNotEmpty == true),
                 const SizedBox(height: 16),
                 // const BusinessAddressQuickActionComponenet(),
@@ -145,7 +149,6 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                     onPressed: () {
                       viewmodel.showBusinessInfoDialog(context, widgetFactory);
                     }),
-                
               ],
             ),
           ),
@@ -197,19 +200,22 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   imageHeight: 150,
                   imageWidth: double.infinity,
                   widgetFactory: widgetFactory,
+                  discounts: viewmodel.businessDiscounts,
                   onTap: () {
                     viewmodel.navigateToProductDetails(context, productData);
                   });
             },
           ),
-          widgetFactory.createButton(
-            context: context,
-            content: const Text('View all products'),
-            style: AppButtonStyle.outlinedButtonStyle(context),
-            onPressed: () {
-              viewmodel.navigateToAllProductsPage(context);
-            },
-          ).withPaddingAll(16),
+          widgetFactory
+              .createButton(
+                context: context,
+                content: const Text('View all products'),
+                style: AppButtonStyle.outlinedButtonStyle(context),
+                onPressed: () {
+                  viewmodel.navigateToAllProductsPage(context);
+                },
+              )
+              .withPaddingAll(16),
           const SizedBox(height: 50),
         ],
       ),

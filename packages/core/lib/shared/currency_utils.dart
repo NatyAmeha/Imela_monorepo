@@ -1,6 +1,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:imela_core/shared/price.model.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 
 extension CurrencyUtils on List<Price>? {
   String toSelectedPriceString(String currency) {
@@ -8,7 +9,7 @@ extension CurrencyUtils on List<Price>? {
     if (selectedPrice == null) {
       return '';
     }
-    return '${selectedPrice.currency} ${selectedPrice.amount.toStringAsPrecision(2)}';
+    return '${selectedPrice.currency} ${selectedPrice.amount.getPresision(2)}';
   }
 
   Price? toSelectedPrice(String currency) {

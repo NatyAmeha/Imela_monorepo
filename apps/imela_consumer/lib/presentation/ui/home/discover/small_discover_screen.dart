@@ -90,7 +90,7 @@ class SmallDiscoverScreen extends StatelessWidget {
                             imageWidth: double.infinity,
                             widgetFactory: widgetFactory,
                             onTap: () {
-                              ProductDetailPage.navigate(context, homepageViewmodel.router, productData, previousPage: this);
+                              ProductDetailPage.navigate(context, homepageViewmodel.router, productData);
                             },
                           );
                         },

@@ -3,12 +3,16 @@ import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_response.dart';
 import 'package:imela_core/shared/graphql_input_utils.dart';
 import 'package:imela_core/shared/repository.intereface.dart';
+import 'package:imela_data/database/db_datasource.dart';
+import 'package:imela_data/database/entity/pos_business.entity.dart';
 import 'package:imela_data/injection.dart';
 import 'package:imela_data/network/graphql/__generated__/schema.schema.gql.dart';
 import 'package:imela_data/network/graphql/business/__generated__/business_queries.data.gql.dart';
 import 'package:imela_data/network/graphql/business/__generated__/business_queries.req.gql.dart';
 import 'package:imela_data/network/graphql/business/__generated__/create_business_section.data.gql.dart';
 import 'package:imela_data/network/graphql/business/__generated__/create_business_section.req.gql.dart';
+import 'package:imela_data/network/graphql/business/__generated__/get_business_by_workspace.data.gql.dart';
+import 'package:imela_data/network/graphql/business/__generated__/get_business_by_workspace.req.gql.dart';
 import 'package:imela_data/network/graphql/business/__generated__/get_user_business.data.gql.dart';
 import 'package:imela_data/network/graphql/business/__generated__/get_user_business.req.gql.dart';
 import 'package:imela_data/network/graphql/business/__generated__/register_business.data.gql.dart';
@@ -21,6 +25,8 @@ import 'package:injectable/injectable.dart';
 abstract class IBusinessrepository extends IRepository {
   Future<BusinessResponse> registerBusiness(CreateBusinessInput businessInfo);
   Future<BusinessResponse?> getBusinessDetailsFromApi(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
+  Future<BusinessResponse?> getBusinessByWorkspace(String workspaceUrl, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst});
+  Future<bool> saveBusinessToDB(String workspaceUrl, POSBusinessEntity business);
   Future<BusinessResponse?> getUserOwnedBusinesses({required ApiDataFetchPolicy fetchPolicy});
   Future<BusinessResponse?> createBusinessSection(String businessId, List<BusinessSection> sections);
 }
@@ -30,8 +36,12 @@ abstract class IBusinessrepository extends IRepository {
 class BusinessRepository implements IBusinessrepository {
   static const injectName = 'BUSINESS_REPOSITORY_INJECTION';
   final IGraphQLDataSource _graphQLDataSource;
+  final IDBDataSource _dbDataSource;
 
-  const BusinessRepository(@Named(GraphqlDatasource.injectName) this._graphQLDataSource);
+  const BusinessRepository(
+    @Named(GraphqlDatasource.injectName) this._graphQLDataSource,
+    @Named(POSDBDataSource.injectName) this._dbDataSource,
+  );
 
   @override
   Future<BusinessResponse> registerBusiness(CreateBusinessInput businessInfo) async {
@@ -88,8 +98,34 @@ class BusinessRepository implements IBusinessrepository {
     if (result?.getBusinessDetails == null) {
       return null;
     }
+    print('result: ${result!.getBusinessDetails.business?.discounts?.map((e) => e.toJson())}');
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
     return BusinessResponse.fromJson(result!.getBusinessDetails.toJson());
+  }
+
+  @override
+  Future<BusinessResponse?> getBusinessByWorkspace(String workspaceUrl, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    final request = GGetBusinessByWorkspaceReq(
+      (b) => b
+        ..vars.workspace = workspaceUrl
+        ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
+    );
+    final result = await _graphQLDataSource.request<GGetBusinessByWorkspaceData?>(request, type: 'GET_BUSINESS_BY_WORKSPACE', isMainError: true);
+    if (result?.getBusinessByWorkspaceUrl == null) {
+      return null;
+    }
+    return BusinessResponse.fromJson(result!.getBusinessByWorkspaceUrl.toJson());
+  }
+
+  @override
+  Future<bool> saveBusinessToDB(String workspaceUrl, POSBusinessEntity business) async {
+    try {
+      final dbInstance = await _dbDataSource.getDBInstance(workspaceUrl);
+      final id = await dbInstance.pOSBusinessEntitys.put(business);
+      return id > 0;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override

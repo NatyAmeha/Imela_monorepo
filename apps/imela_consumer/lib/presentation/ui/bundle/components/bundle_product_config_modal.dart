@@ -16,7 +16,7 @@ class BundleProductConfigModal extends StatefulWidget {
   final WidgetFactory widgetFactory;
   final ScrollController? controller;
   final bool Function(Product productOption)? isOptionSelected;
-  final Function(Product selectedProduct) onConfirm;
+  final Function(Product selectedProduct, double qty) onConfirm;
   final Function(double value)? onQtyChange;
   const BundleProductConfigModal({
     super.key,
@@ -151,7 +151,7 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
             callToActionText: 'Select',
             enableCallToActionBtn: enableCallToActionBtn,
             onPressed: () {
-              widget.onConfirm(selectedProductOption!);
+              widget.onConfirm(selectedProductOption!, qty);
             },
           ),
         ),
@@ -160,7 +160,7 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
   }
 
   bool isOptionSelected(Product productOption) {
-    return (widget.isOptionSelected?.call(productOption) ?? false) || selectedProductOption == productOption;
+    return (widget.isOptionSelected?.call(productOption) ?? false) || selectedProductOption?.id == productOption.id;
   }
 
   void handleQty(double newQty) {

@@ -1,0 +1,26 @@
+mutation AuthenticateStaff($phoneNumber: String!, $pin: Float!, $businessId: String!, $branchId: String!) {
+  authenticateStaff(
+    phoneNumber: $phoneNumber
+    pin: $pin
+    branchId: $branchId
+    businessId: $businessId
+  ) {
+    success
+    staff {
+      id
+      name
+      pin
+      phoneNumber
+      roles
+      isActive
+      branch {
+        id
+        name {
+          key
+          value
+        }
+      }
+    }
+  }
+
+}

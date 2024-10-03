@@ -8,7 +8,7 @@ import 'cart.model.dart';
 part 'order.model.freezed.dart';
 part 'order.model.g.dart';
 
-enum OrderStatus{
+enum OrderStatus {
   PENDING,
   PROCESSING,
   COMPLETED,
@@ -43,6 +43,13 @@ class Order with _$Order {
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
   static Order createOrderInfo(Cart cartIfno, PaymentOption paymentOption) {
-    return Order(paymentType: paymentOption.type, items: cartIfno.items, isOnlineOrder: true, subTotal: cartIfno.getSubtotal, businessId: [cartIfno.businessId!]);
+    return Order(
+      paymentType: paymentOption.type,
+      items: cartIfno.items,
+      isOnlineOrder: true,
+      subTotal: cartIfno.getSubtotal,
+      totalAmount: cartIfno.getTotalPrice,
+      businessId: [cartIfno.businessId!],
+    );
   }
 }

@@ -122,6 +122,7 @@ type Branch {
   bundles: [ProductBundle!]
   productPrices: [ProductPrice!]
   priceLists: [PriceList!]
+  paymentOptions: [PaymentOption!]
 }
 
 type BranchResponse {
@@ -160,6 +161,7 @@ type Business {
   id: ID
   type: String!
   categories: [String!]!
+  workspaceUrl: String!
   isActive: Boolean
   gallery: Gallery!
   createdAt: DateTime
@@ -183,11 +185,11 @@ type Business {
   trialPeriodUsedServiceIds: [String!]
   name: [LocalizedField!]!
   description: [LocalizedField!]
-  customers: [Customer!]
   deliveryInfo: [DeliveryInfo!]
   bundles: [ProductBundle!]!
   paymentOptions: [PaymentOption!]
   priceLists: [PriceList!]
+  discounts: [Discount!]
   totalViews: Int
 }
 
@@ -246,6 +248,7 @@ type BusinessSection {
   categoryId: String
   productIds: [String!]
   images: [String!]
+  orderAddons: [ProductAddon!]
   description: [LocalizedField!]
 }
 
@@ -262,6 +265,7 @@ type Cart {
   businessId: String!
   userId: String!
   items: [OrderItem!]!
+  configs: [OrderConfig!]
   paymentOptions: [PaymentOption!]
   createdAt: DateTime
   updatedAt: DateTime
@@ -310,6 +314,7 @@ input CreateBusinessSectionInput {
 input CreateCartInput {
   name: [LocalizedFieldInput!]!
   items: [CreateOrderItemInput!]!
+  configs: [CreateOrderConfigInput!]!
   paymentOptions: [CreatePaymentOptionInput!]
 }
 
@@ -370,6 +375,7 @@ input CreateOrderItemInput {
   image: String!
   productId: String!
   subTotal: Float!
+  total: Float!
   discount: [OrderItemDiscountInput!]
   config: [CreateOrderConfigInput!]
 }
@@ -462,6 +468,8 @@ input CreateProductPriceInput {
 input CreateStaffInput {
   name: String!
   pin: Float!
+  phoneNumber: String!
+  password: String!
   roles: [String!]!
   branchId: String
   businessId: String
@@ -492,10 +500,27 @@ enum CurrencyKey {
 }
 
 type Customer {
-  id: ID
+  id: ID!
+  name: String!
   userId: String!
-  branchesId: [String!]
-  branches: [Branch!]
+  businessId: String!
+  phoneNumber: String
+  email: String
+  customerLoyalties: [CustomerLoyalty!]
+  redeemedRewards: [RedeemedReward!]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CustomerLoyalty {
+  id: ID!
+  customerId: String!
+  businessId: String!
+  pointsSource: [PointSource!]!
+  currentPoints: Float!
+  customer: Customer
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 type Customization {
@@ -564,10 +589,14 @@ type DeliveryInfo {
 }
 
 type Discount {
+  id: String
+  name: String
   type: DiscountType!
   value: Float!
   condition: DiscountCondition!
   conditionValue: Float
+  startDate: DateTime
+  endDate: DateTime
 }
 
 enum DiscountCondition {
@@ -575,6 +604,7 @@ enum DiscountCondition {
   PURCHASE_ALL_ITEMS
   MINIMUM_PURCHASE
   MAXIMUM_PURCHASE
+  TIME_BASED
   QUANTITY
 }
 
@@ -881,6 +911,7 @@ type Mutation {
   """
   deleteProductAddon(businessId: String!, productId: String!, addonId: String!): ProductResponse!
   createStaff(staffInput: CreateStaffInput!): StaffResponse!
+  authenticateStaff(phoneNumber: String!, pin: Float!, branchId: String!, businessId: String!): StaffResponse!
   assignStaffToBranch(branchId: String!, staffId: String!): StaffResponse!
   assignStaffToBusiness(businessId: String!, staffId: String!): StaffResponse!
   unAssignStaffFromBranch(branchId: String!, staffId: String!): StaffResponse!
@@ -895,7 +926,7 @@ type Mutation {
   updateProductInventoryInformations(businessId: String!, productId: String!, inventoryInfos: [UpdateInventoryInput!]!): InventoryResponse!
   addToBusinessCart(businessId: String!, cartInput: CreateCartInput!): OrderResponse!
   removeItemsFromCart(cartId: String!, productIds: [String!]!): OrderResponse!
-  placeOrderFromOnlineStore(orderInput: CreateOrderInput!, cartId: String): OrderResponse!
+  placeOrderFromOnlineStore(businessId: String!, orderInput: CreateOrderInput!, cartId: String): OrderResponse!
   createPlatformSubscriptionPlan(plan: CreateSubscriptionPlanInput!): SubscriptionPlan!
   createBusinessSubscriptionPlan(plan: CreateSubscriptionPlanInput!): SubscriptionPlan!
   subscribeBusinessToPlatformServices(
@@ -982,7 +1013,7 @@ type OrderPaymentMethod {
   name: [LocalizedField!]!
   amount: Float!
   createdAt: DateTime!
-  updatedAt: DateTime!
+  updatedAt: DateTime
 }
 
 input OrderPaymentMethodInput {
@@ -1104,6 +1135,14 @@ type PlatfromServiceSubscription {
   selectedCustomizationInfo: [CustomizationInfo!]!
 }
 
+type PointSource {
+  id: String!
+  name: String!
+  sourceId: String!
+  sourceType: String!
+  value: Float!
+}
+
 type Price {
   id: ID
   amount: Float!
@@ -1170,6 +1209,7 @@ type Product {
   addons: [ProductAddon!]
   paymentOptionsId: [String!]
   membershipIds: [String!]
+  discounts: [Discount!]
   totalViews: Int!
 }
 
@@ -1246,13 +1286,14 @@ type ProductPrice {
   id: ID!
   productId: String!
   branchId: String
-  priceListId: String
   price: [Price!]!
   isActive: Boolean!
   isDefault: Boolean!
   createdAt: DateTime
   updatedAt: DateTime
   product: Product!
+  priceListId: String
+  discounts: [Discount!]
   priceList: PriceList
 }
 
@@ -1289,9 +1330,11 @@ type Query {
   me: UserResponse!
   getAccesses(ownerId: String!, owenrType: AccessOwnerType!, permissionType: PermissionType!): AccessResponse!
   getBusinessDetails(id: String!): BusinessResponse!
+  getBusinessByWorkspaceUrl(workspaceUrl: String!): BusinessResponse!
   getUserBusinesses: BusinessResponse!
   getBranchDetails(businessId: String!, branchId: String!): BranchResponse!
   getBranchDetailsForPOS(businessId: String!, branchId: String!): BranchResponse!
+  getPosBranch(businessId: String!, branchId: String!): BranchResponse!
 
   """Get product details with inventory, variants"""
   getProductDetail(productId: String!, branchId: String, locationId: String, priceListId: String): ProductResponse!
@@ -1315,6 +1358,15 @@ type Query {
   getBusienssSubscriptionPlans(type: SubscriptionType, owner: String): [SubscriptionPlan!]!
   getPlatformServices: PlatformServiceResponse!
   getMembershipDetails(membershipId: String!): MembershipResponse!
+}
+
+type RedeemedReward {
+  id: ID!
+  rewardId: String!
+  businessId: String!
+  customerId: String!
+  pointUsed: Float!
+  createdAt: DateTime
 }
 
 input SelectedPlatformServiceForSubscription {
@@ -1341,7 +1393,9 @@ input SignupInput {
 type Staff {
   id: ID
   name: String!
-  pin: Int!
+  pin: Int
+  phoneNumber: String!
+  password: String!
   roles: [String!]!
   branchId: String
   branch: Branch

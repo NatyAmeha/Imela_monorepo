@@ -14,7 +14,7 @@ import 'package:imela_core/order/model/order.model.dart' as OrderModel;
 abstract class IOrderRepository {
   Future<OrderResponse?> getOrders({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
   Future<OrderResponse?> getOrderDetails(String orderId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
-  Future<OrderResponse> createOrder({String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
+  Future<OrderResponse> createBusinessOrder({required String businessId, String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
 }
 
 @Injectable(as: IOrderRepository)
@@ -37,9 +37,10 @@ class OrderRepository implements IOrderRepository {
   }
 
   @override
-  Future<OrderResponse> createOrder({String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
+  Future<OrderResponse> createBusinessOrder({required String businessId, String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
     final request = GCreateOrderReq((b) => b
       ..vars.cartId = cartId
+      ..vars.businessId = businessId
       ..vars.orderInput.update(
             (input) => input
               ..paymentType = orderInfo.paymentType.toPaymentOptionTypeInput
@@ -49,6 +50,7 @@ class OrderRepository implements IOrderRepository {
               ..remainingAmount = orderInfo.remainingAmount?.toDouble()
               ..subTotal = orderInfo.subTotal?.toDouble()
               ..totalAmount = orderInfo.totalAmount?.toDouble()
+              ..branchId = orderInfo.branchId
               ..items.addAll(orderInfo.items!.toOrderItemInput())
               ..discount.addAll(orderInfo.discount.toOrderDiscountInput()),
           )

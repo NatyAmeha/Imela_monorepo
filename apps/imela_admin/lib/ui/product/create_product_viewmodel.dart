@@ -54,7 +54,7 @@ class CreateProductViewmodel extends GetxController with BaseViewmodel {
   var allProductInputs = <CreateProductInput>[].obs;
 
   Business? selectedBusiness;
-  var branches = <Branch>[...Branch.fakeBranches].obs;
+  var branches = <Branch>[].obs;
 
   var isMainProduct = true.obs;
   var canOrderOnline = true.obs;

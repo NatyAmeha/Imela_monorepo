@@ -24,3 +24,12 @@ class BranchResponse with _$BranchResponse {
 
   factory BranchResponse.fromJson(Map<String, dynamic> json) => _$BranchResponseFromJson(json);
 }
+
+extension BranchResponseX on BranchResponse? {
+  bool get isPosBranchFetchSuccessfull {
+    if (this == null) return false;
+    if (this!.success == true && this!.branch != null) return true;
+    return false;
+  }
+}
+

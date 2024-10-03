@@ -6,7 +6,6 @@ import 'package:imela_admin/shared/component/input_field.viewmodel.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/product/product.usecase.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
-import 'package:imela_core/shared/price.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';

@@ -1,5 +1,5 @@
-
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/price.model.dart';
@@ -78,10 +78,11 @@ extension LocalizedFieldInput on List<LocalizedField> {
 extension PriceInput on List<Price>? {
   List<GPriceInput> toPriceInput() {
     if (this == null || this!.isEmpty) return [];
-    return this!.map((e) => GPriceInput((price) => price
-      ..amount = e.amount
-      ..currency = e.currency.toCurrencyKeyInput
-      )).toList();
+    return this!
+        .map((e) => GPriceInput((price) => price
+          ..amount = e.amount
+          ..currency = e.currency.toCurrencyKeyInput))
+        .toList();
   }
 }
 
@@ -95,21 +96,29 @@ extension GraphqlOrderInput on List<OrderItem> {
         ..image = item.image
         ..subTotal = item.getSubtotal()
         ..discount.addAll(item.discount.toOrderDiscountInput())
-        ..config.addAll(item.config?.map(
-              (config) => GCreateOrderConfigInput(
-                (configInput) => configInput
-                  ..addonId = config.addonId
-                  ..name.addAll(config.name!.toLocalizedFieldInput())
-                  ..type = config.type
-                  ..singleValue = config.singleValue
-                  ..multipleValue.addAll(config.multipleValue ?? [])
-                  ..additionalPrice = config.additionalPrice
-                  ..productIds.addAll(config.productIds?.map((e) => e) ?? []),
-              ),
-            ) ??
-            [])
+        ..config.addAll(item.config.toOrderConfigInput())
         ..quantity = item.quantity),
     ).toList();
+  }
+}
+
+extension GraphqlOrderConfigInput on List<OrderConfig>? {
+  List<GCreateOrderConfigInput> toOrderConfigInput() {
+    if (this == null || this!.isEmpty) return [];
+    return this!
+        .map(
+          (config) => GCreateOrderConfigInput(
+            (configInput) => configInput
+              ..addonId = config.addonId
+              ..name.addAll(config.name!.toLocalizedFieldInput())
+              ..type = config.type
+              ..singleValue = config.singleValue
+              ..multipleValue.addAll(config.multipleValue ?? [])
+              ..additionalPrice = config.additionalPrice
+              ..productIds.addAll(config.productIds?.map((e) => e) ?? []),
+          ),
+        )
+        .toList();
   }
 }
 
@@ -145,9 +154,8 @@ extension GraphqlPaymentOptionInput on List<PaymentOption>? {
 }
 
 class GraphqlInputUtils {
-  static GDateTimeBuilder toDateTimeInput(GDateTimeBuilder b){
-     b.value = DateTime.now().toIso8601String();
-     return b;
+  static GDateTimeBuilder toDateTimeInput(GDateTimeBuilder b) {
+    b.value = DateTime.now().toIso8601String();
+    return b;
   }
 }
-

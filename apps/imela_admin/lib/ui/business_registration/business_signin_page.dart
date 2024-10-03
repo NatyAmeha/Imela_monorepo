@@ -25,7 +25,6 @@ class _BusinessSignInPageState extends State<BusinessSignInPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     viewmodel.initViewmodel(data: {'context': context});
   }

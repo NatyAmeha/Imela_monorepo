@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
+import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
 import 'package:imela/presentation/ui/product/product_list/product_list_page.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
@@ -13,6 +16,7 @@ import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_response.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
@@ -26,11 +30,18 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   final BusinessUsecase businessUsecase;
   final IExceptiionHandler exceptiionHandler;
   final IRoutingService router;
+
   BusinessDetailsViewModel({
     required this.businessUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
     @Named(GoRouterService.injectName) required this.router,
   });
+
+  static BusinessDetailsViewModel getInstance() {
+    return BaseViewmodel.isViewmodelInitialized(getIt<BusinessDetailsViewModel>());
+  }
+
+  AppController get appViewmodel => AppController.getInstance;
 
 // widget controllers
   final productListController = Get.put(CustomListController<Product>(), tag: 'AllProducts');
@@ -53,8 +64,8 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   List<Product> get featuredProducts => businessDetails.value?.products?.where((element) => element.featured == true).toList() ?? [];
   List<Branch> get businessBranches => businessDetails.value?.branches ?? [];
   List<PaymentOption> get businessPaymentOption => businessData?.paymentOptions ?? [];
-
-  List<ProductBundle> get businessBundles  => businessData?.bundles ?? [];
+  List<Discount> get businessDiscounts => businessData?.discounts ?? [];
+  List<ProductBundle> get businessBundles => businessData?.bundles ?? [];
 
   void createBusinessSectionsWithProductListController() {
     sectionsWithProductsControllers = {'Overview': productListController};
@@ -101,10 +112,12 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
         businessDetails.value = response;
         productListController.addItems(response!.products);
         createBusinessSectionsWithProductListController();
+        appViewmodel.addDiscounts(businessDiscounts, clearPrevious: true);
       } else {
         exception(AppException(message: 'Business not found'));
       }
     } catch (e) {
+      print('error: $e');
       exception(exceptiionHandler.getException(e as Exception));
     } finally {
       isLoading(false);
@@ -140,6 +153,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   // navigation helpers
   void navigateToProductDetails(BuildContext context, Product productInfo) {
     router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.localize('ENGLISH')});
+    ProductDetailPage.navigate(context, router, productInfo, discounts: businessDiscounts);
   }
 
   void navigateToBundleDetailPage(BuildContext context, ProductBundle bundle, {Widget? previousPage}) {

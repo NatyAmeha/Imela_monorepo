@@ -1,0 +1,44 @@
+query GetPosBranch($businessId: String!, $branchId: String!) {
+  getPosBranch(
+    branchId: $branchId
+    businessId: $businessId
+  ) {
+    success
+    branch {
+      id
+      name {
+        key
+        value
+      }
+      priceLists {
+        id
+        name {
+          key
+          value
+        }
+      }
+      products {
+        id
+        name {
+          key
+          value
+        }
+        category
+        gallery{
+          images{
+            url
+            featured
+          }
+        }
+        prices {
+          id
+          isDefault
+          price {
+            currency
+            amount
+          }
+        }
+      }
+    }
+  }   
+}

@@ -5,11 +5,11 @@ import 'package:imela/presentation/ui/cart/cart_detail.viewmodel.dart';
 import 'package:imela/presentation/ui/cart/components/cart_item_list_item.dart';
 import 'package:imela/presentation/ui/cart/components/cart_summary.dart';
 import 'package:imela/presentation/ui/cart/components/empty_cart.dart';
+import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
-
 
 class SmallScreenCartDetailPage extends StatelessWidget {
   final CartDetailViewmodel viewmodel;
@@ -38,6 +38,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                           item: item,
                           widgetFactory: widgetFactory,
                           selectedCurrency: selectedCurrency,
+                          canRemoveItem: !viewmodel.selectedCart.value!.isBundleCart,
                           onQtyChange: (qtyValue) {
                             viewmodel.updateItemQty(item.productId!, index, qtyValue);
                           },
@@ -48,13 +49,18 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   Obx(
                     () => CartSummary(
                       cart: viewmodel.selectedCart.value!,
+                      selectedCurrency: selectedCurrency,
                       widgetFactory: widgetFactory,
+                      callToActionText: viewmodel.callToActionText,
+                      changeOrderConfigs: () {
+                        viewmodel.changeOrderConfigs(context);
+                      },
                       onContinue: () {
-                        viewmodel.navigateToOrderConfigurePage(context);
+                        viewmodel.handleNextScreenNavigation(context);
                       },
                     ),
                   )

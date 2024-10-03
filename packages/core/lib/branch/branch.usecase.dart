@@ -13,4 +13,12 @@ class BranchUsecase {
     var result = await _businessRepository.getBranchDetailsFromApi(businessId, branchId, fetchPolicy: ApiDataFetchPolicy.cacheAndNetwork);
     return result;
   }
+
+  Future<BranchResponse?> getPosBranchDetails(String businessId, String branchId) async {
+    var result = await _businessRepository.getPosBranch(businessId, branchId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
+    if((result?.success ?? false) == false){
+      result = await _businessRepository.getPosBranch(businessId, branchId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    }
+    return result;
+  }
 }

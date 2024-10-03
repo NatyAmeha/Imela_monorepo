@@ -36,11 +36,11 @@ class OrderListItem extends StatelessWidget {
           Row(children: [
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                widgetFactory.createText(context, "Order #1", style: Theme.of(context).textTheme.bodyLarge),
+                widgetFactory.createText(context, 'Order #1', style: Theme.of(context).textTheme.bodyLarge),
                 widgetFactory.createText(context, order.createdAt.toFormattedString(), style: Theme.of(context).textTheme.titleSmall),
               ]),
             ),
-            Chip(label: widgetFactory.createText(context, "${order.status}", color: Colors.white
+            Chip(label: widgetFactory.createText(context, '${order.status}', color: Colors.white
             , style: Theme.of(context).textTheme.bodySmall), backgroundColor: order.status == OrderStatus.PENDING.name ? Colors.orange : Colors.green),
           ]),
           const Divider(),
@@ -48,14 +48,14 @@ class OrderListItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween, 
             children: [
               widgetFactory.createText(context, '${order.items?.length} items', style: Theme.of(context).textTheme.labelMedium),
-              widgetFactory.createText(context, "ETB ${order.subTotal}", style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createText(context, 'ETB ${order.subTotal}', style: Theme.of(context).textTheme.titleMedium, color: Theme.of(context).colorScheme.primary),
             ],
           ).withPaddingSymetric(vertical: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, "Remaining amount", style: Theme.of(context).textTheme.labelMedium),
-              widgetFactory.createText(context, "400 Birr", style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createText(context, 'Remaining amount', style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, '400 Birr', style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
             ],
           ),
         ],

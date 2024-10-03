@@ -23,6 +23,16 @@ class OrderConfig with _$OrderConfig {
 
   factory OrderConfig.fromJson(Map<String, dynamic> json) => _$OrderConfigFromJson(json);
 
+  String? getConfigNameForPOSCart(String selectedLanguage){
+    if(singleValue != null){
+      return '${name.localize(selectedLanguage)}: ${singleValue}';
+    }
+    if(multipleValue != null){
+      return '${name.localize(selectedLanguage)}: ${multipleValue!.join(', ')}';
+    }
+    return null;
+  }
+
   String selectedConfigValue() {
     if(type == AddonInputType.DATE_RANGE_INPUT.name){
       final dateRange = DateHelper.getDateRange(multipleValue!.take(2).toList());

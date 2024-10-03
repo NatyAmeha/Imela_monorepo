@@ -1,6 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
+import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/gallery.model.dart';
@@ -34,12 +36,26 @@ class ProductBundle with _$ProductBundle {
 
   factory ProductBundle.fromJson(Map<String, dynamic> json) => _$ProductBundleFromJson(json);
 
-  String getBundleName(String selectedLanguage){
+  String getBundleName(String selectedLanguage) {
     return name.localize(selectedLanguage);
   }
 
   String getBundleProducts() {
     return '${productIds?.length} items';
+  }
+
+  Cart getCartInfo(
+    List<Product> products,
+    Map<String, List<OrderConfig>> productOrderConfigs,
+  ) {
+    final items = products.map((product) {
+      final itemConfigs = productOrderConfigs[product.id!] ?? [];
+      final originalProductPrice = product.getTotalPriceUpdated('ETB', qtyInput: 1);
+      final bundleDiscounts = discount != null ? [discount!] : <Discount>[];
+      final item = product.getOrderItem(product.qty ?? 1, originalPrice: originalProductPrice, discounts: bundleDiscounts, config: itemConfigs);
+      return item;
+    }).toList();
+    return Cart(id: id!, name: name!, items: items, paymentOptions: business?.paymentOptions, businessId: business?.id, isBundleCart: true);
   }
 
   List<String?> getBundleProductImages() {

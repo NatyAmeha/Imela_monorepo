@@ -6,12 +6,16 @@ import 'package:imela_data/network/graphql/branch/__generated__/branch_details.d
 import 'package:imela_data/network/graphql/branch/__generated__/branch_details.req.gql.dart';
 import 'package:imela_data/network/graphql/branch/__generated__/create_branch.data.gql.dart';
 import 'package:imela_data/network/graphql/branch/__generated__/create_branch.req.gql.dart';
+import 'package:imela_data/network/graphql/branch/__generated__/get_pos_branch.data.gql.dart';
+import 'package:imela_data/network/graphql/branch/__generated__/get_pos_branch.req.gql.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class IBranchRepository extends IRepository {
   Future<BranchResponse?> getBranchDetailsFromApi(String businessId, String branchId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
   Future<BranchResponse?> createBranch(String businessId, Branch branchInfo, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
+  Future<BranchResponse?> getPosBranch(String businessId, String branchId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst});
+
 }
 
 @Named(BranchRepository.injectName)
@@ -56,5 +60,20 @@ class BranchRepository implements IBranchRepository {
       return null;
     }
     return BranchResponse.fromJson(result!.createBranch.toJson());
+  }
+
+  @override
+  Future<BranchResponse?> getPosBranch(String businessId, String branchId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    final request = GGetPosBranchReq(
+      (b) => b
+        ..vars.businessId = businessId
+        ..vars.branchId = branchId
+        ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
+    );
+    final result = await _graphQLDataSource.request<GGetPosBranchData?>(request, type: 'GET_POS_BRANCH', isMainError: true);
+    if (result?.getPosBranch == null) {
+      return null;
+    }
+    return BranchResponse.fromJson(result!.getPosBranch.toJson());
   }
 }

@@ -15,6 +15,8 @@ import 'package:imela/presentation/utils/number_utils.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/bundle/model/bundle.response.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
+import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
@@ -41,11 +43,14 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     required this.productDetailsViewmodel,
   });
 
+  var appViewmodel = AppController.getInstance;
+
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
 
   var bundleResponse = Rxn<BundleResponse>();
   var selectedBundleProducts = Map<String, Product>.of({}).obs; // this can be variant of the main product
+  var productOrderConfigs = <String, List<OrderConfig>>{}.obs;
 
   // getters
   ProductBundle? get bundle => bundleResponse.value?.bundle;
@@ -56,13 +61,13 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
-    print("bundle detail viewmodel called");
     super.initViewmodel(data: data);
     productListController = Get.put(CustomListController<Product>(), tag: 'bundle_products');
     final bundleId = data!['id'] as String;
     getBundleDetails(bundleId);
   }
 
+  List<Discount> get bundleDiscounts => bundle?.discount != null ? [bundle!.discount!] : [];
   String get getDiscountValue => bundle?.discount != null ? bundle!.discount!.getDiscountValueString(AppController.getInstance.selectedCurrency.name) : '';
   String? get discountCondition => bundle?.discount != null ? bundle!.discount!.getDiscountConditionDescription(AppController.getInstance.selectedCurrency.name) : '';
 
@@ -102,8 +107,6 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   }
 
   Duration get remainingTime {
-    print('diff: ${bundle?.startDate} ${bundle?.endDate}');
-
     return DateHelper.getDateDifference(startDate: bundle?.startDate, endDate: bundle?.endDate);
   }
 
@@ -112,8 +115,8 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   }
 
   double get originalProductPrice {
-    final selectedProductPrices = selectedBundleProducts.values.map((product) => product.getPrice()?.toSelectedPrice('ETB')).toList();
-    return selectedProductPrices.sumBy((price) => price?.amount ?? 0.0);
+    final selectedProductPrices = selectedBundleProducts.values.map((product) => product.getTotalPriceUpdated(appViewmodel.selectedCurrency.name)).sum;
+    return selectedProductPrices;
   }
 
   double get bundlePrice {
@@ -152,7 +155,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToProductDetailPage(BuildContext context, Product product, {Widget? previousPage}) {
-    ProductDetailPage.navigate(context, router, product, previousPage: previousPage);
+    ProductDetailPage.navigate(context, router, product);
   }
 
   void displayBundleProductConfigModal(BuildContext context, Product product, WidgetFactory widgetFactory) async {
@@ -168,9 +171,9 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
           controller: scrollController,
           widgetFactory: widgetFactory,
           isOptionSelected: (productOption) => isProductConfiguredInBundle(productOption),
-          onConfirm: (selectedProduct) {
+          onConfirm: (selectedProduct, qty) {
             router.goBack(context);
-            handleBundleProductSelection(product.id!, selectedProduct, replace: true);
+            handleBundleProductSelection(product.id!, selectedProduct, qty, replace: true);
           },
         );
       },
@@ -180,15 +183,16 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   Future<void> addSelectedProductsToCart(BuildContext context) async {
     try {
       isLoading(true);
-      final items = selectedBundleProducts.values.map((product) => product.getOrderItem(product.qty ?? 1)).toList();
-      final result = await orderUsecase.addToCart(bundle!.business!.id!, bundle!.business!.name!, items, paymentOptions: bundle?.business?.paymentOptions);
-      if (result?.success == true && result?.cart != null) {
-        final updatedCart = result!.cart!.addPaymentOption(bundle!.business!.paymentOptions!);
-        AppController.getInstance.addCartToCartList(updatedCart, paymentOptions: bundle?.business?.paymentOptions ?? []);
-        AppController.getInstance.getWidgetFactory(context).showFlashMessage(context, message: 'Item added to cart', actionText: 'View cart', onActinClicked: () {
-          CartDetailPage.navigateToCartDetailPage(context, router, updatedCart);
-        });
-      }
+      var cartInfo = bundle!.getCartInfo(selectedBundleProducts.values.toList(), productOrderConfigs);
+      AppController.getInstance.addCartToCartList(cartInfo, paymentOptions: bundle?.business?.paymentOptions ?? []);
+      AppController.getInstance.getWidgetFactory(context).showFlashMessage(context, message: 'Item added to cart', actionText: 'View cart', onActinClicked: () {
+        CartDetailPage.navigateToCartDetailPage(context, router, cartInfo);
+      });
+      // // final result = await orderUsecase.addToCart(bundle!.id!, bundle!.name!, items, paymentOptions: bundle?.business?.paymentOptions);
+      // if (result?.success == true && result?.cart != null) {
+      //   final updatedCart = result!.cart!.addPaymentOption(bundle!.business!.paymentOptions!);
+
+      // }
     } catch (e) {
       exception.value = exceptiionHandler.getException(e as Exception);
       print(' add to cart exception  ${exception.value?.code} ----- ${e.toString()}');
@@ -205,8 +209,8 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     return selectedBundleProducts.values.firstWhereOrNull((element) => element.id == product.id) != null;
   }
 
-  void handleBundleProductSelection(String parentProductId, Product product, {bool replace = false}) {
-    selectedBundleProducts[parentProductId] = product;
+  void handleBundleProductSelection(String parentProductId, Product product, double qty, {bool replace = false}) {
+    selectedBundleProducts[parentProductId] = product.copyWith(qty: qty);
     productListController.items.refresh();
   }
 

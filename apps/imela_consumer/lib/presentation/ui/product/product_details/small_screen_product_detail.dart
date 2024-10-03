@@ -124,6 +124,7 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                       product: widget.viewmodel.selectedProduct,
                       widgetFactory: widget.widgetFactory,
                       enableCallToActionBtn: widget.viewmodel.isOptionSelected,
+                      discounts: widget.viewmodel.discounts,
                       onPressed: () {
                         widget.viewmodel.handleJourney(context, widget.widgetFactory);
                       },

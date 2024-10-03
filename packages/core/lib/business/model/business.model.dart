@@ -4,12 +4,16 @@ import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/pricelist.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/address.model.dart';
 import 'package:imela_core/shared/base.model.dart';
 import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_data/database/entity/localized_field_entity.dart';
+import 'package:imela_data/database/entity/pos_business.entity.dart';
 
 part 'business.model.freezed.dart';
 part 'business.model.g.dart';
@@ -34,6 +38,7 @@ class Business extends BaseModel with _$Business {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? creator,
+    String? workspaceUrl,
     Gallery? gallery,
     String? productIds,
     List<Product>? products,
@@ -51,6 +56,7 @@ class Business extends BaseModel with _$Business {
     @Default(0) int? totalViews,
     List<PriceList>? priceLists,
     List<PaymentOption>? paymentOptions,
+    List<Discount>? discounts,
 
     // DeliveryInfo? deliveryInfo
     List<ProductBundle>? bundles,
@@ -58,14 +64,7 @@ class Business extends BaseModel with _$Business {
 
   factory Business.fromJson(Map<String, dynamic> json) => _$BusinessFromJson(json);
 
-  static List<Business> getFakeList = [
-    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 1')], createdAt: DateTime.now(), isActive: true),
-    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 2')], createdAt: DateTime.now(), isActive: true),
-    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 3')], createdAt: DateTime.now(), isActive: true),
-    Business(name: [LocalizedField(key: 'ENGLISH', value: 'Business 4')], createdAt: DateTime.now(), isActive: true),
-  ];
-
-  BusinessRegistrationStages get getBusinessStage{
+  BusinessRegistrationStages get getBusinessStage {
     return BusinessRegistrationStages.values.firstWhereOrNull((e) => e.name == stage) ?? BusinessRegistrationStages.CREATED;
   }
 
@@ -75,5 +74,26 @@ class Business extends BaseModel with _$Business {
 
   String? getLocalizedBusinessName(String locale) {
     return name?.localize(locale);
+  }
+
+  POSBusinessEntity toPOSBusinessEntity() {
+    return POSBusinessEntity(
+      name: name?.map((e) => LocalizedFieldEntity(key: e.key, value: e.value)).toList() ?? [],
+      workspaceUrl: workspaceUrl!,
+      phoneNumber:  phoneNumber!,
+      
+
+    );
+  }
+
+  List<ProductAddon> getSectionsOrderAddon(List<String> sectionIds){
+    if(sections == null) return [];
+    final addons = <ProductAddon>[];
+    sections?.forEach((section) {
+      if (sectionIds.contains(section.id)) {
+        addons.addAll(section.orderAddons ?? []);
+      }
+    });
+    return addons;
   }
 }

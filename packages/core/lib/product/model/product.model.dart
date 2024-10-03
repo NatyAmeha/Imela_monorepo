@@ -5,12 +5,14 @@ import 'package:imela_core/branch/model/inventory.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/product/model/product_price.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/price.model.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 
 part 'product.model.freezed.dart';
 part 'product.model.g.dart';
@@ -54,6 +56,7 @@ class Product with _$Product {
     List<ProductAddon>? addons,
     int? totalViews,
     List<ProductPrice>? prices,
+    List<Discount>? discounts,
     double? qty,
   }) = _Product;
 
@@ -76,6 +79,64 @@ class Product with _$Product {
     }
     final defaultPrice = prices?.firstOrNullWhere((price) => price.isDefault == true);
     return defaultPrice?.price ?? prices?.firstOrNull?.price;
+  }
+
+  String getPriceRangeString(String currency, {List<Discount> discounts = const [], bool showWithoutDiscount = false}) {
+    // 1. select default price from product price response
+    // 2. if there is a dynamic pricing discount, apply the discount to the default price
+    // 3. apply any other discounts passed as argument
+    var basePrice = getPrice().toSelectedPrice(currency);
+    var basePriceWithDynamicPricingDiscount = basePrice;
+    Price? discountedPrice;
+    if (basePrice == null) {
+      return 'Price not available';
+    }
+    if (dynamicPricingDiscounts.isNotEmpty) {
+      final maxDynamicPriceDiscountPercentage = dynamicPricingDiscounts.map((e) => e.value).max() ?? 0;
+      basePriceWithDynamicPricingDiscount = basePrice.copyWith(amount: basePrice.amount.getPercentage(maxDynamicPriceDiscountPercentage));
+    }
+
+    if (showWithoutDiscount || discounts.isEmpty) {
+      if (haveDynamicPricing) {
+        return '${basePriceWithDynamicPricingDiscount!.currency} ${basePriceWithDynamicPricingDiscount.amount.getPresision(2)} - ${basePrice.currency} ${basePrice.amount.getPresision(2)}';
+      }
+      return '${basePrice.currency} ${basePrice.amount.getPresision(2)}';
+    } else {
+      final maxDiscountPercentage = discounts.map((e) => e.value).max() ?? 0;
+      discountedPrice = basePriceWithDynamicPricingDiscount?.copyWith(amount: basePriceWithDynamicPricingDiscount.amount.getPercentage(maxDiscountPercentage));
+      if (haveDynamicPricing) {
+        return '${discountedPrice!.currency} ${discountedPrice.amount.getPresision(2)} - ${basePrice!.currency} ${basePrice!.amount.getPresision(2)}';
+      }
+      return '${discountedPrice!.currency} ${discountedPrice.amount.getPresision(2)}';
+    }
+  }
+
+  double getTotalPriceUpdated(String currency, {double? qtyInput, List<Discount> discounts = const []}) {
+    var basePrice = getPrice().toSelectedPrice(currency);
+    if (basePrice == null) {
+      return -1;
+    }
+    if (discounts.isEmpty) {
+      return basePrice.amount * (qtyInput ?? qty ?? 1);
+    }
+    final maxDiscountPercentage = discounts.map((e) => e.value).max() ?? 0;
+    final discountedPrice = basePrice.copyWith(amount: basePrice.amount.getPercentage(maxDiscountPercentage));
+    return (discountedPrice.amount * (qtyInput ?? qty ?? 1)).getPresision(2);
+  }
+
+  double calculateaAppliedDiscount(String currency, {double? qty, List<Discount> discounts = const []}) {
+    var productPrice = getTotalPriceUpdated(currency, qtyInput: qty);
+    var totalDiscountAmount = 0.0;
+    for (var discount in discounts) {
+      var discountAmount = discount.getDiscountedSubtotal(productPrice);
+      productPrice -= discountAmount;
+      totalDiscountAmount += discountAmount;
+    }
+    return totalDiscountAmount.getPresision(2);
+  }
+
+  String getTotalPriceUpdatedString(String currency, {double? qty, List<Discount> discounts = const []}) {
+    return '${getTotalPriceUpdated(currency, qtyInput: qty, discounts: discounts)} $currency';
   }
 
   double get totalPrice {
@@ -104,7 +165,7 @@ class Product with _$Product {
   }
 
   bool canOrderWithQty(double qty) {
-    if (isActive ?? false || remainingAmount == null) {
+    if (!isActive || remainingAmount == null) {
       return false;
     }
     return qty.inRange(DoubleRange(minimumOrderQty.toDouble(), remainingAmount!));
@@ -112,6 +173,15 @@ class Product with _$Product {
 
   String getCallToAction() {
     return callToAction ?? 'Order';
+  }
+
+  List<Discount> get dynamicPricingDiscounts {
+    return discounts?.where((discount) => discount.condition == DiscountCondition.QUANTITY.name).sortedBy((e) => e.conditionValue ?? 0.0).toList() ?? [];
+  }
+
+  bool get haveDynamicPricing {
+    final qtyBasedDiscount = discounts?.firstOrNullWhere((discount) => discount.condition == DiscountCondition.QUANTITY.name);
+    return qtyBasedDiscount != null;
   }
 
   List<OrderConfig> getDefaultAddonValue() {
@@ -129,13 +199,15 @@ class Product with _$Product {
     return orderConfig;
   }
 
-  OrderItem getOrderItem(double selectedQty, {List<OrderConfig> config = const []}) {
+  OrderItem getOrderItem(double selectedQty, {double originalPrice = 0, String selectedCurrency = 'ETB', List<OrderConfig> config = const [], List<Discount> discounts = const []}) {
+    final totalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: selectedQty, discounts: discounts);
     return OrderItem(
       name: name,
       productId: id,
       image: getImageUrl(),
-      subTotal: getPrice()?.firstOrNull?.amount,
-      discount: [],
+      subTotal: originalPrice * selectedQty,
+      total: totalPrice,
+      discount: discounts.map((e) => ItemDiscount(id: e.id, name: [], amount: e.getTotalDiscount(originalPrice, selectedQty: selectedQty))).toList(),
       config: config,
       quantity: selectedQty,
     );
@@ -143,6 +215,10 @@ class Product with _$Product {
 
   Product updateQty(double qty) {
     return copyWith(qty: qty);
+  }
+
+  bool hasAddons() {
+    return addons?.isNotEmpty ?? false;
   }
 }
 

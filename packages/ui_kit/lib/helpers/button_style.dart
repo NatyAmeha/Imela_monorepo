@@ -25,12 +25,14 @@ class AppButtonStyle {
     );
   }
 
-  static ButtonStyle textButtonStyle(BuildContext context, {Color? color, double borderRadius = 10, EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 12), BorderSide border = BorderSide.none}) {
+  static ButtonStyle textButtonStyle(BuildContext context, {Color? color, double borderRadius = 10, EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 4, vertical: 4), BorderSide border = BorderSide.none}) {
     return TextButton.styleFrom(
       // textStyle: TextStyle(color: Colors.white, fontSize: 20),
       backgroundColor: Colors.transparent,
       foregroundColor: color ?? Theme.of(context).colorScheme.secondary,
       padding: padding,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
     );
   }
 }
