@@ -1,0 +1,12 @@
+# mutation CreateCalendarBooking($input: CreateCalendarBookingInput!) {
+#   createCalendarBooking(input: $input) {
+#     success
+#     calendarBooking {
+#       id
+#       bookedTimes
+#       calendarId
+#       createdAt
+      
+#     }
+#   }
+# }

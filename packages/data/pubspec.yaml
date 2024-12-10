@@ -46,6 +46,10 @@ dependencies:
   # local packages
   imela_utils: ^0.1.0
 
+dependency_overrides:
+  js: ^0.7.1 # Force the use of js ^0.7.1 across the project
+  # google_maps: ^7.1.0  # Use google_maps ^7.1.0 for consistency
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

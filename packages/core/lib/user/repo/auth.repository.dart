@@ -1,8 +1,11 @@
 import 'package:imela_core/shared/repository.intereface.dart';
 import 'package:imela_core/user/dto/user_signup_input.dart';
 import 'package:imela_core/user/model/auth_response.dart';
-import 'package:imela_core/user/model/user.response.dart';
 import 'package:imela_data/injection.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/authenticate_staff.data.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/authenticate_staff.req.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/refresh_token.data.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/refresh_token.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/signin_with_email.data.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/signin_with_email.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/signup_signin_with_phone.data.gql.dart';
@@ -22,9 +25,12 @@ abstract class IAuthRepository extends IRepository {
   Future<AuthResponse> signinOrSignupUsingPhoneNumber(String phoneNumber);
   Future<AuthResponse> registerUser(UserEmailSignupInput signupInput);
   Future<AuthResponse> loginWithEmail(String email, String password);
+  Future<AuthResponse> refreshToken();
   Future<bool> saveAuthCredentialToPreference(AuthResponse authResponse);
+
   Future<bool> removeAuthCredentialFromPreference();
   Future<AuthResponse> getAuthInfoFromPreference();
+  Future<AuthResponse> generateTokenForStaff(String phoneNumber);
 }
 
 @Injectable(as: IAuthRepository)
@@ -109,6 +115,35 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
+  Future<AuthResponse> generateTokenForStaff(String phoneNumber) async {
+    final request = GGenerateTokenForStaffReq((b) => b
+      ..vars.phoneNumber = phoneNumber
+      ..fetchPolicy = _graphQLDataSource.getFetchPolicy(ApiDataFetchPolicy.networkOnly));
+    final result = await _graphQLDataSource.request<GGenerateTokenForStaffData>(request, type: 'GENERATE_TOKEN_FOR_STAFF', isMainError: true);
+    if (result?.generateTokenForStaff == null) {
+      throw GraphqlException(message: 'Unable to generate token for staff');
+    }
+    final responseData = AuthResponse.fromJson(result!.generateTokenForStaff.toJson());
+    return responseData;
+  }
+
+  @override
+  Future<AuthResponse> refreshToken() async {
+    final request = GRefreshTokenReq(
+      (b) => b..fetchPolicy = _graphQLDataSource.getFetchPolicy(ApiDataFetchPolicy.networkOnly),
+    );
+    final result = await _graphQLDataSource.request<GRefreshTokenData>(request, type: 'REFRESH_TOKEN', isMainError: true);
+    if (result?.refreshToken == null) {
+      throw GraphqlException(message: 'Unable to refresh token');
+    }
+    final responseData = AuthResponse.fromJson(result!.refreshToken.toJson());
+    if (!responseData.isSuccessfull) {
+      throw AppException(message: 'An error occured while trying to refresh token');
+    }
+    return responseData;
+  }
+
+  @override
   Future<AuthResponse> getAuthInfoFromPreference() async {
     final accessToken = await _sharedPreferenceDataStore.get<String>(SharedPreferenceConstant.ACCESS_TOKEN);
     final refreshToken = await _sharedPreferenceDataStore.get<String>(SharedPreferenceConstant.REFRESH_TOKEN);
@@ -120,8 +155,15 @@ class AuthRepository implements IAuthRepository {
   Future<bool> saveAuthCredentialToPreference(AuthResponse authResponse) async {
     var result = false;
     result = await _sharedPreferenceDataStore.create<bool, String>(SharedPreferenceConstant.ACCESS_TOKEN, authResponse.accessToken!);
-    result = await _sharedPreferenceDataStore.create(SharedPreferenceConstant.REFRESH_TOKEN, authResponse.refreshToken!);
-    result = await _sharedPreferenceDataStore.create(SharedPreferenceConstant.IS_NEW_USER, authResponse.isNewUser!);
+    if (authResponse.refreshToken != null) {
+      result = await _sharedPreferenceDataStore.create(SharedPreferenceConstant.REFRESH_TOKEN, authResponse.refreshToken!);
+    }
+    if (authResponse.isNewUser != null) {
+      result = await _sharedPreferenceDataStore.create(SharedPreferenceConstant.IS_NEW_USER, authResponse.isNewUser!);
+    }
+    if (!result) {
+      throw PreferenceException(source: 'Refresh token', errorMessage: 'An error occured while trying to save user credential');
+    }
     return result;
   }
 

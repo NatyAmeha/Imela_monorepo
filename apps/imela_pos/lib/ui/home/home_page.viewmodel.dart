@@ -1,31 +1,49 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela_core/branch/branch.usecase.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/branch/model/branch.response.dart';
+import 'package:imela_core/business/model/business.section.dart';
+import 'package:imela_core/loyalty/loyalty_usecase.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
+import 'package:imela_core/shared/utils/navigation_destination.dart';
+import 'package:imela_core/user/model/access/access.model.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
 import 'package:imela_pos/injection.dart';
 import 'package:imela_pos/ui/cart/cart.viewmodel.dart';
-import 'package:imela_pos/ui/payment/payment_page.dart';
+import 'package:imela_pos/ui/cart/component/cart_list_component.dart';
+import 'package:imela_pos/ui/customer/customer_list_page.dart';
+import 'package:imela_pos/ui/home/home_page.dart';
+import 'package:imela_pos/ui/membership/pos_membership_list_page.dart';
+import 'package:imela_pos/ui/order/order_list_page.dart';
+import 'package:imela_pos/ui/order/schedule/order_schedule_page.dart';
 import 'package:imela_pos/ui/product/components/pos_product_addon_list_modal.dart';
+import 'package:imela_pos/ui/product/components/produc_variant_list_modal.dart';
+import 'package:imela_pos/ui/staff/staff_list/staff_list_page.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
+import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
+import 'package:imela_utils/helpers/screen_size_utils.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class HomePageViewmodel extends GetxController with BaseViewmodel {
   final BranchUsecase branchUsecase;
+  final LoyaltyUsecase loyaltyUsecase;
   final IExceptiionHandler exceptiionHandler;
 
   HomePageViewmodel({
     required this.branchUsecase,
+    required this.loyaltyUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
   });
 
@@ -43,21 +61,21 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
   AppViewmodel get appViewmodel => AppViewmodel.getInstance();
   final cartViewmodel = CartViewmodel.getInstance();
 
-  Cart? get cart {
-    return appViewmodel.cartInfo.value;
-  }
-
+  Cart? get cart => appViewmodel.cartInfo.value;
+  String get cartTotalAmount => '${appViewmodel.selectedCurrency} ${cart?.getTotalPrice ?? 0}';
+  String get cartTotalItems => cart!.getTotalItems();
   Branch? get selectedBranch => appViewmodel.selectedBranch.value;
 
-  List<Product> get allBranchProducts {
-    return appViewmodel.selectedBranch.value?.products ?? [];
-  }
+  String? get businessName => appViewmodel.selectedBusiness.value?.name.localize(appViewmodel.selectedLanguage);
+  List<BusinessSection> get sections => appViewmodel.selectedBusiness.value?.sections ?? [];
+  String? get selectedSectionId => appViewmodel.selectedSection.value?.id;
 
-  List<Product> get getProductsByCategory {
+  List<Product> get getProductsByCategoryAndSection {
+    var products = appViewmodel.allProducts.where((product) => product.sectionId?.contains(selectedSectionId) ?? false).toList();
     if (selectedCategory.value == 'All') {
-      return allBranchProducts;
+      return products;
     } else {
-      return allBranchProducts.where((product) => product.category!.contains(selectedCategory.value)).toList();
+      return products.where((product) => product.category!.contains(selectedCategory.value)).toList();
     }
   }
 
@@ -68,12 +86,30 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
   @override
   void initViewmodel({Map<String, dynamic>? data}) async {
     super.initViewmodel(data: data);
+    final context = data?['context'] as BuildContext;
     final tickerProvider = data?['tickerProvider'];
     assignCategoryTabController(categories.length, tickerProvider);
+    getCustomerBusinessLoyalty(context, appViewmodel.selectedBusinessId);
+    appViewmodel.loadCustomers(context);
+    appViewmodel.getBusinessMemberships();
+  }
+
+  List<AppNavigationDestination> getDestinations(BuildContext context) {
+    var defaultDestinations = [
+      AppNavigationDestination(name: 'Home', icon: Icons.home, screen: HomePage(), onTap: () => HomePage.navigate(context)),
+      AppNavigationDestination(name: 'Orders', icon: Icons.inventory_2, screen: OrderListPage(), onTap: () => OrderListPage.navigate(context)),
+      AppNavigationDestination(name: 'Customers', icon: Icons.inventory_2, screen: CustomerListPage(), onTap: () => CustomerListPage.navigate(context)),
+      AppNavigationDestination(name: 'Memberships', icon: Icons.wallet_membership_rounded, screen: POSMembershipListPage(), onTap: () => POSMembershipListPage.navigateTo(context)),
+    ];
+    if (appViewmodel.loggedInStaffAccesses.canAccessStaff()) {
+      defaultDestinations.add(AppNavigationDestination(name: 'Staffs', icon: Icons.settings, screen: StaffListPage(), onTap: () => StaffListPage.navigate(context)));
+    }
+    defaultDestinations.add(AppNavigationDestination(name: 'Schedules', icon: Icons.calendar_month, screen: OrderSchedulePage(), onTap: () => OrderSchedulePage.navigateTo(context)));
+    return defaultDestinations;
   }
 
   void assignCategoryTabController(int length, TickerProvider vsync) {
-    var productCategories = allBranchProducts.map((e) => e.category?.firstOrNull ?? '').toSet()..removeWhere((element) => element.isEmpty);
+    var productCategories = appViewmodel.allProducts.flatMap((e) => e.category ?? []).toSet()..removeWhere((element) => element.isEmpty);
     categories.addAll(['All', ...productCategories]);
     selectedCategory.value = categories[0];
     businessSectionTabControllers = TabController(length: categories.length, vsync: vsync);
@@ -85,12 +121,12 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
   Future<void> syncPOS(BuildContext context) async {
     try {
       isLoading.value = true;
-      final result = await branchUsecase.getPosBranchDetails(appViewmodel.selectedBusinessId, appViewmodel.selectedBranchId);
+      final result = await branchUsecase.getPosBranchDetails(appViewmodel.selectedBusinessId, selectedBranch!.id!);
       if (!result.isPosBranchFetchSuccessfull) {
         exception.value = AppException(message: result!.message ?? 'Unable to get branch details', isMainError: false);
         return;
       }
-      appViewmodel.selectBranch(selectedBranch);
+      appViewmodel.selectBranch(result!.branch);
     } catch (e) {
       print('error syncing pos: $e');
       exception.value = exceptiionHandler.getException(e as Exception);
@@ -99,37 +135,84 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
+  Future<void> getCustomerBusinessLoyalty(BuildContext context, String businessId) async {
+    try {
+      final loyaltyInfo = await loyaltyUsecase.getCustomerBusinessLoyalty(businessId);
+      appViewmodel.setSelectedBusinessLoyaltyInfo(loyaltyInfo);
+    } catch (e) {
+      AppViewmodel.getWidgetFactory(context).showFlashMessage(context, message: 'Unable to get loyalty info');
+      // exception(exceptiionHandler.getException(e as Exception));
+    }
+  }
+
   List<Widget> geCategoryTabs() {
     return categories.map((e) => Tab(text: e)).toList();
   }
 
-  void navigateToPaymentPage(BuildContext context) {
-    PaymentPage.navigate(context);
+  void navigateToCartPage(BuildContext context) {
+    CartListPage.navigate(context);
   }
 
   void addProductToCartOrUpdateQty(BuildContext context, {double qty = 1, required Product product}) async {
+    var selectedProductInfo = product;
     try {
       List<OrderConfig> orderConfigs = [];
-      if (product.hasAddons()) {
-        orderConfigs = await showAddonModal(context, product.addons!);
+      if (product.hasVariants()) {
+        selectedProductInfo = await showVariantModal(context, product);
       }
-      final isProductInCart = cartViewmodel.isCartContainsProduct(product.id!);
+      if (product.hasAddons()) {
+        final addonConfig = await showAddonModal(context, product.getAddons(forPOS: true));
+        orderConfigs = addonConfig.orderConfigs;
+      }
+      final isProductInCart = cartViewmodel.isCartContainsProduct(selectedProductInfo.id!);
       if (isProductInCart) {
-        cartViewmodel.updateProductQty(product.id!, qty: qty);
+        cartViewmodel.updateProductQty(selectedProductInfo.id!, qty: qty);
       } else {
-        final orderItem = product.getOrderItem(qty, config: orderConfigs);
+        final orderItem = selectedProductInfo.getOrderItem(qty, config: orderConfigs);
         cartViewmodel.addProductToCart(orderItem);
       }
+      cartViewmodel.applyEligableDiscountsProactive();
     } catch (ex) {
       print('error adding product to cart: $ex');
     }
   }
 
-  Future<List<OrderConfig>> showAddonModal(BuildContext context, List<ProductAddon> productAddons) async {
-    final configResult = await AppModalSheet.showModal<List<OrderConfig>>(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
-      ModalContent(title: Text("Addos"), content: PosProductAddonModal(productAddons: productAddons)),
+  Future<AddonConfig> showAddonModal(BuildContext context, List<ProductAddon> productAddons) async {
+    final configResult = await AppModalSheet.showModal<AddonConfig>(context, type: AppModalSheetType.SIDESHEET, pages: [
+      ModalContent(
+          title: const Text('Product Add-ons/configurations'),
+          content: Obx(
+            () => PosProductAddonModal(
+              productAddons: List.from(productAddons),
+              customer: appViewmodel.selectedCustomer.value,
+              callToAction: 'Add to Cart',
+            ),
+          )),
     ]);
+
     return configResult;
+  }
+
+  Future<Product> showVariantModal(BuildContext context, Product product) async {
+    final variantResult = await AppModalSheet.showModal<Product>(
+      context,
+      type: AppModalSheetType.SIDESHEET,
+      pages: [
+        ModalContent(
+            title: const Text('Product Variants'),
+            content: ProductVariantListModal(
+              variants: product.variants ?? [],
+              // selectedProduct: product,
+              selectedLanguage: appViewmodel.selectedLanguage,
+              currency: appViewmodel.selectedCurrency,
+              widgetFactory: AppViewmodel.getWidgetFactory(context),
+              onVariantSelected: (variant) {
+                AppModalSheet.closeModal(result: variant);
+              },
+            )),
+      ],
+    );
+    return variantResult.copyWith(membershipIds: product.membershipIds);
   }
 
   void updateProductQty(OrderItem item, double qty) {
@@ -140,7 +223,47 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
     cartViewmodel.removeProductFromCart(productId);
   }
 
-  void clearCart() {
-    cartViewmodel.clearCart();
+  void showSectionSelectorDialog(BuildContext context) {
+    final widgetFactory = AppViewmodel.getWidgetFactory(context);
+    AppModalSheet.showModal<BusinessSection>(
+      context,
+      type: AppModalSheetType.BOTTOMSHEET,
+      pages: [
+        ModalContent(
+          title: const Text('Select Section'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              widgetFactory.createText(context, 'Select Section', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 16),
+              const SizedBox(height: 16),
+              AppListView(
+                items: sections,
+                shrinkWrap: true,
+                itemBuilder: (context, section, index) {
+                  final isSelected = appViewmodel.selectedSection.value?.id == section.id;
+                  return widgetFactory.createCard(
+                    padding: Responsive.paddingSymetric(context, smallVertical: 12, smallHorizontal: 16),
+                    onTap: () {
+                      appViewmodel.setSelectedSection(section);
+                      AppModalSheet.closeModal(result: section);
+                    },
+                    child: Row(
+                      children: [
+                        if (isSelected) ...[
+                          const Icon(Icons.check_circle_outline_rounded, color: Colors.green),
+                          const SizedBox(width: 8),
+                        ],
+                        if (!isSelected) const SizedBox(width: 32),
+                        widgetFactory.createText(context, section.name.localize(appViewmodel.selectedLanguage), style: Theme.of(context).textTheme.labelLarge),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

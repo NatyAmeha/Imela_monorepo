@@ -10,6 +10,12 @@ query GetPosBranch($businessId: String!, $branchId: String!) {
         key
         value
       }
+      address{
+        id
+        address
+        city
+        location
+      }
       priceLists {
         id
         name {
@@ -19,25 +25,165 @@ query GetPosBranch($businessId: String!, $branchId: String!) {
       }
       products {
         id
+        # totalViews
         name {
           key
           value
         }
-        category
-        gallery{
-          images{
-            url
-            featured
-          }
-        }
+        membershipIds
         prices {
-          id
-          isDefault
           price {
-            currency
             amount
+            currency
           }
         }
+        discounts {
+          type
+          value
+          condition
+          conditionValue
+          startDate
+          endDate
+        }
+        sectionId
+        featured
+        businessId
+        description {
+          key
+          value
+        }
+        gallery {
+          images {
+            featured
+            url
+          }
+        }
+        inventory {
+          qty
+          unit
+          minOrderQty
+          maxOrderQty
+          isAvailable
+          optionsIncluded
+        }
+        addons {
+          id
+          name {
+            key
+            value
+          }
+          summary{
+            key
+            value
+          }
+          description{
+            key
+            value
+          }
+          inputType
+          condition
+          conditionValue
+          minAmount
+          maxAmount
+          tag
+          isActive
+          isRequired
+          isProduct
+          productIds
+          membershipIds
+          checkCalendar
+          calendarId
+          includeOnPOS
+          options {
+            id
+            name {
+              key
+              value
+            }
+            images
+          
+          }
+          products {
+            id
+            name {
+              key
+              value
+            }
+            gallery {
+              images {
+              url
+                featured
+              }
+            }
+          
+            prices {
+              price {
+                currency
+                amount
+              }
+            }
+          
+          }
+          additionalPrice {
+            id
+            amount
+            currency
+          } 
+        }
+        calendars{
+          id
+          productId
+        }
+        tag
+        minimumOrderQty
+        loyaltyPoint
+        category
+        canOrderOnline
+        reviewTopics
+        sku
+        options {
+          key
+          value
+        }
+        optionsIncluded
+        variants {
+          id
+          name {
+            key
+            value
+          }
+          prices {
+            price {
+              amount
+            currency
+            }
+          }
+          gallery {
+            images {
+              url
+            }
+          } 
+          inventory {
+            qty
+            unit
+            minOrderQty
+            maxOrderQty
+            isAvailable
+            optionsIncluded
+          }
+          loyaltyPoint
+        }
+        inventory {
+          qty
+          unit
+          minOrderQty
+          maxOrderQty
+          isAvailable
+          optionsIncluded
+        }
+        loyaltyPoint
+        callToAction
+        branchIds
       }
     }
   }   

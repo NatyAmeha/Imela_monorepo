@@ -5,7 +5,8 @@ import 'package:imela_utils/helpers/number_utils.dart';
 
 extension CurrencyUtils on List<Price>? {
   String toSelectedPriceString(String currency) {
-    final selectedPrice = toSelectedPrice(currency);
+
+    final selectedPrice = this?.toSelectedPrice(currency);
     if (selectedPrice == null) {
       return '';
     }
@@ -16,7 +17,7 @@ extension CurrencyUtils on List<Price>? {
     if (this == null || this?.isEmpty == true) {
       null;
     }
-    return this!.firstWhereOrNull((element) => element.currency == currency) ?? this?.firstOrNull;
+    return this?.firstWhereOrNull((element) => element.currency == currency) ?? this!.firstOrNull;
   }
 }
 

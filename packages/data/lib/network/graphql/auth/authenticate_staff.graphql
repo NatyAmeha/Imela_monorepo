@@ -1,0 +1,26 @@
+mutation GenerateTokenForStaff($phoneNumber : String!){
+  generateTokenForStaff(phoneNumber: $phoneNumber){
+    success
+    accessToken
+    refreshToken
+    accesses{
+      id
+      name {
+        key
+        value
+      }
+      role
+      permissions {
+        id
+        name {
+          key
+          value
+        }
+        resourceType
+        action
+        resourceTarget
+        effect
+      }
+    }
+  }
+}

@@ -16,7 +16,6 @@ class AppThemeManager {
     return ThemeData(
       scaffoldBackgroundColor: ColorManager.white,
       colorScheme: const ColorScheme.light(
-
         primary: ColorManager.primary,
         secondary: ColorManager.secondary,
         secondaryContainer: ColorManager.secondaryBackground,

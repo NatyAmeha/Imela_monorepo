@@ -9,9 +9,9 @@ class WorkspaceAuth extends StatefulWidget {
   static const routeName = '/workspace-auth';
   const WorkspaceAuth({super.key});
 
-  static void navigate(BuildContext context) {
+  static void navigate(BuildContext context, {bool replace = false}) {
     final router = AppViewmodel.getInstance().appRouter;
-    router.navigateTo(context, routeName);
+    router.navigateTo(context, routeName, replace: replace);
   }
 
   @override
@@ -21,6 +21,13 @@ class WorkspaceAuth extends StatefulWidget {
 class _WorkspaceAuthState extends State<WorkspaceAuth> {
   final viewmodel = WorkspaceAuthViewmodel.getInstance();
   late WidgetFactory widgetFactory;
+
+  @override
+  void initState() {
+    super.initState();
+    viewmodel.initViewmodel();
+  }
+
   @override
   Widget build(BuildContext context) {
     widgetFactory = AppViewmodel.getWidgetFactory(context);
@@ -55,18 +62,21 @@ class _WorkspaceAuthState extends State<WorkspaceAuth> {
   }
 
   Widget _buildSmallScreenLayout() {
-    return Column(
-      children: [
-        // Description Column (Top)
-        Container(
-          color: Colors.green,
-          padding: const EdgeInsets.all(16.0),
-          child: _buildDescription(),
-        ),
-        const SizedBox(height: 16),
-        // Input Column (Bottom)
-        _buildInputColumn(),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // Description Column (Top)
+          widgetFactory.createCard(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.zero,
+            padding: const EdgeInsets.all(16.0),
+            child: _buildDescription(),
+          ),
+          const SizedBox(height: 16),
+          // Input Column (Bottom)
+          _buildInputColumn(),
+        ],
+      ),
     );
   }
 
@@ -74,49 +84,48 @@ class _WorkspaceAuthState extends State<WorkspaceAuth> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 100),
-        widgetFactory.createText(context, 'IMela POS', style: Theme.of(context).textTheme.displayMedium),
+        SizedBox(height: context.isPhone ? 50 : 150),
+        widgetFactory.createText(context, 'IMela POS', style: Theme.of(context).textTheme.displayMedium, color: Colors.white),
         const SizedBox(height: 24),
         widgetFactory.createText(
           context,
           'Please provide details for the workspace. The workspace input will be used to manage resources.',
           style: Theme.of(context).textTheme.titleMedium,
+          color: Colors.white,
         ),
         const SizedBox(height: 24),
-        widgetFactory.createText(
-          context,
-          'Please provide details for the workspace. The workspace input will be used to manage resources.',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
       ],
     );
   }
 
   Widget _buildInputColumn() {
     return widgetFactory.createCard(
+      // Remove the fixed width
       padding: const EdgeInsets.all(32),
-      height: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          widgetFactory.createTextField(
-            controller: viewmodel.workspaceInputController,
-            onChanged: viewmodel.onWorkspaceInputChanged,
-            hintText: 'Workspace Name',
-          ),
-          const SizedBox(height: 32),
-          Obx(
-            () => widgetFactory.createButton(
-              context: context,
-              content: const Text('Submit'),
-              isLoading: viewmodel.isLoading.value,
-              onPressed: () {
-                viewmodel.checkBusinessWorkspace(context);
-              },
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            widgetFactory.createTextField(
+              controller: viewmodel.workspaceInputController,
+              onChanged: viewmodel.onWorkspaceInputChanged,
+              hintText: 'Workspace Name',
             ),
-          ),
-        ],
+            const SizedBox(height: 32),
+            Obx(
+              () => widgetFactory.createButton(
+                context: context,
+                content: const Text('Submit'),
+                isLoading: viewmodel.isLoading.value,
+                onPressed: () {
+                  viewmodel.checkBusinessWorkspace(context);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

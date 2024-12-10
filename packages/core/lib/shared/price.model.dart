@@ -5,6 +5,7 @@ part 'price.model.g.dart';
 
 @freezed
 class Price with _$Price {
+  const Price._();
   factory Price({
     String? id,
     required double amount,
@@ -12,6 +13,8 @@ class Price with _$Price {
   }) = _Price;
 
   factory Price.fromJson(Map<String, dynamic> json) => _$PriceFromJson(json);
+
+  String get amountWithCurrency => '$currency $amount';
 }
 
 

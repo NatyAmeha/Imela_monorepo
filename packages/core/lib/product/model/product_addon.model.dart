@@ -2,8 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
+import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/price.model.dart';
+import 'package:imela_utils/helpers/localization_utils.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 
 part 'product_addon.model.freezed.dart';
 part 'product_addon.model.g.dart';
@@ -18,16 +24,27 @@ enum AddonInputType {
   TIME_INPUT,
   DATE_TIME_INPUT,
   DATE_RANGE_INPUT,
+  LOCATION_PER_KM_INPUT,
+  LOCATION_INPUT,
+  PRODUCT_SELECTION_INPUT,
+  PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT,
+  NONE,
 }
+
+enum AddonCondition { NONE, MINIMUM_QUANTITY, MEMBERSHIP, MINIMUM_PURCHASE }
+
+// multiple selection addon sample for hotel booking
 
 @freezed
 class ProductAddon with _$ProductAddon {
   const ProductAddon._();
   factory ProductAddon({
     String? id,
+    List<LocalizedField>? summary,
     List<LocalizedField>? name,
-    // List<LocalizedField>? description,
-    required String inputType,
+    List<LocalizedField>? description,
+    @Default('NONE') String inputType,
+    List<String>? membershipIds,
     @Default([]) List<ProductAddonOption> options,
     bool? checkCalendar,
     List<Price>? additionalPrice,
@@ -35,9 +52,14 @@ class ProductAddon with _$ProductAddon {
     @Default(1.0) double maxAmount,
     @Default(true) bool isActive,
     @Default(false) bool isRequired,
+    @Default('NONE') String condition,
+    String? conditionValue,
     List<String>? tag,
     @Default(false) bool? isProduct,
-    String? productId,
+    List<String>? productIds,
+    String? calendarId,
+    @Default(true) bool includeOnPOS,
+    List<Product>? products,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _ProductAddon;
@@ -53,49 +75,45 @@ class ProductAddon with _$ProductAddon {
   bool get isDateTimeInput => inputType == AddonInputType.DATE_TIME_INPUT.name;
 
   Map<String, Widget>? getAddonOptions(String selectedLanguage) {
-    var sampleOption = options;
-    if (sampleOption.isEmpty == true) {
-      sampleOption = ProductAddonOption.getSampleProductADdongOption();
-    }
+    if (options.isEmpty) return {};
     Map<String, Widget>? optionsUI = {};
-    for (var option in sampleOption) {
+    for (var option in options) {
       optionsUI.addAll({option.id!: Text(option.name.localize(selectedLanguage))});
     }
     return optionsUI;
   }
 
-  static List<ProductAddon> getSampleProductAddon() {
-    return [
-      ProductAddon(
-        id: '1',
-        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 1')],
-        inputType: AddonInputType.SINGLE_SELECTION_INPUT.name,
-        options: ProductAddonOption.getSampleProductADdongOption(),
-      ),
-      ProductAddon(
-        id: '2',
-        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 2')],
-        inputType: AddonInputType.MULTIPLE_SELECTION_INPUT.name,
-        options: ProductAddonOption.getSampleProductADdongOption(),
-      ),
-      ProductAddon(
-        id: '3',
-        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 3')],
-        inputType: AddonInputType.NUMBER_INPUT.name,
-        minAmount: 4,
-        maxAmount: 10,
-      ),
-      ProductAddon(
-        id: '4',
-        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 4')],
-        inputType: AddonInputType.DATE_INPUT.name,
-      ),
-      ProductAddon(
-        id: '5',
-        name: [const LocalizedField(key: 'ENGLISH', value: 'Addon 5')],
-        inputType: AddonInputType.TIME_INPUT.name,
-      ),
-    ];
+  bool canEnableAddon({double selectedQty = 0, double totalPrice = 0, bool isUserMembershipvalid = false}) {
+    print('membership check ${selectedQty} ${condition} ${conditionValue} $totalPrice');
+    var conditionCheck = false;
+    if (condition == AddonCondition.NONE.name) {
+      conditionCheck = true;
+    } else if (condition == AddonCondition.MINIMUM_QUANTITY.name && selectedQty >= double.parse(conditionValue ?? '0')) {
+      conditionCheck = true;
+    } else if (condition == AddonCondition.MINIMUM_PURCHASE.name && totalPrice >= double.parse(conditionValue ?? '0')) {
+      conditionCheck = true;
+    }
+
+    if (membershipIds?.isNotEmpty == true) {
+      return conditionCheck && isUserMembershipvalid;
+    }
+    return conditionCheck;
+  }
+
+  String requiredString(String selectedLanguage) {
+    return LocalizationUtils.returnLocalizedString(selectedLanguage, englishString: "Required", amharicString: "መምረጥ ያስፈልጋል");
+  }
+
+  double getTotalAdditionalPrice(String selectedCurrency, {double qty = 1}) {
+    return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * qty).getPresision(2).toDouble();
+  }
+
+  String getTotalAdditionalPriceString(String selectedCurrency, {double qty = 1}) {
+    if (additionalPrice?.isEmpty == true) {
+      return '';
+    }
+    final totalPrice = getTotalAdditionalPrice(selectedCurrency, qty: qty);
+    return '+ $selectedCurrency $totalPrice';
   }
 }
 
@@ -106,27 +124,30 @@ class ProductAddonOption with _$ProductAddonOption {
     String? id,
     List<LocalizedField>? name,
     List<String>? images,
+    List<String>? membershipIds,
+    List<Price>? price,
   }) = _ProductAddonOption;
 
   factory ProductAddonOption.fromJson(Map<String, dynamic> json) => _$ProductAddonOptionFromJson(json);
+}
 
-  static List<ProductAddonOption> getSampleProductADdongOption() {
-    return [
-      ProductAddonOption(
-        id: '1',
-        name: [const LocalizedField(key: 'en', value: 'Option 1')],
-        images: ['https://via.placeholder.com/150'],
-      ),
-      ProductAddonOption(
-        id: '2',
-        name: [const LocalizedField(key: 'en', value: 'Option 2')],
-        images: ['https://via.placeholder.com/150'],
-      ),
-      ProductAddonOption(
-        id: '3',
-        name: [const LocalizedField(key: 'en', value: 'Option 3')],
-        images: ['https://via.placeholder.com/150'],
-      ),
-    ];
+@freezed
+class AddonConfig with _$AddonConfig {
+  const AddonConfig._();
+  factory AddonConfig({
+    required List<OrderConfig> orderConfigs,
+    List<OrderItem>? additionalItems,
+  }) = _AddonConfig;
+
+  factory AddonConfig.fromJson(Map<String, dynamic> json) => _$AddonConfigFromJson(json);
+
+  AddonConfig removeQtyConfig() {
+    return AddonConfig(orderConfigs: List<OrderConfig>.from(orderConfigs.where((element) => element.addonId != OrderConfig.QTY_CONFIG_ID)));
+  }
+}
+
+extension ProductAddonExtension on List<ProductAddon> {
+  List<String> getRequiredAddonsId() {
+    return where((element) => element.isRequired).map((e) => e.id!).toList();
   }
 }

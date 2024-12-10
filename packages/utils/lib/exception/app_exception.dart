@@ -1,21 +1,28 @@
 
-import 'package:flutter/cupertino.dart';
-import 'package:imela_utils/exception/exception_type.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class AppException implements Exception {
   String? message;
   String? code;
   String? type;
   bool isMainError;
+  IconData? errorIcon;
+  String? actionText;
+
   dynamic exception;
 
   static const GraphQLErrorType = 'GraphQLError';
   static const DBErrorType = 'DBError';
 
-  AppException({this.message, this.code, this.type, this.isMainError = false, this.exception});
+  AppException({this.message, this.code, this.type, this.isMainError = false, this.exception,
+    this.errorIcon = Icons.error_outline,
+    this.actionText = 'Try again'
+  });
 
   bool get isUnAuthorizedException {
-    return code == '401';
+    return code == '401' || code == 'UNAUTHENTICATED';
   }
 
   AppException serialize() {

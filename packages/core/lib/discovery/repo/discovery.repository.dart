@@ -1,13 +1,17 @@
 import 'package:imela_core/discovery/model/discovery_response.dart';
+import 'package:imela_core/discovery/model/foryou_response.dart';
 import 'package:imela_data/injection.dart';
 import 'package:imela_data/network/graphql/discover/__generated__/discover_query.data.gql.dart';
 import 'package:imela_data/network/graphql/discover/__generated__/discover_query.req.gql.dart';
+import 'package:imela_data/network/graphql/discover/__generated__/foryou_query.data.gql.dart';
+import 'package:imela_data/network/graphql/discover/__generated__/foryou_query.req.gql.dart';
 import 'package:imela_data/network/graphql/graphql_config.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class IDiscoveryRepository {
   Future<DiscoveryResponse?> browse({required ApiDataFetchPolicy fetchPolicy});
+  Future<ForYouResponse?> forYou({required ApiDataFetchPolicy fetchPolicy});
 }
 
 @Injectable(as: IDiscoveryRepository)
@@ -28,5 +32,17 @@ class DiscoveryRepository implements IDiscoveryRepository {
     }
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
     return DiscoveryResponse.fromJson(result.getDiscoveryData.toJson());
+  }
+
+  @override
+  Future<ForYouResponse?> forYou({required ApiDataFetchPolicy fetchPolicy}) async {
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
+    final request = GGetForYouDataReq((b) => b..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy));
+    final result = await _graphQLDataSource.request<GGetForYouDataData>(request, type: 'FOR_YOU', isMainError: true);
+    if (result == null) {
+      return null;
+    }
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
+    return ForYouResponse.fromJson(result.getForYouData.toJson());
   }
 }

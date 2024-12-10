@@ -30,17 +30,16 @@ enum AccountType {
   USER
   ADMIN
   SUPERADMIN
+  STAFF
+  BUSINESS_OWNER
 }
 
-enum AddonInputType {
-  NUMBER_INPUT
-  TEXT_INPUT
-  SINGLE_SELECTION_INPUT
-  MULTIPLE_SELECTION_INPUT
-  DATE_INPUT
-  TIME_INPUT
-  DATE_TIME_INPUT
-  NO_INPUT_REQUIRED
+input AddOrderSchedulesInput {
+  calendarId: String!
+  bookedTimes: [DateTime!]!
+  productId: String
+  status: String
+  note: [LocalizedFieldInput!]
 }
 
 type Address {
@@ -73,6 +72,7 @@ type AuthResponse {
   accessToken: String
   refreshToken: String
   isNewUser: Boolean
+  accesses: [Access!]
 }
 
 type BaseResponse {
@@ -84,7 +84,8 @@ type BaseResponse {
 type Benefit {
   id: ID!
   name: [LocalizedField!]!
-  perkType: MembershipPerkType
+  perkType: String
+  discounts: [Discount!]
 }
 
 type BenefitInfo {
@@ -144,6 +145,13 @@ type BundleDiscovery {
   items: [ProductBundle!]!
 }
 
+type BundleProductInfo {
+  productId: String!
+  minQty: Float!
+  maxQty: Float!
+  product: Product
+}
+
 type BundleResponse {
   success: Boolean!
   message: String
@@ -172,6 +180,7 @@ type Business {
   sections: [BusinessSection!]
   productIds: [String!]
   products: [Product!]!
+  bundleIds: [String!]
   mainAddress: Address!
   phoneNumber: String!
   email: String
@@ -186,11 +195,14 @@ type Business {
   name: [LocalizedField!]!
   description: [LocalizedField!]
   deliveryInfo: [DeliveryInfo!]
-  bundles: [ProductBundle!]!
+  bundles(branchId: String): [ProductBundle!]!
   paymentOptions: [PaymentOption!]
   priceLists: [PriceList!]
   discounts: [Discount!]
   totalViews: Int
+  requireBranchSelection: Boolean
+  orderStatuses: [BusinessOrderStatus!]
+  calendars: [Calendar!]
 }
 
 type BusinessDiscovery {
@@ -217,6 +229,14 @@ type BusinessMembership {
   groupsId: [String!]!
   subscriptionsId: [String!]
   membersProductIds: [String!]
+}
+
+type BusinessOrderStatus {
+  id: ID!
+  status: [LocalizedField!]!
+  description: [LocalizedField!]
+  isDefault: Boolean
+  sequence: Int
 }
 
 enum BusinessRegistrationStage {
@@ -250,13 +270,43 @@ type BusinessSection {
   images: [String!]
   orderAddons: [ProductAddon!]
   description: [LocalizedField!]
+  calendars: [Calendar!]
 }
 
-enum CallToActionType {
-  Order
-  Call
-  Book
-  Reserve
+type Calendar {
+  id: ID
+  type: String
+  productId: String
+  sectionId: String
+  businessId: String!
+  fromDate: DateTime!
+  toDate: DateTime!
+  disabledDays: [DateTime!]!
+  disabledHours: [DateTime!]!
+  orderInfo: [CalendarOrderInfo!]!
+  product: Product
+}
+
+type CalendarOrderInfo {
+  id: ID
+  dayOfWeek: Int!
+  maxOrderPerDay: Int!
+  maxOrderPerHour: Int!
+}
+
+input CalendarOrderInfoInput {
+  dayOfWeek: Int!
+  maxOrderPerDay: Int! = 12
+  maxOrderPerHour: Int! = 1
+}
+
+type CalendarResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  calendar: Calendar!
+  calendars: [Calendar!]!
+  disabledDatesForBooking: [DateTime!]
 }
 
 type Cart {
@@ -289,7 +339,7 @@ input CreateBundleInput {
   discountType: DiscountType
   discountValue: Float
   condition: DiscountCondition = NONE
-  conditionValue: Float
+  conditionValue: String
 }
 
 input CreateBusinessInput {
@@ -311,6 +361,15 @@ input CreateBusinessSectionInput {
   description: [LocalizedFieldInput!]
 }
 
+input CreateCalendarInput {
+  productId: String!
+  fromDate: DateTime!
+  toDate: DateTime!
+  disabledDays: [DateTime!]! = []
+  disabledHours: [DateTime!]! = []
+  orderInfo: [CalendarOrderInfoInput!]!
+}
+
 input CreateCartInput {
   name: [LocalizedFieldInput!]!
   items: [CreateOrderItemInput!]!
@@ -318,8 +377,15 @@ input CreateCartInput {
   paymentOptions: [CreatePaymentOptionInput!]
 }
 
+input CreateCustomerInput {
+  name: String!
+  userId: String
+  phoneNumber: String!
+  email: String
+}
+
 input CreateInventoryInput {
-  priceInfo: [PriceInfoInput!]!
+  priceInfo: [PriceInput!]!
   qty: Float
   unit: String
   minOrderQty: Int
@@ -349,6 +415,7 @@ input CreateOrderConfigInput {
   singleValue: String
   multipleValue: [String!]
   productIds: [String!]
+  calendarId: String
   additionalPrice: Float! = 0
   addonId: String
   type: String!
@@ -359,13 +426,17 @@ input CreateOrderInput {
   orderNumber: Float
   paymentType: PaymentOptionType!
   remainingAmount: Float
+  paidAmount: Float
   subTotal: Float!
   discount: [OrderItemDiscountInput!]
   totalAmount: Float
+  config: [CreateOrderConfigInput!]
   paymentMethods: [OrderPaymentMethodInput!]
   isOnlineOrder: Boolean
   note: String
   branchId: String
+  customerName: String
+  customerPhoneNumber: String
 }
 
 input CreateOrderItemInput {
@@ -378,12 +449,14 @@ input CreateOrderItemInput {
   total: Float!
   discount: [OrderItemDiscountInput!]
   config: [CreateOrderConfigInput!]
+  point: Float = 0
 }
 
 input CreatePaymentOptionInput {
   type: PaymentOptionType!
   upfrontPayment: Float = 0
   name: [LocalizedFieldInput!]!
+  description: [LocalizedFieldInput!]
   dueDate: DateTime
 }
 
@@ -419,7 +492,7 @@ input CreatePriceListInput {
 
 input CreateProductAddonInput {
   name: [LocalizedFieldInput!]!
-  inputType: AddonInputType!
+  inputType: String!
   options: [ProductAddonOptionInput!]
   checkCalendar: Boolean
   isProduct: Boolean
@@ -465,11 +538,20 @@ input CreateProductPriceInput {
   isDefault: Boolean!
 }
 
+input CreateRewardInput {
+  name: [LocalizedFieldInput!]!
+  description: [LocalizedFieldInput!]!
+  conditions: [LocalizedFieldInput!]!
+  minPointsToRedeem: Float!
+  discountType: String
+  discountAmount: Float
+}
+
 input CreateStaffInput {
   name: String!
   pin: Float!
   phoneNumber: String!
-  password: String!
+  password: String
   roles: [String!]!
   branchId: String
   businessId: String
@@ -489,11 +571,6 @@ input CreateSubscriptionPlanInput {
   duration: Float!
 }
 
-enum Currency {
-  USD
-  ETB
-}
-
 enum CurrencyKey {
   USD
   ETB
@@ -502,9 +579,9 @@ enum CurrencyKey {
 type Customer {
   id: ID!
   name: String!
-  userId: String!
+  userId: String
   businessId: String!
-  phoneNumber: String
+  phoneNumber: String!
   email: String
   customerLoyalties: [CustomerLoyalty!]
   redeemedRewards: [RedeemedReward!]
@@ -515,12 +592,22 @@ type Customer {
 type CustomerLoyalty {
   id: ID!
   customerId: String!
+  name: [LocalizedField!]!
   businessId: String!
   pointsSource: [PointSource!]!
   currentPoints: Float!
   customer: Customer
+  businessRewards: [Reward!]
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+type CustomerResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  customer: Customer
+  customers: [Customer!]
 }
 
 type Customization {
@@ -590,11 +677,11 @@ type DeliveryInfo {
 
 type Discount {
   id: String
-  name: String
+  name: [LocalizedField!]
   type: DiscountType!
   value: Float!
-  condition: DiscountCondition!
-  conditionValue: Float
+  condition: String!
+  conditionValue: String
   startDate: DateTime
   endDate: DateTime
 }
@@ -606,6 +693,8 @@ enum DiscountCondition {
   MAXIMUM_PURCHASE
   TIME_BASED
   QUANTITY
+  FIRST_TIME_PURCHASE
+  PRODUCT_ADDON
 }
 
 enum DiscountType {
@@ -697,6 +786,7 @@ type Group {
 type GroupMember {
   user: User
   activeSubscription: Subscription
+  paymentMethod: PaymentMethod
   userId: String!
   memberStatus: String!
   activeSubscriptionId: String
@@ -707,9 +797,10 @@ type Inventory {
   id: ID!
   name: String!
   sku: String!
-  priceInfo: [PriceInfo!]!
+  priceInfo: [Price!]!
   qty: Float!
-  unit: ProductUnitType
+  unit: String
+  productId: String
   minOrderQty: Int
   maxOrderQty: Int
   isAvailable: Boolean!
@@ -763,6 +854,16 @@ input LocalizedFieldInput {
   value: String!
 }
 
+type LoyaltyResponse {
+  success: Boolean!
+  message: String
+  code: Int
+  rewards: [Reward!]
+  customerLoyalty: CustomerLoyalty
+  customerLoyalties: [CustomerLoyalty!]
+  customer: Customer
+}
+
 type Membership {
   id: ID!
   createdAt: DateTime
@@ -776,12 +877,16 @@ type Membership {
   trialPeriod: Int
   type: String!
   owner: String!
+  ownerName: String
   isActive: Boolean!
   groupsId: [String!]!
   groups: [Group!]
   subscriptionsId: [String!]
   subscriptions: [Subscription!]
   membersProductIds: [String!]
+  allMembers: [GroupMember!]
+  currentUserSubscription: Subscription
+  activeSubscription: Subscription!
 }
 
 type MembershipDiscovery {
@@ -794,10 +899,8 @@ type MembershipDiscovery {
 enum MembershipPerkType {
   DISCOUNT_ON_MEMBERS_PRODUCT
   DISCOUNT
-  FREE
-  CASHBACK
   POINTS
-  OTHER
+  FREE_DELIVERY
 }
 
 type MembershipProduct {
@@ -825,6 +928,7 @@ type MembershipResponse {
   membership: Membership
   memberships: [Membership!]
   products: [MembershipProduct!]
+  modifiedMembers: [GroupMember!]
   currentUserSubscription: Subscription
 }
 
@@ -837,8 +941,9 @@ type Mutation {
   createAdminAccountUsingEmailPassword(signup: AdminSignUpInput!): AuthResponse!
   signInWithEmailAndPassword(email: String!, password: String!): AuthResponse!
   signInWithPhoneNumber(phone: String!): AuthResponse!
+  generateTokenForStaff(phoneNumber: String!): AuthResponse!
   logout: Boolean!
-  updateProfileInfo(user: UpdateUserInput!): Boolean!
+  updateProfileInfo(user: UpdateUserInput!): AuthResponse!
 
   """
   Returns success boolean value to indicate if the operation was successful or not
@@ -911,7 +1016,8 @@ type Mutation {
   """
   deleteProductAddon(businessId: String!, productId: String!, addonId: String!): ProductResponse!
   createStaff(staffInput: CreateStaffInput!): StaffResponse!
-  authenticateStaff(phoneNumber: String!, pin: Float!, branchId: String!, businessId: String!): StaffResponse!
+  authenticateStaff(phoneNumber: String!, businessId: String!, pin: Float): StaffResponse!
+  checkManagerAccessToBranch(businessId: String!, branchId: String!, phoneNumber: String!): StaffResponse!
   assignStaffToBranch(branchId: String!, staffId: String!): StaffResponse!
   assignStaffToBusiness(businessId: String!, staffId: String!): StaffResponse!
   unAssignStaffFromBranch(branchId: String!, staffId: String!): StaffResponse!
@@ -924,9 +1030,16 @@ type Mutation {
   updateInventoryLocation(locationId: String!, inventoryLocationInfo: UpdateInventoryLocationInput!): InventoryResponse!
   createNewInventoryOnInventoryLocation(businessId: String!, productId: String!, inventoryData: CreateInventoryInput!): InventoryResponse!
   updateProductInventoryInformations(businessId: String!, productId: String!, inventoryInfos: [UpdateInventoryInput!]!): InventoryResponse!
+  createCalendar(input: CreateCalendarInput!): CalendarResponse!
+  updateCalendar(calendarId: String!, input: UpdateCalendarInput!): CalendarResponse!
   addToBusinessCart(businessId: String!, cartInput: CreateCartInput!): OrderResponse!
   removeItemsFromCart(cartId: String!, productIds: [String!]!): OrderResponse!
-  placeOrderFromOnlineStore(businessId: String!, orderInput: CreateOrderInput!, cartId: String): OrderResponse!
+  placeOrderFromOnlineStore(businessIds: [String!]!, orderInput: CreateOrderInput!, cartId: String): OrderResponse!
+  placeOrderFromPOS(businessId: String!, orderInput: CreateOrderInput!, customerId: String): OrderResponse!
+  updateOrderStatus(businessId: String!, orderId: String!, status: String!, branchId: String): OrderResponse!
+  addOrderSchedules(orderId: String!, schedules: [AddOrderSchedulesInput!]!): OrderResponse!
+  createRewards(businessId: String!, rewards: [CreateRewardInput!]!): LoyaltyResponse!
+  addBusinessCustomers(businessId: String!, customers: [CreateCustomerInput!]!): CustomerResponse!
   createPlatformSubscriptionPlan(plan: CreateSubscriptionPlanInput!): SubscriptionPlan!
   createBusinessSubscriptionPlan(plan: CreateSubscriptionPlanInput!): SubscriptionPlan!
   subscribeBusinessToPlatformServices(
@@ -942,8 +1055,8 @@ type Mutation {
   createMembershipPlan(businessId: String!, input: CreateMembershipInput!): MembershipResponse!
   updateMembershipInfo(businessId: String!, membershipId: String!, input: UpdateMembershipInput!): MembershipResponse!
   assignProductsToMembershipPlan(businessId: String!, membershipId: String!, productIds: [String!]!): MembershipResponse!
-  joinMemership(membershipId: String!): MembershipResponse!
-  approveMembershipRequest(businessId: String!, membershipId: String!, membersId: [String!]!): MembershipResponse!
+  joinMemership(membershipId: String!, paymentMethod: PaymentMethodInput!): MembershipResponse!
+  approveMembershipRequest(membershipId: String!, businessId: String!, membersId: [String!]!, branchId: String, paymentMethod: PaymentMethodInput): MembershipResponse!
 }
 
 enum OpeningStatus {
@@ -955,20 +1068,26 @@ enum OpeningStatus {
 type Order {
   id: ID!
   orderNumber: Float
-  status: OrderStatus!
+  code: String
+  status: String!
   items: [OrderItem!]!
-  userId: String!
+  userId: String
   user: User
   paymentType: String!
   remainingAmount: Float
   subTotal: Float!
   discount: [OrderItemDiscount!]
   totalAmount: Float
+  paidAmount: Float
+  config: [OrderConfig!]
   paymentMethods: [OrderPaymentMethod!]
   isOnlineOrder: Boolean
   note: String
   businessId: [String!]
   branchId: String
+  schedules: [OrderSchedule!]!
+  customerPhoneNumber: String
+  customer: Customer
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -980,6 +1099,7 @@ type OrderConfig {
   multipleValue: [String!]
   productIds: [String!]
   additionalPrice: Float!
+  calendarId: String
   addonId: String
 }
 
@@ -990,10 +1110,12 @@ type OrderItem {
   branchId: String
   image: String!
   productId: String!
+  calendarId: String
   subTotal: Float!
   tax: Float
   discount: [OrderItemDiscount!]
   config: [OrderConfig!]
+  point: Float
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -1002,23 +1124,30 @@ type OrderItemDiscount {
   id: ID!
   name: [LocalizedField!]!
   amount: Float!
+  claimedRewardId: [String!]
 }
 
 input OrderItemDiscountInput {
   name: [LocalizedFieldInput!]!
   amount: Float!
+  claimedRewardId: [String!]
 }
 
 type OrderPaymentMethod {
+  id: ID!
   name: [LocalizedField!]!
-  amount: Float!
+  amount: Price!
+  requireReceiptImage: Boolean!
+  receiptImages: [String!]
   createdAt: DateTime!
   updatedAt: DateTime
 }
 
 input OrderPaymentMethodInput {
   name: [LocalizedFieldInput!]!
-  amount: Float!
+  amount: PriceInput!
+  requireReceiptImage: Boolean! = false
+  receiptImages: [String!]
 }
 
 type OrderResponse {
@@ -1029,20 +1158,37 @@ type OrderResponse {
   carts: [Cart!]!
   order: Order!
   orders: [Order!]!
+  schedules: [OrderSchedule!]!
 }
 
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  CANCELLED
-  REFUNDED
-  FAILED
+type OrderSchedule {
+  id: ID
+  calendarId: String
+  bookedTimes: [DateTime!]!
+  productId: String
+  orderId: String!
+  status: String
+  note: [LocalizedField!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaymentMethod {
+  name: [LocalizedField!]!
+  amount: Price!
+  receiptImages: [String!]!
+}
+
+input PaymentMethodInput {
+  name: [LocalizedFieldInput!]!
+  amount: PriceInput!
+  receiptImages: [String!]!
 }
 
 type PaymentOption {
   id: String
   name: [LocalizedField!]!
+  description: [LocalizedField!]
   type: PaymentOptionType!
   upfrontPayment: Float
   upfrontPaymentType: PaymentOptionUpfrontPaymentType
@@ -1149,16 +1295,6 @@ type Price {
   currency: String!
 }
 
-type PriceInfo {
-  amount: Float!
-  currency: Currency!
-}
-
-input PriceInfoInput {
-  amount: Float!
-  currency: Currency! = ETB
-}
-
 input PriceInput {
   amount: Float!
   currency: CurrencyKey! = ETB
@@ -1189,7 +1325,7 @@ type Product {
   sectionId: [String!]
   isActive: Boolean!
   category: [String!]!
-  type: ProductType!
+  type: ProductType
   createdAt: DateTime
   updatedAt: DateTime
   canOrderOnline: Boolean!
@@ -1202,32 +1338,42 @@ type Product {
   mainProduct: Boolean
   prices(branchId: String, priceListId: String): [ProductPrice!]!
   inventory(locationId: String): [Inventory!]!
-  callToAction: CallToActionType
+  callToAction: String
   branchIds: [String!]
   deliveryInfoId: String
   branches: [Branch!]
   addons: [ProductAddon!]
   paymentOptionsId: [String!]
   membershipIds: [String!]
+  memberships: [Membership!]
   discounts: [Discount!]
+  calendars: [Calendar!]
   totalViews: Int!
 }
 
 type ProductAddon {
   id: ID!
   name: [LocalizedField!]!
-  inputType: AddonInputType!
+  summary: [LocalizedField!]
+  description: [LocalizedField!]
+  inputType: String
   minAmount: Float
   maxAmount: Float
   options: [ProductAddonOption!]
+  condition: String
+  conditionValue: String
   checkCalendar: Boolean
+  calendarId: String
   tag: [String!]
   isActive: Boolean!
   isRequired: Boolean!
   isProduct: Boolean!
   isDateRange: Boolean
   productIds: [String!]
+  includeOnPOS: Boolean
+  products: [Product!]
   additionalPrice: [Price!]!
+  membershipIds: [String!]
   createdAt: DateTime
   updatedAt: DateTime
   category: String
@@ -1238,6 +1384,8 @@ type ProductAddonOption {
   id: ID
   name: [LocalizedField!]!
   images: [String!]
+  membershipIds: [String!]
+  price: [Price!]
 }
 
 input ProductAddonOptionInput {
@@ -1251,14 +1399,16 @@ type ProductBundle {
   description: [LocalizedField!]!
   type: BundleType!
   productIds: [String!]!
+  productsInfo: [BundleProductInfo!]
   branchIds: [String!]!
-  businessId: String!
+  businessIds: [String!]!
+  businesses: [Business!]!
   startDate: DateTime
   endDate: DateTime
   gallery: Gallery!
   discount: Discount
   products: [Product!]!
-  business: Business
+  addons: [ProductAddon!]
   branches: [Branch!]
   isActive: Boolean
   createdAt: DateTime
@@ -1317,38 +1467,45 @@ enum ProductType {
   MEMBERSHIP
 }
 
-enum ProductUnitType {
-  Unit
-  Kg
-  KG
-  Litre
-}
-
 type Query {
   placeholder: User!
   refreshToken: AuthResponse!
   me: UserResponse!
+  getUserByPhoneNumber(phoneNumber: String!): UserResponse!
   getAccesses(ownerId: String!, owenrType: AccessOwnerType!, permissionType: PermissionType!): AccessResponse!
-  getBusinessDetails(id: String!): BusinessResponse!
+  getBusinessDetails(id: String!, branchId: String): BusinessResponse!
+  getBusinesSectionsDetails(businessId: String!, sectionId: String!, branchId: String): BusinessResponse!
+  createBusiness(data: CreateBusinessInput!): MembershipResponse!
   getBusinessByWorkspaceUrl(workspaceUrl: String!): BusinessResponse!
   getUserBusinesses: BusinessResponse!
+  getBusinessesFromOrder(businessIds: [String!]!): BusinessResponse!
   getBranchDetails(businessId: String!, branchId: String!): BranchResponse!
   getBranchDetailsForPOS(businessId: String!, branchId: String!): BranchResponse!
   getPosBranch(businessId: String!, branchId: String!): BranchResponse!
+  getStaffBranches(staffId: String!): BranchResponse!
 
   """Get product details with inventory, variants"""
   getProductDetail(productId: String!, branchId: String, locationId: String, priceListId: String): ProductResponse!
+  getMembershipProducts(membershipId: String!): ProductResponse!
+  getBusinessProducts(businessId: String!, page: Float, limit: Float): ProductResponse!
 
   """Get bundle details with products, business, and branches info"""
   getBundleDetail(bundleId: String!): BundleResponse!
-  getBusinessProducts(businessId: String!, page: Float, limit: Float): ProductResponse!
   getBusinessStaffs(businessId: String!): StaffResponse!
   getBranchStaffs(branchId: String!): StaffResponse!
+  getCalendar(calendarId: String!): CalendarResponse!
   getForYouData: ForYouResponse!
   getDiscoveryData: DiscoveryResponse!
   getUserCarts: OrderResponse!
   getUserOrders: OrderResponse!
   getOrderDetails(orderId: String!): OrderResponse!
+  getBranchOrders(branchId: String!): OrderResponse!
+  getBranchOrderSchedules(branchId: String!): OrderResponse!
+  getOrderSchedulesByCalendar(calendarId: String!): OrderResponse!
+  getCustomerLoyalties: LoyaltyResponse!
+  getCustomerBusinessLoyality(businessId: String!): LoyaltyResponse!
+  getBusinessCustomers(businessId: String!, page: Float!, limit: Float!): CustomerResponse!
+  getCustomerDetails(userId: String!, businessId: String!): CustomerResponse!
   getSubscriptionPlans(type: SubscriptionType, owner: String): [SubscriptionPlan!]!
   getPriceInfoToUpgradeSubscription(
     """Subscritpion id"""
@@ -1358,6 +1515,8 @@ type Query {
   getBusienssSubscriptionPlans(type: SubscriptionType, owner: String): [SubscriptionPlan!]!
   getPlatformServices: PlatformServiceResponse!
   getMembershipDetails(membershipId: String!): MembershipResponse!
+  getUserMemberships: MembershipResponse!
+  getBusinessMembershipPlans(businessId: String!): MembershipResponse!
 }
 
 type RedeemedReward {
@@ -1367,6 +1526,21 @@ type RedeemedReward {
   customerId: String!
   pointUsed: Float!
   createdAt: DateTime
+}
+
+type Reward {
+  id: ID!
+  name: [LocalizedField!]!
+  description: [LocalizedField!]!
+  minPointsToRedeem: Int!
+  conditions: [LocalizedField!]!
+  businessId: String!
+  rewardType: String
+  isActive: Boolean!
+  discountType: String
+  discountAmount: Float
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 input SelectedPlatformServiceForSubscription {
@@ -1395,7 +1569,7 @@ type Staff {
   name: String!
   pin: Int
   phoneNumber: String!
-  password: String!
+  password: String
   roles: [String!]!
   branchId: String
   branch: Branch
@@ -1410,6 +1584,7 @@ type StaffResponse {
   success: Boolean!
   message: String
   code: Int
+  accessToken: String
   staff: Staff
   staffs: [Staff!]
 }
@@ -1533,7 +1708,7 @@ input UpdateBundleInput {
   discountType: DiscountType
   discountValue: Float
   condition: DiscountCondition = NONE
-  conditionValue: Float
+  conditionValue: String
 }
 
 input UpdateBusinessInput {
@@ -1548,8 +1723,17 @@ input UpdateBusinessInput {
   paymentOptions: [CreatePaymentOptionInput!]
 }
 
+input UpdateCalendarInput {
+  productId: String!
+  fromDate: DateTime!
+  toDate: DateTime!
+  disabledDays: [DateTime!]! = []
+  disabledHours: [DateTime!]! = []
+  orderInfo: [CalendarOrderInfoInput!]!
+}
+
 input UpdateInventoryInput {
-  priceInfo: [PriceInfoInput!]!
+  priceInfo: [PriceInput!]!
   qty: Float
   unit: String
   minOrderQty: Int
@@ -1591,7 +1775,7 @@ input UpdatePriceListInput {
 
 input UpdateProductAddonInput {
   name: [LocalizedFieldInput!]
-  inputType: AddonInputType
+  inputType: String
   options: [ProductAddonOptionInput!]
   checkCalendar: Boolean
   isProduct: Boolean

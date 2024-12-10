@@ -16,7 +16,7 @@ class BranchUsecase {
 
   Future<BranchResponse?> getPosBranchDetails(String businessId, String branchId) async {
     var result = await _businessRepository.getPosBranch(businessId, branchId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
-    if((result?.success ?? false) == false){
+    if ((result?.success ?? false)) {
       result = await _businessRepository.getPosBranch(businessId, branchId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
     return result;

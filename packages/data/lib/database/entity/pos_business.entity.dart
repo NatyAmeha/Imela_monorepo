@@ -5,7 +5,8 @@ part 'pos_business.entity.g.dart';
 
 @collection
 class POSBusinessEntity {
-  Id id = Isar.autoIncrement;
+  Id dbId = Isar.autoIncrement;
+  String? id;
   List<LocalizedFieldEntity> name = [];
   String workspaceUrl;
   String phoneNumber;
@@ -16,6 +17,7 @@ class POSBusinessEntity {
   List<PaymentOptionEntity>? paymentOptions;
 
   POSBusinessEntity({
+    this.id,
     required this.name,
     required this.workspaceUrl,
     required this.phoneNumber,

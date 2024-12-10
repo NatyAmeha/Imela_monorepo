@@ -1,0 +1,41 @@
+query GetUserMembership{
+    getUserMemberships {
+    success
+    memberships {
+      id
+      name {
+        key
+        value
+      }
+      price {
+        amount
+        currency
+      }
+      benefits{
+        id
+        name{
+          key
+          value
+        }
+        perkType
+        discounts {
+          type
+          value
+          condition
+          conditionValue
+          startDate
+          endDate
+        }
+      }
+      currentUserSubscription{
+        id
+        startDate
+        endDate
+      }
+      owner
+      ownerName
+      groupsId
+      createdAt
+    }
+  }
+}

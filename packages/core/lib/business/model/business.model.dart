@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
+import 'package:imela_core/business/model/business_order_status.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/pricelist.model.dart';
@@ -12,8 +13,6 @@ import 'package:imela_core/shared/address.model.dart';
 import 'package:imela_core/shared/base.model.dart';
 import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
-import 'package:imela_data/database/entity/localized_field_entity.dart';
-import 'package:imela_data/database/entity/pos_business.entity.dart';
 
 part 'business.model.freezed.dart';
 part 'business.model.g.dart';
@@ -57,9 +56,12 @@ class Business extends BaseModel with _$Business {
     List<PriceList>? priceLists,
     List<PaymentOption>? paymentOptions,
     List<Discount>? discounts,
+    @Default(false) bool requireBranchSelection,
+    @Default(BusinessOrderStatus.defaultOrderStatuses) List<BusinessOrderStatus>? orderStatuses,
 
     // DeliveryInfo? deliveryInfo
     List<ProductBundle>? bundles,
+    List<String>? bundleIds,
   }) = _Business;
 
   factory Business.fromJson(Map<String, dynamic> json) => _$BusinessFromJson(json);
@@ -76,18 +78,18 @@ class Business extends BaseModel with _$Business {
     return name?.localize(locale);
   }
 
-  POSBusinessEntity toPOSBusinessEntity() {
-    return POSBusinessEntity(
-      name: name?.map((e) => LocalizedFieldEntity(key: e.key, value: e.value)).toList() ?? [],
-      workspaceUrl: workspaceUrl!,
-      phoneNumber:  phoneNumber!,
-      
+  
 
-    );
-  }
+  // POSBusinessEntity toPOSBusinessEntity() {
+  //   return POSBusinessEntity(
+  //     name: name?.map((e) => LocalizedFieldEntity(key: e.key, value: e.value)).toList() ?? [],
+  //     workspaceUrl: workspaceUrl!,
+  //     phoneNumber: phoneNumber ?? '',
+  //   );
+  // }
 
-  List<ProductAddon> getSectionsOrderAddon(List<String> sectionIds){
-    if(sections == null) return [];
+  List<ProductAddon> getSectionsOrderAddon(List<String> sectionIds) {
+    if (sections == null) return [];
     final addons = <ProductAddon>[];
     sections?.forEach((section) {
       if (sectionIds.contains(section.id)) {

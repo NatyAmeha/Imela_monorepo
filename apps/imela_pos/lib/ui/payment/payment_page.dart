@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
+import 'package:imela_pos/ui/payment/component/payment_callto_action.dart';
 import 'package:imela_pos/ui/payment/component/payment_method_input_component.dart';
 import 'package:imela_pos/ui/payment/component/payment_options_component.dart';
 import 'package:imela_pos/ui/payment/payment_page.viewmodel.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/helpers/widget_extesions.dart';
+import 'package:imela_utils/helpers/screen_size_utils.dart';
 
 class PaymentPage extends StatefulWidget {
   static const routeName = '/payment';
@@ -31,51 +35,99 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     final widgetFactory = AppViewmodel.getWidgetFactory(context);
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Payment'),
-        ),
-        body: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Obx(
-                () => PaymentOptionsComponent(
-                  paymentOptions: viewmodel.paymentOptions,
-                  selectedPaymentOptionId: viewmodel.selectedPaymentOption.value?.id,
-                  viewmodel: viewmodel,
-                  checkSelectedPaymentOptiontype: (paymentOptionType) => viewmodel.checkSelectedPaymentOptiontype(paymentOptionType),
-                  onChanged: (value) {
-                    viewmodel.updateSelectedPaymentOption(value);
-                  },
-                  onDueDateSelected: () {
-                    viewmodel.showDuedateSelector(context, widgetFactory);
-                  },
-                  selectedDueDateString: viewmodel.selectedDueDate.value?.toLocal().toString(),
+      appBar: AppBar(
+        title: const Text('Payment'),
+      ),
+      body: Obx(
+        () => PageContentLoader(
+          isLoading: viewmodel.isLoading.value,
+          showContent: true,
+          hasError: viewmodel.exception.value?.isMainError ?? false,
+          exception: viewmodel.exception.value,
+          content: Padding(
+            padding: Responsive.paddingSymetric(context),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: Responsive.isLargeOrMediumScreen(context) ? 2 : 3,
+                  child: Obx(
+                    () => PaymentOptionsComponent(
+                      customer: viewmodel.appViewmodel.selectedCustomer.value,
+                      paymentOptions: viewmodel.paymentOptions,
+                      selectedPaymentOptionId: viewmodel.selectedPaymentOption.value?.id,
+                      viewmodel: viewmodel,
+                      checkSelectedPaymentOptiontype: (paymentOptionType) => viewmodel.checkSelectedPaymentOptiontype(paymentOptionType),
+                      onChanged: (value) {
+                        viewmodel.updateSelectedPaymentOption(value);
+                      },
+                      onDueDateSelected: () {
+                        viewmodel.showDuedateSelector(context, widgetFactory);
+                      },
+                      selectedDueDateString: viewmodel.selectedDueDate.value?.toLocal().toString(),
+                    ),
+                  ),
                 ),
-              ),
+                if (!Responsive.isSmallScreen(context))
+                  Expanded(
+                    flex: Responsive.isMediumScreen(context) ? 3 : 4,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Obx(
+                          () => PaymentMethodInputComponent(
+                            controller: viewmodel.paymentMethodAmountController,
+                            paymentMethods: viewmodel.paymentMethods,
+                            paymentMethodControllers: viewmodel.getPaymentMethodControllers(),
+                            selectedLanguage: viewmodel.appViewmodel.selectedLanguage,
+                            selectedPaymentMethod: viewmodel.selectedPaymentMethod.value,
+                            canEnablePlaceOrder: viewmodel.canEnablePlaceOrder,
+                            onSelected: (paymentMethod) {
+                              viewmodel.selectPaymentMethod(paymentMethod);
+                            },
+                            onDelete: (paymentMethod) {
+                              viewmodel.removeEntredAmount(paymentMethod);
+                            },
+                            paidAmount: viewmodel.totalPaidAmount.toString(),
+                            remainingAmount: viewmodel.remainingAmountFromInitialPayment.toString(),
+                            onPlaceOrderPressed: () {
+                              viewmodel.placeOrder(context);
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        PaymentCallToAction(
+                          widgetFactory: widgetFactory,
+                          totalPaidAmount: viewmodel.totalPaidAmount.toString(),
+                          remainingAmount: viewmodel.remainingAmountFromInitialPayment.toString(),
+                          canEnablePlaceOrder: viewmodel.canEnablePlaceOrder,
+                          onPlaceOrderPressed: () {
+                            viewmodel.placeOrder(context);
+                          },
+                        ).withPaddingSymetric(horizontal: 50, vertical: 8)
+                      ],
+                    ),
+                  )
+              ],
             ),
-            Expanded(
-              flex: 4,
-              child: Obx(
-                () => PaymentMethodInputComponent(
-                  controller: viewmodel.paymentMethodAmountController,
-                  paymentMethods: viewmodel.paymentMethods,
-                  paymentMethodsIdsWithAmount: viewmodel.enteredPayments,
-                  selectedLanguage: viewmodel.appViewmodel.selectedLanguage,
-                  selectedPaymentMethodId: viewmodel.selectedPaymentMethodId.value,
-                  onSelected: (paymentMethod) {
-                    viewmodel.selectPaymentMethod(paymentMethod);
-                  },
-                  onDelete: (paymentMethod) {
-                    viewmodel.removeEntredAmount(paymentMethod);
-                  },
-                  paidAmount: viewmodel.totalPaidAmount.toString(),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Responsive.isSmallScreen(context)
+          ? Obx(
+              () => BottomAppBar(
+                height: 150,
+                child: PaymentCallToAction(
+                  widgetFactory: widgetFactory,
+                  totalPaidAmount: viewmodel.totalPaidAmount.toString(),
                   remainingAmount: viewmodel.remainingAmountFromInitialPayment.toString(),
-                  onPlaceOrderPressed: () {},
+                  canEnablePlaceOrder: viewmodel.canEnablePlaceOrder,
+                  onPlaceOrderPressed: () {
+                    viewmodel.placeOrder(context);
+                  },
                 ),
               ),
             )
-          ],
-        ));
+          : const SizedBox.shrink(),
+    );
   }
 }

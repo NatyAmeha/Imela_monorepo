@@ -10,8 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt getItInstance = GetIt.instance;
 
-class GraphQLConfig {
+class GraphQLConfig { 
   static Client? _ferryGraphQlClient;
+  static const String _baseUrl = 'http://212.2.242.92:3000/graphql'; // 'http://212.2.244.209:3000/graphql';
   static Future<Client> getFerryGraphQlClient() async {
     try {
       await Hive.initFlutter();
@@ -20,17 +21,17 @@ class GraphQLConfig {
       }
       // await Hive.initFlutter();
       final box = await Hive.openBox('graphql_cache_store');
-      const cacheDuration = Duration(minutes: 3); // Set your desired cache duration
+      const cacheDuration = Duration(minutes: 30); // Set your desired cache duration
       final store = ExpiringStore(box, cacheDuration);
       // final store = HiveStore(box);
       final cache = Cache(store: store);
-      final link = HttpLink('http://192.168.70.134:3000/graphql');
+      final link = HttpLink(_baseUrl);
       final finalHttpLInk = link;
       final timeoutLink = ClientInterceptor(const Duration(seconds: 30), finalHttpLInk);
       _ferryGraphQlClient = Client(link: timeoutLink, cache: cache);
       return _ferryGraphQlClient!;
     } catch (e) {
-      print("graph exception ${e.toString()}");
+      print('graph exception ${e.toString()}');
       return Future.error('error initializing graphql client');
     }
   }

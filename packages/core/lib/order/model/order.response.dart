@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/calendar/model/calendar_booking.model.dart';
 import 'cart.model.dart';
 import 'order.model.dart';
 
@@ -15,6 +16,7 @@ class OrderResponse with _$OrderResponse {
     List<Cart>? carts,
     Order? order,
     List<Order>? orders,
+    List<CalendarBooking>? schedules,
   }) = _OrderResponse;
 
   factory OrderResponse.fromJson(Map<String, dynamic> json) => _$OrderResponseFromJson(json);

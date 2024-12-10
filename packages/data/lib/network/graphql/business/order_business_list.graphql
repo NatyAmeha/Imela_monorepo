@@ -1,0 +1,57 @@
+query OrderBusinessList($businessIds: [String!]!) {
+    getBusinessesFromOrder( businessIds: $businessIds ) {
+    success
+    businesses {
+      id
+      name {
+        key
+        value
+      }
+      gallery{
+        logoImage
+      }
+      orderStatuses{
+        id
+        status{ 
+          key
+          value
+        }
+        description{
+          key
+          value
+        }
+      }
+      sections {
+        orderAddons {
+          id
+          name {
+            key
+            value
+          }
+          inputType
+          minAmount
+          maxAmount
+          options {
+            id
+            name {
+              key
+              value
+            }
+            images
+          }
+          isActive
+          isRequired
+          additionalPrice {
+            amount
+            currency
+          }
+          isProduct
+          productIds
+          calendarId
+          includeOnPOS
+        }
+      }
+      
+    }
+  }
+}

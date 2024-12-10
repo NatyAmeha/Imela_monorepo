@@ -8,6 +8,7 @@ part 'user.response.g.dart';
 class UserResponse with _$UserResponse {
   const UserResponse._();
   const factory UserResponse({
+    bool? success,
     User? user,
     String? accessToken,
     String? refreshToken,
@@ -15,4 +16,6 @@ class UserResponse with _$UserResponse {
   }) = _UserResponse;
 
   factory UserResponse.fromJson(Map<String, dynamic> json) => _$UserResponseFromJson(json);
+
+  bool get isSuccess => success ?? false;
 }

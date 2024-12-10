@@ -1,5 +1,5 @@
-query GetBusinessDetails($id: String!) {
-  getBusinessDetails(id: $id) {
+query GetBusinessDetails($id: String!, $branchId: String) {
+  getBusinessDetails(id: $id, branchId: $branchId) {
     success
     message
     business {
@@ -36,15 +36,59 @@ query GetBusinessDetails($id: String!) {
         }
         
       }
-      sections{
+      orderStatuses{
+        id
+        status{ 
+          key
+          value
+        }
+        description{
+          key
+          value
+        }
+      }
+      sections {
+        id
+        name {
+          key
+          value
+        }
+        productIds
+        orderAddons {
+          id
+          name {
+            key
+            value
+          }
+          inputType
+          minAmount
+          maxAmount
+          options {
+            id
+            name {
+              key
+              value
+            }
+            images
+          }
+          isActive
+          isRequired
+          additionalPrice {
+            amount
+            currency
+          }
+          isProduct
+          productIds
+          calendarId
+          includeOnPOS
+        }
+      }
+      discounts {
         id
         name{
           key
           value
         }
-        productIds
-      }
-      discounts {
         type
         value
         condition
@@ -52,7 +96,7 @@ query GetBusinessDetails($id: String!) {
         startDate
         endDate
       }
-      bundles{
+      bundles(branchId: $branchId){
         id
         name{
           key
@@ -82,6 +126,8 @@ query GetBusinessDetails($id: String!) {
         value
       }
       featured
+      loyaltyPoint
+      membershipIds
       prices {
         price {
           amount
@@ -110,6 +156,15 @@ query GetBusinessDetails($id: String!) {
         isAvailable
         optionsIncluded
       }
+      variants{
+        id
+        prices {
+          price {
+            amount
+            currency
+          }
+        }
+      }
     }
     branches {
       id
@@ -129,6 +184,10 @@ query GetBusinessDetails($id: String!) {
     paymentOptions{
        id
       name{
+        value
+      }
+      description{
+        key
         value
       }
       type

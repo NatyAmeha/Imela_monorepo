@@ -1,5 +1,5 @@
-query GetProductDetails($id : String!){
-   getProductDetail(productId: $id) {
+query GetProductDetails($id : String!, $branchId: String, $locationId: String, $priceListId: String){
+   getProductDetail(productId: $id, branchId: $branchId, locationId: $locationId, priceListId: $priceListId) {
     success
     message
     product {
@@ -25,6 +25,7 @@ query GetProductDetails($id : String!){
       }
       sectionId
       featured
+      membershipIds
       businessId
       description {
         key
@@ -36,7 +37,7 @@ query GetProductDetails($id : String!){
           url
         }
       }
-      inventory {
+      inventory(locationId: $locationId) {
         qty
         unit
         minOrderQty
@@ -50,7 +51,17 @@ query GetProductDetails($id : String!){
           key
           value
         }
+        summary{
+          key
+          value
+        }
+        description{
+          key
+          value
+        }
         inputType
+        condition
+        conditionValue
         minAmount
         maxAmount
         tag
@@ -58,11 +69,46 @@ query GetProductDetails($id : String!){
         isRequired
         isProduct
         productIds
+        membershipIds
+        checkCalendar
+        calendarId
+        includeOnPOS
+        options {
+          id
+          name {
+            key
+            value
+          }
+          images
+        }
+        products {
+          id
+          name {
+            key
+            value
+          }
+          gallery {
+            images {
+              url
+              featured
+            }
+          }
+          prices {
+            price {
+              currency
+              amount
+            }
+          }
+        }
         additionalPrice {
           id
           amount
           currency
         }
+      }
+      calendars{
+        id
+        productId
       }
       tag
       minimumOrderQty
@@ -102,14 +148,7 @@ query GetProductDetails($id : String!){
           isAvailable
           optionsIncluded
         }
-      }
-      inventory {
-        qty
-        unit
-        minOrderQty
-        maxOrderQty
-        isAvailable
-        optionsIncluded
+        loyaltyPoint
       }
       callToAction
       branchIds
@@ -138,42 +177,37 @@ query GetProductDetails($id : String!){
           }
           orderAddons {
             id
-            inputType
             name {
               key
               value
             }
+            inputType
+            minAmount
+            maxAmount
+            options {
+              id
+              name {
+                key
+                value
+              }
+              images
+            }
+            isActive
+            isRequired
+            additionalPrice {
+              amount
+              currency
+            }
+            isProduct
+            productIds
+            calendarId
+            includeOnPOS
           }
         }
       }
     }
-    inventories {
-      qty
-      unit
-      minOrderQty
-      maxOrderQty
-      isAvailable
-      optionsIncluded
-    }
-    variants {
-        id
-        name {
-          key
-          value
-        }
-        prices {
-          price {
-            amount
-            currency
-          }
-        }
-        gallery {
-          images {
-            url
-          }
-        }
-        minimumOrderQty
-      }
+   
+    
   }
   
 }

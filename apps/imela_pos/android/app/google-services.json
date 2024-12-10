@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "376140322642",
+    "project_id": "imela-pos",
+    "storage_bucket": "imela-pos.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376140322642:android:f9975e41e007c75b3f8c8b",
+        "android_client_info": {
+          "package_name": "com.imela.pos.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwJQiP1KHVaLEYCwT-4KQ5M1-dt32Z2Z4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

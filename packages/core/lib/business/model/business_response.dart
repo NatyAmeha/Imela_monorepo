@@ -32,7 +32,13 @@ class BusinessResponse with _$BusinessResponse {
     return false;
   }
 
-  
+  bool isBusinessSectionDetailsFetchSuccessfull() {
+    if (success == true && sections?.isNotEmpty == true) {
+      return true;
+    }
+    return false;
+  }
+
 
   bool isBusinessListFetchSuccessfull() {
     if (success == true) {

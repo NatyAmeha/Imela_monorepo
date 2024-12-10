@@ -1,0 +1,40 @@
+query GetBusinessSectionDetails($businessId: String!, $sectionId: String!, $branchId: String) {
+    getBusinesSectionsDetails(
+        businessId: $businessId
+        sectionId: $sectionId
+        branchId : $branchId
+  ) {
+    success
+    products {
+      id
+      name {
+        key
+        value
+      }
+      tag
+      featured
+      loyaltyPoint
+      membershipIds
+      prices {
+        price {
+          amount
+          currency
+        }
+      }
+      gallery {
+        images {
+          featured
+          url
+        }
+      }
+      discounts {
+        type
+        value
+        condition
+        conditionValue
+        startDate
+        endDate
+      }
+    }
+  }
+}

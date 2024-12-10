@@ -26,6 +26,6 @@ class GraphqlException extends AppException {
       // }
       return buffer.toString();
     }).join('\n');
-    return AppException(message: message, code: code, type: type, isMainError: isMainError);
+    return AppException(message: 'An unexpected error occured', code: code, type: type, isMainError: isMainError);
   }
 }

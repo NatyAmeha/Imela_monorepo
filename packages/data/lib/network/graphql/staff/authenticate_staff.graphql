@@ -1,8 +1,7 @@
-mutation AuthenticateStaff($phoneNumber: String!, $pin: Float!, $businessId: String!, $branchId: String!) {
+mutation AuthenticateStaff($phoneNumber: String!,  $businessId: String!, $pin: Float) {
   authenticateStaff(
     phoneNumber: $phoneNumber
     pin: $pin
-    branchId: $branchId
     businessId: $businessId
   ) {
     success
@@ -18,6 +17,19 @@ mutation AuthenticateStaff($phoneNumber: String!, $pin: Float!, $businessId: Str
         name {
           key
           value
+        }
+        address{
+          id
+          address
+          city
+          location
+        }
+        priceLists {
+          id
+          name {
+            key
+            value
+          }
         }
       }
     }

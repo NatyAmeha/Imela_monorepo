@@ -17,10 +17,10 @@ class PhoneInputField extends StatelessWidget {
           borderSide: BorderSide(),
         ),
       ),
-      controller: controller,
       initialCountryCode: 'ET',
       onChanged: (phone) {
-        onChanged?.call(phone.completeNumber);
+        controller.text = phone.completeNumber;
+        onChanged.call(phone.completeNumber);
       },
       autofocus: autoFocus,
     );

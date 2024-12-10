@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
-import 'package:imela_utils/helpers/screen_size_utils.dart';
 
 class BranchListItem extends StatelessWidget {
   final Branch branchInfo;
@@ -21,13 +20,16 @@ class BranchListItem extends StatelessWidget {
     return widgetFactory.createCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Theme.of(context).colorScheme.primary),
+      border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerLowest),
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           widgetFactory.createText(context, branchInfo.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 16),
+          if (branchInfo.address?.city != null) ...[
+            const SizedBox(height: 8),
+            widgetFactory.createText(context, branchInfo.address!.city, style: Theme.of(context).textTheme.bodyMedium),
+          ],
           const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

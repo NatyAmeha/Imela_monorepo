@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/user/model/access/access.model.dart';
 import 'user.model.dart';
 
 part 'auth_response.freezed.dart';
@@ -17,6 +18,7 @@ class AuthResponse with _$AuthResponse implements IAuthResponse {
     String? accessToken,
     String? refreshToken,
     bool? isNewUser,
+    List<Access>? accesses
   }) = _AuthResponse;
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) => _$AuthResponseFromJson(json);

@@ -6,30 +6,33 @@ part 'pos_product_entity.g.dart';
 
 @collection
 class POSProductEntity {
-  Id id = Isar.autoIncrement;
+  Id dbId = Isar.autoIncrement;
+  @Index(unique: true)
+  String? id;
   List<LocalizedFieldEntity> name = [];
-  List<LocalizedFieldEntity> description = [];
+  List<LocalizedFieldEntity>? description = [];
   List<String>? imageUrl;
   List<String>? category;
 
   int minimumOrderQty;
   int loyaltyPoint;
-  int businessId;
-  List<int>? branchIds;
+  String businessId;
+  List<String>? branchIds;
   List<String>? sectionId;
   // String? type;
   DateTime? createdAt;
   DateTime? updatedAt;
   String? sku;
   List<String>? optionsIncluded;
-  List<int>? variantsId;
+  List<String>? variantsId;
   bool? mainProduct;
   String? callToAction;
   List<ProductAddonEntity>? addons;
 
   POSProductEntity({
+    this.id,
     required this.name,
-    required this.description,
+    this.description,
     this.imageUrl,
     this.category,
     this.minimumOrderQty = 1,
@@ -85,17 +88,11 @@ class ProductAddonEntity {
 class AddonOptionEntity {
   String? id;
   List<LocalizedFieldEntity>? name;
-  List<LocalizedFieldEntity>? description;
-  int? price;
-  int? businessId;
-  bool? isActive;
+  List<String>? images;
 
   AddonOptionEntity({
     this.id,
     this.name,
-    this.description,
-    this.price,
-    this.businessId,
-    this.isActive,
+    this.images,
   });
 }

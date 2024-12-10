@@ -1,5 +1,8 @@
 import 'package:imela_core/user/dto/user_signup_input.dart';
 import 'package:imela_core/user/model/user.model.dart';
+import 'package:imela_data/injection.dart';
+import 'package:imela_data/network/graphql/graphql_config.dart';
+import 'package:imela_data/shared_pref/preference_exception.dart';
 
 import 'firebase_auth.service.dart';
 import 'model/auth_response.dart';
@@ -65,7 +68,15 @@ class AuthUsecase {
     return authResponse;
   }
 
+  Future<bool> refreshToken() async {
+    final refreshTokenResult =  await _authRepo.refreshToken();
+    await _authRepo.saveAuthCredentialToPreference(refreshTokenResult);
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
+    return refreshTokenResult.isSuccessfull;
+  }
+
   Future<bool> logout() async {
+    resetGraphQlClientInstance();
     return await _authRepo.removeAuthCredentialFromPreference();
   }
 }

@@ -1,0 +1,12 @@
+mutation checkManagerAccess($businessId: String!, $branchId: String!, $phoneNumber: String!) {
+  checkManagerAccessToBranch(
+    businessId: $businessId
+    branchId: $branchId
+    phoneNumber: $phoneNumber
+  ) {
+    success
+    staff {
+      id
+    }
+  }
+}

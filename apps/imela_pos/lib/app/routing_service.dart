@@ -3,19 +3,30 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imela_pos/ui/authentication/staff_signin.page.dart';
 import 'package:imela_pos/ui/authentication/workspace_auth/workspace_auth.dart';
+import 'package:imela_pos/ui/cart/component/cart_list_component.dart';
+import 'package:imela_pos/ui/customer/customer_list_page.dart';
 import 'package:imela_pos/ui/home/branch_selection_page.dart';
 import 'package:imela_pos/ui/home/home_page.dart';
 import 'package:imela_pos/ui/home/splash/splash_page.dart';
+import 'package:imela_pos/ui/membership/components/pos_membership_details_component.dart';
+import 'package:imela_pos/ui/membership/create_membership_page.dart';
+import 'package:imela_pos/ui/membership/pos_membership_list_page.dart';
 import 'package:imela_pos/ui/order/order_confirmation_page.dart';
 import 'package:imela_pos/ui/order/order_list_page.dart';
+import 'package:imela_pos/ui/order/schedule/order_schedule_page.dart';
 import 'package:imela_pos/ui/payment/payment_page.dart';
+import 'package:imela_pos/ui/search/search_list_page.dart';
+import 'package:imela_pos/ui/staff/create_staff/create_staff_page.dart';
+import 'package:imela_pos/ui/staff/staff_list/staff_list_page.dart';
 import 'package:injectable/injectable.dart';
+import 'package:imela_core/order/model/order.model.dart' as OrderModel;
 
 import 'package:page_transition/page_transition.dart';
 
 abstract class IRoutingService {
   Future<T?> navigateTo<T>(BuildContext context, String routeName, {Map<String, dynamic> queryParam, Map<String, dynamic>? extra, bool replace = false});
   Future<void> goBack(BuildContext context, {Map<String, dynamic>? returnValue = const {}});
+  Future<void> goNamed(BuildContext context, String routeName, {Map<String, dynamic> queryParam, Map<String, dynamic>? extra, bool replace = false});
 }
 
 @Injectable(as: IRoutingService)
@@ -48,9 +59,32 @@ class GoRouterService implements IRoutingService {
       GoRoute(path: POSStaffSignInPage.routeName, builder: (context, state) => const POSStaffSignInPage()),
       GoRoute(path: BranchSelectionPage.routeName, builder: (context, state) => const BranchSelectionPage()),
       GoRoute(path: HomePage.routeName, builder: (context, state) => const HomePage()),
+      GoRoute(path: SearchListPage.routename, builder: (context, state) => const SearchListPage()),
+      GoRoute(path: CartListPage.routeName, builder: (context, state) => const CartListPage()),
       GoRoute(path: PaymentPage.routeName, builder: (context, state) => const PaymentPage()),
-      GoRoute(path: OrderConfirmationPage.routeName, builder: (context, state) => const OrderConfirmationPage()),
+      GoRoute(
+        path: OrderConfirmationPage.routeName,
+        builder: (context, state) {
+          var arguments = state.extra as Map<String, dynamic>;
+          var order = arguments[OrderConfirmationPage.orderKey] as OrderModel.Order?;
+          return OrderConfirmationPage(order: order);
+        },
+      ),
       GoRoute(path: OrderListPage.routeName, builder: (context, state) => const OrderListPage()),
+      GoRoute(path: CustomerListPage.routeName, builder: (context, state) => const CustomerListPage()),
+      GoRoute(path: OrderListPage.routeName, builder: (context, state) => const OrderListPage()),
+      GoRoute(path: StaffListPage.routeName, builder: (context, state) => const StaffListPage()),
+      GoRoute(path: CreateStaffPage.routeName, builder: (context, state) => const CreateStaffPage()),
+      GoRoute(path: POSMembershipListPage.routeName, builder: (context, state) => const POSMembershipListPage()),
+      GoRoute(path: PosMembershipDetailsComponent.routeName, builder: (context, state) => PosMembershipDetailsComponent()),
+      GoRoute(path: OrderSchedulePage.routeName, builder: (context, state) => const OrderSchedulePage()),
+      GoRoute(
+          path: CreateMembershipPage.routeName,
+          builder: (context, state) {
+            var arguments = state.extra as Map<String, dynamic>;
+            final membershipId = arguments['membershipId'] as String;
+            return CreateMembershipPage(membershipId: membershipId);
+          }),
     ],
   );
   @override
@@ -67,6 +101,11 @@ class GoRouterService implements IRoutingService {
   @override
   Future<void> goBack(BuildContext context, {Map<String, dynamic>? returnValue = const {}}) async {
     context.pop<Map<String, dynamic>>(returnValue);
+  }
+
+  @override
+  Future<void> goNamed(BuildContext context, String routeName, {Map<String, dynamic> queryParam = const {}, Map<String, dynamic>? extra, bool replace = false}) async {
+    context.goNamed(routeName, extra: extra);
   }
 
   static Page buildPageWithCustomTransition(GoRouterState state, Widget child, {PageTransitionType? transitionType, Widget? previousScreen}) {

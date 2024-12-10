@@ -1,0 +1,111 @@
+query GetMembershipDetails($membershipId: String!) {
+    getMembershipDetails(membershipId: $membershipId) {
+    success
+    currentUserSubscription{
+      id
+      startDate
+      endDate
+      isTrialPeriod
+      
+    }
+    membership {
+      id
+      type
+      owner
+      name {
+        key
+        value
+      }
+      description {
+        key
+        value
+      }
+      benefits{
+        id
+        name{
+          key
+          value
+        }
+        perkType
+        discounts {
+          type
+          value
+          condition
+          conditionValue
+          startDate
+          endDate
+        }
+      }
+      membersProductIds
+      price{
+        amount
+        currency
+      }
+      groups{
+        name{
+          key
+          value
+        }
+        default
+        members{
+          memberStatus
+          userId
+          paymentMethod{
+            name{
+              key
+              value
+            }
+            amount{
+              amount
+              currency
+            }
+            receiptImages
+          }
+          activeSubscriptionId
+          activeSubscription{
+            id
+            startDate
+            endDate
+          }
+          user{
+            id
+            username
+          }
+        }
+      }
+      allMembers{
+        userId
+        dateJoined
+        memberStatus
+        activeSubscription{
+          id
+          startDate
+          endDate
+          isTrialPeriod 
+        }
+      }
+      currentUserSubscription {
+        owner
+        startDate
+        endDate
+        isTrialPeriod
+        subscribedTo
+      }
+    }
+    products {
+      id
+      name {
+        key
+        value
+      }
+      gallery {
+        images {
+          url
+          featured
+        }
+      }
+      businessId
+      
+    }
+  }
+}

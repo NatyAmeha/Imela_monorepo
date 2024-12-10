@@ -13,6 +13,7 @@ class AppListView<T> extends StatelessWidget {
   final bool shrinkWrap;
   final Widget separator;
   final bool primary;
+  final ScrollController? scrollController;
 
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry contentPadding;
@@ -31,12 +32,15 @@ class AppListView<T> extends StatelessWidget {
     this.primary = true,
     this.padding = const EdgeInsets.all(0),
     this.contentPadding = const EdgeInsets.all(0),
+    this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
     if (shrinkWrap) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (header != null) ...[
             header!,
@@ -45,6 +49,7 @@ class AppListView<T> extends StatelessWidget {
             height: height,
             width: width,
             child: ListView.separated(
+              controller: scrollController,
               shrinkWrap: shrinkWrap,
               primary: primary,
               physics: !primary ? const NeverScrollableScrollPhysics() : null,
@@ -65,6 +70,7 @@ class AppListView<T> extends StatelessWidget {
     } else {
       return Expanded(
         child: ListView.separated(
+          controller: scrollController,
           primary: primary,
           physics: !primary ? const NeverScrollableScrollPhysics() : null,
           scrollDirection: scrollDirection,

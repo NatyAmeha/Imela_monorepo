@@ -1,4 +1,5 @@
 import 'package:imela_core/discovery/model/discovery_response.dart';
+import 'package:imela_core/discovery/model/foryou_response.dart';
 import 'package:imela_core/discovery/repo/discovery.repository.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:injectable/injectable.dart';
@@ -11,9 +12,17 @@ class DiscoveryUsecase {
 
   Future<DiscoveryResponse?> getDiscoveryDetails({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork}) async {
     var result = await _discoveryRepo.browse(fetchPolicy: fetchPolicy);
-    if(result == null){
+    if (result == null) {
       throw Exception('Failed to fetch data');
+    }
+    return result;
   }
+
+  Future<ForYouResponse?> getForYouData({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    var result = await _discoveryRepo.forYou(fetchPolicy: fetchPolicy);
+    if (!(result?.success ?? false) && fetchPolicy == ApiDataFetchPolicy.cacheFirst) {
+      result = await _discoveryRepo.forYou(fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    }
     return result;
   }
 }

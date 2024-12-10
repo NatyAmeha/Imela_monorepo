@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela_core/branch/branch.usecase.dart';
 import 'package:imela_core/business/business.usecase.dart';
 import 'package:imela_core/business/model/business_response.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
@@ -14,11 +15,13 @@ import 'package:injectable/injectable.dart';
 class WorkspaceAuthViewmodel extends GetxController with BaseViewmodel {
   final BusinessUsecase authUsecase;
   final BusinessUsecase businessUsecase;
+  final BranchUsecase branchUsecase;
   final IExceptiionHandler exceptiionHandler;
 
   WorkspaceAuthViewmodel({
     required this.authUsecase,
     required this.businessUsecase,
+    required this.branchUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
   });
 
@@ -40,7 +43,9 @@ class WorkspaceAuthViewmodel extends GetxController with BaseViewmodel {
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
-    exception.value = null;
+    Future.delayed(Duration.zero, () {
+      handleWorkspaceUrlInitialInput();
+    });
   }
 
   void onWorkspaceInputChanged(String value) {
@@ -62,9 +67,22 @@ class WorkspaceAuthViewmodel extends GetxController with BaseViewmodel {
       appviewmodel.setSelectedBusiness(result!.business!);
       POSStaffSignInPage.navigate(context);
     } catch (e) {
+      print(e);
       exception.value = e as AppException;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<String?> handleWorkspaceUrlInitialInput() async {
+    try {
+      final url = await businessUsecase.getWorkspaceUrlFromPreference();
+      if (url != null) {
+        workspaceInputController.text = url;
+        workspaceInput.value = url;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }

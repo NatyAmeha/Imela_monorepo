@@ -1,0 +1,6 @@
+mutation RequestToJoinMembership($membershipId: String!,  $paymentMethod: PaymentMethodInput!) {
+    joinMemership(membershipId: $membershipId, paymentMethod: $paymentMethod) {
+    success
+    message
+  }
+} 

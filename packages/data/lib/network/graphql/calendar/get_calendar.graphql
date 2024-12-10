@@ -1,0 +1,20 @@
+query GetCalendar($calendarId: String!) {
+  getCalendar(calendarId: $calendarId) {
+    success
+    calendar {
+      id
+      productId
+      fromDate
+      toDate
+      disabledDays
+      disabledHours
+      orderInfo {
+        id
+        dayOfWeek
+        maxOrderPerDay
+        maxOrderPerHour
+      }
+    }
+    disabledDatesForBooking
+  }
+}

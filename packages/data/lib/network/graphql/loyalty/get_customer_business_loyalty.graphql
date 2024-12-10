@@ -1,0 +1,36 @@
+query GetCustomerBusinessLoyalty($businessId: String!) {
+   getCustomerBusinessLoyality(businessId: $businessId) {
+    success
+    customer {
+      id
+      name
+      userId
+      phoneNumber
+    }
+    customerLoyalty {
+      id
+      customerId
+      businessId
+      currentPoints
+    }
+    rewards {
+      id
+      name {
+        key
+        value
+      }
+      description {
+        key
+        value
+      }
+      conditions {
+        key
+        value
+      }
+      minPointsToRedeem
+      businessId
+      discountAmount
+      isActive
+    }
+  }
+}

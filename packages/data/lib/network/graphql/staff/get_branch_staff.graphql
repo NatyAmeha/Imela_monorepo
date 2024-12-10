@@ -1,0 +1,13 @@
+query getBranchStaff($branchId: String!) {
+  getBranchStaffs(branchId: $branchId) {
+    success
+    staffs {
+      id
+      name
+      pin
+      phoneNumber
+      branchId
+      
+    }
+  }
+}

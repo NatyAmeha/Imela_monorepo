@@ -2,15 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
+import 'package:imela_core/business/model/business.section.dart';
+import 'package:imela_core/business/model/business_order_status.dart';
 import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/customer/customer_usecase.dart';
+import 'package:imela_core/customer/model/customer.model.dart';
+import 'package:imela_core/loyalty/dto/loyalty.response.dart';
+import 'package:imela_core/loyalty/model/customer_loyalty.model.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
+import 'package:imela_core/membership/dto/membership_response.dart';
+import 'package:imela_core/membership/membership_usecase.dart';
+import 'package:imela_core/membership/model/membership.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
-import 'package:imela_core/staff/model/staff_model.dart';
+import 'package:imela_core/staff/model/staff_response.dart';
 import 'package:imela_core/user/auth.usecase.dart';
-import 'package:imela_core/user/model/user.model.dart';
+import 'package:imela_core/user/model/access/access.model.dart';
 import 'package:imela_data/injection.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_pos/app/routing_service.dart';
+import 'package:imela_pos/ui/authentication/staff_signin.page.dart';
+import 'package:imela_pos/ui/authentication/staff_signin.viewmodel.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
@@ -21,31 +35,56 @@ class AppViewmodel extends GetxController with BaseViewmodel {
   static WidgetFactory? _widgetFactoryInstance;
 
   final AuthUsecase authUsecase;
+  final CustomerUsecase customerUsecase;
+  final MembershipUseCase membershipUsecase;
 
-  AppViewmodel({required this.authUsecase});
+  AppViewmodel({
+    required this.authUsecase,
+    required this.customerUsecase,
+    required this.membershipUsecase,
+  });
 
   late GoRouterService appRouter;
 
   // global state variables
-  var loggedInStaff = Rxn<Staff>();
+  var loggedInStaffInfo = Rxn<StaffResponse>();
+
+  var posCustomers = <Customer>[];
+
+  var businessMembershipInfo = Rxn<MembershipResponse>();
+  var allMemberships = <Membership>[];
 
   final selectedBusiness = Rxn<Business>();
+  var selectedSection = Rxn<BusinessSection>();
+  var branches = <Branch>[].obs;
   var selectedBranch = Rxn<Branch>();
+  var selectedCustomer = Rxn<Customer>();
+
+  var selectedBusinessLoyaltyInfo = Rxn<LoyaltyResponse>();
 
   var cartInfo = const Cart(name: [LocalizedField(key: "ENGLISH", value: "Cart")], items: []).obs;
 
+  List<Access> get loggedInStaffAccesses => loggedInStaffInfo.value?.authResponse?.accesses ?? [];
+
   // getter
+  List<Product> get allProducts {
+    return selectedBranch.value?.products ?? [];
+  }
 
   bool get isUserAuthenticated {
-    return loggedInStaff.value != null;
+    return loggedInStaffInfo.value != null;
   }
 
   String get selectedBusinessId => selectedBusiness.value!.id!;
   String get selectedBranchId => selectedBranch.value!.id!;
+  List<Branch> get businessBranches => selectedBusiness.value?.branches ?? [];
+  List<String> get businessBranchesIds => businessBranches.map((branch) => branch.id!).toList();
 
   List<Branch> get staffBranchList {
-    if (loggedInStaff.value == null || loggedInStaff.value!.branch == null) return [];
-    return [loggedInStaff.value!.branch!];
+    final staffBranch = loggedInStaffInfo.value?.staff?.branch;
+    if (loggedInStaffInfo.value == null) return [];
+
+    return staffBranch != null ? [staffBranch] : businessBranches;
   }
 
   List<PaymentOption> get paymentOptions {
@@ -55,6 +94,10 @@ class AppViewmodel extends GetxController with BaseViewmodel {
   List<PaymentMethod> get paymentMethods {
     return PaymentMethod.getFakePaymentMethods();
   }
+
+  List<Reward> get branchRewards => selectedBusinessLoyaltyInfo.value?.rewards ?? [];
+
+  List<BusinessOrderStatus> get businessOrderStatuses => selectedBusiness.value?.orderStatuses ?? [];
 
   @override
   Future<void> initViewmodel({Map<String, dynamic>? data}) async {
@@ -67,8 +110,8 @@ class AppViewmodel extends GetxController with BaseViewmodel {
   }
 
   // Getters
-  String? get loggedInStaffName => loggedInStaff.value?.name;
-  bool get isUserLoggedIn => loggedInStaff.value != null;
+  String? get loggedInStaffName => loggedInStaffInfo.value?.staff?.name;
+  bool get isUserLoggedIn => loggedInStaffInfo.value != null;
 
   static WidgetFactory getWidgetFactory(BuildContext context) {
     return _widgetFactoryInstance ??= WidgetFactory(Theme.of(context).platform);
@@ -79,11 +122,62 @@ class AppViewmodel extends GetxController with BaseViewmodel {
 
   void setSelectedBusiness(Business business) {
     selectedBusiness.value = business;
+    cartInfo.value = cartInfo.value.addBusiness([business.id!]);
+    selectedSection.value = business.sections?.first;
   }
 
-  void setLoggedInStaff(Staff staff) {
-    loggedInStaff.value = staff;
-    selectedBranch.value = staff.branch;
+  void setSelectedSection(BusinessSection section) {
+    selectedSection.value = section;
+  }
+
+  void setLoggedInStaff(StaffResponse staffResponse) {
+    loggedInStaffInfo.value = staffResponse;
+    selectedBranch.value = staffResponse.staff?.branch ?? businessBranches.first;
+  }
+
+  void setSelectedCustomer(Customer? customer) {
+    selectedCustomer.value = customer;
+  }
+
+  Future<List<Customer>> loadCustomers(BuildContext context) async {
+    try {
+      if (posCustomers.isNotEmpty) return posCustomers;
+      final result = await customerUsecase.getBusinessCustomer(selectedBusinessId, 1, 1000);
+      if (result?.customers?.isNotEmpty ?? false) {
+        setPosCustomers(result?.customers ?? []);
+        return result?.customers ?? [];
+      }
+      return [];
+    } catch (e) {
+      print('error $e');
+      return [];
+    }
+  }
+
+  void setPosCustomers(List<Customer> customers, {bool clear = true}) {
+    if (clear) {
+      posCustomers.clear();
+    }
+    posCustomers.assignAll(customers);
+  }
+
+  void addToPosCustomers(List<Customer> customers) {
+    posCustomers.addAll(customers);
+  }
+
+  void setSelectedBusinessLoyaltyInfo(LoyaltyResponse? loyaltyResponse) {
+    selectedBusinessLoyaltyInfo.value = loyaltyResponse;
+  }
+
+  CustomerLoyalty? getCustomerLoyaltyInfo(Customer? customer) {
+    if (customer == null) return null;
+    final selectedCustomer = posCustomers.firstWhereOrNull((c) => c.id == customer.id);
+    return selectedCustomer?.customerLoyalties?.firstWhereOrNull((loyalty) => loyalty.businessId == selectedBusinessId);
+  }
+
+  List<Reward> getEligibleRewards(Customer customer) {
+    final customerLoyalty = getCustomerLoyaltyInfo(customer);
+    return branchRewards.getEligibleRewards(customerLoyalty?.currentPoints ?? 0);
   }
 
   void selectBranch(Branch? branch) {
@@ -92,11 +186,84 @@ class AppViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-  // Future<void> logout(BuildContext context) async {
-  //   final result = await authUsecase.logout();
-  //   loggedInUser.value = null;
-  //   if (result) {
-  //     BusinessSignInPage.navigate(context);
-  //   }
-  // }
+  Future<MembershipResponse?> getBusinessMemberships({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst, bool forceReload = true}) async {
+    try {
+      MembershipResponse? result;
+      if (forceReload) {
+        result = await membershipUsecase.getMembershipPlansForPos(selectedBusinessId, fetchPolicy: fetchPolicy);
+      } else {
+        result = businessMembershipInfo.value;
+      }
+      if (result == null || !(result.success ?? false)) {
+        return null;
+      }
+      if ((result.memberships?.isEmpty ?? true)) {
+        return null;
+      }
+      setBusinessMembershipInfo(result);
+      setAllMemberships(result.memberships ?? []);
+      return result;
+    } catch (e) {
+      print('error fetching user memberships: $e');
+      return null;
+    }
+  }
+
+  void setBusinessMembershipInfo(MembershipResponse? membershipResponse) {
+    businessMembershipInfo.value = membershipResponse;
+  }
+
+  void setAllMemberships(List<Membership> memberships) {
+    allMemberships.assignAll(memberships);
+  }
+
+  List<Customer> getMemberCustomers(String membershipId) {
+    final membership = allMemberships.firstWhereOrNull((membership) => membership.id == membershipId);
+    if (membership == null) return [];
+
+    final result = membership.allMembers?.map((member) => posCustomers.firstWhereOrNull((customer) => customer.userId == member.userId)).whereType<Customer>().toList() ?? [];
+    return result;
+  }
+
+  Future<void> logout(BuildContext context, {bool showLogoutPopup = false}) async {
+    if (showLogoutPopup) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel')),
+            TextButton(
+                onPressed: () async {
+                  final result = await authUsecase.logout();
+                  loggedInStaffInfo.value = null;
+                  if (result) {
+                    POSStaffSignInPage.navigate(context, replaceRoute: true);
+                  }
+                },
+                child: const Text('Logout')),
+          ],
+        ),
+      );
+    } else {
+      final result = await authUsecase.logout();
+      loggedInStaffInfo.value = null;
+      if (result) {
+        POSStaffSignInPage.navigate(context, replaceRoute: true);
+      }
+    }
+  }
+
+  void updateMembershipInfo(Membership? membership) {
+    if (membership == null) return;
+    final index = allMemberships.indexWhere((membership) => membership.id == membership.id);
+    if (index != -1) {
+      allMemberships[index] = membership;
+    }
+  }
 }

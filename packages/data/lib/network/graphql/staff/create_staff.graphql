@@ -1,0 +1,12 @@
+mutation createStaff($input: CreateStaffInput!) {
+  createStaff(staffInput: $input) {
+    success
+    staff{
+      id
+      name
+      phoneNumber
+      branchId
+      pin
+    }
+  }
+}

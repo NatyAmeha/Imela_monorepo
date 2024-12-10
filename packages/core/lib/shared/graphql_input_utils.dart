@@ -1,3 +1,4 @@
+import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
@@ -44,24 +45,11 @@ extension LanguageKey on String? {
     }
   }
 
-  GAddonInputType? get toAddonInputType {
-    if (this == null) return null;
 
-    if (this == GAddonInputType.NUMBER_INPUT.name) {
-      return GAddonInputType.NUMBER_INPUT;
-    } else if (this == GAddonInputType.SINGLE_SELECTION_INPUT.name) {
-      return GAddonInputType.SINGLE_SELECTION_INPUT;
-    } else if (this == GAddonInputType.MULTIPLE_SELECTION_INPUT) {
-      return GAddonInputType.MULTIPLE_SELECTION_INPUT;
-    } else if (this == GAddonInputType.DATE_TIME_INPUT.name) {
-      return GAddonInputType.DATE_TIME_INPUT;
-    } else if (this == GAddonInputType.TEXT_INPUT.name) {
-      return GAddonInputType.TEXT_INPUT;
-    } else if (this == GAddonInputType.DATE_INPUT.name) {
-      return GAddonInputType.DATE_INPUT;
-    } else {
-      return GAddonInputType.TEXT_INPUT;
-    }
+
+  GMembershipPerkType? get toMembershipPerkTypeInput {
+    if (this == null) return null;
+    return GMembershipPerkType.valueOf(this!);
   }
 }
 
@@ -95,6 +83,8 @@ extension GraphqlOrderInput on List<OrderItem> {
         ..branchId = item.branchId
         ..image = item.image
         ..subTotal = item.getSubtotal()
+        ..total = item.getTotalAmount()
+        ..point = item.point
         ..discount.addAll(item.discount.toOrderDiscountInput())
         ..config.addAll(item.config.toOrderConfigInput())
         ..quantity = item.quantity),
@@ -115,6 +105,7 @@ extension GraphqlOrderConfigInput on List<OrderConfig>? {
               ..singleValue = config.singleValue
               ..multipleValue.addAll(config.multipleValue ?? [])
               ..additionalPrice = config.additionalPrice
+              ..calendarId = config.calendarId
               ..productIds.addAll(config.productIds?.map((e) => e) ?? []),
           ),
         )
@@ -150,6 +141,34 @@ extension GraphqlPaymentOptionInput on List<PaymentOption>? {
           ),
         )
         .toList();
+  }
+}
+
+extension GraphqlPaymentMethodInput on List<SelectedPaymentMethod>? {
+  List<GOrderPaymentMethodInput> toPaymentMethodInput() {
+    if (this == null || this!.isEmpty) return [];
+    return this!
+        .map(
+          (paymentMethod) => GOrderPaymentMethodInput((paymentMethodInput) => paymentMethodInput
+            ..name.addAll(paymentMethod.name.toLocalizedFieldInput())
+            ..requireReceiptImage = paymentMethod.requireReceiptImage
+            ..receiptImages.addAll(paymentMethod.receiptImages ?? [])
+            ..amount.update((b) => b
+              ..amount = paymentMethod.amount.amount
+              ..currency = paymentMethod.amount.currency.toCurrencyKeyInput)),
+        )
+        .toList();
+  }
+}
+
+extension GraphqlSinglePaymentMethodInput on SelectedPaymentMethod {
+  GPaymentMethodInput toPaymentMethodInput() {
+    return GPaymentMethodInput((paymentMethodInput) => paymentMethodInput
+      ..name.addAll(name.toLocalizedFieldInput())
+      ..receiptImages.addAll(receiptImages ?? [])
+      ..amount.update((b) => b
+          ..amount = amount.amount
+          ..currency = amount.currency.toCurrencyKeyInput));
   }
 }
 

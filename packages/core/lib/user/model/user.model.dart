@@ -34,7 +34,10 @@ class User with _$User {
     return User(
       id: jwtPayload['sub'],
       username: jwtPayload['username'],
+      firstName: jwtPayload['firstName'],
+      lastName: jwtPayload['lastName'],
       email: jwtPayload['email'],
+      phoneNumber: jwtPayload['phoneNumber'],
       refreshToken: jwtPayload['refreshToken'],
     );
   }

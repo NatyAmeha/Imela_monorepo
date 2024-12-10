@@ -1,0 +1,22 @@
+query GetMyLoyalties {
+  getCustomerLoyalties {
+    success
+    customer{
+      id
+    }
+    customerLoyalties {
+      id
+      name {
+        key
+        value
+      }
+      customer{
+        id
+      }
+      businessId
+      customerId
+      currentPoints
+      createdAt
+    }
+  }
+}

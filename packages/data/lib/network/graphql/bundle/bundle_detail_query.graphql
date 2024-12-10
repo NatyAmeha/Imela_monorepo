@@ -14,6 +14,11 @@ query GetBundleDetail($id : String!){
 			type
 			startDate
 			endDate
+			productsInfo{
+				productId
+				minQty
+				maxQty
+			}
 			gallery {
 				images {
 					url
@@ -23,8 +28,10 @@ query GetBundleDetail($id : String!){
 				type
 				value
 				condition
+				conditionValue
 			}
-			business {
+			businessIds
+			businesses {
 				id
 				name {
 					key
@@ -68,6 +75,9 @@ query GetBundleDetail($id : String!){
 				}
 				loyaltyPoint
 				minimumOrderQty
+				calendars {
+					id
+				}
 				addons {
         			id
         			name {
@@ -82,6 +92,10 @@ query GetBundleDetail($id : String!){
 					isRequired
 					isProduct
 					productIds
+					checkCalendar
+					calendarId
+					membershipIds
+					includeOnPOS
 					additionalPrice {
 						id
 						amount
@@ -135,7 +149,7 @@ query GetBundleDetail($id : String!){
 					}
 				}
 			}
-			business {
+			businesses {
 				id
 				name {
 					value

@@ -25,6 +25,7 @@ dependencies:
   dartx: ^1.2.0
   jwt_decode: ^0.3.1
   excel: ^4.0.6
+  permission_handler: ^11.3.1
 
   # local packages
   imela_utils: ^0.1.0

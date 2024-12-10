@@ -1,0 +1,9 @@
+mutation UpdateOrderStatus($businessId: String!, $orderId: String!, $status: String!, $branchId: String) {
+  updateOrderStatus(businessId: $businessId, orderId: $orderId, status: $status, branchId: $branchId) {
+    success
+    order {
+      id
+      status
+    }
+  }
+}

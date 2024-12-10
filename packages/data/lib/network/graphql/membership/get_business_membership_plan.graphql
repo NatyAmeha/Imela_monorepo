@@ -1,0 +1,47 @@
+query GetBusinessMembershipPlans($businessId: String!) {
+    getBusinessMembershipPlans(businessId: $businessId) {
+    success
+    memberships {
+      id
+      name {
+        key
+        value
+      }
+      description {
+        key
+        value
+      }
+      price {
+        amount
+        currency
+      }
+      category
+      benefits{
+        id
+        name{
+          key
+          value
+        }
+        perkType
+        discounts {
+          type
+          condition
+          value
+          conditionValue
+          startDate
+          endDate
+        }
+      }
+      currentUserSubscription {
+        owner
+        startDate
+        endDate
+        isTrialPeriod
+        subscribedTo
+      }
+      duration
+      trialPeriod
+      createdAt
+    }
+  }
+}

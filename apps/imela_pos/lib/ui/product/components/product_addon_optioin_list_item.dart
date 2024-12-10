@@ -26,7 +26,7 @@ class ProductAddonOptioinListItem extends StatelessWidget {
         : widgetFactory.createCheckboxListTile(
             context,
             title: option.name.localize('ENGLISH'),
-            value: selectedOptionsId.contains(option.id!),
+            value: selectedOptionsId.contains(option.id),
             onChanged: (isChecked) {
               onOptionSelected(option.id, isChecked);
             },

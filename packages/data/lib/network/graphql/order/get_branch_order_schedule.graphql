@@ -1,0 +1,19 @@
+query GetBranchOrderSchedules($branchId: String!) {
+  getBranchOrderSchedules(branchId: $branchId) {
+    success
+    schedules {
+      id
+      note{
+        key
+        value
+      }
+      calendarId
+      productId
+      orderId
+      bookedTimes
+      status
+      createdAt
+      
+    }
+  }
+}

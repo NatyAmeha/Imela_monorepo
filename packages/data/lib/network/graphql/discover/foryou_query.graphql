@@ -1,0 +1,113 @@
+query GetForYouData {
+    getForYouData {
+    success
+    favoriteBusinesses {
+      id
+      name {
+        key
+        value
+      }
+      gallery{
+        images{
+          url
+          featured
+        }
+      }
+    }
+    topProductsByBusiness {
+      title
+      subtitle
+      items {
+        id
+        variantsId
+        name {
+          key
+          value
+        }
+        featured
+        loyaltyPoint
+        membershipIds
+        prices {
+          price {
+            amount
+            currency
+          }
+        }
+        gallery {
+          images {
+            url
+          }
+        }
+        discounts {
+          type
+          value
+          condition
+          conditionValue
+          startDate
+          endDate
+        }
+        inventory {
+          id
+          qty
+          unit
+          minOrderQty
+          maxOrderQty
+          isAvailable
+          optionsIncluded
+        }
+        business {
+          id
+          name {
+            key
+            value
+          }
+          discounts {
+            type
+            value
+            condition
+            conditionValue
+            startDate
+            endDate
+          }
+        }
+        variants{
+          id
+          prices {
+            price {
+              amount
+              currency
+            }
+          }
+        }
+      }
+    }
+
+    bundles {
+      title
+      subtitle
+      sequence
+      
+      items {
+        id
+        name {
+          key
+          value
+        }
+        description{
+          key
+          value
+        }
+        startDate
+        endDate
+        productIds
+        products {
+          gallery {
+            images {
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,10 +6,26 @@ query OrderDetail($orderId: String!) {
       userId
       businessId
       status
+      code
       paymentType
-      remainingAmount
       subTotal
       totalAmount
+      remainingAmount
+      paidAmount
+      createdAt
+      updatedAt
+      paymentMethods {
+        id
+        name {
+          key
+          value
+        }
+        receiptImages
+        amount {
+          amount
+          currency
+        }
+      }
       discount {
         id
         amount
@@ -20,12 +36,13 @@ query OrderDetail($orderId: String!) {
       }
       items {
         id
-
         name {
           key
           value
         }
         quantity
+        image
+        point
         branchId
         productId
         subTotal
@@ -50,8 +67,27 @@ query OrderDetail($orderId: String!) {
           singleValue
           multipleValue
           productIds
+          additionalPrice
+          addonId
         }
       }
+      customer{
+        id
+        name
+        phoneNumber
+      }
+      config {
+          type
+          name {
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          productIds
+          additionalPrice
+          addonId
+        }
     }
   }
 }

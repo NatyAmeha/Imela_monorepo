@@ -4,6 +4,7 @@ import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
+import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -150,12 +151,13 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Future<DateTime?> showDateTimePicker(BuildContext context, DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable) {
+  Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false}) {
     throw UnimplementedError();
   }
 
   @override
-  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable = true}) async {
+  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true}) async {
+    print('show date range picker base');
     throw UnimplementedError();
   }
 
@@ -194,7 +196,7 @@ class BaseWidgetFactory implements WidgetFactory {
     );
   }
 
-  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required List<T> selectedValues, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder}) {
+  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required List<T> selectedValues, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder, Widget Function(BuildContext, T items, bool isSelected)? headerBuilder}) {
     if (isMultiSelection) {
       if (showSearch) {
         return CustomDropdown.multiSelectSearch(
@@ -224,8 +226,9 @@ class BaseWidgetFactory implements WidgetFactory {
         return CustomDropdown<T>.search(
           items: options,
           listItemBuilder: itemBuilder,
-          initialItem: selectedValues.first,
+          initialItem: selectedValues.firstOrNull,
           excludeSelected: false,
+          headerBuilder: headerBuilder,
           onChanged: (p0) {
             onChanged(p0 != null ? [p0] : []);
           },
@@ -234,7 +237,8 @@ class BaseWidgetFactory implements WidgetFactory {
       return CustomDropdown<T>(
         items: options,
         listItemBuilder: itemBuilder,
-        initialItem: selectedValues.first,
+        headerBuilder: headerBuilder,
+        initialItem: selectedValues.firstOrNull,
         excludeSelected: false,
         onChanged: (p0) {
           onChanged(p0 != null ? [p0] : []);
@@ -243,4 +247,9 @@ class BaseWidgetFactory implements WidgetFactory {
     }
   }
 
+  @override
+  Widget createPopupMenu<T>({required BuildContext context, required List<PopupMenuItemData<T>> items, required Widget child, ValueChanged<T>? onSelected}) {
+    // TODO: implement createPopupMenu
+    throw UnimplementedError();
+  }
 }

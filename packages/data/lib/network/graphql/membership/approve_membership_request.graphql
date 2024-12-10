@@ -1,0 +1,12 @@
+mutation ApproveMembershipRequest($businessId: String!, $membershipId: String!, $branchId: String, $groupMembersId: [String!]!, $paymentMethod : PaymentMethodInput) {
+    approveMembershipRequest(
+        businessId: $businessId
+        branchId: $branchId
+        membershipId: $membershipId
+        membersId: $groupMembersId
+        paymentMethod: $paymentMethod
+  ) {
+    success
+    message
+  }
+}   

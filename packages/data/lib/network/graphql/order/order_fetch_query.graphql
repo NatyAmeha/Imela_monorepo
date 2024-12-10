@@ -5,6 +5,7 @@ query GetOrders{
     orders {
       id
       orderNumber
+      code
       status
       userId
       remainingAmount

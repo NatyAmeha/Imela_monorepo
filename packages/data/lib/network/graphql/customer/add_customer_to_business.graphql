@@ -1,0 +1,12 @@
+mutation AddCustomerToBusiness($businessId: String!, $customers: [CreateCustomerInput!]!) {
+  addBusinessCustomers(businessId: $businessId, customers: $customers) {
+    success
+    customers{
+      id
+      name
+      phoneNumber
+      email
+      
+    }
+  }
+}

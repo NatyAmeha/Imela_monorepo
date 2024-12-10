@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_utils/helpers/date_utils.dart';
 import 'package:imela_utils/helpers/number_utils.dart';
 
@@ -13,12 +15,14 @@ class Discount with _$Discount {
   const Discount._();
   factory Discount({
     String? id,
+    List<LocalizedField>? name,
     required String type,
     required double value,
     @Default('NONE') String condition,
-    double? conditionValue,
+    String? conditionValue,
     DateTime? startDate,
     DateTime? endDate,
+    @Default(DiscountSource.BUSINESS_OFFER) DiscountSource source,
   }) = _Discount;
 
   factory Discount.fromJson(Map<String, dynamic> json) => _$DiscountFromJson(json);
@@ -29,7 +33,7 @@ class Discount with _$Discount {
 
   String getDiscountValueString(String currency) {
     if (type == DiscountType.PERCENTAGE.name) {
-      return '$value%';
+      return '$value% off';
     }
     return '$currency $value';
   }
@@ -48,9 +52,23 @@ class Discount with _$Discount {
     }
   }
 
+  DiscountInfo toDiscountInfo({required String name, required DiscountSource source}) {
+    return DiscountInfo(
+      name: name,
+      id: id ?? name,
+      type: type == DiscountType.PERCENTAGE.name ? DiscountType.PERCENTAGE : DiscountType.AMOUNT,
+      value: value,
+      source: source,
+    );
+  }
+
+  ItemDiscount toItemDiscount() {
+    return ItemDiscount(id: id, name: name, percentage: value, amount: 0, source: source);
+  }
+
   double getDiscountedSubtotal(double price) {
     if (type == DiscountType.PERCENTAGE.name) {
-      return price.getPercentage(value, deductPercentageFromOriginalPrice: true);
+      return price.getPercentage(value, deductPercentageFromOriginalPrice: false);
     }
     return price - value;
   }
@@ -63,10 +81,46 @@ class Discount with _$Discount {
   }
 
   Duration get remainingTime {
-    return DateHelper.getDateDifference(startDate: startDate, endDate: endDate);
+    return DateHelper.getDateDifference(startDate: DateTime.now(), endDate: endDate);
+  }
+
+  Discount addName(List<LocalizedField> name) {
+    return copyWith(name: name);
   }
 }
 
 enum DiscountType { PERCENTAGE, AMOUNT }
 
-enum DiscountCondition { NONE, PURCHASE_ALL_ITEMS, MINIMUM_PURCHASE, MAXIMUM_PURCHASE, QUANTITY, TIME_BASED }
+enum DiscountCondition { NONE, PURCHASE_ALL_ITEMS, MINIMUM_PURCHASE, MAXIMUM_PURCHASE, QUANTITY, TIME_BASED, PRODUCT_ADDON }
+
+enum DiscountSource {
+  BUSINESS_OFFER,
+  MEMBERSHIP,
+  MEMBERSHIP_PRODUCTS,
+  LOYALTY,
+  DYNAMIC_PRICING,
+}
+
+@freezed
+class DiscountInfo with _$DiscountInfo {
+  const DiscountInfo._();
+  factory DiscountInfo({
+    required String id,
+    required String name,
+    @Default(DiscountType.PERCENTAGE) DiscountType type,
+    required double value,
+    @Default(false) bool isApplied,
+    required DiscountSource source,
+  }) = _DiscountInfo;
+
+  factory DiscountInfo.fromJson(Map<String, dynamic> json) => _$DiscountInfoFromJson(json);
+
+  ItemDiscount toItemDiscount() {
+    final amount = type == DiscountType.PERCENTAGE ? 0.0 : value;
+    return ItemDiscount(id: id, name: [LocalizedField(key: "ENGLISH", value: name)], percentage: value, amount: amount, source: source);
+  }
+
+  DiscountInfo resetToggle() {
+    return copyWith(isApplied: false);
+  }
+}

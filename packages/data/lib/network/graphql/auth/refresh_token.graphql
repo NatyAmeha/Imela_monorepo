@@ -1,0 +1,8 @@
+query RefreshToken {
+    refreshToken{
+        success
+        accessToken
+        refreshToken
+        isNewUser
+    }
+}

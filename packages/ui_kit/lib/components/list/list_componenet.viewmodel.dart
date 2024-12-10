@@ -8,13 +8,13 @@ class CustomListController<T> extends GetxController {
 
   // Method to add an item
   void addItems(List<T>? newITems) {
-    if(newITems?.isNotEmpty ?? false){
-      items.addAll(newITems!);
+    if (newITems?.isNotEmpty ?? false) {
+      items.value = [...items, ...newITems!];
     }
   }
 
   void setItems(List<T> newItems) {
-    items.value= newItems;
+    items.value = newItems;
   }
 
   // Method to update an item
@@ -22,7 +22,7 @@ class CustomListController<T> extends GetxController {
     items.value = List<T>.from(items.value)..[index] = newItem;
   }
 
-  void removeItems(List<int> indexs ){
+  void removeItems(List<int> indexs) {
     items.value = List<T>.from(items.value)..removeWhere((element) => indexs.contains(items.value.indexOf(element)));
   }
 
@@ -30,7 +30,7 @@ class CustomListController<T> extends GetxController {
   void dispose() {
     // TODO: implement dispose
     items.clear();
-    
+
     super.dispose();
   }
 

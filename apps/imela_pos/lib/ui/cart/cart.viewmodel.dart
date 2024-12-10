@@ -1,17 +1,33 @@
 import 'package:dartx/dartx.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela_core/customer/model/customer.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
-import 'package:imela_core/product/model/product.model.dart';
-import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_core/product/discount.usecase.dart';
+import 'package:imela_core/product/model/discount.model.dart';
+import 'package:imela_core/product/model/product_addon.model.dart';
+
 import 'package:imela_pos/app/app_viewmodel.dart';
 import 'package:imela_pos/injection.dart';
+import 'package:imela_pos/ui/cart/component/cart_action_list_item.dart';
+import 'package:imela_pos/ui/cart/component/cart_applied_discount_list_modal.dart';
+import 'package:imela_pos/ui/cart/component/discount_list_component.dart';
+import 'package:imela_pos/ui/customer/component/customer_details_modal.dart';
+import 'package:imela_pos/ui/customer/component/search_customer_list_modal.dart';
+import 'package:imela_pos/ui/payment/payment_page.dart';
+import 'package:imela_pos/ui/product/components/pos_product_addon_list_modal.dart';
+import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class CartViewmodel extends GetxController with BaseViewmodel {
+  final DiscountUseCase discountUseCase;
+
+  CartViewmodel({required this.discountUseCase});
   static CartViewmodel getInstance() {
     return BaseViewmodel.isViewmodelRegistered(getIt<CartViewmodel>());
   }
@@ -20,16 +36,111 @@ class CartViewmodel extends GetxController with BaseViewmodel {
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
 
+  final RxList<CartActionInfo> cartActions = <CartActionInfo>[].obs;
+
+  RxList<DiscountInfo> eligableDiscounts = <DiscountInfo>[].obs;
+
+  var configuredOrderAddons = <OrderConfig>[].obs;
+
   // getters
   AppViewmodel get appViewmodel => AppViewmodel.getInstance();
+  Cart get cart => appViewmodel.cartInfo.value;
 
-  Cart get cart {
-    return appViewmodel.cartInfo.value ?? Cart(name: [LocalizedField(key: 'ENGLISH', value: 'Cart')]);
+  String? get customerId => appViewmodel.selectedCustomer.value?.id;
+
+  List<DiscountInfo> get appliedDiscounts => eligableDiscounts.where((e) => e.isApplied).toList();
+
+  List<ProductAddon> get orderconfigurations => appViewmodel.selectedSection.value?.getAddons(forPOS: true) ?? [];
+
+  bool get canEnableCheckout {
+    return cart.items?.isNotEmpty ?? false;
+  }
+
+  var contextB = Rxn<BuildContext>();
+
+  @override
+  void initViewmodel({Map<String, dynamic>? data}) {
+    super.initViewmodel(data: data);
+    Future.delayed(Duration.zero, () {
+      final context = data?['context'] as BuildContext;
+      contextB.value = context;
+      fecthAvailableDiscounts(resetAvialableDiscounts: false);
+      initCartActions();
+    });
+  }
+
+  void initCartActions() {
+    cartActions.value = [
+      CartActionInfo(
+        actionName: 'Customer',
+        selectedValue: appViewmodel.selectedCustomer.value?.name ?? 'Select Customer',
+        onTap: () async {
+          showAllCustomerLists();
+        },
+        icon: Icons.person,
+        clearIcon: appViewmodel.selectedCustomer.value != null ? const Icon(Icons.clear) : null,
+        onClear: () {
+          appViewmodel.setSelectedCustomer(null);
+          fecthAvailableDiscounts();
+          initCartActions();
+        },
+      ),
+      // CartActionInfo(
+      //   actionName: 'Price List',
+      //   selectedValue: 'Default',
+      //   onTap: () {},
+      //   icon: Icons.list_alt,
+      // ),
+      CartActionInfo(
+          actionName: 'Discounts',
+          selectedValue: appliedDiscounts.isNotEmpty ? '${appliedDiscounts.length} applied' : '${eligableDiscounts.length} available',
+          onTap: () {
+            applyDiscounts(contextB.value!); // Set up discounts before showing the dialog.
+          },
+          icon: Icons.discount,
+          clearIcon: appliedDiscounts.isNotEmpty ? const Icon(Icons.clear) : null,
+          onClear: () {
+            removeAppliedDiscounts();
+            initCartActions();
+          }),
+    ];
+  }
+
+  void showAllCustomerLists() async {
+    try {
+      isLoading(true);
+      await appViewmodel.getBusinessMemberships(forceReload: false);
+      final allCustomers = await appViewmodel.loadCustomers(contextB.value!);
+      await showCustomerListModal(contextB.value!, customers: allCustomers, title: 'Select customers');
+    } catch (e) {
+      print('error $e');
+    } finally {
+      isLoading(false);
+    }
   }
 
   bool isCartContainsProduct(String? productId) {
     if (productId == null) return false;
     return appViewmodel.cartInfo.value.items?.any((element) => element.productId == productId) ?? false;
+  }
+
+  void fecthAvailableDiscounts({bool resetAvialableDiscounts = true}) {
+    if (resetAvialableDiscounts) removeAppliedDiscounts();
+    var businessDiscounts = appViewmodel.selectedBusiness.value?.discounts ?? [];
+    var customerLoyalty = appViewmodel.getCustomerLoyaltyInfo(appViewmodel.selectedCustomer.value);
+    final existingDiscounts = List<DiscountInfo>.from(eligableDiscounts.where((e) => e.isApplied));
+    var discounthandlers = discountUseCase.resetAddedDiscount().createBusinessOfferDiscounts(businessDiscounts).createLoyaltyDiscount(customerLoyalty, appViewmodel.branchRewards);
+    if (appViewmodel.selectedCustomer.value != null) {
+      discounthandlers = discounthandlers.createMembershipDiscount(appViewmodel.selectedCustomer.value!.getCustomerMemberships(appViewmodel.allMemberships));
+    }
+    eligableDiscounts.value = discounthandlers.build(existingDiscounts);
+  }
+
+  void removeAppliedDiscounts() {
+    eligableDiscounts.value = eligableDiscounts.value.map((e) => e.resetToggle()).toList();
+    appliedDiscounts.clear();
+    appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.resetAllDiscounts();
+    initCartActions();
   }
 
   void updateProductQty(String productId, {required double qty, bool reset = false}) {
@@ -50,7 +161,168 @@ class CartViewmodel extends GetxController with BaseViewmodel {
     appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(items: appViewmodel.cartInfo.value.items?.where((element) => element.productId != productId).toList());
   }
 
-  void clearCart() {
-    appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(items: []);
+  Future<void> clearCart(BuildContext context) async {
+    final widgetFactory = AppViewmodel.getWidgetFactory(context);
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear cart'),
+        content: const Text('Are you sure you want to clear the cart?'),
+        actions: [
+          widgetFactory.createButton(
+            context: context,
+            content: const Text('Clear'),
+            onPressed: () {
+              appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(items: []);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> showCustomerListModal(BuildContext context, {required List<Customer> customers, String? title, String? description}) async {
+    final pageId = UniqueKey().toString();
+    final customerDetailsPageId = UniqueKey().toString();
+    await AppModalSheet.showModal(
+      context,
+      type: AppModalSheetType.DIALOG,
+      pages: [
+        ModalContent(
+          id: pageId,
+          title: const Text('Select customer'),
+          content: SearchCustomerListModal(
+            customers: customers,
+            selectedCustomer: appViewmodel.selectedCustomer.value,
+            title: title ?? 'Select customer',
+            description: description,
+            onCustomerSelected: (contextt, selectedCustomer) {
+              addCustomerDetailPage(contextt, customerDetailsPageId, selectedCustomer);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void addCustomerDetailPage(BuildContext context, String customerDetailsPageId, Customer customer) {
+    final eligableRewards = appViewmodel.getEligibleRewards(customer);
+    AppModalSheet.addPageToModal(
+      context,
+      ModalContent(
+        id: customerDetailsPageId,
+        title: const Text('Customer Details'),
+        content: CustomerDetailsModal(
+          customer: customer,
+          customerMemberships: customer.getCustomerMemberships(appViewmodel.allMemberships),
+          customerLoyalty: appViewmodel.getCustomerLoyaltyInfo(customer),
+          eligableRewards: eligableRewards,
+          businessRewards: appViewmodel.branchRewards,
+          selectedLanguage: 'ENGLISH',
+          onCustomerSelected: (cont, selectedReward) {
+            appViewmodel.setSelectedCustomer(customer);
+            fecthAvailableDiscounts();
+            initCartActions();
+            AppModalSheet.closeModal();
+          },
+        ),
+      ),
+    );
+  }
+
+  void applyDiscounts(BuildContext context) async {
+    fecthAvailableDiscounts(resetAvialableDiscounts: false);
+    await AppModalSheet.showModal(
+      context,
+      type: AppModalSheetType.DIALOG,
+      pages: [
+        ModalContent(
+          id: 'discount',
+          title: const Text('Discount List'),
+          content: DiscountListDialog(
+            onDiscountToggle: (discount) => toggleDiscount(discount),
+            onFinish: () async {
+              await AppModalSheet.closeModal();
+              initCartActions();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void applyEligableDiscountsProactive() {
+    final discount = eligableDiscounts.firstOrNullWhere((e) => e.isApplied);
+    if (discount != null) {
+      final cartDiscountInfo = discount.toItemDiscount();
+      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.applyDiscountOnOrderItems([cartDiscountInfo], removeExistingDiscount: false);
+    }
+  }
+
+  void toggleDiscount(DiscountInfo discount) {
+    discount = discount.copyWith(isApplied: !discount.isApplied);
+    final discountIndex = eligableDiscounts.indexWhere((e) => e.id == discount.id);
+    if (discountIndex != -1) {
+      eligableDiscounts.value[discountIndex] = discount;
+      final cartDiscountInfo = discount.toItemDiscount();
+      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.applyDiscountOnOrderItems([cartDiscountInfo], removeExistingDiscount: !discount.isApplied);
+      eligableDiscounts.refresh();
+    }
+  }
+ 
+  void navigateToNextPage(BuildContext context) async {
+    if (orderconfigurations.isNotEmpty && configuredOrderAddons.isEmpty) {
+      final addonConfig = await showOrderConfigurationPopup(context);
+      if (addonConfig != null) {
+        PaymentPage.navigate(context);
+      } 
+    } else {
+      PaymentPage.navigate(context);
+    }
+  }
+
+  void onDiscountInfoClicked(BuildContext context, OrderItem item) {
+    final widgetFactory = AppViewmodel.getWidgetFactory(context);
+    AppModalSheet.showModal(
+      context,
+      type: AppModalSheetType.DIALOG,
+      pages: [
+        ModalContent(
+          id: 'discount',
+          title: const Text('Applied Discounts'),
+          content: CartAppliedDiscountListModal(
+            item: item,
+            widgetFactory: widgetFactory,
+            selectedLanguage: appViewmodel.selectedLanguage,
+            selectedCurrency: appViewmodel.selectedCurrency,
+            onDelete: (discount) {
+              // remove(discount);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<AddonConfig?> showOrderConfigurationPopup(BuildContext context) async {
+    final configResult = await AppModalSheet.showModal<AddonConfig?>(context, type: AppModalSheetType.SIDESHEET, pages: [
+      ModalContent(title: const Text('Product Add-ons/configurations'), content: PosProductAddonModal(productAddons: orderconfigurations, initialConfigs: configuredOrderAddons)),
+    ]);
+    if (configResult != null) {
+      configuredOrderAddons.value = configResult.orderConfigs;
+      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(configs: configuredOrderAddons);
+    }
+    return configResult;
+  }
+
+  void removeOrderConfig(BuildContext context, OrderConfig orderConfig) {
+    final widgetFactory = AppViewmodel.getWidgetFactory(context);
+    final selectedAddonInfo = orderconfigurations.firstWhereOrNull((e) => e.id == orderConfig.addonId);
+    if (!(selectedAddonInfo?.isRequired ?? false)) {
+      configuredOrderAddons.value = configuredOrderAddons.value.where((e) => e.addonId != orderConfig.addonId).toList();
+      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(configs: configuredOrderAddons);
+    } else {
+      widgetFactory.showFlashMessage(context, message: 'This is a required addon, You can\'t remove it');
+    }
   }
 }

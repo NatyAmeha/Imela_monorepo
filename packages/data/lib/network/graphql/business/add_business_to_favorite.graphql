@@ -1,0 +1,5 @@
+mutation AddBusinessToFavorite($input: [FavoriteBusienssInput!]!) {
+    addBusinessToFavorites(input: $input) {
+        success
+    }
+}

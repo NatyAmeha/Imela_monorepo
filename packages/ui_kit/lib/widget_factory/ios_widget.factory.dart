@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
 import 'base_widget.factory.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -41,7 +42,12 @@ class IosWidgetFactory extends BaseWidgetFactory {
 
   @override
   Widget createLoadingIndicator(BuildContext context, {Color? color, double? width = 20, double height = 20}) {
-    return SizedBox(width: width, height: height, child:  CupertinoActivityIndicator(color: color,));
+    return SizedBox(
+        width: width,
+        height: height,
+        child: CupertinoActivityIndicator(
+          color: color,
+        ));
   }
 
   @override
@@ -50,7 +56,10 @@ class IosWidgetFactory extends BaseWidgetFactory {
     Icon iconWidget = Icon(cupertinoIcon ?? materialIcon, size: size, color: color, semanticLabel: semanticLabel);
 
     if (backgroundColor != null) {
-      return Container(padding: padding, decoration: decoration, child: showIconOnly ? iconWidget : IconButton(onPressed: onPressed, icon: iconWidget, padding: padding));
+      return InkWell(
+        onTap: onPressed,
+        child: Container(padding: padding, decoration: decoration, child: showIconOnly ? iconWidget : IconButton(onPressed: onPressed, icon: iconWidget, padding: padding)),
+      );
     }
     if (showIconOnly) {
       return iconWidget;
@@ -203,7 +212,7 @@ class IosWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Future<DateTime?> showDateTimePicker(BuildContext context, DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable) async {
+  Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false}) async {
     DateTime? pickedDate;
     await showCupertinoModalBottomSheet<DateTime>(
       context: context,
@@ -211,7 +220,7 @@ class IosWidgetFactory extends BaseWidgetFactory {
         return SizedBox(
           height: MediaQuery.sizeOf(context).height / 3,
           child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.dateAndTime,
+            mode: showTiimePicker ? CupertinoDatePickerMode.dateAndTime : CupertinoDatePickerMode.date,
             initialDateTime: initialDate ?? DateTime.now(),
             minimumDate: firstDate,
             maximumDate: lastDate,
@@ -226,7 +235,7 @@ class IosWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable = true}) async {
+  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true}) async {
     return await showDateRangePicker(
       context: context,
       initialDateRange: initialDateRange ?? DateTimeRange(start: DateTime.now(), end: DateTime.now().add(const Duration(days: 1))),
@@ -234,6 +243,46 @@ class IosWidgetFactory extends BaseWidgetFactory {
       lastDate: lastDate ?? DateTime(2100),
       confirmText: confirmText,
       cancelText: cancelText,
+    );
+  }
+
+  @override
+  Widget createPopupMenu<T>({
+    required BuildContext context,
+    required List<PopupMenuItemData<T>> items,
+    required Widget child,
+    ValueChanged<T>? onSelected,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) => CupertinoActionSheet(
+            actions: items
+                .map((item) => CupertinoActionSheetAction(
+                      onPressed: () {
+                        Navigator.pop(context, item.value);
+                        if (onSelected != null) {
+                          onSelected(item.value);
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          if (item.icon != null) Icon(item.icon, size: 24),
+                          if (item.icon != null) const SizedBox(width: 8),
+                          Text(item.label, style: item.textStyle),
+                        ],
+                      ),
+                    ))
+                .toList(),
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ),
+        );
+      },
+      child: child,
     );
   }
 }

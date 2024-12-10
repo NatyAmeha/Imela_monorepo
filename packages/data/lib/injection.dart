@@ -15,15 +15,21 @@ Future<void> configureDataPackageInjection() async {
     return await GraphQLConfig.getFerryGraphQlClient();
   });
   configureDependencies();
-  
 }
 
- void updateDIValue<T extends Object>(String key, T value) {
-    // Unregister the old token
-    if (getIt.isRegistered<T>(instanceName: key)) {
-      getIt.unregister<T>(instanceName: key);
-    }
-
-    // Register the new token
-    getIt.registerSingleton<T>(value, instanceName: key);
+void updateDIValue<T extends Object>(String key, T value) {
+  // Unregister the old token
+  if (getIt.isRegistered<T>(instanceName: key)) {
+    getIt.unregister<T>(instanceName: key);
   }
+
+  // Register the new token
+  getIt.registerSingleton<T>(value, instanceName: key);
+}
+
+void resetGraphQlClientInstance() {
+  getIt.unregister<Client>();
+  getIt.registerSingletonAsync<Client>(() async {
+    return await GraphQLConfig.getFerryGraphQlClient();
+  });
+}

@@ -1,0 +1,37 @@
+query GetMembershipProducts($membershipId: String!) {
+    getMembershipProducts(membershipId: $membershipId) {
+    success
+    products {
+      id
+      name {
+        key
+                value
+            }
+            featured
+            isActive
+            gallery {
+                images {
+                    featured
+                    url
+                }
+            }
+            variantsId
+            prices {
+                isDefault
+                price {
+                    currency
+                    amount
+                }
+            }
+            business {
+                name {
+                    key
+                    value
+                }
+            }
+            category
+            createdAt
+            updatedAt 
+    }
+  }
+}

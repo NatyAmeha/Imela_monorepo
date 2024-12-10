@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
+import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
 import 'package:imela_ui_kit/widget_factory/base_widget.factory.dart';
 
 class MaterialWidgetFactory extends BaseWidgetFactory {
@@ -7,7 +8,12 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
 
   @override
   Widget createButton({required BuildContext context, required Widget content, Widget? icon, Key? key, ButtonStyle? style, bool showLoadingIndicator = true, bool isLoading = false, Function? onPressed}) {
-    const loadingIndicator = SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2,));
+    const loadingIndicator = SizedBox(
+        width: 14,
+        height: 14,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+        ));
     if (icon != null) {
       return FilledButton.icon(
         key: key,
@@ -43,14 +49,17 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
   Widget createCard({required Widget child, EdgeInsetsGeometry? margin, EdgeInsetsGeometry? padding, double? width, double? height, Color? color, double? elevation, BorderRadius? borderRadius, List<BoxShadow>? boxShadow, Border? border, Gradient? gradient, Function()? onTap}) {
     return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: padding,
+      child: Card(
         margin: margin,
-        width: width,
-        height: height,
-        
-        decoration: BoxDecoration(color: color, border: border, borderRadius: borderRadius ?? BorderRadius.circular(8.0), boxShadow: boxShadow, gradient: gradient),
-        child: child,
+        elevation: elevation ?? 0,
+        color: color ?? Colors.white,
+        child: Container(
+          padding: padding,
+          width: width,
+          height: height,
+          decoration: BoxDecoration(color: color, border: border, borderRadius: borderRadius ?? BorderRadius.circular(8.0), boxShadow: boxShadow, gradient: gradient),
+          child: child,
+        ),
       ),
     );
   }
@@ -73,7 +82,10 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
     var decoration = backgroundColor != null ? BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(50)) : null;
     Icon iconWidget = Icon(materialIcon, size: size, color: color, semanticLabel: semanticLabel);
     if (backgroundColor != null) {
-      return Container(padding: padding, decoration: decoration, child: showIconOnly ? iconWidget : IconButton(onPressed: onPressed, icon: iconWidget, padding: padding));
+      return InkWell(
+        onTap: onPressed,
+        child: Container(padding: padding, decoration: decoration, child: showIconOnly ? iconWidget : IconButton(onPressed: onPressed, icon: iconWidget, padding: padding)),
+      );
     }
     if (onPressed == null && showIconOnly) {
       return iconWidget;
@@ -118,6 +130,7 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
     return RadioListTile<T>(
       title: Text(title),
       groupValue: groupValue,
+      contentPadding: EdgeInsets.zero,
       subtitle: subtitle != null ? Text(subtitle) : null,
       value: value,
       onChanged: onChanged,
@@ -219,17 +232,32 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
   }
 
   @override
-  Future<DateTime?> showDateTimePicker(BuildContext context, DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable) async {
-    var pickedDate = await showDatePicker(context: context, initialDate: initialDate ?? DateTime.now(), firstDate: firstDate ?? DateTime(2000), lastDate: lastDate ?? DateTime(2100), confirmText: confirmText, cancelText: cancelText);
+  Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false}) async {
+    var pickedDate = await showDatePicker(
+        context: context,
+        initialDate: initialDate ?? DateTime.now(),
+        firstDate: firstDate ?? DateTime(2000),
+        lastDate: lastDate ?? DateTime(2100),
+        confirmText: confirmText,
+        cancelText: cancelText,
+        selectableDayPredicate: (date) {
+          if (disabledDates.any((element) => element.year == date.year && element.month == date.month && element.day == date.day)) {
+            return false;
+          }
+          return true;
+        });
     if (pickedDate == null) return null;
-    final pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(pickedDate));
-    if (pickedTime == null) return null;
-    pickedDate = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
+    if (showTiimePicker) {
+      final pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(pickedDate));
+      if (pickedTime == null) return null;
+      pickedDate = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
+    }
     return pickedDate;
   }
 
   @override
-  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, String? confirmText, String? cancelText, bool dismissable = true}) async {
+  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true}) async {
+    print('show date range picker');
     return await showDateRangePicker(
       context: context,
       initialDateRange: initialDateRange ?? DateTimeRange(start: DateTime.now(), end: DateTime.now().add(const Duration(days: 1))),
@@ -237,6 +265,31 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
       lastDate: lastDate ?? DateTime(2100),
       confirmText: confirmText,
       cancelText: cancelText,
+    );
+  }
+
+  @override
+  Widget createPopupMenu<T>({
+    required BuildContext context,
+    required List<PopupMenuItemData<T>> items,
+    required Widget child,
+    ValueChanged<T>? onSelected,
+  }) {
+    return PopupMenuButton<T>(
+      itemBuilder: (context) => items
+          .map((item) => PopupMenuItem<T>(
+                value: item.value,
+                child: Row(
+                  children: [
+                    if (item.icon != null) Icon(item.icon, size: 24),
+                    if (item.icon != null) const SizedBox(width: 8),
+                    Text(item.label, style: item.textStyle),
+                  ],
+                ),
+              ))
+          .toList(),
+      onSelected: onSelected,
+      child: child,
     );
   }
 }

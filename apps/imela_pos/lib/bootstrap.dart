@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
+import 'package:imela_pos/firebase_options.dart';
 import 'package:imela_pos/injection.dart';
 
-
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
-   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await setupGetIt();
   // initialize singleton custom go_rotuer_service
   FlutterError.onError = (details) {

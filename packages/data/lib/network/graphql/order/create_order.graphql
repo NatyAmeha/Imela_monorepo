@@ -1,5 +1,5 @@
-mutation CreateOrder($cartId : String, $businessId: String,  $orderInput: CreateOrderInput!) {
-    placeOrderFromOnlineStore(cartId: $cartId, businessId: $businessId, orderInput: $orderInput) {
+mutation CreateOrder($cartId : String, $businessIds: [String!]!,  $orderInput: CreateOrderInput!) {
+    placeOrderFromOnlineStore(cartId: $cartId, businessIds: $businessIds, orderInput: $orderInput) {
         success
         message
         order {
@@ -7,10 +7,26 @@ mutation CreateOrder($cartId : String, $businessId: String,  $orderInput: Create
             userId
             businessId
             status
+            code
             paymentType
-            remainingAmount
             subTotal
             totalAmount
+            remainingAmount
+            paidAmount
+            createdAt
+            updatedAt
+            paymentMethods {
+                id
+                name {
+                    key
+                    value
+                }
+                receiptImages
+                amount {
+                    amount
+                    currency
+                }
+            }
             discount {
                 id
                 amount

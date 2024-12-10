@@ -1,5 +1,6 @@
-import 'package:imela_core/branch/model/inventory.model.dart';
 import 'package:imela_core/product/dto/create_product.input.dart';
+import 'package:imela_core/product/dto/product_to_entity_extension.dart';
+import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/product/model/product_price.model.dart';
 import 'package:imela_core/product/model/product_response.dart';
@@ -16,6 +17,8 @@ import 'package:imela_data/network/graphql/product/__generated__/create_product_
 import 'package:imela_data/network/graphql/product/__generated__/create_product_addon.req.gql.dart';
 import 'package:imela_data/network/graphql/product/__generated__/create_product_price.data.gql.dart';
 import 'package:imela_data/network/graphql/product/__generated__/create_product_price.req.gql.dart';
+import 'package:imela_data/network/graphql/product/__generated__/membership_products.data.gql.dart';
+import 'package:imela_data/network/graphql/product/__generated__/membership_products.req.gql.dart';
 import 'package:imela_data/network/graphql/product/__generated__/product_detail_queries.data.gql.dart';
 import 'package:imela_data/network/graphql/product/__generated__/product_detail_queries.req.gql.dart';
 import 'package:injectable/injectable.dart';
@@ -26,6 +29,9 @@ abstract class IProductRepository {
   Future<ProductResponse?> createProduct(String businessId, List<CreateProductInput> productInputs);
   Future<ProductResponse?> createProductAddon(String businessId, String productId, List<ProductAddon> addonInputs);
   Future<ProductResponse?> createProductPrice(String businessId, String productId, List<ProductPrice> priceInputs);
+  Future<ProductResponse?> getMembershipProducts(String membershipId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
+
+  Future<List<int>> savePOSProductsToDb({required String dbName, required String businessId, required String branchId,  required List<Product> products});
 }
 
 @Injectable(as: IProductRepository)
@@ -33,8 +39,12 @@ abstract class IProductRepository {
 class ProductRepository implements IProductRepository {
   static const injectName = 'PRODUCT_REPOSITORY_INJECTION';
   final IGraphQLDataSource _graphQLDataSource;
+  // final IDBDataSource _dbDataSource;
 
-  const ProductRepository(@Named(GraphqlDatasource.injectName) this._graphQLDataSource);
+  const ProductRepository(
+    @Named(GraphqlDatasource.injectName) this._graphQLDataSource,
+    // @Named(POSDBDataSource.injectName) this._dbDataSource,
+  );
   @override
   Future<ProductResponse?> getProductDetails(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
@@ -114,6 +124,22 @@ class ProductRepository implements IProductRepository {
     return ProductResponse.fromJson(result.createBusinessProducts.toJson());
   }
 
+  @override 
+  Future<ProductResponse?> getMembershipProducts(String membershipId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork}) async {
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
+    final request = GGetMembershipProductsReq(
+      (b) => b
+        ..vars.membershipId = membershipId
+        ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
+    );
+    final result = await _graphQLDataSource.request<GGetMembershipProductsData>(request, type: 'GET_MEMBERSHIP_PRODUCTS', isMainError: true);
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
+    if (result == null) {
+      return null;
+    }
+    return ProductResponse.fromJson(result.getMembershipProducts.toJson());
+  }
+
   @override
   Future<ProductResponse?> createProductAddon(String businessId, String productId, List<ProductAddon> addonInputs) async {
     final request = GcreateProductAddonReq(
@@ -125,7 +151,7 @@ class ProductRepository implements IProductRepository {
                 (e) => GCreateProductAddonInput(
                   (b) => b
                     ..name.addAll(e.name!.toLocalizedFieldInput())
-                    ..inputType = e.inputType.toAddonInputType
+                    ..inputType = e.inputType
                     ..isRequired = e.isRequired
                     ..additionalPrice.addAll(e.additionalPrice.toPriceInput())
                     ..checkCalendar = e.checkCalendar
@@ -160,6 +186,18 @@ class ProductRepository implements IProductRepository {
       return null;
     }
     return ProductResponse.fromJson(result.createProductPrice.toJson());
+  }
+
+  @override
+  Future<List<int>> savePOSProductsToDb({required String dbName, required String businessId, required String branchId, required List<Product> products}) async {
+    // var dbInstance = await _dbDataSource.getDBInstance(dbName);
+    // final productCollection = dbInstance.posCustomerEntitys;
+    // final existingProducts = await _dbDataSource.getAllData(dbName, productCollection);
+    // final existingProductIds = existingProducts.map((e) => e.id).toSet();
+    // final newProducts = products.where((e) => !existingProductIds.contains(e.id)).toList();
+    // final productEntities = newProducts.toPOSProductEntity(businessId, branchId);
+    // final saveResult = await _dbDataSource.saveMultiple(dbName, collection: productCollection, data: productEntities);
+    return [];
   }
 
   // request type cosntants

@@ -1,0 +1,60 @@
+query GetPOSOrders($branchId: String!) {
+  getBranchOrders(branchId: $branchId) {
+    success
+    orders {
+      id
+      userId
+      businessId
+      status
+      paymentType
+      remainingAmount
+      subTotal
+      totalAmount
+      discount {
+        id
+        amount
+        name {
+          key
+          value
+        }
+      }
+      items {
+        id
+        name {
+          key
+          value
+        }
+        quantity
+        image
+        point
+        branchId
+        productId
+        subTotal
+        discount {
+          id
+          amount
+          name {
+            key
+            value
+          }
+        }
+
+        branchId
+        createdAt
+        updatedAt
+        config {
+          type
+          name {
+            key
+            value
+          }
+          singleValue
+          multipleValue
+          productIds
+          additionalPrice
+          addonId
+        }
+      }
+    }
+  }
+}

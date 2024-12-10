@@ -74,8 +74,10 @@ class GraphqlDatasource implements IGraphQLDataSource {
         throw GraphqlException(errors: response.graphqlErrors, type: type, isMainError: isMainError);
       }
       // _loggerService.log(LogData(source: "Class Name", message: 'Graphql response: ${jsonEncode(response.data)}', logLevel: LogLevel.INFO));
+        print('graphql response data fetched}');
       return response.data as T?;
     } catch (e) {
+      print("graphql request error $e");
       if (e is GraphqlException) {
         rethrow;
       }
@@ -84,3 +86,4 @@ class GraphqlDatasource implements IGraphQLDataSource {
     }
   }
 }
+ 

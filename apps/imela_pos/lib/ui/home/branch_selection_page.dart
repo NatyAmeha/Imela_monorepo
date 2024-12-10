@@ -14,9 +14,9 @@ class BranchSelectionPage extends StatefulWidget {
   @override
   State<BranchSelectionPage> createState() => _BranchSelectionPageState();
 
-  static void navigate(BuildContext context) {
+  static void navigate(BuildContext context, {bool replace = false}) {
     final router = AppViewmodel.getInstance().appRouter;
-    router.navigateTo(context, routeName);
+    router.navigateTo(context, routeName, replace: replace);
   }
 }
 
@@ -34,14 +34,22 @@ class _BranchSelectionPageState extends State<BranchSelectionPage> {
   Widget build(BuildContext context) {
     final widgetFactory = AppViewmodel.getWidgetFactory(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Select Branch')),
+      appBar: AppBar(
+        title: const Text('Select Branch'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                viewmodel.showLogoutAlertDialog(context);
+              },
+              icon: const Icon(Icons.logout))
+        ],
+      ),
       body: Obx(
         () => PageContentLoader(
           showContent: viewmodel.branchLists.isNotEmpty,
           isLoading: viewmodel.isLoading.value,
           exception: viewmodel.exception.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
-          
           content: SingleChildScrollView(
             child: Column(
               children: [
@@ -56,10 +64,9 @@ class _BranchSelectionPageState extends State<BranchSelectionPage> {
                       AppGridView(
                         shrinkWrap: true,
                         items: viewmodel.branchLists.value,
-                        itemExtent: 150,
-                        padding: Responsive.paddingSymetric(context),
+                        itemExtent: 170,
                         crossAxisSpacing: viewmodel.getCrossAxisSpacing(context),
-                        crossAxisCount: viewmodel.getGridCount(context),
+                        crossAxisCount: Responsive.getGridCount(context, itemWidth: 450),
                         itemBuilder: (conext, branch, index) {
                           return BranchListItem(
                             branchInfo: branch,
