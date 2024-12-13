@@ -57,7 +57,9 @@ class SmallScreenAuthSelection extends StatelessWidget {
                 content: const Text('Continue with Google'),
                 style: AppButtonStyle.outlinedButtonStyle(context),
                 icon: const Icon(Icons.email),
-                onPressed: () {},
+                onPressed: () {
+                  viewmodel.handleGoogleAuth(context);
+                },
               ),
             ],
           ).withPaddingSymetric(horizontal: 16, vertical: 50)

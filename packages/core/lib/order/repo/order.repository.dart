@@ -84,7 +84,6 @@ class OrderRepository implements IOrderRepository {
 
   @override
   Future<OrderResponse> createPOSOrder({required String businessId, required OrderModel.Order orderInfo, String? customerId, String? customerName, String? customerPhone}) async {
-    print('customer id id ${orderInfo.branchId}');
 
     final request = GCreatePOSOrderReq((b) => b
       ..vars.businessId = businessId
@@ -96,7 +95,8 @@ class OrderRepository implements IOrderRepository {
               ..note = orderInfo.note
               ..orderNumber = orderInfo.orderNumber?.toDouble()
               ..paidAmount = orderInfo.paidAmount?.toDouble()
-              ..remainingAmount = orderInfo.remainingAmount?.toDouble()
+              ..note = orderInfo.note
+              ..remainingAmount = orderInfo.remainingAmount.toDouble()
               ..subTotal = orderInfo.subTotal?.toDouble()
               ..totalAmount = orderInfo.totalAmount?.toDouble()
               ..customerName = customerName

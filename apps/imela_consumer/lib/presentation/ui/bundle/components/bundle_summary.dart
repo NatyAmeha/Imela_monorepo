@@ -22,55 +22,44 @@ class BundleSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return widgetFactory.createCard(
-      padding: const EdgeInsets.all(8),
-      color: ColorManager.alternate,
-      width: width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 1, child: widgetFactory.createText(context, 'Discount', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      widgetFactory.createText(context, viewmodel.getDiscountValue!, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.end),
-                      widgetFactory.createText(context, viewmodel.discountCondition!, style: Theme.of(context).textTheme.labelSmall, textAlign: TextAlign.end).showIfTrue(viewmodel.discountCondition?.isNotEmpty == true),
-                    ],
-                  ),
-                )
-              ],
-            ).showIfTrue(viewmodel.getDiscountValue.isNotEmpty == true),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (viewmodel.getDiscountValue.isNotEmpty == true)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 1, child: widgetFactory.createText(context, 'Discount', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    widgetFactory.createText(context, viewmodel.getDiscountValue, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.end),
+                  ],
+                ),
+              )
+            ],
+          ).withPaddingSymetric(vertical: 6),
+        Row(
+          children: [
+            widgetFactory.createText(context, 'Total products', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
+            Expanded(
+              child: widgetFactory.createText(context, viewmodel.totalProductcount, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.end),
+            )
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              widgetFactory.createText(context, 'Time remaining', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
+              CountdownTimer(duration: viewmodel.remainingTime, backgroundColor: ColorManager.error),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                widgetFactory.createText(context, 'Total products', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
-                Expanded(
-                  child: widgetFactory.createText(context, viewmodel.totalProductcount, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.end),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                widgetFactory.createText(context, 'Time remaining', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
-                CountdownTimer(duration: viewmodel.remainingTime, backgroundColor: ColorManager.error),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

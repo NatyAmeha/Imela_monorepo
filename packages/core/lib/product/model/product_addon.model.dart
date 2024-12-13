@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
@@ -57,6 +58,7 @@ class ProductAddon with _$ProductAddon {
     List<String>? tag,
     @Default(false) bool? isProduct,
     List<String>? productIds,
+    List<ProductAddonOptionInfo>? productOptionInfos,
     String? calendarId,
     @Default(true) bool includeOnPOS,
     List<Product>? products,
@@ -129,6 +131,23 @@ class ProductAddonOption with _$ProductAddonOption {
   }) = _ProductAddonOption;
 
   factory ProductAddonOption.fromJson(Map<String, dynamic> json) => _$ProductAddonOptionFromJson(json);
+
+  String? getOptionPriceString(String selectedCurrency) {
+    if (price?.isEmpty ?? true) return null;
+    return '+${price?.toSelectedPriceString(selectedCurrency)}';
+  }
+}
+
+@freezed
+class ProductAddonOptionInfo with _$ProductAddonOptionInfo {
+  factory ProductAddonOptionInfo({
+    required String productId,
+    required List<Discount> discounts,
+    @Default(1) double minQty,
+    @Default(10) double maxQty,
+  }) = _ProductAddonOptionInfo;
+
+  factory ProductAddonOptionInfo.fromJson(Map<String, dynamic> json) => _$ProductAddonOptionInfoFromJson(json);
 }
 
 @freezed

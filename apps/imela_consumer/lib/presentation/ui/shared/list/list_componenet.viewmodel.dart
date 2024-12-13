@@ -26,6 +26,10 @@ class CustomListController<T> extends GetxController {
     items.value = List<T>.from(items.value)..removeWhere((element) => indexs.contains(items.value.indexOf(element)));
   }
 
+  void clearItems(){
+    items.value.clear();
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose

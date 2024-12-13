@@ -28,11 +28,28 @@ abstract class WidgetFactory {
 
   Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged});
 
-  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true});
+  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context,
+      {DateTimeRange? initialDateRange,
+      DateTime? firstDate,
+      DateTime? lastDate,
+      List<DateTime> disabledDates = const [],
+      String? confirmText,
+      String? cancelText,
+      bool dismissable = true,
+      String? headerText,
+      Color? headerBackgroundColor,
+      TextStyle? headerTextStyle,
+      List<DateTime>? blackoutDates,
+      Locale? locale,
+      bool enablePastDates = true,
+      bool showTodayButton = true,
+      bool allowViewNavigation = true});
+
   Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false});
 
   Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked});
-  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required List<T> selectedValues, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder, Widget Function(BuildContext, T items, bool isSelected)? headerBuilder});
+  Widget createDropDownBeta<T>(BuildContext context,
+      {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required List<T> selectedValues, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder, Widget Function(BuildContext, T items, bool isSelected)? headerBuilder});
   Widget createTextField(
       {required TextEditingController controller,
       required String hintText,

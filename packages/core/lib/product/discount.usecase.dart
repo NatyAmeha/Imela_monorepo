@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:collection/collection.dart';
+import 'package:dartx/dartx.dart';
 import 'package:imela_core/customer/model/customer.model.dart';
 import 'package:imela_core/loyalty/model/customer_loyalty.model.dart';
 import 'package:imela_core/loyalty/model/reward.model.dart';
@@ -41,13 +39,15 @@ class DiscountUseCase {
 
   DiscountUseCase createLoyaltyDiscount(CustomerLoyalty? customerLoyalty, List<Reward> businessRewards) {
     // Middleware logic for loyalty discount based on points and rewards.
-    final eligableRewards = businessRewards.getEligibleRewards(customerLoyalty?.currentPoints ?? 0);
+    var userPoints = customerLoyalty?.currentPoints ?? 0;
+    final eligableRewards = businessRewards.getEligibleRewards(userPoints);
     if (eligableRewards.isEmpty) return this;
     var loyaltyDiscounts = eligableRewards.map((reward) {
       return DiscountInfo(
         name: reward.name.localize('ENGLISH'),
-        id: Random().nextInt(1000000).toString(),
+        id: reward.id,
         type: DiscountType.PERCENTAGE,
+        pointApplied: reward.minPointsToRedeem.toDouble(),
         value: reward.discountAmount ?? 0,
         source: DiscountSource.LOYALTY,
       );

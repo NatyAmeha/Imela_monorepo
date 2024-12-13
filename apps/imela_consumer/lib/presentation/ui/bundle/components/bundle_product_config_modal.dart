@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:imela/presentation/ui/product/components/product_addon_list_item.dart';
 import 'package:imela/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
 import 'package:imela/presentation/ui/product/components/product_option_item.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
-import 'package:imela/presentation/ui/shared/list/listview.component.dart';
-import 'package:imela/presentation/ui/shared/qty_modifier.component.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
-import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
-import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela_utils/helpers/screen_size_utils.dart';
 
 class BundleProductConfigModal extends StatefulWidget {
   final Product product;
   final WidgetFactory widgetFactory;
   final ScrollController? controller;
+  final List<Discount> discounts;
   final bool Function(Product productOption)? isOptionSelected;
   final Function(Product selectedProduct, double qty) onConfirm;
   final Function(double value)? onQtyChange;
@@ -26,6 +24,7 @@ class BundleProductConfigModal extends StatefulWidget {
     required this.onConfirm,
     this.onQtyChange,
     this.controller,
+    this.discounts = const [],
   });
 
   @override
@@ -44,45 +43,50 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
   bool get isDeductQtyDisabled => qty <= (selectedProductOption ?? widget.product).minimumOrderQty;
   bool get isAddQtyDisabled => qty >= ((selectedProductOption ?? widget.product).remainingAmount ?? 0);
 
+  late WidgetFactory widgetFactory;
+
   @override
   void initState() {
     super.initState();
     selectedProductOption = productOptionAvailable ? null : widget.product;
     qty = selectedProductOption?.qty ?? 1.0;
+    widgetFactory = widget.widgetFactory;
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(
-          child: SingleChildScrollView(
-            controller: widget.controller,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                widget.widgetFactory.createText(context, widget.product.name.localize('ENGLISH'), style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: 8),
-                widget.widgetFactory.createText(context, widget.product.description.localize('ENGLISH'), maxLines: 4, style: Theme.of(context).textTheme.bodyLarge),
+        SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16) ,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              widget.widgetFactory.createText(context, widget.product.name.localize('ENGLISH'), style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: 8),
+              widget.widgetFactory.createText(context, widget.product.description.localize('ENGLISH'), maxLines: 4, style: Theme.of(context).textTheme.bodyLarge),
+              if (productOptionAvailable)
                 Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 24),
-                    widget.widgetFactory.createText(context, 'Available options', style: Theme.of(context).textTheme.titleMedium),
+                    widget.widgetFactory.createText(context, 'Choose option', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 16),
                     AppGridView(
-                      height: 80,
-                      itemExtent: 250,
-                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      primary: false,
+                      itemExtent: 90,
+                      padding: const EdgeInsets.only(bottom: 130),
                       items: productOptions,
-                      crossAxisCount: 1,
+                      crossAxisCount: Responsive.getGridCount(context, itemWidth: 200),
                       itemBuilder: (context, productOption, index) {
                         return ProductOptionItemComponent(
                           productOption: productOption,
                           isOptionSelected: isOptionSelected(productOption),
                           widgetFactory: widget.widgetFactory,
+                          discounts: widget.discounts,
                           onOptionSelected: () {
                             setState(() {
                               selectedProductOption = productOption;
@@ -91,54 +95,9 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
                         );
                       },
                     ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        widget.widgetFactory.createText(context, 'Quantity', style: Theme.of(context).textTheme.titleMedium),
-                        QuantityModifierComponent(
-                          width: 150,
-                          currentQty: qty,
-                          widgetFactory: widget.widgetFactory,
-                          addQtyDisabled: isAddQtyDisabled,
-                          deductQtyDisabled: isDeductQtyDisabled,
-                          onQtyChange: (value) {
-                            handleQty(value);
-                          },
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 24),
-                    if (widget.product.addons?.isNotEmpty ?? false) ...[
-                      AppListView<ProductAddon>(
-                        primary: false,
-                        shrinkWrap: true,
-                        items: selectedProductOption?.addons ?? [],
-                        separator: const Divider(height: 24),
-                        itemBuilder: (context, selectedAddon, index) {
-                          return ProductAddonListItem(
-                            addon: selectedAddon,
-                            // selectedDateRange: productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.multipleValue.toDateRange(),
-                            // selectedSingleOption: productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.singleValue,
-                            widgetFactory: widget.widgetFactory,
-                            // selectedNumberValue: double.tryParse(productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.singleValue ?? ''),
-                            onSelectDateClicked: () {
-                              // productDetailsViewmodel.handleAddonDateSelection(context, product.addons![index], widgetFactory);
-                            },
-                            onNumberInputChanged: (newValue) {
-                              // productDetailsViewmodel.handleProductAddonQtyChange(context, product.addons![index], value: newValue, widgetFactory: widgetFactory);
-                            },
-                            onSingleOptionSelection: (newValue) {
-                              // productDetailsViewmodel.handleProductAddonsingleSelection(context, product.addons![index], value: newValue, widgetFactory: widgetFactory);
-                            },
-                          );
-                        },
-                      ),
-                    ]
                   ],
-                ).showIfTrue(productOptionAvailable),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
         Positioned(
@@ -149,6 +108,7 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
             product: selectedProductOption ?? widget.product,
             widgetFactory: widget.widgetFactory,
             callToActionText: 'Select',
+            discounts: widget.discounts,
             enableCallToActionBtn: enableCallToActionBtn,
             onPressed: () {
               widget.onConfirm(selectedProductOption!, qty);

@@ -75,6 +75,12 @@ query OrderDetail($orderId: String!) {
         id
         name
         phoneNumber
+        userId
+        redeemedRewards{
+          rewardId
+          pointUsed
+          createdAt
+        }
       }
       config {
           type

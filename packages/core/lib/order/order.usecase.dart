@@ -90,7 +90,7 @@ class OrderUsecase {
     return result;
   }
 
-  Future<OrderResponse?> getSchedulesByCalendarId(String calendarId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
+  Future<OrderResponse?> getSchedulesByCalendarId(String calendarId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     final result = await _orderRepo.getSchedulesByCalendarId(calendarId, fetchPolicy: fetchPolicy);
     return result;
   }

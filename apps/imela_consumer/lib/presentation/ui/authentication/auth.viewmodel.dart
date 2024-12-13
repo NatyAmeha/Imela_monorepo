@@ -6,10 +6,14 @@ import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/authentication/phone_login_page.dart';
 import 'package:imela/presentation/ui/authentication/phone_verify_page.dart';
 import 'package:imela/presentation/ui/home/home.page.dart';
+import 'package:imela/presentation/ui/profile/update_profile/update_profile.viewmodel.dart';
+import 'package:imela/presentation/ui/profile/update_profile/update_profile_page.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_core/user/auth.usecase.dart';
 import 'package:imela_core/user/model/auth_response.dart';
+import 'package:imela_core/user/model/user.model.dart';
+import 'package:imela_data/injection.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
@@ -34,8 +38,21 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
   var exception = Rxn<AppException>();
   var errorMessage = ''.obs;
 
+  String? redirectUrl;
+  Map<String, dynamic>? redirectExtra;
+
   var phoneNumber = ''.obs;
   var isPhoneNumberValid = false.obs;
+
+  @override
+  void initViewmodel({Map<String, dynamic>? data}) {
+    super.initViewmodel(data: data);
+    redirectUrl = data?['REDIRECT_URL'];
+    redirectExtra = data?['REDIRECT_EXTRA'];
+    verifyPinController = TextEditingController();
+    print('redirect url ${redirectUrl} ${redirectExtra}');
+  }
+
   void updatePhoneNumber(PhoneNumber number) {
     phoneNumber.value = number.completeNumber;
     isPhoneNumberValid.value = number.isValidNumber();
@@ -67,12 +84,6 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
     smsCodeTimer?.cancel();
   }
 
-  @override
-  void initViewmodel({Map<String, dynamic>? data}) {
-    super.initViewmodel(data: data);
-    verifyPinController = TextEditingController();
-  }
-
   void navigateToPhoneLoginPage(BuildContext context) {
     PhoneLoginPage.navigate(context, appController.router);
   }
@@ -88,7 +99,7 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
       if (response is AuthResponse) {
         // automatic phone verification without sms code
         if (response.isSuccessfull) {
-          HomePage.navigate(context, replace: true);
+          handleRedirect(context, user: response.user, isNewUser: response.isNewUser ?? false);
         } else {
           appController.getWidgetFactory(context).showFlashMessage(context, message: 'Unable to authenticate');
         }
@@ -122,7 +133,8 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
       }
       final result = await authUsecae.verifyPhoneNumber(phoneNumber.value, verificationId, smsCode);
       if (result.isSuccessfull) {
-        HomePage.navigate(context, replace: true);
+        appController.setLoggedInUser(result.user);
+        handleRedirect(context, user: result.user, isNewUser: result.isNewUser ?? false);
       } else {
         appController.getWidgetFactory(context).showFlashMessage(context, message: 'Unable to authenticate');
       }
@@ -131,7 +143,23 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-  void handleGoogleAuth() {}
+  void handleGoogleAuth(BuildContext context) {
+    // handleRedirect(context);
+  }
+
+  void handleRedirect(BuildContext context, {User? user, bool isNewUser = false}) async {
+    appController.setLoggedInUser(user);
+    if (isNewUser) {
+      UpdateProfilePage.navigate(context, redirectUrl: redirectUrl ?? HomePage.routeName, redirectExtra: redirectExtra);
+      return;
+    }
+    appController.reloadHomePageDestination(true);
+    await HomePage.navigate(context, replace: true);
+    if (redirectUrl != null) {
+      await appController.router.navigateTo(context, redirectUrl!, extra: redirectExtra);
+    }
+    resetGraphQlClientInstance();
+  }
 
   @override
   void dispose() {

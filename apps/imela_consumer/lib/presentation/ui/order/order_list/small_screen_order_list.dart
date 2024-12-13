@@ -14,7 +14,7 @@ class SmallScreenOrderList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Orders")),
+      appBar: AppBar(title: const Text('Orders')),
       body: AppListView(
         controller: viewmodel.orderListController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -23,6 +23,8 @@ class SmallScreenOrderList extends StatelessWidget {
           return OrderListItem(
             order: item,
             widgetFactory: widgetFactory,
+            selectedCurrency: viewmodel.appViewmodel.selectedCurrency.name,
+            selectedLanguage: viewmodel.appViewmodel.selectedLanguage.name,
             onSelected: () {
               viewmodel.navigateToOrderDetailPage(context, item);
             },

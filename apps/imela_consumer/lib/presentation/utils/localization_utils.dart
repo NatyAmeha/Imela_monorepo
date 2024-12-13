@@ -1,4 +1,0 @@
-enum AppLanguage {
-  ENGLISH,
-  AMHARIC
-}

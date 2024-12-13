@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
@@ -39,11 +40,8 @@ class Reward with _$Reward {
 
 extension RewardListX on List<Reward>? {
   List<Reward> getEligibleRewards(double point) {
-    return this?.where((reward) => reward.minPointsToRedeem <= point).toList() ?? [];
+    return this?.where((reward) => reward.minPointsToRedeem <= point).toList().sortedByDescending((a) => a.minPointsToRedeem) ?? [];
   }
 }
 
-var fakeRewards = [
-  Reward(id: '1', name: [LocalizedField(key: 'ENGLISH', value: 'Silver rewards')], description: [LocalizedField(key: 'ENGLISH', value: 'description')], minPointsToRedeem: 200),
-  Reward(id: '2', name: [LocalizedField(key: 'ENGLISH', value: 'Silver rewards')], description: [LocalizedField(key: 'ENGLISH', value: 'description')], minPointsToRedeem: 300)
-];
+

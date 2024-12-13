@@ -4,12 +4,16 @@ import 'package:dartx/dartx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/injection.dart';
 import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:imela/presentation/ui/business/business_details.page.dart';
 import 'package:imela/presentation/ui/cart/cart_list_page.dart';
-import 'package:imela/presentation/ui/order/order_list/order_list_page.dart';
-import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
+import 'package:imela/presentation/ui/home/foryou/foryou.page.dart';
+import 'package:imela/presentation/ui/home/home.page.dart';
+import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
+import 'package:imela/presentation/ui/profile/profile_page.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:imela/presentation/utils/screen_size_utils.dart';
 import 'package:imela/services/routing_service.dart';
@@ -18,15 +22,16 @@ import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/discovery/model/bundle_discovery.model.dart';
 import 'package:imela_core/discovery/model/business_discovery.model.dart';
 import 'package:imela_core/discovery/model/discovery_response.dart';
+import 'package:imela_core/discovery/model/foryou_response.dart';
 import 'package:imela_core/discovery/model/product_discovery.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
-import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_utils/exception/app_exception.dart';
+import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:injectable/injectable.dart';
 import 'components/feature_promo_banner.dart';
 import 'discover/discover.page.dart';
-import 'foryou.page.dart';
 import 'package:imela_core/discovery/discovery.usecase.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
@@ -40,6 +45,10 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   static const FETCH_BROWSEDATA = 'FETCH_BROWSE_DATA';
   static const FETCH_FORYOU_DATA = 'FETCH_FORYOU_DATA';
 
+  static HomepageViewmodel getInstance() {
+    return BaseViewmodel.isViewmodelRegistered(getIt<HomepageViewmodel>());
+  }
+
   HomepageViewmodel({
     required this.discoverUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
@@ -50,12 +59,13 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
 
   // State variables
   var browseData = Rxn<DiscoveryResponse>();
-  var forYouData = Rxn<DiscoveryResponse>();
+  var forYouData = Rxn<ForYouResponse>();
   var isBrowseDataLoading = false.obs;
   var isForYouDataLoading = false.obs;
   var exception = Rxn<AppException>();
 
   // Getters
+  AppController get appviewmodel => AppController.getInstance;
   Map<int, List<ProductDiscoveryResponse>>? get browseProductsResponse => browseData.value?.productsResponse?.groupBy((response) => response.sequence ?? 0);
 
   List<ProductDiscoveryResponse> get sequenceOneProductResponse => browseProductsResponse?[0] ?? [];
@@ -66,27 +76,13 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   final businessListController = Get.put(CustomListController<Business>(), tag: 'businessListController');
 
   // widget Controllers
-  PersistentTabController persistentTabController = PersistentTabController(initialIndex: 0);
+  final persistentTabController = Rxn<PersistentTabController>();
   final sequenceZeroproductListController = Get.put(CustomListController<Product>(), tag: 'sequence1productListController');
   final sequence1productListController = Get.put(CustomListController<Product>(), tag: 'sequence2productListController');
   final bundleListController = Get.put(CustomListController<ProductBundle>(), tag: 'bundleListController');
 
-  List<Destination> getDistinations(BuildContext context) {
-    final platform = Theme.of(context).platform;
-    final widgetFactory = WidgetFactory(platform);
-    widgetFactory.createIcon(materialIcon: Icons.home, cupertinoIcon: CupertinoIcons.home);
-    return [
-      Destination(
-          title: 'Home',
-          icon: widgetFactory.createIcon(materialIcon: Icons.home, cupertinoIcon: CupertinoIcons.home),
-          page: BrowsePage(
-            homepageViewmodel: this,
-          )),
-      Destination(title: 'For You', icon: widgetFactory.createIcon(materialIcon: Icons.search, cupertinoIcon: CupertinoIcons.search), page: const ForYouPage()),
-      Destination(title: 'Cart', icon: widgetFactory.createIcon(materialIcon: Icons.shopping_cart, cupertinoIcon: CupertinoIcons.cart), page: CartListPage()),
-      Destination(title: 'Orders', icon: widgetFactory.createIcon(materialIcon: Icons.paid, cupertinoIcon: CupertinoIcons.paw_solid), page: OrderListPage()),
-    ];
-  }
+  var destinations = <Destination>[].obs;
+
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) async {
@@ -95,17 +91,47 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     if (data?['WIDGET'] != null) {
       page = data?['WIDGET'];
     }
+    var context = data?['CONTEXT'] as BuildContext;
+
+    listenToUserChanges(context);
+    appviewmodel.getCurrentUser();
+    
     if (fetchBrowseData) {
       await getBrowseData();
     }
+    if (fetchForYouData) {
+      await getForYouData(context);
+    }
+  }
+
+  void listenToUserChanges(BuildContext context) {
+    appviewmodel.loggedInUser.listen((value) {
+      appviewmodel.getCurrentUser();
+    });
+  }
+
+  Future<void> getDestinations(BuildContext context) async {
+    final widgetFactory = appviewmodel.getWidgetFactory(context);
+    destinations.value = [];
+    await Future.delayed(const Duration(milliseconds: 50));
+    persistentTabController.value = PersistentTabController(initialIndex: 0);
+    destinations.value = [
+      if (appviewmodel.loggedInUser.value != null) ...[
+        Destination(title: 'Favorites', icon: widgetFactory.createIcon(materialIcon: Icons.favorite, cupertinoIcon: CupertinoIcons.heart), page: const ForYouPage()),
+      ],
+      Destination(title: 'Discover', icon: widgetFactory.createIcon(materialIcon: Icons.explore_sharp, cupertinoIcon: CupertinoIcons.home), page: BrowsePage(homepageViewmodel: this)),
+      Destination(title: 'Cart', icon: widgetFactory.createIcon(materialIcon: Icons.shopping_cart, cupertinoIcon: CupertinoIcons.cart), page: CartListPage()),
+      Destination(title: appviewmodel.loggedInUser.value?.username ?? 'Profile', icon: widgetFactory.createIcon(materialIcon: Icons.person, cupertinoIcon: CupertinoIcons.person), page: ProfilePage()),
+    ];
+    appviewmodel.reloadHomePageDestination(false);
   }
 
   // data operation
 
-  Future<void> getBrowseData() async {
+  Future<void> getBrowseData({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     try {
       cleanupStateVariables();
-      final response = await discoverUsecase.getDiscoveryDetails();
+      final response = await discoverUsecase.getDiscoveryDetails(fetchPolicy: fetchPolicy);
       if (response?.isBrowseDataFetchSuccessfull() == true) {
         browseData.value = response;
         sequenceZeroproductListController.setItems(sequenceOneProductResponse.map((e) => e.items).flatten().toList());
@@ -118,6 +144,26 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
       exception.value = exceptiionHandler.getException(e as Exception);
     } finally {
       isBrowseDataLoading(false);
+    }
+  }
+
+  Future<void> getForYouData(BuildContext context, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    try {
+      cleanupForYouStateVariables();
+      isForYouDataLoading.value = true;
+      final response = await discoverUsecase.getForYouData(fetchPolicy: fetchPolicy);
+      if (response?.isForYouDataFetchSuccessfull() == true) {
+        forYouData.value = response;
+        appviewmodel.setFavoriteBusinesses(response?.favoriteBusinesses ?? []);
+      }
+    } catch (e) {
+      var ex = exceptiionHandler.getException(e as Exception);
+      if (ex.isUnAuthorizedException == true) {
+        await appviewmodel.refreshTokenOrLogout(context, moveToLogin: true, showLoginMessage: true, redirectUrl: HomePage.routeName);
+        return;
+      }
+    } finally {
+      isForYouDataLoading(false);
     }
   }
 
@@ -166,16 +212,29 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     BundleDetailPage.navigateToBundleDetailPage(context, router, bundle, previousPage: null);
   }
 
-
   void cleanupStateVariables() {
     exception.value = null;
     isBrowseDataLoading.value = true;
     browseData.value = null;
   }
 
+  void cleanupForYouStateVariables() {
+    exception.value = null;
+    isForYouDataLoading.value = true;
+    forYouData.value = null;
+  }
+
   @override
   void dispose() {
     _autoScrollTimer?.cancel();
     super.dispose();
+  }
+
+  void navigateToProductDetailPage(BuildContext context, Product product) {
+    ProductDetailPage.navigateBeta(context, product: product);
+  }
+
+  void navigateToBundleDetailPage(BuildContext context, ProductBundle bundle) {
+    BundleDetailPage.navigateToBundleDetailPage(context, router, bundle);
   }
 }

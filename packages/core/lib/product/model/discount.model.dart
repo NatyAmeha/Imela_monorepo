@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_utils/helpers/date_utils.dart';
+import 'package:imela_utils/helpers/localization_utils.dart';
 import 'package:imela_utils/helpers/number_utils.dart';
 
 part 'discount.model.freezed.dart';
@@ -108,12 +110,21 @@ class DiscountInfo with _$DiscountInfo {
     required String id,
     required String name,
     @Default(DiscountType.PERCENTAGE) DiscountType type,
+    @Default(0) double pointApplied,
     required double value,
     @Default(false) bool isApplied,
     required DiscountSource source,
   }) = _DiscountInfo;
 
   factory DiscountInfo.fromJson(Map<String, dynamic> json) => _$DiscountInfoFromJson(json);
+
+  String getPointAppliedString(String selectedLanguage) {
+    return LocalizationUtils.returnLocalizedString(
+      selectedLanguage,
+      englishString: '${pointApplied.getPresisionString(precision: 2)} point required',
+      amharicString: '${pointApplied.getPresisionString(precision: 2)} ነጥብ ያስፈልጋል',
+    );
+  }
 
   ItemDiscount toItemDiscount() {
     final amount = type == DiscountType.PERCENTAGE ? 0.0 : value;
@@ -122,5 +133,15 @@ class DiscountInfo with _$DiscountInfo {
 
   DiscountInfo resetToggle() {
     return copyWith(isApplied: false);
+  }
+}
+
+extension DiscountListX on List<DiscountInfo>? {
+  List<DiscountInfo> getLoyaltyDiscounts() {
+    return this?.where((discount) => discount.source == DiscountSource.LOYALTY).toList() ?? [];
+  }
+
+  double getTotalPointApplied() {
+    return this?.sumBy((element) => element.pointApplied) ?? 0;
   }
 }

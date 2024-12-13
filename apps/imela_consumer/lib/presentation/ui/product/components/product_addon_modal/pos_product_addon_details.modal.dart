@@ -2,49 +2,69 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/product/components/product_addon_modal/addon_viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/product_addon_modal/product_addon_optioin_list_item.dart';
+import 'package:imela/presentation/ui/shared/list/list_header.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
+import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class ProductAddonDetailsModal extends StatelessWidget {
   final ProductAddon addon;
-  final Function onSelectionFinished;
-  ProductAddonDetailsModal({super.key, required this.addon, required this.onSelectionFinished});
+  final Function(BuildContext context) onSelectionFinished;
+  final String selectedLanguage;
+  final WidgetFactory widgetFactory;
+  ProductAddonDetailsModal({
+    super.key,
+    required this.addon,
+    required this.onSelectionFinished,
+    required this.selectedLanguage,
+    required this.widgetFactory,
+  });
 
   final viewmodel = ProductAddonViewmodel.getInstance();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return widgetFactory.createCard(
+      height: MediaQuery.sizeOf(context).height * 0.9,
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
         children: [
-          Text('Select Options for ${addon.name}', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 10),
-          ListView.builder(
+          AppListView(
+            header: ListHeader(title: addon.name.localize(selectedLanguage), widgetFactory: widgetFactory),
             shrinkWrap: true,
-            itemCount: addon.options.length,
-            itemBuilder: (context, index) {
-              final option = addon.options[index];
+            padding: const EdgeInsets.only(bottom: 75),
+            items: addon.options,
+            itemBuilder: (context, option, index) {
               return Obx(
                 () => ProductAddonOptioinListItem(
-                  inputType: addon.inputType,
+                  addon: addon,
                   option: option,
                   selectedOptionsId: viewmodel.selectedAddonOptionsId(addon.id!),
+                  currency: viewmodel.appViewmmodel.selectedCurrency.name,
                   onOptionSelected: (selectedOptionId, isSelected) {
-                    viewmodel.selectAddonOption(addon, selectedOptionId);
+                    viewmodel.selectAddonOption(context, addon, selectedOptionId);
                   },
                 ),
               );
             },
           ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              onSelectionFinished();
-            },
-            child: const Text('Done'),
-          ),
+          Positioned(
+            bottom: 50,
+            left: 0,
+            right: 0,
+            child: Obx(
+              () => widgetFactory.createButton(
+                context: context,
+                content: const Text('Complete'),
+                onPressed: viewmodel.canEnableOptionSelection.value
+                    ? () {
+                        onSelectionFinished(context);
+                      }
+                    : null,
+              ),
+            ),
+          )
         ],
       ),
     );

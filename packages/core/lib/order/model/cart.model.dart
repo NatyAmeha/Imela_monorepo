@@ -121,6 +121,16 @@ class Cart with _$Cart {
     return (itemsTotalAmount - discounts).getPresision(2);
   }
 
+  double getAddonsAmount(String selectedCurrency) {
+    var cartLevelAddonsAmount = configs?.sumBy((element) => element.getAdditionalPriceUpdated(orderAddons, selectedCurrency)) ?? 0;
+    var itemLevelAddonsAmount = items?.sumBy((element) => element.config?.sumBy((config) => config.getAdditionalPriceUpdated(orderAddons, selectedCurrency)) ?? 0) ?? 0;
+    return (cartLevelAddonsAmount + itemLevelAddonsAmount).getPresision(2);
+  }
+
+  String getAddonsAmountFormatted(String selectedCurrency) {
+    return '$selectedCurrency ${getAddonsAmount(selectedCurrency)}';
+  }
+
   String getSubtotalPOSUpdatedFormatted(String selectedCurrency) {
     return '$selectedCurrency ${getSubtotalPOSUpdated()}';
   }
@@ -201,22 +211,31 @@ class Cart with _$Cart {
     return copyWith(configs: configs);
   }
 
-  Cart applyDiscountOnOrderItems(List<ItemDiscount> discountList, {bool removeExistingDiscount = false}) {
-    final updatedItems = items?.map((item) {
+  Cart applyDiscountOnOrderItems({required List<ItemDiscount> discountList, required List<String> selectedProductsForDiscount, bool removeExistingDiscount = false}) {
+    final updatedItems = (items ?? []).map((item) {
       var updatedItem = item;
       for (var discountInfo in discountList) {
-        if (discountInfo.source == DiscountSource.BUSINESS_OFFER) {
-          if (removeExistingDiscount) {
-            updatedItem = updatedItem.removeDiscount([discountInfo]);
-          } else {
-            updatedItem = updatedItem.addDiscount([discountInfo]);
-          }
-        } else if (discountInfo.source == DiscountSource.MEMBERSHIP) {
-          if (!(item.product?.isMembershipProduct ?? false)) continue;
-          if (removeExistingDiscount) {
-            updatedItem = updatedItem.removeDiscount([discountInfo]);
-          } else {
-            updatedItem = updatedItem.addDiscount([discountInfo]);
+        if (selectedProductsForDiscount.contains(item.productId)) {
+          // apply d
+          if (discountInfo.source == DiscountSource.BUSINESS_OFFER) {
+            if (removeExistingDiscount) {
+              updatedItem = updatedItem.removeDiscount([discountInfo]);
+            } else {
+              updatedItem = updatedItem.addDiscount([discountInfo]);
+            }
+          } else if (discountInfo.source == DiscountSource.MEMBERSHIP) {
+            if (!(item.product?.isMembershipProduct ?? false)) continue;
+            if (removeExistingDiscount) {
+              updatedItem = updatedItem.removeDiscount([discountInfo]);
+            } else {
+              updatedItem = updatedItem.addDiscount([discountInfo]);
+            }
+          } else if (discountInfo.source == DiscountSource.LOYALTY) {
+            if (removeExistingDiscount) {
+              updatedItem = updatedItem.removeDiscount([discountInfo]);
+            } else {
+              updatedItem = updatedItem.addDiscount([discountInfo], replaceIfExists: true);
+            }
           }
         }
       }
@@ -228,5 +247,13 @@ class Cart with _$Cart {
 
   Cart resetAllDiscounts() {
     return copyWith(items: items?.map((item) => item.resetDiscounts()).toList());
+  }
+
+  bool haveMembershipProducts() {
+    return items?.any((item) => item.product?.isMembershipProduct ?? false) ?? false;
+  }
+
+  List<String> getMembershipIds() {
+    return items?.map((item) => item.product?.membershipIds ?? []).flatten().toSet().toList() ?? [];
   }
 }

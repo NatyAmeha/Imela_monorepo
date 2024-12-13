@@ -8,6 +8,7 @@ import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class BaseWidgetFactory implements WidgetFactory {
   @override
@@ -156,9 +157,96 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true}) async {
-    print('show date range picker base');
-    throw UnimplementedError();
+  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context,
+      {DateTimeRange? initialDateRange,
+      DateTime? firstDate,
+      DateTime? lastDate,
+      List<DateTime> disabledDates = const [],
+      String? confirmText,
+      String? cancelText,
+      bool dismissable = true,
+      String? headerText,
+      Color? headerBackgroundColor,
+      TextStyle? headerTextStyle,
+      List<DateTime>? blackoutDates,
+      Locale? locale,
+      bool enablePastDates = true,
+      bool showTodayButton = true,
+      bool allowViewNavigation = true}) async {
+    // Date range to return
+    DateTimeRange? selectedDateRange;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: dismissable,
+      useSafeArea: true,
+      builder: (BuildContext context) {
+        return Dialog.fullscreen(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(null),
+                ),
+                title: Text(headerText ?? 'Select Dates'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(selectedDateRange),
+                    child: Text(confirmText ?? 'Confirm'),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: SfDateRangePicker(
+                  selectionMode: DateRangePickerSelectionMode.range,
+                  initialSelectedRange: initialDateRange != null ? PickerDateRange(initialDateRange.start, initialDateRange.end) : null,
+                  minDate: firstDate,
+                  maxDate: lastDate,
+                enablePastDates: enablePastDates,
+                  view: DateRangePickerView.month,
+                  navigationMode: DateRangePickerNavigationMode.snap,
+                  headerStyle: DateRangePickerHeaderStyle(
+                    textAlign: TextAlign.center,
+                    backgroundColor: headerBackgroundColor,
+                    textStyle: headerTextStyle,
+                  ),
+                  onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
+                    if (args.value is PickerDateRange) {
+                      final range = args.value as PickerDateRange;
+                      if (range.startDate != null && range.endDate != null) {
+                        selectedDateRange = DateTimeRange(
+                          start: range.startDate!,
+                          end: range.endDate!,
+                        );
+                      }
+                    }
+                  },
+                  monthCellStyle: const DateRangePickerMonthCellStyle(
+                    blackoutDateTextStyle: TextStyle(
+                      color: Colors.red,
+                      decoration: TextDecoration.lineThrough,
+                      decorationColor: Colors.red,
+                      decorationThickness: 2,
+                    ),
+                  ),
+                  navigationDirection: DateRangePickerNavigationDirection.horizontal,
+                  monthViewSettings: DateRangePickerMonthViewSettings(
+                    blackoutDates: [...(disabledDates ?? []), ...(blackoutDates ?? [])],
+                    enableSwipeSelection: false,
+                  ),
+                  allowViewNavigation: allowViewNavigation,
+                  showTodayButton: showTodayButton,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    return selectedDateRange;
   }
 
   Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked}) async {
@@ -196,7 +284,15 @@ class BaseWidgetFactory implements WidgetFactory {
     );
   }
 
-  Widget createDropDownBeta<T>(BuildContext context, {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required List<T> selectedValues, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder, Widget Function(BuildContext, T items, bool isSelected)? headerBuilder}) {
+  Widget createDropDownBeta<T>(BuildContext context,
+      {String? hintText,
+      bool isMultiSelection = false,
+      bool showSearch = false,
+      required List<T> options,
+      required List<T> selectedValues,
+      required Function(List<T>) onChanged,
+      Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder,
+      Widget Function(BuildContext, T items, bool isSelected)? headerBuilder}) {
     if (isMultiSelection) {
       if (showSearch) {
         return CustomDropdown.multiSelectSearch(
@@ -207,7 +303,6 @@ class BaseWidgetFactory implements WidgetFactory {
           },
           decoration: const CustomDropdownDecoration(),
           listItemBuilder: itemBuilder,
-
           onListChanged: (p0) {
             onChanged(p0);
           },

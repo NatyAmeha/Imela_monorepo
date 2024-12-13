@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
 
 enum ChoiceChipSelectionMode {
   single,
@@ -16,6 +17,8 @@ class AppChoiceChipGroup extends StatefulWidget {
   final TextStyle? unselectedTextStyle;
   final EdgeInsetsGeometry? padding;
   final double? spacing;
+  final bool isScrollable;
+  final double? height;
 
   AppChoiceChipGroup({
     required this.choices,
@@ -28,6 +31,8 @@ class AppChoiceChipGroup extends StatefulWidget {
     this.unselectedTextStyle,
     this.padding,
     this.spacing,
+    this.isScrollable = false,
+    this.height,
   });
 
   @override
@@ -44,22 +49,40 @@ class _AppChoiceChipGroupState extends State<AppChoiceChipGroup> {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: widget.spacing ?? 8.0,
-      children: widget.choices.asMap().entries.map((entry) {
-        int index = entry.key;
-        String choice = entry.value;
+    return widget.isScrollable
+        ? AppListView(
+            height: widget.height,
+            items: widget.choices,
+            padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, item, index) {
+              return ChoiceChip(
+                label: Text(item, style: widget.selectedChoices.contains(index) ? widget.selectedTextStyle : widget.unselectedTextStyle),
+                selected: widget.selectedChoices.contains(item),
+                onSelected: (selected) => _onChipSelected(selected, item),
+                selectedColor: widget.selectedColor,
+                backgroundColor: widget.unselectedColor,
+                padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 12.0),
+              );
+            },
+          )
+        : Wrap(
+            spacing: widget.spacing ?? 8.0,
+            children: widget.choices.asMap().entries.map((entry) {
+              int index = entry.key;
+              String choice = entry.value;
 
-        return ChoiceChip(
-          label: Text(choice, style: widget.selectedChoices.contains(index) ? widget.selectedTextStyle : widget.unselectedTextStyle),
-          selected: widget.selectedChoices.contains(choice),
-          onSelected: (selected) => _onChipSelected(selected, choice),
-          selectedColor: widget.selectedColor,
-          backgroundColor: widget.unselectedColor,
-          padding: widget.padding ?? EdgeInsets.symmetric(horizontal: 12.0),
-        );
-      }).toList(),
-    );
+              return ChoiceChip(
+                label: Text(choice, style: widget.selectedChoices.contains(index) ? widget.selectedTextStyle : widget.unselectedTextStyle),
+                selected: widget.selectedChoices.contains(choice),
+                onSelected: (selected) => _onChipSelected(selected, choice),
+                selectedColor: widget.selectedColor,
+                backgroundColor: widget.unselectedColor,
+                padding: widget.padding ?? EdgeInsets.symmetric(horizontal: 12.0),
+              );
+            }).toList(),
+          );
   }
 
   void assignInitialSelectedChoices() {

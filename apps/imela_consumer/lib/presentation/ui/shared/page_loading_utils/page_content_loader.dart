@@ -22,7 +22,7 @@ class PageContentLoader extends StatelessWidget {
     var appWidgetFactory = WidgetFactory(Theme.of(context).platform);
 
     if (hasError) {
-      return errorWidget ?? AppErrorWidget(callback: onTryAgain);
+      return errorWidget ?? AppErrorWidget(exception: exception, callback: onTryAgain);
     } else {
       return Stack(
         children: [

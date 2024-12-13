@@ -1,19 +1,27 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/resources/values.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
+import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
 import 'package:imela/presentation/ui/cart/cart_list_page.dart';
+import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_page.dart';
+import 'package:imela/presentation/ui/product/components/product_addon_modal/product_addon_list_modal.dart';
 import 'package:imela/presentation/ui/product/components/product_features_list.dart';
-import 'package:imela/presentation/ui/product/components/product_order_config_modal.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:imela/presentation/utils/order_utils.dart';
-import 'package:imela/presentation/utils/string_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/calendar/dto/calendar.response.dart';
+import 'package:imela_core/calendar/model/calendar.model.dart';
+import 'package:imela_core/calendar/model/calendar_booking.model.dart';
+import 'package:imela_core/membership/membership_usecase.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
+import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
@@ -21,6 +29,9 @@ import 'package:imela_core/product/model/product_response.dart';
 import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_ui_kit/components/image/photo_viewer/photo_viewer.dart';
+import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:injectable/injectable.dart';
@@ -32,31 +43,48 @@ import 'package:imela_core/order/order.usecase.dart';
 class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   final ProductUsecase productUsecase;
   final OrderUsecase orderUsecase;
+  final MembershipUseCase membershipUseCase;
   final IExceptiionHandler exceptiionHandler;
   final IRoutingService router;
 
   ProductDetailsViewmodel({
     required this.productUsecase,
     required this.orderUsecase,
+    required this.membershipUseCase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
     @Named(GoRouterService.injectName) required this.router,
   });
 
-  final appController = AppController.getInstance;
+  final cartListViewmodel = CartListViewmodel.getInstance();
 
   // page state variables
   final isLoading = false.obs;
+  final isSecondaryLoading = false.obs;
   final exception = Rxn<AppException>();
 
   final productDetails = Rxn<ProductResponse>();
+  final productCalendarResponse = Rxn<CalendarResponse>();
+  final productSchedules = <CalendarBooking>[].obs;
+
+  // final disabledDatesForBooking = <DateTime>[].obs;
 
   var isAppbarExpanded = true.obs;
   var selectedProductQty = 1.0.obs;
   var selectedProductOption = Rxn<Product>();
   var discounts = <Discount>[].obs;
 
+  var productOrderConfig = <OrderConfig>[].obs;
+
   // getters
-  Product get selectedProduct => selectedProductOption.value ?? productDetails.value!.product!;
+  final appController = AppController.getInstance;
+  String get selectedLanguage => appController.selectedLanguageUpdated.value;
+  String get selectedCurrency => appController.selectedCurrency.name;
+
+  Product? get originalProductInfo => productDetails.value?.product;
+  Product get selectedProduct => selectedProductOption.value ?? originalProductInfo!;
+  String get selectedProductUnit => selectedProduct.inventory?.firstOrNull?.unit ?? 'Unit';
+  List<Product> get productOptions => originalProductInfo?.variants ?? [];
+
   String get productName => productDetails.value?.product?.name.localize('ENGLISH') ?? '';
   String get getProductDescription => productDetails.value?.product?.description?.localize('ENGLISH') ?? '';
   List<String> get getProductImage => productDetails.value!.product?.gallery?.getImages() ?? [];
@@ -64,9 +92,26 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   List<PaymentOption> get productPaymentOption => productDetails.value?.product?.business?.paymentOptions ?? [];
 
   bool get isOptionSelected => productOptions.isNotEmpty ? selectedProductOption.value != null : true;
+  double get totalAddonPrice => productOrderConfig.sumBy((addon) => addon.additionalPrice);
+
+  bool get isCurrentUserMember => currentUserIsMember(originalProductInfo?.membershipIds ?? []);
+  bool get isCurrentUserSubscriptionForProductMembershipActive => originalProductInfo?.membershipIds?.isNotEmpty == true && appController.isCurrentUserSubscriptionActive(originalProductInfo!.membershipIds!.first);
+
+  Calendar? get productCalendar => productCalendarResponse.value?.calendar;
+
+  bool get canEnableOrder {
+    if (originalProductInfo?.isMembershipProduct ?? false) {
+      if (isCurrentUserSubscriptionForProductMembershipActive && isOptionSelected) {
+        return true;
+      }
+      return false;
+    } else {
+      return isOptionSelected;
+    }
+  }
+
   bool isProductOptionSelected(Product product) => selectedProductOption.value?.id == product.id;
 
-  var productOrderConfig = <OrderConfig>[].obs;
   void addOrUpdateOrderConfig(OrderConfig config) {
     final index = productOrderConfig.indexWhere((element) => element.addonId == config.addonId);
     if (index != -1) {
@@ -81,7 +126,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   }
 
   bool get canEnableAddonContinueBtn {
-    final requiredAddons = productInfo?.addons?.where((addon) => addon.isRequired);
+    final requiredAddons = originalProductInfo?.addons?.where((addon) => addon.isRequired);
     if (requiredAddons.isBlank == true) {
       return true;
     }
@@ -90,9 +135,6 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
         }) ??
         true;
   }
-
-  List<Product> get productOptions => productDetails.value?.variants ?? [];
-  Product? get productInfo => productDetails.value?.product;
 
   void selectProductOption(Product product) {
     selectedProductOption.value = product;
@@ -103,12 +145,14 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   late ScrollController productHeaderScrollController;
 
   @override
-  void initViewmodel({Map<String, dynamic>? data}) {
+  void initViewmodel({Map<String, dynamic>? data}) async {
     super.initViewmodel(data: data);
     productHeaderScrollController = ScrollController();
-    addDiscountList(data?['discounts'] as List<Discount>?);
     final productId = data!['id'] as String;
-    getProductDetails(productId);
+    final discount = data['discounts'] as List<Discount>?;
+    await getProductDetails(productId);
+    addDiscountList(discount, clearPrevious: true);
+    await getProductMembershipDetails();
   }
 
   void listenAppbarHeaderScroll() {
@@ -133,90 +177,121 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
       if (productOptions.isNotEmpty) {
         productOptionListController.addItems(productOptions);
       }
-      final defaulttAddons = productInfo?.getDefaultAddonValue();
-      productOrderConfig.addAll(defaulttAddons ?? []);
     } on AppException catch (e) {
       exception.value = e;
     } catch (e) {
       exception.value = AppException.unexpectedError(e);
     } finally {
       isLoading.value = false;
+    } 
+  }
+
+  Future<void> getProductMembershipDetails() async {
+    try {
+      isSecondaryLoading(true);
+      print('membership details ${originalProductInfo?.isMembershipProduct}');
+      if (!(originalProductInfo?.isMembershipProduct ?? false)) {
+        return;
+      }
+      final membershipId = originalProductInfo!.membershipIds!.first;
+      final membershipInfo = await membershipUseCase.getMembershipDetails(membershipId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+      appController.setBusinessMembershipInfo(membershipInfo);
+    } catch (e) {
+      print('error $e');
+    } finally {
+      isSecondaryLoading(false);
     }
   }
 
-  void addDiscountList(List<Discount>? discountList) {
-    discounts.addAll(discountList ?? []);
+  void addDiscountList(List<Discount>? discountList, {bool clearPrevious = true}) {
+    if (clearPrevious) {
+      discounts.clear();
+    }
+    final productDiscounts = businessInfo.discounts ?? [];
+    productDiscounts.addAll(discountList ?? []);
+
+    discounts.addAll(productDiscounts);
   }
 
   // view helper methods
 
   List<ProductFeature> getProductFeatures() {
-    var list = <ProductFeature>[
-      ProductFeature(name: 'Order online'),
-      ProductFeature(name: 'Free delivery', icon: Icons.delivery_dining),
-      ProductFeature(name: 'Cash on delivery', icon: Icons.money_rounded),
-      ProductFeature(name: 'Pay online'),
-    ];
+    final originalProduct = productDetails.value?.product;
+    var list = <ProductFeature>[];
+    if (originalProduct?.loyaltyPoint.isGreaterThan(0) == true) {
+      list.add(ProductFeature(name: '${originalProduct?.getLoyaltyPointString("ENGLISH")}', icon: Icons.loyalty, description: 'You will earn ${originalProduct?.getLoyaltyPointString("ENGLISH")} loyalty points per item ordered. You can redeem these points for discounts and other rewards on future orders.'));
+    }
+    if (originalProduct?.canOrderOnline == true) {
+      list.add(const ProductFeature(name: 'Order online', icon: Icons.delivery_dining));
+    }
+    if (originalProduct?.isMembershipProduct ?? false) {
+      list.add(const ProductFeature(name: 'Members only', icon: Icons.card_membership, description: 'This product is only available for members. Become a member to order this product'));
+    }
+    if (originalProduct?.haveDynamicPricing == true) {
+      list.add(const ProductFeature(name: 'Dyanamic pricing', icon: Icons.mode, description: 'This product has dynamic pricing. The price will be determined based on the quantity ordered. You will get a discount based on the quantity ordered.'));
+    }
     return list;
   }
 
   void handleJourney(BuildContext context, WidgetFactory widgetFactory) async {
-    double screenHeight = MediaQuery.sizeOf(context).height;
-    const double addonWidgetHeight = 100.0;
-
-    // Calculate the total height required for all addons
-    double totalHeight = productInfo!.addons!.length * addonWidgetHeight + 200;
-
-    // Normalize the height to a value between 0 and 1
-    double normalizedHeight = totalHeight / screenHeight;
-    normalizedHeight = normalizedHeight.clamp(0.0, 1.0);
-    print('normalized height $normalizedHeight');
-    normalizedHeight = normalizedHeight <= 0.5 ? 0.52 : normalizedHeight;
-    var initialHeight = normalizedHeight <= 0.85 ? normalizedHeight : 0.5;
-
-    await widgetFactory.createModalBottomSheet(
+    var result = await AppModalSheet.showModal<AddonConfig?>(
       context,
-      content: (scrollController) => Obx(
-        () => ProductOrderConfigModal(
-          product: productInfo!,
-          qty: selectedProductQty.value,
-          widgetFactory: widgetFactory,
-          scrollController: scrollController,
-          productDetailsViewmodel: this,
-          // onQtyChange: (newQtyValue) {
-          //   if (productInfo?.canOrderWithQty(newQtyValue) == true) {
-          //     selectedProductQty(newQtyValue);
-          //   }
-          // },
-          onContinue: (selectedQty, selectedDynamicPRiceDiscounts) async {
-            await router.goBack(context);
-            final finalDiscounts = [...discounts, ...selectedDynamicPRiceDiscounts];
-            addtoCart(context, qty: selectedQty, selectedCurrency: appController.selectedCurrency.name, selectedDiscounts: finalDiscounts);
-          },
-        ),
-      ),
-      initialHeight: initialHeight,
-      maxHeight: normalizedHeight,
+      type: AppModalSheetType.BOTTOMSHEET,
+      pages: [
+        ModalContent(
+          title: const Text('Order Configuration'),
+          content: ProductAddonModal(
+            productAddons: List.from(originalProductInfo?.getAddons() ?? []),
+            initialOrderConfigs: productOrderConfig.value,
+            productInfo: selectedProduct,
+            parentProductInfo: originalProductInfo!.copyWith(),
+            showqtyModfier: true,
+            discounts: discounts,
+            callToAction: 'Add to cart',
+          ),
+        )
+      ],
+    );
+    if (result == null) {
+      return;
+    }
+    final selectedQtyConfig = result.orderConfigs.firstWhere((element) => element.addonId == OrderConfig.QTY_CONFIG_ID);
+    final selectedQty = double.tryParse(selectedQtyConfig.singleValue ?? '1') ?? 1;
+    final updatedResult = result.removeQtyConfig();
+    productOrderConfig.value = List<OrderConfig>.from(updatedResult.orderConfigs);
+
+    addtoCart(
+      context,
+      qty: selectedQty,
+      selectedCurrency: appController.selectedCurrency.name,
+      selectedDiscounts: discounts,
+      orderConfigs: List.from(productOrderConfig),
+      additionalItems: result.additionalItems,
     );
   }
 
-  Future<void> addtoCart(BuildContext context, {required double qty, String selectedCurrency = 'ETB', List<Discount> selectedDiscounts = const [],  List<OrderConfig> orderConfigs = const []}) async {
+  bool currentUserIsMember(List<String> membershipIds) {
+    final userMembershipSubscription = appController.currentUserBusinessMembershipsSubscriptions.where((subscription) => membershipIds.contains(subscription?.subscribedTo)).toList();
+    return userMembershipSubscription.isNotEmpty;
+  }
+
+  Future<void> addtoCart(BuildContext context, {required double qty, String selectedCurrency = 'ETB', List<Discount> selectedDiscounts = const [], List<OrderConfig> orderConfigs = const [], List<OrderItem>? additionalItems}) async {
     try {
       isLoading(true);
-      final originalPrice = selectedProduct.getTotalPriceUpdated(selectedCurrency, qtyInput: qty);
-      final item = selectedProduct.getOrderItem(qty, config: productOrderConfig, originalPrice: originalPrice, selectedCurrency: selectedCurrency, discounts: selectedDiscounts);
-      final result = await orderUsecase.addToCart(businessInfo.id!, businessInfo.name!, [item], paymentOptions: productPaymentOption, orderConfigs: orderConfigs);
-      if (result?.success == true && result?.cart != null) {
-        final orderAddons = selectedProduct.business?.getSectionsOrderAddon(selectedProduct.sectionId ?? []);
-        final updatedCart = result!.cart!.addPaymentOption(productPaymentOption).addOrderAddons(orderAddons ?? []);
-        AppController.getInstance.addCartToCartList(updatedCart, paymentOptions: productPaymentOption);
-        
-        appController.getWidgetFactory(context).showFlashMessage(context, message: 'Item added to cart', actionText: 'View cart', onActinClicked: () {
-          CartDetailPage.navigateToCartDetailPage(context, router, updatedCart);
-        });
+      final dynamicPriceDiscounts = originalProductInfo!.getDynamicPriceDiscountByQty(qty);
+      final finalDiscountsList = [...selectedDiscounts];
+      if (dynamicPriceDiscounts != null) {
+        finalDiscountsList.add(dynamicPriceDiscounts);
       }
+      final cartInfo = selectedProduct.getCartInfo(qty: qty, businessInfo: businessInfo, productOrderConfigs: orderConfigs, discounts: finalDiscountsList, addons: originalProductInfo!.getAddons());
+      final orderAddons = originalProductInfo!.business?.getSectionsOrderAddon(originalProductInfo!.sectionId ?? []);
+      final updatedCart = cartInfo.addPaymentOption(productPaymentOption).addOrderAddons(orderAddons ?? []).addOrUpdateItems(additionalItems ?? []);
+      cartListViewmodel.addCartToCartList(updatedCart, paymentOptions: productPaymentOption);
+
+      appController.getWidgetFactory(context).showFlashMessage(context, message: 'Item added to cart', actionText: 'View cart', onActinClicked: () {
+        CartDetailPage.navigateToCartDetailPage(context, router, appController.getCartById(updatedCart.id!)!);
+      });
     } catch (e) {
-      print(' add to cart exception  ${e.toString()}');
       exception.value = exceptiionHandler.getException(e as Exception);
       if (exception.value?.code == ErrorResourceValues.UnAUTHORIZED_EXCEPTION_CODE) {
         navigateToLoginPage(context);
@@ -228,15 +303,6 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
 
   void navigateToLoginPage(BuildContext context) {
     router.navigateTo(context, CartListPage.routeName);
-  }
-
-  void handleAddonDateSelection(BuildContext context, ProductAddon addon, WidgetFactory widgetFactory) async {
-    final selectedDateRange = getAddonOrderConfig(addon.id!)?.multipleValue.toDateRange();
-    final pickedDate = await widgetFactory.showDateRangePickerUI(context, initialDateRange: selectedDateRange);
-    if (pickedDate != null) {
-      final config = OrderConfig.createDateRangeOrderConfig(addon.name!, pickedDate, addon);
-      addOrUpdateOrderConfig(config);
-    }
   }
 
   void handleProductAddonsingleSelection(BuildContext context, ProductAddon addon, {required String value, required WidgetFactory widgetFactory}) async {
@@ -253,6 +319,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     productOrderConfig.clear();
     selectedProductOption(null);
     exception.value = null;
+    productOrderConfig.clear();
     productDetails.value = null;
     productOptionListController.items.clear();
   }
@@ -266,5 +333,52 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     isLoading(false);
     productOptionListController.dispose();
     super.dispose();
+  }
+
+  void handleMembership(BuildContext context) {
+    MembershipDetailsPage.navigate(context, originalProductInfo!.membershipIds!.first);
+  }
+
+  void showFeatureDescriptionModal(BuildContext context, ProductFeature selectedFEature) {
+    final widgetFactory = appController.getWidgetFactory(context);
+    AppModalSheet.showModal(
+      context,
+      type: AppModalSheetType.BOTTOMSHEET,
+      pages: [
+        ModalContent(
+            title: widgetFactory.createText(context, selectedFEature.name, style: Theme.of(context).textTheme.bodyLarge),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(selectedFEature.description ?? ''),
+                const SizedBox(height: 16),
+                widgetFactory.createButton(
+                  context: context,
+                  content: const Text('Close'),
+                  onPressed: () {
+                    AppModalSheet.closeModal();
+                  },
+                ),
+              ],
+            ).withPaddingAll(16))
+      ],
+    );
+  }
+
+  void navigateToPhotoViewerPage(BuildContext context, List<String> photoUrls, int startIndex) {
+    final productImages = selectedProduct.gallery?.getImages() ?? [];
+    PhotoViewerScreen.navigate(context, productImages, startIndex);
+  }
+
+  void navigateToCartDetailsPage(BuildContext context) {
+    if (businessInfo.id == null) {
+      return;
+    }
+    final selectedCart = appController.getCartByBusinessId(businessInfo.id!);
+    if (selectedCart == null) {
+      CartListPage.navigate(context);
+    } else {
+      CartDetailPage.navigateToCartDetailPage(context, router, selectedCart);
+    }
   }
 }

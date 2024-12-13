@@ -21,7 +21,8 @@ class AppErrorWidget extends StatelessWidget {
             const SizedBox(height: 8),
             widgetFactory.createText(context, exception?.message ??  'Error occured, please try again', style: Theme.of(context).textTheme.labelLarge),
             const SizedBox(height: 16),
-            widgetFactory.createButton(context: context, content: const Text('Try Again'), onPressed: (){
+            if(exception?.actionText != null)
+            widgetFactory.createButton(context: context, content:  Text(exception!.actionText!), onPressed: (){
               callback?.call();
             }),
           ], 

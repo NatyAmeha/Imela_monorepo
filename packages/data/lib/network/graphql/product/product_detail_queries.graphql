@@ -191,6 +191,11 @@ query GetProductDetails($id : String!, $branchId: String, $locationId: String, $
                 value
               }
               images
+              membershipIds
+              price{
+                amount
+                currency
+              }
             }
             isActive
             isRequired

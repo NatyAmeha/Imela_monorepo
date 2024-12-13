@@ -1,72 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
-import 'package:imela/presentation/ui/cart/cart_detail.viewmodel.dart';
+import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
 import 'package:imela/presentation/ui/cart/components/cart_item_list_item.dart';
 import 'package:imela/presentation/ui/cart/components/cart_summary.dart';
 import 'package:imela/presentation/ui/cart/components/empty_cart.dart';
-import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class SmallScreenCartDetailPage extends StatelessWidget {
-  final CartDetailViewmodel viewmodel;
+  final CartListViewmodel viewmodel;
   final WidgetFactory widgetFactory;
   const SmallScreenCartDetailPage({super.key, required this.viewmodel, required this.widgetFactory});
 
   String get title => viewmodel.selectedCart.value?.name.localize('ENGLISH') ?? '';
   String get selectedCurrency => AppController.getInstance.selectedCurrency.name;
-
-  bool get canShowCartList => viewmodel.selectedCart.value?.items?.isNotEmpty == true || viewmodel.cartListController.items.isNotEmpty;
+  String get selectedLanguage => AppController.getInstance.selectedLanguage.name;
+  bool get canShowCartList => viewmodel.selectedCart.value?.items?.isNotEmpty == true || viewmodel.cartItemListController.items.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Obx(
-        () => canShowCartList
-            ? Column(
-                children: [
-                  Expanded(
-                    child: AppListView<OrderItem>(
-                      controller: viewmodel.cartListController,
-                      separator: const Divider(),
-                      itemBuilder: (context, item, index) {
-                        return CartItemListItem(
-                          item: item,
-                          widgetFactory: widgetFactory,
+      appBar: AppBar(
+        title: Obx(() => Text(title)),
+        actions: [Obx(() => viewmodel.getClearCartIcon(context, widgetFactory))],
+      ),
+      body: Stack(
+        children: [
+          Obx(
+            () => canShowCartList
+                ? Column(
+                    children: [
+                      Expanded(
+                        child: AppListView<OrderItem>(
+                          controller: viewmodel.cartItemListController,
+                          padding: EdgeInsets.only(top: viewmodel.appController.allRewards.isNotEmpty ? 50 : 8),
+                          separator: const Divider(),
+                          itemBuilder: (context, item, index) {
+                            return CartItemListItem(
+                              item: item,
+                              widgetFactory: widgetFactory,
+                              selectedCurrency: selectedCurrency,
+                              canRemoveItem: !viewmodel.selectedCart.value!.isBundleCart,
+                              onQtyChange: (qtyValue) {
+                                viewmodel.updateItemQty(item.productId!, index, qtyValue);
+                              },
+                              onRemove: () {
+                                viewmodel.removeItemsFromCart([item.productId!], [index]);
+                              },
+                              onDiscountClicked: (item) {
+                                viewmodel.showDiscountsModal(context, item);
+                              },
+                              onAddonProductTap: (product) {
+                                viewmodel.showProductDetailPage(context, product);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      Obx(
+                        () => CartSummary(
+                          cart: viewmodel.selectedCart.value!,
                           selectedCurrency: selectedCurrency,
-                          canRemoveItem: !viewmodel.selectedCart.value!.isBundleCart,
-                          onQtyChange: (qtyValue) {
-                            viewmodel.updateItemQty(item.productId!, index, qtyValue);
+                          widgetFactory: widgetFactory,
+                          callToActionText: viewmodel.callToActionText,
+                          selectedLanguage: selectedLanguage,
+                          usedLoyaltyPoints: viewmodel.appController.usedRewardPoints.value,
+                          changeOrderConfigs: () {
+                            viewmodel.changeOrderConfigs(context);
                           },
-                          onRemove: () {
-                            viewmodel.removeItemsFromCart([item.productId!], [index]);
+                          onContinue: () {
+                            viewmodel.handleNextScreenNavigation(context);
                           },
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Obx(
-                    () => CartSummary(
-                      cart: viewmodel.selectedCart.value!,
-                      selectedCurrency: selectedCurrency,
-                      widgetFactory: widgetFactory,
-                      callToActionText: viewmodel.callToActionText,
-                      changeOrderConfigs: () {
-                        viewmodel.changeOrderConfigs(context);
-                      },
-                      onContinue: () {
-                        viewmodel.handleNextScreenNavigation(context);
-                      },
-                    ),
+                          onViewRewards: () {
+                            viewmodel.showBusinessRewardsPage(context);
+                          },
+                          onClearUsedPoints: () {
+                            viewmodel.clearUsedPoints();
+                          },
+                        ),
+                      )
+                    ],
                   )
-                ],
-              )
-            : EmptyCartCard(widgetFactory: widgetFactory),
+                : EmptyCartCard(widgetFactory: widgetFactory),
+          ),
+          Obx(
+            () => viewmodel.appController.allRewards.isNotEmpty ? Positioned(child: _buildPointSection(context)) : const SizedBox.shrink(),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPointSection(BuildContext context) {
+    return widgetFactory.createCard(
+      onTap: () {
+        viewmodel.showEligableRewardsModal(context);
+      },
+      color: Theme.of(context).colorScheme.tertiary,
+      borderRadius: BorderRadius.zero,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(
+                  () => widgetFactory.createText(
+                    context,
+                    'Your points (${viewmodel.appController.remainingPoints.toStringAsFixed(0)})',
+                    style: Theme.of(context).textTheme.bodySmall,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          widgetFactory.createText(context, 'See rewards', style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
+          widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_right, color: Colors.white, size: 24),
+        ],
       ),
     );
   }

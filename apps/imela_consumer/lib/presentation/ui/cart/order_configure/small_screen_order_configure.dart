@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/cart/order_configure/order_configure.viewmodel.dart';
+import 'package:imela/presentation/ui/payment/components/payment_method_list_item.dart';
 import 'package:imela/presentation/ui/payment/components/payment_option_item.dart';
+import 'package:imela/presentation/ui/payment/components/selected_payment_method.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class SmallScreenOrderConfigure extends StatelessWidget {
@@ -13,83 +17,126 @@ class SmallScreenOrderConfigure extends StatelessWidget {
   final Cart cart;
   const SmallScreenOrderConfigure({super.key, required this.viewmodel, required this.widgetFactory, required this.cart});
 
+  String get selectedLanguage => viewmodel.appController.selectedLanguage.name;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payment'),
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  widgetFactory.createText(context, 'Payment options', style: Theme.of(context).textTheme.titleLarge),
-                  AppListView<PaymentOption>(
-                    items: cart.paymentOptions ?? [],
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                    shrinkWrap: true,
-                    itemBuilder: (context, item, index) {
-                      return Obx(
-                        () => PaymentOptionListItem(
-                          totalAmount: viewmodel.cartInfo.value?.getTotalPrice ?? 0,
-                          paymentOption: item,
-                          selectedPaymentOptionId: viewmodel.selectedPaymentOptionId,
-                          widgetFactory: widgetFactory,
-                          onSelected: () {
-                            viewmodel.selectPaymentOption(item);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  widgetFactory.createText(context, 'Payment method', style: Theme.of(context).textTheme.titleLarge),
-                  widgetFactory.createRadioListTile(context, title: 'Online payment', value: '1', groupValue: '1', onChanged: (value) {}),
-                  widgetFactory.createRadioListTile(context, title: 'Cash on delivery', value: '2', groupValue: '1', onChanged: (value) {}),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: widgetFactory.createCard(
-                padding: const EdgeInsets.all(16),
-                border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Obx(
-                        () => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.bodyMedium),
-                            widgetFactory.createText(context, 'ETB ${viewmodel.totalAmount}', style: Theme.of(context).textTheme.titleLarge),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: widgetFactory.createButton(
-                        context: context,
-                        content: const Text('Place order'),
-                        onPressed: () {
-                          viewmodel.placeOrder(context);
+      body: Obx(
+        () => PageContentLoader(
+          isDataLoading: viewmodel.isLoading.value,
+          hasError: viewmodel.exception.value?.isMainError ?? false,
+          showContent: true,
+          content: Stack(
+            children: [
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      widgetFactory.createText(context, 'Payment options', style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 8),
+                      AppListView<PaymentOption>(
+                        items: cart.paymentOptions ?? [],
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                        shrinkWrap: true,
+                        itemBuilder: (context, item, index) {
+                          return Obx(
+                            () => PaymentOptionListItem(
+                              totalAmount: viewmodel.cartInfo.value?.getTotatAmountPOS() ?? 0,
+                              paymentOption: item,
+                              selectedPaymentOptionId: viewmodel.selectedPaymentOptionId,
+                              widgetFactory: widgetFactory,
+                              onSelected: () {
+                                viewmodel.selectPaymentOption(item);
+                              },
+                            ),
+                          );
                         },
                       ),
-                    ),
-                  ],
+                      const Divider(height: 24),
+                      widgetFactory.createText(context, 'Selected payment method', style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 24),
+                      Obx(() {
+                        if (viewmodel.selectedPaymentMethods.isEmpty) {
+                          return widgetFactory.createButton(
+                            context: context,
+                            content: const Text('Select payment method'),
+                            style: AppButtonStyle.outlinedButtonStyle(context),
+                            onPressed: () {
+                              viewmodel.showPaymentMethodListModal(context);
+                            },
+                          );
+                        }
+                        return AppListView(
+                          shrinkWrap: true,
+                          primary: false,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                          items: viewmodel.selectedPaymentMethods.value,
+                          itemBuilder: (context, paymentMethod, index) {
+                            return SelectedPaymentMethodListItem(
+                              selectedPaymentMethod: paymentMethod,
+                              selectedLanguage: selectedLanguage,
+                              onRemoveSelectedPayment: () {
+                                viewmodel.removeSelectedPaymentMethod(paymentMethod);
+                              },
+                              onPaymentReceiptImageUpload: (fileUpload) {
+                                viewmodel.addPaymenReceiptImage(paymentMethod.id!, fileUpload);
+                              },
+                              onPaymentReceiptImageRemoved: (index) {
+                                viewmodel.removePaymentReceiptImage(paymentMethod.id!, index);
+                              },
+                            );
+                          },
+                        );
+                      }),
+                      const SizedBox(height: 124),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          )
-        ],
+              Positioned(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: widgetFactory.createCard(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(16),
+                    border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Obx(
+                          () => Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.bodyLarge),
+                              const SizedBox(width: 8),
+                              widgetFactory.createText(context, 'ETB ${viewmodel.currentPayment}', style: Theme.of(context).textTheme.titleLarge),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Obx(
+                          () => widgetFactory.createButton(
+                            context: context,
+                            content: const Text('Place order'),
+                            onPressed: viewmodel.canEnablePlaceORderBtn ? () => viewmodel.placeOrder(context) : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

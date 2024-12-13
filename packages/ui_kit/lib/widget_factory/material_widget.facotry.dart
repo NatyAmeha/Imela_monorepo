@@ -50,7 +50,7 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
     return InkWell(
       onTap: onTap,
       child: Card(
-        margin: margin,
+        margin: margin ?? const EdgeInsets.all(0),
         elevation: elevation ?? 0,
         color: color ?? Colors.white,
         child: Container(
@@ -235,7 +235,7 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
   Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false}) async {
     var pickedDate = await showDatePicker(
         context: context,
-        initialDate: initialDate ?? DateTime.now(),
+        // initialDate: updatedInitialDate, // intentionally preventint the ini
         firstDate: firstDate ?? DateTime(2000),
         lastDate: lastDate ?? DateTime(2100),
         confirmText: confirmText,
@@ -255,18 +255,6 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
     return pickedDate;
   }
 
-  @override
-  Future<DateTimeRange?> showDateRangePickerUI(BuildContext context, {DateTimeRange? initialDateRange, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true}) async {
-    print('show date range picker');
-    return await showDateRangePicker(
-      context: context,
-      initialDateRange: initialDateRange ?? DateTimeRange(start: DateTime.now(), end: DateTime.now().add(const Duration(days: 1))),
-      firstDate: firstDate ?? DateTime(2000),
-      lastDate: lastDate ?? DateTime(2100),
-      confirmText: confirmText,
-      cancelText: cancelText,
-    );
-  }
 
   @override
   Widget createPopupMenu<T>({

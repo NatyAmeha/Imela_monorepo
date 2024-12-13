@@ -1,4 +1,4 @@
-import 'package:collection/collection.dart';
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/product/model/product.model.dart';
@@ -25,6 +25,7 @@ class OrderConfig with _$OrderConfig {
     List<String>? productIds,
     List<Product>? products,
     @Default(0) double additionalPrice,
+    @Default(0) double finalPrice,
     String? addonId,
   }) = _OrderConfig;
 
@@ -65,7 +66,7 @@ class OrderConfig with _$OrderConfig {
     } else if (type == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
       return '${productIds?.length} products';
     } else if (type == AddonInputType.SINGLE_SELECTION_INPUT.name || type == AddonInputType.MULTIPLE_SELECTION_INPUT.name) {
-      final addon = addons?.firstWhereOrNull((e) => e.id == addonId);
+      final addon = addons?.firstOrNullWhere((e) => e.id == addonId);
       if (addon?.options.isEmpty == true) {
         if (singleValue != null) {
           return '$singleValue';
@@ -83,6 +84,22 @@ class OrderConfig with _$OrderConfig {
     return '';
   }
 
+  double getAdditionalPriceUpdated(List<ProductAddon>? addons, String selectedCurrency) {
+    if (type == AddonInputType.SINGLE_SELECTION_INPUT.name || type == AddonInputType.MULTIPLE_SELECTION_INPUT.name) {
+      final addon = addons?.firstOrNullWhere((e) => e.id == addonId);
+      final selectedOptions = addon?.options.where((e) => multipleValue?.contains(e.id) ?? false).toList();
+      if (selectedOptions?.isNotEmpty == true) {
+        return selectedOptions?.sumBy((e) => e.price?.toSelectedPrice(selectedCurrency)?.amount ?? 0) ?? addon?.additionalPrice?.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+      }
+      return addon?.additionalPrice?.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+    }
+    return 0;
+  }
+
+  String getAdditionalPriceStringUpdated(List<ProductAddon>? addons, String selectedCurrency) {
+    return '+$selectedCurrency ${getAdditionalPriceUpdated(addons, selectedCurrency)}';
+  }
+
   String getAdditionalPrice(String selectedCurrency) {
     return '$additionalPrice $selectedCurrency';
   }
@@ -90,7 +107,6 @@ class OrderConfig with _$OrderConfig {
   String getSelectedAddonOptionNames(List<ProductAddonOption> options, String? selectedLanguage) {
     final selectedAddonOptionIds = [singleValue, ...multipleValue ?? []].whereNotNull().toList();
     final selectedAddonOptions = options.where((option) => selectedAddonOptionIds.contains(option.id)).toList();
-    print('multipleValue: ${options} ${multipleValue}');
 
     return selectedAddonOptions.map((e) => e.name.localize(selectedLanguage ?? 'ENGLISH')).join(', ');
   }
@@ -103,18 +119,31 @@ class OrderConfig with _$OrderConfig {
       calendarId: addon?.calendarId,
       addonId: QTY_CONFIG_ID,
       additionalPrice: 0,
-    );
+    ).updateFinalPrice('ETB', addons: addon != null ? [addon] : null);
   }
 
   static OrderConfig createDateRangeOrderConfig(List<LocalizedField> name, DateTimeRange pickedDateRange, ProductAddon addon) {
-    print('additionalPrice: ${addon.additionalPrice?.toString()}');
     return OrderConfig(
       name: name,
       type: AddonInputType.DATE_RANGE_INPUT.name,
       multipleValue: [pickedDateRange.start.toString(), pickedDateRange.end.toString()],
       addonId: addon.id,
       additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
-    );
+    ).updateFinalPrice('ETB', addons: [addon]);
+  }
+
+  static OrderConfig createDateOrderConfig(List<LocalizedField> name, DateTime pickedDate, ProductAddon addon) {
+    return OrderConfig(
+      name: name,
+      type: AddonInputType.DATE_INPUT.name,
+      singleValue: pickedDate.toString(),
+      addonId: addon.id,
+      additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
+    ).updateFinalPrice('ETB', addons: [addon]);
+  }
+
+  OrderConfig updateFinalPrice(String selectedCurrency, {List<ProductAddon>? addons}) {
+    return copyWith(finalPrice: getAdditionalPriceUpdated(addons, selectedCurrency));
   }
 
   static OrderConfig createSingleSelectOrderConfig(List<LocalizedField> name, String selectedValue, ProductAddon addon) {
@@ -124,7 +153,7 @@ class OrderConfig with _$OrderConfig {
       singleValue: selectedValue,
       addonId: addon.id,
       additionalPrice: addon.additionalPrice!.toSelectedPrice('ETB')?.amount ?? 0,
-    );
+    ).updateFinalPrice('ETB', addons: [addon]);
   }
 
   static OrderConfig createNumberInputOrderConfig(List<LocalizedField> name, double selectedValue, ProductAddon addon) {
@@ -135,7 +164,7 @@ class OrderConfig with _$OrderConfig {
       singleValue: selectedValue.toString(),
       addonId: addon.id,
       additionalPrice: addon.additionalPrice!.toSelectedPrice('ETB')?.amount ?? 0,
-    );
+    ).updateFinalPrice('ETB', addons: [addon]);
   }
 
   static OrderConfig createMultipleSelectOrderConfig(List<LocalizedField> name, List<String> selectedValues, ProductAddon addon) {
@@ -145,6 +174,6 @@ class OrderConfig with _$OrderConfig {
       multipleValue: selectedValues,
       addonId: addon.id,
       additionalPrice: addon.additionalPrice!.toSelectedPrice('ETB')?.amount ?? 0,
-    );
+    ).updateFinalPrice('ETB', addons: [addon]);
   }
 }

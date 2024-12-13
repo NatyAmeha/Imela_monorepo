@@ -81,6 +81,7 @@ dependencies:
   url_launcher_platform_interface: 2.3.2
 
   mask_text_input_formatter: 2.4.0
+  easy_debounce: ^2.0.3
 
   flutter_animate: ^4.5.0
   gql_exec: ^1.0.0+1
@@ -96,12 +97,16 @@ dependencies:
   flash: ^3.1.1
   badges: ^3.1.2
   shared_preferences: ^2.3.2
+  app_links: ^6.3.2
 
   # local packages
   imela_core: ^0.1.0
   imela_ui_kit: ^0.1.0
   imela_data: ^0.1.0
   imela_utils: ^0.1.0
+
+dependency_overrides:
+  js: ^0.7.1
 
 dev_dependencies:
   flutter_test:

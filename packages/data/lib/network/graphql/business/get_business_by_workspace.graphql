@@ -60,6 +60,11 @@ query GetBusinessByWorkspace($workspace: String!, $branchId: String) {
               value
             }
             images
+            price{
+              amount
+              currency
+            }
+            membershipIds
           }
           isActive
           isRequired

@@ -35,15 +35,18 @@ class CountdownTimer extends StatelessWidget {
       duration: duration,
       streamDuration: streamDuration,
       style: textStyle ?? const TextStyle(fontSize: 20, color: Colors.white),
-      separator: separator ?? ':',
+      separatorType: SeparatorType.title,
+      durationTitle: DurationTitle.enShort(),
       separatorStyle: textStyle ?? const TextStyle(fontSize: 20, color: Colors.white),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
+      // replacement: Text('a'),
       shouldShowHours: (p0) => shouldShowHours,
       shouldShowMinutes: (p0) => shouldShowMinutes,
       shouldShowSeconds: (p0) => shouldShowSeconds,
+
       onDone: () {
        onDone?.call();
       },
@@ -53,3 +56,4 @@ class CountdownTimer extends StatelessWidget {
     );
   }
 }
+ 

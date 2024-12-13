@@ -101,7 +101,11 @@ query GetPosBranch($businessId: String!, $branchId: String!) {
               value
             }
             images
-          
+            membershipIds
+            price{
+              amount
+              currency
+            }
           }
           products {
             id

@@ -38,8 +38,8 @@ class _OrderConfigurePageState extends State<OrderConfigurePage> {
 
   @override
   void initState() {
-    super.initState();
     initializeViewmodel();
+    super.initState();
   }
 
   @override
@@ -48,11 +48,12 @@ class _OrderConfigurePageState extends State<OrderConfigurePage> {
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: true,
-          exception: viewmodel.exception.value,
-          onTryAgain: () {
+          // exception: viewmodel.exception.value,
+          
+          onTryAgain: () { 
             initializeViewmodel();
           },
           content: ResponsiveWrapper(

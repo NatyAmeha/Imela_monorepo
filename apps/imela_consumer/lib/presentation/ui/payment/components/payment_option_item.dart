@@ -7,7 +7,7 @@ import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 class PaymentOptionListItem extends StatelessWidget {
   final double totalAmount;
   final PaymentOption paymentOption;
-  final String selectedPaymentOptionId;
+  final String? selectedPaymentOptionId;
   final WidgetFactory widgetFactory;
   final double width;
   final double? height;
@@ -16,7 +16,7 @@ class PaymentOptionListItem extends StatelessWidget {
     super.key,
     required this.totalAmount,
     required this.paymentOption,
-    required this.selectedPaymentOptionId,
+    this.selectedPaymentOptionId,
     required this.widgetFactory,
     this.width = double.infinity,
     this.height,
@@ -29,15 +29,12 @@ class PaymentOptionListItem extends StatelessWidget {
     return isSelected ? Icons.check_circle : Icons.radio_button_unchecked;
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return widgetFactory.createCard(
       onTap: () {
         onSelected?.call();
       },
-      padding: const EdgeInsets.all(16),
       border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer, width: 1),
       width: width,
       height: height,
@@ -57,27 +54,39 @@ class PaymentOptionListItem extends StatelessWidget {
               ),
               widgetFactory.createIcon(materialIcon: icon, color: Colors.green),
             ],
-          ),
+          ).withPaddingAll(16),
+          if (paymentOption.description != null) widgetFactory.createText(context, paymentOption.description.localize('ENGLISH'), style: Theme.of(context).textTheme.bodySmall),
           const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               widgetFactory.createText(context, 'Current payment', style: Theme.of(context).textTheme.labelMedium),
-              widgetFactory.createText(context, paymentOption.currentPayment(totalAmount).toString(), style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
+              widgetFactory.createText(context, paymentOption.currentPaymentString(totalAmount), style: Theme.of(context).textTheme.titleMedium),
             ],
-          ).withPaddingSymetric(vertical: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              widgetFactory.createText(context, 'Remaining amount', style: Theme.of(context).textTheme.labelMedium),
-              widgetFactory.createText(context, paymentOption.remainingPayment(totalAmount).toString(), style: Theme.of(context).textTheme.bodyLarge, color: Theme.of(context).colorScheme.primary),
-            ],
-          ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption()),
-          Row(
-            children: [
-              widgetFactory.createText(context, 'Pay remaining on delivery', style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),
-            ],
-          ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption())
+          ).withPaddingSymetric(horizontal: 16, vertical: 8),
+          if (paymentOption.isPartialPaymentOption())
+            widgetFactory.createCard(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      widgetFactory.createText(context, 'Remaining amount', style: Theme.of(context).textTheme.labelMedium),
+                      widgetFactory.createText(context, paymentOption.remainingPaymentString(totalAmount), style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption()),
+                  Row(
+                    children: [
+                      widgetFactory.createText(context, 'Pay remaining on delivery', style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),
+                    ],
+                  ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption())
+                ],
+              ),
+            )
         ],
       ),
     );

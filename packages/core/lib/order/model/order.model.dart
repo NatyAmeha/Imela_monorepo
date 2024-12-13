@@ -1,4 +1,3 @@
-
 import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/business/model/business_order_status.dart';
@@ -56,7 +55,7 @@ class Order with _$Order {
 
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
-  static Order createOrderInfo(Cart cartIfno, {required PaymentOption paymentOption, required double paidAmount, required double totalAmount, required List<SelectedPaymentMethod> paymentMethods, String? branchId}) {
+  static Order createOrderInfo(Cart cartIfno, {required PaymentOption paymentOption, required double paidAmount, required double totalAmount, required List<SelectedPaymentMethod> paymentMethods, String? branchId, String? orderNote}) {
     final remainingAmount = totalAmount - paidAmount;
     return Order(
       paymentType: paymentOption.type,
@@ -66,6 +65,7 @@ class Order with _$Order {
       totalAmount: totalAmount,
       config: cartIfno.configs,
       paidAmount: paidAmount,
+      note: orderNote,
       remainingAmount: remainingAmount,
       paymentMethods: paymentMethods,
       businessId: cartIfno.businessIds,
@@ -136,7 +136,6 @@ class Order with _$Order {
 
   String getOrderStatus(String selectedLanguage, List<BusinessOrderStatus> businessOrderStatus) {
     final selectedStatus = businessOrderStatus.firstOrNullWhere((bs) => bs.id == status) ?? businessOrderStatus.firstOrNullWhere((bs) => bs.isDefault ?? false) ?? businessOrderStatus.firstOrNull;
-    print('status info ${selectedStatus?.status?.localize(selectedLanguage)}');
     return selectedStatus?.status?.localize(selectedLanguage) ?? 'Pending';
   }
 

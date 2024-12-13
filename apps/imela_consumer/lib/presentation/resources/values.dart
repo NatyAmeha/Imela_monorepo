@@ -8,7 +8,7 @@ class NumberResources{
 
   static const double DEFAULT_ICON_SIZE = 24.0;
 
-  static const double PRODUCT_BOTTOM_NAVIGATION_HEIGHT = 75.0;
+  static const double PRODUCT_BOTTOM_NAVIGATION_HEIGHT = 105.0;
 }
 
 class ErrorResourceValues{

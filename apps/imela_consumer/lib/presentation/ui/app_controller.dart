@@ -1,30 +1,92 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/authentication/auth_selection_page.dart';
-import 'package:imela/presentation/utils/localization_utils.dart';
 import 'package:imela/services/routing_service.dart';
-import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/business/model/business.model.dart';
+import 'package:imela_core/business/model/payment_method.model.dart';
+import 'package:imela_core/loyalty/dto/loyalty.response.dart';
+import 'package:imela_core/loyalty/loyalty_usecase.dart';
+import 'package:imela_core/loyalty/model/customer_loyalty.model.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
+import 'package:imela_core/membership/dto/membership_response.dart';
 import 'package:imela_core/order/model/cart.model.dart';
-import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
-import 'package:imela_core/shared/price_currency.model.dart';
+import 'package:imela_core/settings/setting_usecase.dart';
+import 'package:imela_core/subscription/model/subscription.model.dart';
+import 'package:imela_core/user/auth.usecase.dart';
 import 'package:imela_core/user/model/auth_response.dart';
+import 'package:imela_core/user/model/user.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela_utils/helpers/base_viewmodel.dart';
+import 'package:injectable/injectable.dart';
+import 'package:imela_utils/helpers/localization_utils.dart';
 
-class AppController extends GetxController {
+@injectable
+class AppController extends GetxController with BaseViewmodel {
+  final AuthUsecase authUsecase;
+  final LoyaltyUsecase loyaltyUsecase;
+  final SettingUsecase settingUsecase;
+
+  AppController({required this.authUsecase, required this.settingUsecase, required this.loyaltyUsecase});
   static AppController get getInstance {
-    return Get.isRegistered<AppController>() ? Get.find<AppController>() : Get.put(AppController());
+    return BaseViewmodel.isViewmodelRegistered(getIt<AppController>());
   }
+
   FirebaseAuthResponse? firebaseAuthInfo;
 
-  final router = getIt<GoRouterService>(instanceName: GoRouterService.injectNameBeta);
+  late GoRouterService router;
 
   AppLanguage selectedLanguage = AppLanguage.ENGLISH;
   Currency selectedCurrency = Currency.ETB;
 
-  var collectedDiscounts  = <Discount>[].obs;
+  Rx<String> selectedLanguageUpdated = AppLanguage.ENGLISH.name.obs;
 
+  // state variables
+  var loggedInUser = Rxn<User>();
+  var requireUserCheck = true.obs;
+  var reloadHomePageDestination = true.obs;
+  List<Business> favoriteBusinesses = [];
+
+  var collectedDiscounts = <Discount>[].obs;
+
+  var selectedBusiness = Rxn<Business>();
+  var selectedBusinessBranchId = <String, String>{}.obs;
+
+  var selectedBusinessLoyaltyInfo = Rxn<LoyaltyResponse>();
+  var customerLoyalty = Rxn<CustomerLoyalty>();
+
+  var businessMembershipInfo = Rxn<MembershipResponse>();
+
+  var usedRewardPoints = (0.0).obs;
+
+  var defaultPaymentMethods = PaymentMethod.getFakePaymentMethods();
+  var refetchOrderList = false.obs;
+
+  // getter
+  bool get isAuthenticated => loggedInUser.value != null;
+  List<Reward> get allRewards => selectedBusinessLoyaltyInfo.value?.rewards ?? [];
+  List<Reward> get userEligableRewards {
+    return allRewards.where((element) => element.minPointsToRedeem.toDouble() <= (remainingPoints)).toList();
+  }
+
+  List<Discount> get businessDiscounts => selectedBusiness.value?.discounts ?? [];
+
+  // business membership getters
+  List<Subscription?> get currentUserBusinessMembershipsSubscriptions {
+    return businessMembershipInfo.value?.memberships?.map((membership) => membership.currentUserSubscription).toList() ?? [];
+  }
+
+  List<String> get currentUserMembershipIds => currentUserBusinessMembershipsSubscriptions.map((subscription) => subscription?.subscribedTo).whereType<String>().toList();
+
+  List<Discount> get currentUserBusinessMembershipsDiscounts {
+    final subscribedMemberships = businessMembershipInfo.value?.memberships?.where((membership) => membership.currentUserSubscription != null).toList() ?? [];
+    final discounts = subscribedMemberships.map((membership) => membership.benefits?.map((benefit) => benefit.getFullDiscontInfo(membership.name)).flattened.toList() ?? []).flattened.toList();
+    return discounts;
+  }
+
+  Discount? get heighestMembershipDiscounts => currentUserBusinessMembershipsDiscounts.firstOrNull;
 
   static WidgetFactory? _widgetFactory;
   WidgetFactory getWidgetFactory(BuildContext context) {
@@ -32,67 +94,58 @@ class AppController extends GetxController {
     return _widgetFactory!;
   }
 
+  double get remainingPoints => (customerLoyalty.value?.currentPoints ?? 0.0) - usedRewardPoints.value;
+
   var carts = <Cart>[].obs;
   bool enableCartFetchFromApi = true;
+
+  @override
+  Future<void> initViewmodel({Map<String, dynamic>? data}) async {
+    Get.put(this);
+    router = getIt<GoRouterService>(instanceName: GoRouterService.injectNameBeta);
+    Future.delayed(Duration.zero, () {
+      getInitialSettings();
+      // POSDBDataSource.initDB(AppConstants.APP_DB_NAME);
+    });
+  }
+
+  void getInitialSettings() async {
+    final selectedLanguage = await settingUsecase.getSelectedLanguage();
+    selectedLanguageUpdated.value = selectedLanguage;
+  }
+
+  void updateSelectedBusiness(Business? business) {
+    selectedBusiness.value = business;
+  }
+
+  // Method to update the selected language
+  // Method to update the selected language
+  Future<void> updateLanguage(AppLanguage language, Function(Locale) updateLocaleCallback) async {
+    selectedLanguageUpdated.value = language.name;
+    await settingUsecase.saveSelectedLanguage(language.name);
+    // Update the app's locale by calling the provided callback
+    updateLocaleCallback(language.locale);
+  }
+
+  Future<void> getCurrentUser() async {
+    final user = await authUsecase.getCurrentUserInfoFromJwt();
+    setLoggedInUser(user);
+  }
+
+  void setSelectedBusinessBranchId(String businessId, String branchId) {
+    selectedBusinessBranchId[businessId] = branchId;
+  }
+
+  String? getSelectedBusinessBranchId(String businessId) {
+    return selectedBusinessBranchId[businessId];
+  }
 
   Cart? getCartById(String cartId) {
     return carts.firstWhereOrNull((element) => element.id == cartId);
   }
 
-  void addCartToCartList(Cart cart, {List<PaymentOption> paymentOptions = const []}) {
-    carts.removeWhere((element) => element.id == cart.id);
-    carts.add(cart);
-    changeCartApiFetchStatus(false);
-  }
-
-  void addCartsToCartList(List<Cart> cartList, {bool clearPrevious = false}) {
-    if (clearPrevious) {
-      carts.clear();
-    }
-    carts.addAll(cartList);
-    changeCartApiFetchStatus(false);
-  }
-
-  Cart? updateCartState(Cart newCartInfo) {
-    final index = carts.indexWhere((element) => element.id == newCartInfo.id);
-    if (index != -1) {
-      carts[index] = newCartInfo;
-      return carts[index];
-    }
-    return null;
-  }
-
-  Cart? removeItemsFromCartState(String cartId, List<String> productIds) {
-    final index = carts.indexWhere((element) => element.id == cartId);
-    if (index != -1) {
-      carts[index] = carts[index].removeItems(productIds);
-      return carts[index];
-    }
-    return null;
-  }
-
-  OrderItem? updateCartItem(String cartId, String productId, double qty) {
-    final cart = getCartById(cartId);
-    final index = cart?.items?.indexWhere((element) => element.productId == productId);
-    if (index != -1) {
-      cart?.items![index!] = cart.items![index].copyWith(quantity: qty);
-      return cart!.items![index!];
-    }
-    return null;
-  }
-
-  Cart? updateItemInSelectedCartState(String cartId, OrderItem item) {
-    final cart = getCartById(cartId);
-    if (cart != null) {
-      final index = cart.items!.indexWhere((element) => element.productId == item.productId);
-      carts[index] = cart.updateOrderItem(item);
-      return carts[index];
-    }
-    return null;
-  }
-
-  void removeCart(String cartId) {
-    carts.removeWhere((element) => element.id == cartId);
+  Cart? getCartByBusinessId(String businessId) {
+    return carts.firstWhereOrNull((element) => element.businessIds?.contains(businessId) ?? false);
   }
 
   void addDiscounts(List<Discount> discounts, {bool clearPrevious = false}) {
@@ -102,17 +155,115 @@ class AppController extends GetxController {
     collectedDiscounts.addAll(discounts);
   }
 
+  void setLoggedInUser(User? user) {
+    loggedInUser.value = user;
+  }
+
+  void setFavoriteBusinesses(List<Business> businesses) {
+    favoriteBusinesses = businesses;
+  }
+
+  bool isBusinessInFavorite(String businessId) {
+    return favoriteBusinesses.any((element) => element.id == businessId);
+  }
+
+  void updateLoggedinUserFields(User? updatedUserInfo) {
+    loggedInUser.value = loggedInUser.value?.copyWith(
+      firstName: updatedUserInfo?.firstName,
+      lastName: updatedUserInfo?.lastName,
+      email: updatedUserInfo?.email,
+    );
+  }
+
   void clearDiscounts() {
     collectedDiscounts.clear();
   }
 
-  void logout(BuildContext context, {String? redirectUrl}) {
-    carts.clear();
-    changeCartApiFetchStatus(true);
-    AuthSelectionPage.navigate(context, redirectT: redirectUrl);
+  void setSelectedBusinessLoyaltyInfo(LoyaltyResponse? loyaltyInfo) {
+    selectedBusinessLoyaltyInfo.value = loyaltyInfo;
+    customerLoyalty.value = loyaltyInfo?.customerLoyalty;
   }
 
-  changeCartApiFetchStatus(bool status) {
+  void setBusinessMembershipInfo(MembershipResponse? membershipInfo) {
+    businessMembershipInfo.value = membershipInfo;
+  }
+
+  Subscription? getCurrentUserSubscription(String membershipId) {
+    return businessMembershipInfo.value?.memberships?.firstWhereOrNull((e) => e.currentUserSubscription != null)?.currentUserSubscription ?? businessMembershipInfo.value?.currentUserSubscription;
+  }
+
+  bool isCurrentUserSubscriptionActive(String membershipId) {
+    final subscription = getCurrentUserSubscription(membershipId);
+    return subscription?.endDate?.isAfter(DateTime.now()) ?? false;
+  }
+
+  bool currentUserIsMember(List<String>? membershipIds) {
+    if (membershipIds == null || membershipIds.isEmpty) return false;
+    final subscriptions = membershipIds.map((id) => getCurrentUserSubscription(id)).toList().whereType<Subscription>().toList();
+    return subscriptions.isNotEmpty;
+  }
+
+  Future<LoyaltyResponse?> getCustomerBusinessLoyalty(String businessId) async {
+    try {
+      final loyaltyInfo = await loyaltyUsecase.getCustomerBusinessLoyalty(businessId);
+      setSelectedBusinessLoyaltyInfo(loyaltyInfo);
+      return loyaltyInfo;
+    } catch (e) {
+      print('loyalty fetch error: $e');
+      return null;
+      // exception(exceptiionHandler.getException(e as Exception));
+    }
+  }
+
+  void updateUsedRewardPoints(double points) {
+    usedRewardPoints.value = points;
+  }
+
+  void removeRewardFromEligableRewards(Reward reward) {
+    updateUsedRewardPoints(reward.minPointsToRedeem.toDouble());
+    userEligableRewards.removeWhere((reward) => reward.minPointsToRedeem < remainingPoints);
+
+    // final updatedCustomerLoyalty = selectedBusinessLoyaltyInfo.value?.customerLoyalty?.copyWith(currentPoints: remainingPoints);
+    // customerLoyalty.value = updatedCustomerLoyalty;
+  }
+
+  void setRefetchOrderList(bool value) {
+    refetchOrderList.value = value;
+  }
+
+  Future<bool> refreshTokenOrLogout(BuildContext context, {bool moveToLogin = true, bool showLoginMessage = false, String? redirectUrl, Map<String, dynamic>? redirectExtra, bool refreshToken = true}) async {
+    try {
+      final tokenRefreshed = await authUsecase.refreshToken();
+      if (tokenRefreshed) {
+        return true;
+      }
+      await logout(context, moveToLogin: moveToLogin, showLoginMessage: showLoginMessage, redirectUrl: redirectUrl, redirectExtra: redirectExtra);
+      return false;
+    } catch (e) {
+      await logout(context, moveToLogin: moveToLogin, showLoginMessage: showLoginMessage, redirectUrl: redirectUrl, redirectExtra: redirectExtra);
+      return false;
+    }
+  }
+
+  Future<void> logout(BuildContext context, {bool moveToLogin = true, bool showLoginMessage = false, String? redirectUrl, Map<String, dynamic>? redirectExtra}) async {
+    try {
+      carts.clear();
+      await authUsecase.logout();
+      setLoggedInUser(null);
+      requireUserCheck.value = true;
+      if (moveToLogin) {
+        AuthSelectionPage.navigate(context, redirectUrl: redirectUrl, redirectExtra: redirectExtra);
+      } else if (showLoginMessage) {
+        getWidgetFactory(context).showFlashMessage(context, message: 'Login to be able to continue', actionText: 'Login', onActinClicked: () {
+          AuthSelectionPage.navigate(context, redirectUrl: redirectUrl, redirectExtra: redirectExtra);
+        });
+      }
+    } catch (ex) {
+      print('logout error: $ex');
+    }
+  }
+
+  void changeCartApiFetchStatus(bool status) {
     enableCartFetchFromApi = status;
   }
 }

@@ -52,7 +52,7 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
     final appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.bundleName ?? 'Bundle Detail'),
+        title: Text('Bundle Detail'),
       ),
       body: Obx(
         () => PageContentLoader(

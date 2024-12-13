@@ -1,5 +1,4 @@
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
-import 'package:imela_core/loyalty/model/customer_loyalty.model.dart';
 import 'package:imela_core/loyalty/repo/loyalty_repository.dart';
 import 'package:injectable/injectable.dart';
 

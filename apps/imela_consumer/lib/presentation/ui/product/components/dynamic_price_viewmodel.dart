@@ -1,4 +1,5 @@
 import 'package:dartx/dartx.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 
@@ -13,8 +14,7 @@ class DynamicPriceViewmodel extends GetxController with BaseViewmodel {
     return Get.put(DynamicPriceViewmodel());
   }
 
-
-  late final Product? product;
+  late Product? product;
   final discountsWithPrice = Rx<Map<double, Discount?>>({});
   // Selected quantity (observable)
   var selectedQty = 1.0.obs;
@@ -26,10 +26,16 @@ class DynamicPriceViewmodel extends GetxController with BaseViewmodel {
 
   List<Discount> get selectedDiscounts => selectedDiscount.value != null ? [selectedDiscount.value!] : [];
 
+  final ScrollController scrollController = ScrollController();
+
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
     Future.delayed(Duration.zero, () {
+      final initialQty = data?['initialQty'];
+      final minQty = data?['minQty'];
+      selectedQty.value = initialQty ?? minQty ?? 1;
+      basePRice.value = 0.0;
       final discounts = data?['discounts'] ?? [];
       basePRice.value = data?['basePrice'] ?? 0;
       product = data?['product'] as Product?;
@@ -51,19 +57,31 @@ class DynamicPriceViewmodel extends GetxController with BaseViewmodel {
 
   // Function to update the selected quantity
   void updateSelectedQty(double qty) {
-    // if (!(product?.canOrderWithQty(qty) ?? false)) {
-    //   return;
-    // }
     selectedQty.value = qty;
-    final sortedDiscounts = discountsWithPrice.value.entries.sortedBy((element) => element.value?.conditionValue ?? 0).toList();
+    print('initialQty ${selectedQty.value}');
+    final sortedDiscounts = discountsWithPrice.value.entries.sortedBy((element) => double.tryParse(element.value?.conditionValue ?? '0') ?? 0).toList();
     final selectedDiscountValue = sortedDiscounts.lastOrNullWhere((element) {
-      return ((element.value?.conditionValue ?? 0) <= selectedQty.value);
+      final conditionValue = double.tryParse(element.value?.conditionValue ?? '0');
+      return (conditionValue ?? 0) <= selectedQty.value;
     });
     if (selectedDiscountValue != null) {
       selectedPrice.value = selectedDiscountValue.key;
       selectedDiscount.value = selectedDiscountValue.value;
     } else {
-      selectedPrice.value = discountsWithPrice.value.keys.first;
+      selectedPrice.value = discountsWithPrice.value.keys.firstOrNull;
     }
+  }
+
+  void handleScrollonPriceChange() {
+    ever(selectedPrice, (selectedPrice) {
+      final index = discountsWithPrice.value.keys.toList().indexOf(selectedPrice ?? 0);
+      if (index != -1) {
+        scrollController.animateTo(
+          index * 120.0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 }

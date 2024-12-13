@@ -39,94 +39,80 @@ class ProductOrderConfigModal extends StatelessWidget {
 
   final dynamicPriceViewmodel = DynamicPriceViewmodel.getInstance();
 
+  double get basePrice => product.getTotalPriceUpdated('ETB', qtyInput: 1, discounts: productDetailsViewmodel.discounts.value);
+
   @override
   Widget build(BuildContext context) {
-    return widgetFactory.createCard(
-      width: width,
-      height: height,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: SingleChildScrollView(
-              controller: scrollController,
-              child: Obx(
-                () => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    widgetFactory.createText(context, 'Configure your order', style: Theme.of(context).textTheme.headlineMedium).withPaddingAll(16),
-                    const SizedBox(height: 8),
-                    ProductDynamicPricing(
-                      dynamicPricingDiscounts: product.dynamicPricingDiscounts,
-                      basePrice: product.getTotalPriceUpdated('ETB', discounts:  productDetailsViewmodel.discounts.value),
-                      product: product,
-                    ),
-                    const Divider(height: 24),
-                    if (product.addons?.isNotEmpty ?? false) ...[
-                      AppListView(
-                        primary: false,
-                        shrinkWrap: true,
-                        items: product.addons,
-                        itemBuilder: (context, selectedAddon, index) {
-                          return Obx(
-                            () => ProductAddonListItem(
-                              addon: product.addons![index],
-                              selectedDateRange: productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.multipleValue.toDateRange(),
-                              selectedSingleOption: productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.singleValue,
-                              widgetFactory: widgetFactory,
-                              selectedNumberValue: double.tryParse(productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.singleValue ?? ''),
-                              onSelectDateClicked: () {
-                                productDetailsViewmodel.handleAddonDateSelection(context, product.addons![index], widgetFactory);
-                              },
-                              onNumberInputChanged: (newValue) {
-                                productDetailsViewmodel.handleProductAddonQtyChange(context, product.addons![index], value: newValue, widgetFactory: widgetFactory);
-                              },
-                              onSingleOptionSelection: (newValue) {
-                                productDetailsViewmodel.handleProductAddonsingleSelection(context, product.addons![index], value: newValue, widgetFactory: widgetFactory);
-                              },
-                            ),
-                          );
+    return Stack(
+      children: [
+        Obx(() {
+          var appliedDiscounts = [...productDetailsViewmodel.discounts.value, ...dynamicPriceViewmodel.selectedDiscounts];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              widgetFactory.createText(context, 'Configuration', style: Theme.of(context).textTheme.headlineMedium).withPaddingAll(16),
+              ProductDynamicPricing(
+                dynamicPricingDiscounts: product.sortedDynamicPricingDiscounts,
+                basePrice: basePrice,
+                product: product,
+              ),
+              const Divider(height: 16),
+              if (product.addons?.isNotEmpty ?? false) ...[
+                AppListView(
+                  primary: false,
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  items: product.addons,
+                  itemBuilder: (context, selectedAddon, index) {
+                    return Obx(
+                      () => ProductAddonListItem(
+                        addon: product.addons![index],
+                        selectedDateRange: productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.multipleValue.toDateRange(),
+                        selectedSingleOption: productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.singleValue,
+                        widgetFactory: widgetFactory,
+                        selectedNumberValue: double.tryParse(productDetailsViewmodel.getAddonOrderConfig(selectedAddon.id!)?.singleValue ?? ''),
+                        onSelectDateClicked: () {
+                          // productDetailsViewmodel.handleAddonDateSelection(context, product.addons![index], widgetFactory);
                         },
-                        separator: const Divider(height: 24),
+                        onNumberInputChanged: (newValue) {
+                          productDetailsViewmodel.handleProductAddonQtyChange(context, product.addons![index], value: newValue, widgetFactory: widgetFactory);
+                        },
+                        onSingleOptionSelection: (newValue) {
+                          productDetailsViewmodel.handleProductAddonsingleSelection(context, product.addons![index], value: newValue, widgetFactory: widgetFactory);
+                        },
                       ),
-                      Row(
-                        children: [
-                          widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleMedium),
-                          const Spacer(),
-                          widgetFactory.createText(
-                            context,
-                            product.getTotalPriceUpdatedString('ETB', qty: dynamicPriceViewmodel.selectedQty.value, discounts: dynamicPriceViewmodel.selectedDiscounts),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 100),
-                    ]
-                  ],
+                    );
+                  },
+                  separator: const Divider(height: 24),
                 ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            left: 0,
-            bottom: 0,
-            child: Obx(
-              () => widgetFactory.createCard(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: widgetFactory.createButton(
-                  context: context,
-                  content: const Text('Continue'),
-                  onPressed: productDetailsViewmodel.canEnableAddonContinueBtn
-                      ? () {
-                          onContinue?.call(dynamicPriceViewmodel.selectedQty.value, dynamicPriceViewmodel.selectedDiscounts);
-                        }
-                      : null,
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
+                const Divider(height: 24),
+              ],
+              Row(
+                children: [
+                  widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleMedium),
+                  const Spacer(),
+                  widgetFactory.createText(
+                    context,
+                    product.getTotalPriceUpdatedString('ETB', qty: dynamicPriceViewmodel.selectedQty.value, discounts: appliedDiscounts, additionalPrice: productDetailsViewmodel.totalAddonPrice),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ).withPaddingSymetric(horizontal: 16),
+              widgetFactory
+                  .createButton(
+                    context: context,
+                    content: const Text('Continue'),
+                    onPressed: productDetailsViewmodel.canEnableAddonContinueBtn
+                        ? () {
+                            onContinue?.call(dynamicPriceViewmodel.selectedQty.value, appliedDiscounts);
+                          }
+                        : null,
+                  )
+                  .withPaddingAll(16)
+            ],
+          );
+        }),
+      ],
     );
   }
 }

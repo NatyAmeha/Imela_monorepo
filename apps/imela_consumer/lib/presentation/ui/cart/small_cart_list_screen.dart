@@ -7,7 +7,6 @@ import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
-
 class SmallCartListScreen extends StatelessWidget {
   final CartListViewmodel viewmodel;
   final WidgetFactory widgetFactory;
@@ -15,30 +14,26 @@ class SmallCartListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        viewmodel.getCartsFromApi();
-      },
-      child: Scaffold(
-          appBar: AppBar(title: const Text('Carts')),
-          body: Obx(
-            () => viewmodel.carts.isNotEmpty
-                ? AppListView<Cart>(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                    controller: viewmodel.cartListController,
-                    itemBuilder: (context, cartInfo, index) {
-                      return CartListItem(
-                        cartInfo: cartInfo,
-                        widgetFactory: widgetFactory,
-                        onclick: () {
-                          viewmodel.handleCartSelection(context, cartInfo);
-                        },
-                      );
+    return Scaffold(
+      appBar: AppBar(title: const Text('Carts')),
+      body: Obx(
+        () => viewmodel.carts.isNotEmpty
+            ? AppListView<Cart>(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                items: viewmodel.carts,
+                itemBuilder: (context, cartInfo, index) {
+                  return CartListItem(
+                    cartInfo: cartInfo,
+                    widgetFactory: widgetFactory,
+                    onclick: () {
+                      viewmodel.handleCartSelection(context, cartInfo);
                     },
-                  )
-                : EmptyCartCard(widgetFactory: widgetFactory),
-          )),
+                  );
+                },
+              )
+            : EmptyCartCard(widgetFactory: widgetFactory),
+      ),
     );
   }
 }

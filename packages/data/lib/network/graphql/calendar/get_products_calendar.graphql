@@ -1,0 +1,21 @@
+query GetProductsCalendar($businessId: String!, $branchId : String!, $productIds : [String!]!) {
+    getProductsCalendar(businessId: $businessId, branchId: $branchId, productIds: $productIds) {
+        success
+        calendars{
+            id
+            productId
+            sectionId
+            businessId
+            fromDate
+            toDate
+            disabledDays
+            disabledHours
+            orderInfo{
+                id
+                dayOfWeek
+                maxOrderPerDay
+                maxOrderPerHour
+            }
+        }
+    }
+}

@@ -4,6 +4,7 @@ import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 
 part 'customer_loyalty.model.freezed.dart';
 part 'customer_loyalty.model.g.dart';
@@ -17,7 +18,7 @@ class CustomerLoyalty with _$CustomerLoyalty {
     List<LocalizedField>? name,
     String? businessId,
     List<PointSource>? pointsSource,
-    double? currentPoints,
+    @Default(0) double currentPoints,
     List<Reward>? rewards,
     Customer? customer,
     DateTime? createdAt,
@@ -28,9 +29,9 @@ class CustomerLoyalty with _$CustomerLoyalty {
 
   String currentPointsString(String language) {
     if (language == AppLanguage.AMHARIC.name) {
-      return '$currentPoints ነጥብ';
+      return '${currentPoints?.getPresisionString(precision: 2)} ነጥብ';
     } else {
-      return '$currentPoints points';
+      return '${currentPoints?.getPresisionString(precision: 2)} points';
     }
   }
 

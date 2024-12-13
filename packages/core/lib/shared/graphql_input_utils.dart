@@ -106,6 +106,7 @@ extension GraphqlOrderConfigInput on List<OrderConfig>? {
               ..multipleValue.addAll(config.multipleValue ?? [])
               ..additionalPrice = config.additionalPrice
               ..calendarId = config.calendarId
+              ..finalPrice = config.finalPrice?.toDouble()
               ..productIds.addAll(config.productIds?.map((e) => e) ?? []),
           ),
         )

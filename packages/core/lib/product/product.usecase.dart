@@ -39,4 +39,12 @@ class ProductUsecase {
     }
     return result;
   }
+
+  Future<CalendarResponse?> getProductsCalendar(String businessId, String branchId, List<String> productIds, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    var result = await _calendarRepository.getProductsCalendar(businessId: businessId, branchId: branchId, productIds: productIds, fetchPolicy: fetchPolicy);
+    if (!(result?.success ?? false)) {
+      result = await _calendarRepository.getProductsCalendar(businessId: businessId, branchId: branchId, productIds: productIds, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    }
+    return result;
+  }
 }

@@ -20,6 +20,9 @@ query OrderBusinessList($businessIds: [String!]!) {
           key
           value
         }
+        isDefault
+        sequence
+        
       }
       sections {
         orderAddons {

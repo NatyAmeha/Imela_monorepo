@@ -44,16 +44,16 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appWidgetfactory = WidgetFactory(Theme.of(context).platform);
+    final appWidgetfactory = WidgetFactory(Theme.of(context).platform); 
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isDataLoading: viewmodel.isLoading.value, 
           hasError: viewmodel.exception.value?.isMainError ?? false,
-          showContent: viewmodel.orderInfo.value != null,
+          showContent:  viewmodel.orderInfo.value != null,
           exception: viewmodel.exception.value,
           onTryAgain: () {
-            initializeViewmodel();
+            viewmodel.getOrderDetails(widget.ORderId);
           },
           content: ResponsiveWrapper(
             smallScreen: SmallScreenOrderDetail(viewmodel: viewmodel, widgetFactory: appWidgetfactory),

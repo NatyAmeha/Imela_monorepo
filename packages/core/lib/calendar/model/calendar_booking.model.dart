@@ -1,6 +1,9 @@
 import 'package:collection/collection.dart';
+import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/calendar/model/calendar.model.dart';
+import 'package:imela_core/order/model/order.response.dart';
+import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 
 part 'calendar_booking.model.freezed.dart';
@@ -67,5 +70,48 @@ extension CalendarBookingListExtensions on List<CalendarBooking> {
     }
 
     return disabledDates;
+  }
+}
+
+class CalendarDateSelectorInfo {
+  final List<DateTime> disabledDates;
+  DateTime? firstDate;
+  DateTime? lastDate;
+  DateTime? initialDate;
+
+  CalendarDateSelectorInfo({
+    required this.disabledDates,
+    this.firstDate,
+    this.lastDate,
+    this.initialDate,
+  }) {
+    if (disabledDates.contains(initialDate)) {
+      initialDate = initialDate?.add(const Duration(days: 1));
+    }
+    firstDate ??= DateTime.now();
+    lastDate ??= DateTime.now().add(const Duration(days: 90));
+  }
+
+  static Future<Map<String, CalendarDateSelectorInfo>> getDisabledDatesForProductAddon(List<ProductAddon> productAddons, List<Calendar> calendars, Future<OrderResponse?> Function(String calendarId) getSchedulesByCalendarId) async {
+    final addonsWithDisabledDates = <String, CalendarDateSelectorInfo>{};
+    await Future.forEach(productAddons, (addon) async {
+      final calendar = calendars.firstWhereOrNull((calendar) => calendar.id == addon.calendarId);
+      if (calendar == null) {
+        return;
+      }
+      final disabledDates = calendar.disabledDays ?? [];
+      final disabledHours = calendar.disabledHours ?? [];
+      var bookedDates = <DateTime>[];
+      final result = await getSchedulesByCalendarId(calendar.id!);
+      if (result != null) {
+        bookedDates = result.schedules?.map((e) => e.bookedTimes ?? []).flatten().toList() ?? [];
+      }
+      addonsWithDisabledDates[addon.id!] = CalendarDateSelectorInfo(
+        disabledDates: [...disabledDates, ...disabledHours, ...bookedDates],
+        firstDate: calendar.fromDate,
+        lastDate: calendar.toDate,
+      );
+    });
+    return addonsWithDisabledDates;
   }
 }

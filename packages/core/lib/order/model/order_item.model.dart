@@ -28,6 +28,7 @@ class OrderItem with _$OrderItem {
     double? tax,
     List<ItemDiscount>? discount,
     List<OrderConfig>? config,
+    double? finalPrice,
     Product? product,
     String? calendarId,
     DateTime? createdAt,
@@ -124,26 +125,27 @@ class OrderItem with _$OrderItem {
     return '$currency ${getTotalAddonPrices().getPresisionString(precision: 2)}';
   }
 
-  double getTotalDiscountAmountPOS() {
-    var subtotalAmount = (subTotal ?? 0); 
-    double totalDiscount = 0;  
+  double getTotalDiscountAmountPOS({bool applyQty = true}) {
+    var subtotalAmount = getSubtotalPOSUpdated(includeAddonPrice: false);
+    double totalDiscount = 0;
     if (discount?.isNotEmpty == true) {
       for (var disc in discount!) {
-        totalDiscount += subtotalAmount.getPercentage(disc.percentage ?? 0, deductPercentageFromOriginalPrice: false);
-        subtotalAmount -= totalDiscount;
+        var discountIteration = subtotalAmount.getPercentage(disc.percentage ?? 0, deductPercentageFromOriginalPrice: false);
+        subtotalAmount -= discountIteration;
+        totalDiscount += discountIteration;
       }
     }
-    return (totalDiscount * quantity).getPresision(2);
+    return (totalDiscount).getPresision(2);
   }
- 
+
   String getTotalDiscountAmountPOSString({String? currency}) {
     final totalDiscount = getTotalDiscountAmountPOS();
     if (totalDiscount == 0.0) return '';
     return '- $currency ${totalDiscount.getPresisionString(precision: 2)}';
   }
 
-  double getSubtotalPOSUpdated({bool includeDynamicPricingDiscount = true, bool includeAddonPrice = true}) {
-    final totalAmount = (((subTotal ?? 0))).getPresision(2);
+  double getSubtotalPOSUpdated({bool includeDynamicPricingDiscount = true, bool applyQty = true, bool includeAddonPrice = true}) {
+    final totalAmount = (((subTotal ?? 0) * (applyQty ? quantity : 1))).getPresision(2);
     if (includeAddonPrice) {
       return totalAmount + getTotalAddonPrices();
     }

@@ -11,7 +11,7 @@ class CalendarResponse with _$CalendarResponse {
   const factory CalendarResponse({
     bool? success,
     Calendar? calendar,
-    List<CalendarBooking>? calendars,
+    List<Calendar>? calendars,
     CalendarBooking? calendarBooking,
     List<DateTime>? disabledDatesForBooking,
   }) = _CalendarResponse;

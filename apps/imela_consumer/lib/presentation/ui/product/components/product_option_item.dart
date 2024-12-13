@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
+import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
-import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
@@ -10,6 +10,7 @@ class ProductOptionItemComponent extends StatelessWidget {
   final bool isOptionSelected;
   final double height;
   final double width;
+  final List<Discount> discounts;
   final WidgetFactory widgetFactory;
   final Function? onOptionSelected;
   const ProductOptionItemComponent({
@@ -18,6 +19,7 @@ class ProductOptionItemComponent extends StatelessWidget {
     required this.widgetFactory,
     this.height = 40,
     this.width = 250,
+    this.discounts = const [],
     this.isOptionSelected = false,
     this.onOptionSelected,
   });
@@ -43,8 +45,11 @@ class ProductOptionItemComponent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 4),
-                  widgetFactory.createText(context, productOption.name.localize('ENGLISH'), style: Theme.of(context).textTheme.labelMedium),
-                  widgetFactory.createText(context, productOption.getPrice().toSelectedPriceString('ETB'), style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, productOption.name.localize('ENGLISH'), style: Theme.of(context).textTheme.labelMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  if (discounts.isNotEmpty) ...[
+                    widgetFactory.createText(context, productOption.getTotalPriceUpdatedString('ETB'), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
+                  ],
+                  widgetFactory.createText(context, productOption.getTotalPriceUpdatedString('ETB', discounts: discounts), style: Theme.of(context).textTheme.bodyLarge),
                 ],
               ),
             ),

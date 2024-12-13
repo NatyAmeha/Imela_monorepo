@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/product/components/product_detail_loading.dart';
 import 'package:imela/presentation/ui/product/product_details/product_details.viewmodel.dart';
 import 'package:imela/presentation/ui/product/product_details/small_screen_product_detail.dart';
@@ -13,7 +14,7 @@ import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  static const baseRouteName = '/product'; 
+  static const baseRouteName = '/product';
   static const routeName = '$baseRouteName/:id';
 
   final ProductDetailsViewmodel? productDetailViewmodel;
@@ -25,6 +26,11 @@ class ProductDetailPage extends StatefulWidget {
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 
   static void navigate(BuildContext context, IRoutingService router, Product product, {List<Discount>? discounts}) {
+    router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize('ENGLISH')}', 'discounts': discounts});
+  }
+
+  static void navigateBeta(BuildContext context, {required Product product, List<Discount>? discounts}) {
+    final router = AppController.getInstance.router;
     router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize('ENGLISH')}', 'discounts': discounts});
   }
 }
@@ -53,11 +59,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           isDataLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: viewmodel.productDetails.value != null,
+          exception: viewmodel.exception.value,
           loadingWidget: const ProductDetailLoadingComponent(),
           content: ResponsiveWrapper(
             smallScreen: SmallScreenProductDetail(viewmodel: viewmodel, widgetFactory: appWidgetFactory),
           ),
-          onTryAgain: (){
+          onTryAgain: () {
             viewmodel.getProductDetails(widget.productId);
           },
         ),

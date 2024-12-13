@@ -132,7 +132,7 @@ class Product with _$Product {
 
     if (hasVariants()) {
       basePrice = getMinVariantPrice(currency);
-      finalPrice = getMaxVariantPrice(currency);
+      finalPrice = getMaxVariantPrice(currency); 
     }
 
     if (!showWithoutDiscount && discounts.isNotEmpty) {

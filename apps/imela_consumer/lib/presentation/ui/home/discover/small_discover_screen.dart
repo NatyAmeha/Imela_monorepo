@@ -10,6 +10,7 @@ import 'package:imela/presentation/ui/product/product_details/product_details.pa
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
@@ -24,7 +25,7 @@ class SmallDiscoverScreen extends StatelessWidget {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          await homepageViewmodel.getBrowseData();
+          await homepageViewmodel.getBrowseData(fetchPolicy: ApiDataFetchPolicy.networkOnly);
         },
         child: SafeArea(
           child: SingleChildScrollView(

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/resources/values.dart';
+import 'package:imela/presentation/ui/product/components/pricing/dynamic_pricing_summary.dart';
 import 'package:imela/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
 import 'package:imela/presentation/ui/product/components/product_features_list.dart';
+import 'package:imela/presentation/ui/product/components/product_membership_perk.dart';
 import 'package:imela/presentation/ui/product/components/product_option_item.dart';
 import 'package:imela/presentation/ui/product/product_details/product_details.viewmodel.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
@@ -46,7 +49,14 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                 onPressed: () {
                   widget.viewmodel.handleBackPress(context, widget.viewmodel.router);
                 }),
-            actions: const [],
+            actions: [
+              widget.widgetFactory.createIcon(
+                materialIcon: Icons.shopping_cart,
+                onPressed: () {
+                  widget.viewmodel.navigateToCartDetailsPage(context);
+                },
+              )
+            ],
             toolbarHeight: NumberResources.COLLAPSED_APPBAR_HEIGHT,
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
@@ -57,7 +67,12 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                 width: double.infinity,
                 height: NumberResources.EXPANDED_APPBAR_HEIGHT,
                 itemBuilder: (context, index) {
-                  return AppImage(imageUrl: widget.viewmodel.getProductImage[index]);
+                  return InkWell(
+                    onTap: () {
+                      widget.viewmodel.navigateToPhotoViewerPage(context, widget.viewmodel.productDetails.value!.product?.gallery?.getImages() ?? [], index);
+                    },
+                    child: AppImage(imageUrl: widget.viewmodel.getProductImage[index]),
+                  );
                 },
               ),
             ),
@@ -77,9 +92,19 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                     const SizedBox(height: 8),
                     widget.widgetFactory.createText(context, widget.viewmodel.getProductDescription, maxLines: 4, style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 16),
-                    ProductFeaturesListComponent(widgetFactory: widget.widgetFactory, features: widget.viewmodel.getProductFeatures()),
-                    widget.widgetFactory.createText(context, 'Minimum order: ${widget.viewmodel.selectedProduct.minimumOrderQty}', style: Theme.of(context).textTheme.labelMedium),
-                    widget.widgetFactory.createText(context, 'Remaining items: ${widget.viewmodel.productDetails.value?.product?.remainingAmount}', style: Theme.of(context).textTheme.labelMedium),
+                    if (widget.viewmodel.originalProductInfo?.haveDynamicPricing == true) ...[
+                      ProductDynamicPriceSummary(product: widget.viewmodel.originalProductInfo!, widgetFactory: widget.widgetFactory, selectedCurrency: widget.viewmodel.selectedCurrency, additionalDiscounts: widget.viewmodel.discounts),
+                      const SizedBox(height: 16),
+                    ],
+                    ProductFeaturesListComponent(
+                      widgetFactory: widget.widgetFactory,
+                      features: widget.viewmodel.getProductFeatures(),
+                      onTap: (selectedFEature) {
+                        widget.viewmodel.showFeatureDescriptionModal(context, selectedFEature);
+                      },
+                    ),
+                    // widget.widgetFactory.createText(context, 'Minimum order: ${widget.viewmodel.selectedProduct.minimumOrderQty}', style: Theme.of(context).textTheme.labelMedium),
+                    // widget.widgetFactory.createText(context, 'Remaining items: ${widget.viewmodel.productDetails.value?.product?.remainingAmount}', style: Theme.of(context).textTheme.labelMedium),
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +114,7 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                         const SizedBox(height: 16),
                         AppGridView(
                           controller: widget.viewmodel.productOptionListController,
-                          height: 160,
+                          height: 190,
                           itemExtent: 250,
                           scrollDirection: Axis.horizontal,
                           crossAxisCount: 2,
@@ -108,6 +133,17 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                         ),
                       ],
                     ).showIfTrue(widget.viewmodel.productOptions.isNotEmpty),
+                    if (widget.viewmodel.originalProductInfo?.isMembershipProduct == true) ...[
+                      const SizedBox(height: 16),
+                      ProductMembershipPerk(
+                        widgetFactory: widget.widgetFactory,
+                        product: widget.viewmodel.originalProductInfo!,
+                        selectedLanguage: widget.viewmodel.selectedLanguage,
+                        onBecomeMemberPressed: () {
+                          widget.viewmodel.handleMembership(context);
+                        },
+                      )
+                    ]
                   ],
                 ),
               ),
@@ -118,13 +154,18 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
               alignment: Alignment.bottomCenter,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Obx(() => const LinearProgressIndicator().showIfTrue(widget.viewmodel.isSecondaryLoading.value)),
                   Obx(
                     () => ProductCallToActionBottomComponenet(
                       product: widget.viewmodel.selectedProduct,
                       widgetFactory: widget.widgetFactory,
-                      enableCallToActionBtn: widget.viewmodel.isOptionSelected,
+                      enableCallToActionBtn: widget.viewmodel.canEnableOrder,
                       discounts: widget.viewmodel.discounts,
+                      unit: widget.viewmodel.selectedProductUnit,
+                      callToActionText: widget.viewmodel.originalProductInfo?.getCallToAction(),
+                      isMembershipProduct: widget.viewmodel.originalProductInfo?.isMembershipProduct ?? false,
                       onPressed: () {
                         widget.viewmodel.handleJourney(context, widget.widgetFactory);
                       },

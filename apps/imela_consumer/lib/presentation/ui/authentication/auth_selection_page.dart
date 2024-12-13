@@ -10,26 +10,28 @@ import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class AuthSelectionPage extends StatefulWidget {
   static const routeName = '/auth_selection';
-  static const REDIRECT_URL_KEY = 'redirect_url';
+  static const REDIRECT_URL_KEY = 'REDIRECT_URL';
+  static const REDIRECT_EXTRA_KEY = 'REDIRECT_EXTRA';
   late AuthViewmodel? authViewmodel;
   final String? redirectionRoute;
+  final Map<String, dynamic>? redirectExtra;
 
-  AuthSelectionPage({super.key, this.authViewmodel, this.redirectionRoute = '/'}) {
+  AuthSelectionPage({super.key, this.authViewmodel, this.redirectionRoute = '/', this.redirectExtra}) {
     authViewmodel ??= Get.put(getIt<AuthViewmodel>());
   }
 
   @override
   State<AuthSelectionPage> createState() => _AuthSelectionPageState();
 
-  static void navigate(BuildContext context, {String? redirectT}) {
-    AppController.getInstance.router.navigateTo(context, routeName);
+  static void navigate(BuildContext context, {String? redirectUrl, Map<String, dynamic>? redirectExtra}) {
+    AppController.getInstance.router.navigateTo(context, routeName, extra: {REDIRECT_URL_KEY: redirectUrl, REDIRECT_EXTRA_KEY: redirectExtra});
   }
 }
 
 class _AuthSelectionPageState extends State<AuthSelectionPage> {
   void initializeViewmodel() {
     Future.delayed(Duration.zero, () {
-      viewmodel.initViewmodel();
+      viewmodel.initViewmodel(data: {AuthSelectionPage.REDIRECT_URL_KEY: widget.redirectionRoute, AuthSelectionPage.REDIRECT_EXTRA_KEY: widget.redirectExtra});
     });
   }
 

@@ -417,6 +417,7 @@ input CreateOrderConfigInput {
   productIds: [String!]
   calendarId: String
   additionalPrice: Float! = 0
+  finalPrice: Float! = 0
   addonId: String
   type: String!
 }
@@ -784,10 +785,11 @@ type Group {
 }
 
 type GroupMember {
+  userId: String!
+  phoneNumber: String!
   user: User
   activeSubscription: Subscription
   paymentMethod: PaymentMethod
-  userId: String!
   memberStatus: String!
   activeSubscriptionId: String
   dateJoined: DateTime!
@@ -1056,6 +1058,7 @@ type Mutation {
   updateMembershipInfo(businessId: String!, membershipId: String!, input: UpdateMembershipInput!): MembershipResponse!
   assignProductsToMembershipPlan(businessId: String!, membershipId: String!, productIds: [String!]!): MembershipResponse!
   joinMemership(membershipId: String!, paymentMethod: PaymentMethodInput!): MembershipResponse!
+  createMembershipFromPOs(membershipId: String!, phoneNumber: String!, paymentMethod: PaymentMethodInput!): MembershipResponse!
   approveMembershipRequest(membershipId: String!, businessId: String!, membersId: [String!]!, branchId: String, paymentMethod: PaymentMethodInput): MembershipResponse!
 }
 
@@ -1099,6 +1102,7 @@ type OrderConfig {
   multipleValue: [String!]
   productIds: [String!]
   additionalPrice: Float!
+  finalPrice: Float!
   calendarId: String
   addonId: String
 }
@@ -1494,6 +1498,7 @@ type Query {
   getBusinessStaffs(businessId: String!): StaffResponse!
   getBranchStaffs(branchId: String!): StaffResponse!
   getCalendar(calendarId: String!): CalendarResponse!
+  getProductsCalendar(businessId: String!, branchId: String!, productIds: [String!]!): CalendarResponse!
   getForYouData: ForYouResponse!
   getDiscoveryData: DiscoveryResponse!
   getUserCarts: OrderResponse!
