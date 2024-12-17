@@ -79,11 +79,17 @@ class GridProductListItem extends StatelessWidget {
                   Wrap(
                     children: [
                       if (discounts.isNotEmpty) ...[
-                        widgetFactory.createText(context, product.getPriceRangeString('ETB', discounts: discounts), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
+                        widgetFactory.createText(context, product.getPriceRangeString('ETB'), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
                       ],
                       if (!showDiscountedBanner && discounts.isNotEmpty) ...[
                         const SizedBox(width: 4),
-                        getDiscountedBanner(context),
+                        BadgeList(
+                          values: [product.getTotalDiscountPercentageApplied('ETB', discounts: discounts)],
+                          colors: [Theme.of(context).colorScheme.tertiary],
+                          height: 15,
+                          width: 20,
+                          widgetFactory: widgetFactory,
+                        ),
                       ],
                     ],
                   ),
@@ -93,13 +99,13 @@ class GridProductListItem extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        widgetFactory.createIcon(materialIcon: Icons.loyalty, color: ColorManager.tertiary, size: 16),
+                        widgetFactory.createIcon(materialIcon: Icons.loyalty, color: ColorManager.tertiary, size: 12),
                         const SizedBox(width: 2),
-                        widgetFactory.createText(context, product.getLoyaltyPointString("ENGLISH"), style: Theme.of(context).textTheme.labelMedium, color: ColorManager.tertiary),
+                        widgetFactory.createText(context, product.getLoyaltyPointString("ENGLISH"), style: Theme.of(context).textTheme.labelSmall, color: ColorManager.tertiary),
                       ],
                     ),
                   ],
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -141,7 +147,7 @@ class GridProductListItem extends StatelessWidget {
               left: 0,
               child: BadgeList(
                 values: ['selected'],
-                width: 100,
+                width: 70,
                 height: 20,
                 colors: [Theme.of(context).colorScheme.primary],
                 widgetFactory: widgetFactory,

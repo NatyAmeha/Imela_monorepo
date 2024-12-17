@@ -20,12 +20,15 @@ class BranchListItem extends StatelessWidget {
       },
       padding: const EdgeInsets.all(16),
       border: Border.all(color: borderColor),
+      color: isSelected ? Theme.of(context).colorScheme.primary : null,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: widgetFactory.createText(context, branch.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleMedium)),
+          widgetFactory.createIcon(materialIcon: Icons.store, size: 24, color: isSelected ? Colors.white : null),
           const SizedBox(width: 8),
-          widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_right, size: 24),
+          Expanded(child: widgetFactory.createText(context, branch.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleMedium, color: isSelected ? Colors.white : null)),
+          const SizedBox(width: 8),
+          widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_right, size: 24, color: isSelected ? Colors.white : null),
         ],
       ),
     );

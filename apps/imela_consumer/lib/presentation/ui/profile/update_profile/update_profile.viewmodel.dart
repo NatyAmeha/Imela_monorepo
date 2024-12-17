@@ -31,7 +31,7 @@ class UpdateProfileViewmodel extends GetxController with BaseViewmodel {
   var exception = Rxn<AppException>();
   var user = Rxn<UserResponse>();
 
-  var firstNameController = TextEditingController();
+  var firstNameController = TextEditingController().obs;
   var lastNameController = TextEditingController();
   var emailController = TextEditingController();
   late String redirectUrl;
@@ -50,12 +50,12 @@ class UpdateProfileViewmodel extends GetxController with BaseViewmodel {
   Future<void> updateProfile(BuildContext context) async {
     try {
       isLoading.value = true;
-      if (firstNameController.text.isEmpty) {
+      if (firstNameController.value.text.isEmpty) {
         appViewmodel.getWidgetFactory(context).showFlashMessage(context, message: 'First name is required');
         return;
       }
       final input = UpdateUserInput(
-        firstName: firstNameController.text,
+        firstName: firstNameController.value.text,
         lastName: lastNameController.text.isEmpty ? null : lastNameController.text,
         email: emailController.text.isEmpty ? null : emailController.text,
       );
@@ -66,14 +66,12 @@ class UpdateProfileViewmodel extends GetxController with BaseViewmodel {
       }
       appViewmodel.setLoggedInUser(result.user);
       UpdateProfilePage.handleRedirect(context, redirectUrl, redirectExtra);
-    } catch (e) {
-      exception.value = exceptiionHandler.getException(e as Exception);
-    } finally {
+    }  finally {
       isLoading.value = false;
     }
   }
 
   String? validateFirstName() {
-    return firstNameController.text.isNotEmpty ? null : 'First name is required';
+    return firstNameController.value.text.isNotEmpty ? null : 'First name is required';
   }
 }

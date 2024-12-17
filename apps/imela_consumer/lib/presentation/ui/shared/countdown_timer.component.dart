@@ -37,6 +37,7 @@ class CountdownTimer extends StatelessWidget {
       style: textStyle ?? const TextStyle(fontSize: 20, color: Colors.white),
       separatorType: SeparatorType.title,
       durationTitle: DurationTitle.enShort(),
+      padding: EdgeInsets.zero,
       separatorStyle: textStyle ?? const TextStyle(fontSize: 20, color: Colors.white),
       decoration: BoxDecoration(
         color: backgroundColor,

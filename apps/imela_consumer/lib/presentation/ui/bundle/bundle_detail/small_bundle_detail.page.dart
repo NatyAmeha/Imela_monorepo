@@ -41,15 +41,22 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       widgetFactory.createText(context, 'Items', style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       widgetFactory.createCard(
                         padding: const EdgeInsets.all(8),
-                        color: ColorManager.accent1,
+                        color: ColorManager.primaryBackground,
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
                             const SizedBox(width: 8),
-                            Flexible(child: widgetFactory.createText(context, '${viewmodel.bundle?.getBundleConditionValue(viewmodel.appViewmodel.selectedLanguageUpdated.value)}', style: Theme.of(context).textTheme.bodyMedium)),
+                            Flexible(
+                              child: widgetFactory.createText(
+                                context,
+                                '${viewmodel.bundle?.getBundleConditionValue(viewmodel.appViewmodel.selectedLanguageUpdated.value)}',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -92,35 +99,17 @@ class SmallBundleDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Obx(
-                  () => ExpansionTile(
-                    collapsedBackgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-                    dense: true,
-                    expandedAlignment: Alignment.centerLeft,
-                    enableFeedback: true,
-                    title: widgetFactory.createText(context, 'Selected Products (${viewmodel.selectedBundleProducts.values.length})', style: Theme.of(context).textTheme.titleSmall),
-                    children: [
-                      AppListView(
-                        // width: 600,
-                        height: getSelectedProductContainerHeight,
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        scrollDirection: Axis.horizontal,
-                        items: viewmodel.selectedBundleProducts.values.toList(),
-                        itemBuilder: (context, product, index) {
-                          return SelectedProductFromBundlListItem(
-                            name: product.name.localize('ENGLISH'),
-                            image: product.getImageUrl(),
-                            qty: product.qty,
-                            price: product.getPrice().toSelectedPriceString('ETB'),
-                            width: 120,
-                            widgetFactory: widgetFactory,
-                            onRemove: () {
-                              viewmodel.removeConfiguredProduct(product);
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                  () => widgetFactory.createCard(
+                    onTap: () {
+                      viewmodel.showSelectedProductsModal(context);
+                    },
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    borderRadius: BorderRadius.zero,
+                    color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [widgetFactory.createText(context, 'Selected Products (${viewmodel.selectedBundleProducts.values.length})', style: Theme.of(context).textTheme.titleSmall), widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_up)],
+                    ),
                   ),
                 ),
                 Obx(
@@ -128,19 +117,20 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        children: [
-                          const SizedBox(width: 8),
-                          widgetFactory.createText(
-                            context,
-                            '${viewmodel.originalProductPrice}'.withCurrencySymbol('ETB'),
-                            style: Theme.of(context).textTheme.titleSmall,
-                            textDecoration: TextDecoration.lineThrough,
-                          ),
-                          const SizedBox(width: 8),
-                          widgetFactory.createText(context, '${viewmodel.bundlePrice}'.withCurrencySymbol('ETB'), style: Theme.of(context).textTheme.titleLarge),
-                        ],
-                      ).showIfTrue(viewmodel.originalProductPrice > 0),
+                      if (viewmodel.originalProductPrice > 0)
+                        Row(
+                          children: [
+                            const SizedBox(width: 8),
+                            widgetFactory.createText(
+                              context,
+                              '${viewmodel.originalProductPrice}'.withCurrencySymbol('ETB'),
+                              style: Theme.of(context).textTheme.titleSmall,
+                              textDecoration: TextDecoration.lineThrough,
+                            ),
+                            const SizedBox(width: 8),
+                            widgetFactory.createText(context, viewmodel.bundlePriceString, style: Theme.of(context).textTheme.titleMedium),
+                          ],
+                        ),
                       const SizedBox(height: 8),
                       widgetFactory
                           .createButton(

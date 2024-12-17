@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/home/home.page.dart';
 import 'package:imela/presentation/ui/order/order_details/order_details_page.dart';
 import 'package:imela/presentation/ui/order/order_list/order_list_page.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
@@ -57,7 +58,18 @@ class OrderListViewmodel extends GetxController with BaseViewmodel {
       isLoading(true);
       exception.value = null;
       final orderResponse = await orderUsecase.getOrders(fetchPolicy: appViewmodel.refetchOrderList.value ? ApiDataFetchPolicy.networkOnly : ApiDataFetchPolicy.cacheFirst);
+
       if (orderResponse?.success == true) {
+        if (orderResponse?.orders?.isEmpty == true) {
+          exception.value = AppException(
+              message: 'No orders found. Please order something to see your orders.',
+              isMainError: true,
+              actionText: 'Place Order',
+              onAction: () {
+                HomePage.navigate(context, replace: true);
+              });
+          return;
+        }
         appViewmodel.setRefetchOrderList(false);
         orderList.value = orderResponse?.orders ?? [];
         orderListController.setItems(sortedOrderList);

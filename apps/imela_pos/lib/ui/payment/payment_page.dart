@@ -45,7 +45,7 @@ class _PaymentPageState extends State<PaymentPage> {
           hasError: viewmodel.exception.value?.isMainError ?? false,
           exception: viewmodel.exception.value,
           content: Padding(
-            padding: Responsive.paddingSymetric(context),
+            padding: Responsive.paddingSymetric(context, smallHorizontal: 0, smallVertical: 0),
             child: Row(
               children: [
                 Expanded(
@@ -77,15 +77,18 @@ class _PaymentPageState extends State<PaymentPage> {
                           () => PaymentMethodInputComponent(
                             controller: viewmodel.paymentMethodAmountController,
                             paymentMethods: viewmodel.paymentMethods,
-                            paymentMethodControllers: viewmodel.getPaymentMethodControllers(),
                             selectedLanguage: viewmodel.appViewmodel.selectedLanguage,
                             selectedPaymentMethod: viewmodel.selectedPaymentMethod.value,
+                            paymentMethodControllers: viewmodel.paymentMethodControllers.value,
                             canEnablePlaceOrder: viewmodel.canEnablePlaceOrder,
                             onSelected: (paymentMethod) {
                               viewmodel.selectPaymentMethod(paymentMethod);
                             },
                             onDelete: (paymentMethod) {
                               viewmodel.removeEntredAmount(paymentMethod);
+                            },
+                            onAmountChanged: (p0) {
+                              viewmodel.updateAmountEntered();
                             },
                             paidAmount: viewmodel.totalPaidAmount.toString(),
                             remainingAmount: viewmodel.remainingAmountFromInitialPayment.toString(),
@@ -95,15 +98,17 @@ class _PaymentPageState extends State<PaymentPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        PaymentCallToAction(
-                          widgetFactory: widgetFactory,
-                          totalPaidAmount: viewmodel.totalPaidAmount.toString(),
-                          remainingAmount: viewmodel.remainingAmountFromInitialPayment.toString(),
-                          canEnablePlaceOrder: viewmodel.canEnablePlaceOrder,
-                          onPlaceOrderPressed: () {
-                            viewmodel.placeOrder(context);
-                          },
-                        ).withPaddingSymetric(horizontal: 50, vertical: 8)
+                        Obx(
+                          () => PaymentCallToAction(
+                            widgetFactory: widgetFactory,
+                            totalPaidAmount: viewmodel.totalPaidAmount.toString(),
+                            remainingAmount: viewmodel.remainingAmountFromInitialPayment.toString(),
+                            canEnablePlaceOrder: viewmodel.canEnablePlaceOrder,
+                            onPlaceOrderPressed: () {
+                              viewmodel.placeOrder(context);
+                            },
+                          ).withPaddingSymetric(horizontal: 50, vertical: 8),
+                        )
                       ],
                     ),
                   )

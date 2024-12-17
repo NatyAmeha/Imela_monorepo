@@ -80,23 +80,41 @@ query GetProductDetails($id : String!, $branchId: String, $locationId: String, $
             value
           }
           images
+          membershipIds
+          price{
+            amount
+            currency
+          }
         }
-        products {
-          id
-          name {
-            key
+        productOptionInfos {
+          productId
+          minQty
+          maxQty
+          discounts {
+            type
             value
+            condition
+            conditionValue
+            startDate
+            endDate
           }
-          gallery {
-            images {
-              url
-              featured
+          product {
+            id
+            name {
+              key
+              value
             }
-          }
-          prices {
-            price {
-              currency
-              amount
+            gallery {
+              images {
+                url
+                featured
+              }
+            }
+            prices {
+              price {
+                currency
+                amount
+              }
             }
           }
         }
@@ -199,6 +217,38 @@ query GetProductDetails($id : String!, $branchId: String, $locationId: String, $
             }
             isActive
             isRequired
+            productOptionInfos {
+              productId
+              minQty
+              maxQty
+              discounts {
+                type
+                condition
+                value
+                conditionValue
+                startDate
+                endDate
+              }
+              product {
+                id  
+                name {
+                  key
+                  value
+                }
+                gallery {
+                  images {
+                    url
+                    featured
+                  }
+                }
+                prices {
+                  price {
+                    currency
+                    amount
+                  }
+                }
+              }
+            }
             additionalPrice {
               amount
               currency

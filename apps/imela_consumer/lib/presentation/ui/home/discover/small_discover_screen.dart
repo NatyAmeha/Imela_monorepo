@@ -6,6 +6,7 @@ import 'package:imela/presentation/ui/business/component/business_list_tile.dart
 import 'package:imela/presentation/ui/home/components/feature_promo_banner.dart';
 import 'package:imela/presentation/ui/home/home_page.viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
+import 'package:imela/presentation/ui/product/components/product_item_badge.dart';
 import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
@@ -90,8 +91,10 @@ class SmallDiscoverScreen extends StatelessWidget {
                             imageHeight: 150,
                             imageWidth: double.infinity,
                             widgetFactory: widgetFactory,
+                            badgeInfos: ProductBadgeInfo.getProductBadgeInfo(productData),
+                            discounts: productData.getBusinessDiscounts(),
                             onTap: () {
-                              ProductDetailPage.navigate(context, homepageViewmodel.router, productData);
+                              homepageViewmodel.navigateToProductDetailPage(context, productData);
                             },
                           );
                         },

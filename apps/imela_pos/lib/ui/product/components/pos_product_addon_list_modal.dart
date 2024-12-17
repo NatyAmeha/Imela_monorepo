@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela_core/customer/model/customer.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
+import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
@@ -12,13 +13,17 @@ import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
+import 'package:imela_ui_kit/components/qty_modifier/product_dynamic_pricing.dart';
+
 class PosProductAddonModal extends StatefulWidget {
+  final Product? product;
   final List<ProductAddon> productAddons;
   final List<OrderConfig> initialConfigs;
   final Customer? customer;
   final String callToAction;
   const PosProductAddonModal({
     super.key,
+    this.product,
     required this.productAddons,
     this.initialConfigs = const [],
     this.customer,
@@ -37,7 +42,7 @@ class _PosProductAddonModalState extends State<PosProductAddonModal> {
   void initState() {
     super.initState();
     widgetFactory = AppViewmodel.getWidgetFactory(context);
-    viewmodel.initViewmodel(data: {'PRODUCT_ADDONS': widget.productAddons});
+    viewmodel.initViewmodel(data: {'PRODUCT_ADDONS': widget.productAddons, 'parentProduct': widget.product});
     viewmodel.addInitialOrderConfigs(widget.initialConfigs);
   }
 
@@ -45,45 +50,65 @@ class _PosProductAddonModalState extends State<PosProductAddonModal> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Product Add-ons/Configurations', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 10),
-          Obx(() {
-            return AppListView(
-              shrinkWrap: true,
-              items: viewmodel.noDefaultAddons,
-              contentPadding: const EdgeInsets.symmetric(vertical: 4),
-              itemBuilder: (context, addon, index) {
-                return Obx(() => _buildAddonListItem(context, addon));
-              },
-            );
-          }),
-          Obx(
-            () => widgetFactory
-                .createButton(
-                  context: context,
-                  content: Text(widget.callToAction),
-                  onPressed: viewmodel.isOrderconfigContainsRequiredAddon
-                      ? () {
-                          viewmodel.closeAdddonConfigModalWithResult(context);
-                        }
-                      : null,
-                )
-                .withPaddingSymetric(horizontal: 16, vertical: 24),
-          )
-        ],
+      child: Obx(
+        () => AbsorbPointer(
+          absorbing: viewmodel.isLoading.value,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Product Add-ons/Configurations', style: Theme.of(context).textTheme.titleLarge),
+              if (viewmodel.isLoading.value) ...[
+                const LinearProgressIndicator(),
+              ],
+              if (widget.product != null) ...[
+                ProductDynamicPricing(
+                  product: widget.product!,
+                  widgetFactory: widgetFactory,
+                  initialQty: widget.product!.minimumOrderQty.toDouble(),
+                  selectedCurrency: viewmodel.appViewmmodel.selectedCurrency,
+                  basePrice: widget.product!.getTotalPriceUpdated(viewmodel.appViewmmodel.selectedCurrency),
+                  dynamicPricingDiscounts: widget.product!.sortedDynamicPricingDiscounts,
+                  haveDynamicPricing: widget.product!.haveDynamicPricing,
+                  width: double.infinity,
+                  onQtyChange: (qty) {
+                    viewmodel.updateQty(qty);
+                  },
+                ),
+              ],
+              Obx(() {
+                return AppListView(
+                  shrinkWrap: true,
+                  items: viewmodel.noDefaultAddons,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                  itemBuilder: (context, addon, index) {
+                    return Obx(() => _buildAddonListItem(context, addon));
+                  },
+                );
+              }),
+              Obx(
+                () => widgetFactory
+                    .createButton(
+                      context: context,
+                      content: Text(widget.callToAction),
+                      onPressed: viewmodel.isOrderconfigContainsRequiredAddon
+                          ? () {
+                              viewmodel.closeAdddonConfigModalWithResult(context, selectedQty: viewmodel.selectedQty.value);
+                            }
+                          : null,
+                    )
+                    .withPaddingSymetric(horizontal: 16, vertical: 24),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildAddonListItem(BuildContext context, ProductAddon addon) {
-    final canEnableAddon = addon.canEnableAddon(
-      selectedQty: viewmodel.selectedQty.value,
-      isUserMembershipvalid: widget.customer?.isCustomerAMember(addon.membershipIds?.firstOrNull, viewmodel.appViewmmodel.allMemberships) ?? false
-    );
+    var ismembershipValid = widget.customer?.isCustomerAMember(addon.membershipIds?.firstOrNull, viewmodel.appViewmmodel.allMemberships) ?? false;
+    final canEnableAddon = addon.canEnableAddon(selectedQty: viewmodel.selectedQty.value, isUserMembershipvalid: ismembershipValid);
     final borderColor = canEnableAddon ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer;
     final addonMultiplier = viewmodel.getAddonAdditionalPriceMultiplier(addon);
     return Stack(
@@ -99,6 +124,7 @@ class _PosProductAddonModalState extends State<PosProductAddonModal> {
               AbsorbPointer(
                 absorbing: !canEnableAddon,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
@@ -108,12 +134,15 @@ class _PosProductAddonModalState extends State<PosProductAddonModal> {
                           widgetFactory.createText(context, addon.name.localize(viewmodel.selectedLanguage), style: Theme.of(context).textTheme.bodyLarge),
                           widgetFactory.createText(context, addon.getTotalAdditionalPriceString(viewmodel.appViewmmodel.selectedCurrency, qty: addonMultiplier)),
                         ],
-                      ), 
+                      ),
                     ),
-                    viewmodel.getAddonModifierUI(context, addon),
+                    Expanded(child: viewmodel.getAddonModifierUI(context, addon)),
                   ],
                 ),
               ),
+              if (addon.description?.isNotEmpty == true) ...[
+                widgetFactory.createText(context, addon.description.localize(viewmodel.selectedLanguage), style: Theme.of(context).textTheme.bodySmall),
+              ],
               if (addon.membershipIds?.isNotEmpty == true) ...[
                 const Divider(height: 24),
                 _buildCustomerSelectionButton(context, addon),
@@ -127,10 +156,22 @@ class _PosProductAddonModalState extends State<PosProductAddonModal> {
             left: 1,
             bottom: 1,
             child: BadgeList(
-              height: 16,
+              height: 20,
               widgetFactory: widgetFactory,
-              values: const ['For members only'],
-              colors: [Theme.of(context).colorScheme.tertiary],
+              widgets: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      ismembershipValid ? Icons.check : Icons.lock_open,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    widgetFactory.createText(context, 'For members only', style: Theme.of(context).textTheme.labelSmall, color: Colors.white),
+                  ],
+                ),
+              ],
+              colors: [ismembershipValid ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onTertiary],
             ),
           ),
       ],

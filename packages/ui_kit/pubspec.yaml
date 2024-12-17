@@ -42,7 +42,8 @@ dependencies:
   wolt_modal_sheet: ^0.9.2
   get_it: ^7.7.0
   injectable: ^2.4.2
-  syncfusion_flutter_calendar: ^27.2.3
+  syncfusion_flutter_calendar: ^28.1.33
+  syncfusion_flutter_datepicker: ^28.1.33
 
   # local packages
   imela_utils: ^0.1.0

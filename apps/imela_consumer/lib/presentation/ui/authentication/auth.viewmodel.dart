@@ -148,11 +148,11 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
   }
 
   void handleRedirect(BuildContext context, {User? user, bool isNewUser = false}) async {
-    appController.setLoggedInUser(user);
     if (isNewUser) {
       UpdateProfilePage.navigate(context, redirectUrl: redirectUrl ?? HomePage.routeName, redirectExtra: redirectExtra);
       return;
     }
+    appController.setLoggedInUser(user);
     appController.reloadHomePageDestination(true);
     await HomePage.navigate(context, replace: true);
     if (redirectUrl != null) {

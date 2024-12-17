@@ -48,6 +48,7 @@ class BundleListItem extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const SizedBox(height: 16),
                     widgetFactory.createText(context, bundleData.name.localize('ENGLISH'), style: Theme.of(context).textTheme.titleMedium),
                     widgetFactory
                         .createText(
@@ -61,7 +62,7 @@ class BundleListItem extends StatelessWidget {
                     const SizedBox(height: 4),
                     widgetFactory.createCard(
                       color: Theme.of(context).colorScheme.secondaryContainer,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -72,8 +73,8 @@ class BundleListItem extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                widgetFactory.createText(context, 'Total price', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
-                                widgetFactory.createText(context, '${bundleData.products?.length}', style: Theme.of(context).textTheme.bodySmall, enableResize: true),
+                                widgetFactory.createText(context, 'Discount', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
+                                widgetFactory.createText(context, '${bundleData.discount?.value} OFF', style: Theme.of(context).textTheme.bodyMedium, enableResize: true),
                               ],
                             ),
                           ),
@@ -113,24 +114,18 @@ class BundleListItem extends StatelessWidget {
               ),
             ],
           ).withPaddingAll(8)),
-          if (remainingTime != null )
+          if (remainingTime != null)
             Positioned(
               top: 0,
               left: 0,
               child: BadgeList(
-                height: 30,
+                height: 25,
                 widgets: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CountdownTimer(
-                        duration: remainingTime ?? Duration.zero,
-                        textStyle: Theme.of(context).textTheme.bodySmall,
-                        borderRadius: 0,
-                        backgroundColor: Colors.transparent,
-                      ),
-                    ],
+                  CountdownTimer(
+                    duration: remainingTime ?? Duration.zero,
+                    textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
+                    borderRadius: 0,
+                    backgroundColor: Colors.transparent,
                   ),
                 ],
                 colors: const [ColorManager.tertiary],

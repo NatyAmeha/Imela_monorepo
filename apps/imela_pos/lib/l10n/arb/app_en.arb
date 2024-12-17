@@ -1,7 +1,27 @@
 {
     "@@locale": "en",
-    "counterAppBarTitle": "Counter",
-    "@counterAppBarTitle": {
-        "description": "Text shown in the AppBar of the Counter Page"
+    "appTitle": "Imela POS",
+    "@appTitle": {
+        "description": "The application title"
+    },
+    "homeTitle": "Home",
+    "@homeTitle": {
+        "description": "Title for home page"
+    },
+    "salesTitle": "Sales",
+    "@salesTitle": {
+        "description": "Title for sales section"
+    },
+    "inventoryTitle": "Inventory",
+    "@inventoryTitle": {
+        "description": "Title for inventory section"
+    },
+    "settingsTitle": "Settings",
+    "@settingsTitle": {
+        "description": "Title for settings section"
+    },
+    "logoutButton": "Logout",
+    "@logoutButton": {
+        "description": "Text for logout button"
     }
 }

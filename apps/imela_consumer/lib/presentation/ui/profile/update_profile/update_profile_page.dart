@@ -9,17 +9,18 @@ class UpdateProfilePage extends StatefulWidget {
   static const routeName = '/update-profile';
   static const REDIRECT_URL_KEY = 'redirectUrl';
   static const REDIRECT_EXTRA_KEY = 'redirectExtra';
-  final String redirectUrl;
+  static const PAGE_TITLE_KEY = 'pageTitle';
+  final String? redirectUrl;
   final Map<String, dynamic>? redirectExtra;
-
-  const UpdateProfilePage({super.key, required this.redirectUrl, this.redirectExtra});
+  final String? pageTitle;
+  const UpdateProfilePage({super.key, this.redirectUrl, this.redirectExtra, this.pageTitle});
 
   @override
   State<UpdateProfilePage> createState() => _UpdateProfilePageState();
 
-  static void navigate(BuildContext context, {required String redirectUrl, Map<String, dynamic>? redirectExtra}) {
+  static void navigate(BuildContext context, {String? redirectUrl, String? pageTitle, Map<String, dynamic>? redirectExtra}) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, routeName, extra: {REDIRECT_URL_KEY: redirectUrl, REDIRECT_EXTRA_KEY: redirectExtra});
+    router.navigateTo(context, routeName, extra: {REDIRECT_URL_KEY: redirectUrl, REDIRECT_EXTRA_KEY: redirectExtra, PAGE_TITLE_KEY: pageTitle});
   }
 
   static void handleRedirect(BuildContext context, String redirectUrl, Map<String, dynamic>? redirectExtra) {
@@ -42,7 +43,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Update Profile')),
+      appBar: AppBar(title: Text(widget.pageTitle ?? 'Update Profile')),
       body: Obx(
         () => PageContentLoader(
           isDataLoading: viewmodel.isLoading.value,
@@ -52,18 +53,22 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             children: [
               Positioned.fill(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                   child: Column(
                     children: [
                       widgetFactory.createTextField(
-                        controller: viewmodel.firstNameController,
-                        hintText: 'First Name',
-                        validator: (p0) {
-                          return viewmodel.validateFirstName();
-                        },
-                      ),
-                      widgetFactory.createTextField(controller: viewmodel.lastNameController, hintText: 'Last Name'),
-                      widgetFactory.createTextField(controller: viewmodel.emailController, hintText: 'Email'),
+                          controller: viewmodel.firstNameController.value,
+                          hintText: 'First Name',
+                          validator: (p0) {
+                            return viewmodel.validateFirstName();
+                          },
+                          onChanged: (p0) {
+                            setState(() {
+                              viewmodel.validateFirstName();
+                            });
+                          }),
+                      const SizedBox(height: 16),
+                      widgetFactory.createTextField(controller: viewmodel.emailController, hintText: 'Email (optional)'),
                       const SizedBox(height: 50),
                     ],
                   ),
@@ -78,7 +83,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     context: context,
                     isLoading: viewmodel.isLoading.value,
                     content: const Text('Update profile'),
-                    onPressed: () => viewmodel.updateProfile(context),
+                    onPressed: viewmodel.firstNameController.value.text.isNotEmpty ? () => viewmodel.updateProfile(context) : null,
                   ),
                 ),
               ),

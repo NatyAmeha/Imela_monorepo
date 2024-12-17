@@ -69,6 +69,13 @@ class MembershipDetailsViewModel extends GetxController with BaseViewmodel {
   var membershipPaymentMethods = PaymentMethod.getFakePaymentMethods();
   var selectedPaymentMethod = Rxn<SelectedPaymentMethod>();
 
+  bool get canEnableRequestButton {
+    if ((selectedPaymentMethod.value?.requireReceiptImage ?? false) && (selectedPaymentMethod.value?.receiptImages?.isEmpty ?? true)) {
+      return false;
+    }
+    return true;
+  }
+
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
@@ -79,8 +86,8 @@ class MembershipDetailsViewModel extends GetxController with BaseViewmodel {
 
   Future<void> getMembershipInformation(BuildContext context) async {
     Future.delayed(Duration.zero, () async {
+      selectedPaymentMethod.value = null;
       await getMembershipDetails(context, fetchPolicy: ApiDataFetchPolicy.networkOnly);
-      await getMembershipProducts();
     });
   }
 
@@ -96,24 +103,25 @@ class MembershipDetailsViewModel extends GetxController with BaseViewmodel {
       exception.value = null;
       membershipDetails.value = null;
       final result = await membershipUseCase.getMembershipDetails(membershipId, fetchPolicy: fetchPolicy);
-      membershipDetails.value = result;
+      if (result?.success ?? false) {
+        membershipDetails.value = result;
+        await getMembershipProducts(context);
+      }
     } catch (e) {
       var ex = exceptiionHandler.getException(e as Exception);
       if (ex.isUnAuthorizedException == true) {
         await appViewmodel.refreshTokenOrLogout(context, moveToLogin: false, showLoginMessage: true, redirectUrl: MembershipDetailsPage.routeName, redirectExtra: {MembershipDetailsPage.MEMBERSHIP_ID_KEY: membershipId});
         return;
       }
-      exception.value = AppException(message: 'something went wrong', isMainError: false);
+      exception.value = ex;
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> getMembershipProducts() async {
+  Future<void> getMembershipProducts(BuildContext context) async {
     try {
       isProductsLoading.value = true;
-      exception.value = null;
-
       final result = await membershipUseCase.getMembershipProducts(membershipId);
       if (result == null || result.success == false) {
         exception.value = AppException(message: 'something went wrong');
@@ -121,6 +129,7 @@ class MembershipDetailsViewModel extends GetxController with BaseViewmodel {
       membershipProducts.value = result?.products ?? [];
     } catch (e) {
       print('exception $e');
+      appViewmodel.getWidgetFactory(context).showFlashMessage(context, message: 'Unable to fetch membership products');
     } finally {
       isProductsLoading.value = false;
     }

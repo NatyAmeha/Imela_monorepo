@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
+import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class CartAppliedDiscountListModal extends StatelessWidget {
@@ -34,9 +35,24 @@ class CartAppliedDiscountListModal extends StatelessWidget {
               widgetFactory.createText(context, 'Subtotal', style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, item.subtotalAmountString(selectedCurrency), style: Theme.of(context).textTheme.titleSmall),
             ],
-          ),
+          ).withPaddingSymetric(vertical: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              widgetFactory.createText(context, 'Discounts', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, item.totalDiscountString(selectedCurrency), style: Theme.of(context).textTheme.titleSmall),
+            ],
+          ).withPaddingSymetric(vertical: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              widgetFactory.createText(context, 'Add-ons Price', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, item.getTotalAddonPricesString(currency: selectedCurrency), style: Theme.of(context).textTheme.titleSmall),
+            ],
+          ).withPaddingSymetric(vertical: 8),
           if (item.discount?.isNotEmpty == true) ...[
-            widgetFactory.createText(context, 'Discounts', style: Theme.of(context).textTheme.bodyLarge),
+            const Divider(height: 16),
+            widgetFactory.createText(context, 'Discount breakdown', style: Theme.of(context).textTheme.bodyLarge),
             AppListView(
               items: item.discount!,
               shrinkWrap: true,
@@ -71,16 +87,17 @@ class CartAppliedDiscountListModal extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.bodyLarge),
-                widgetFactory.createText(context, item.totalAmountString(currency: selectedCurrency), style: Theme.of(context).textTheme.titleSmall),
+                widgetFactory.createText(context, item.totalAmountString(currency: selectedCurrency), style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
             const Divider(height: 16),
             widgetFactory.createButton(
-                context: context,
-                content: const Text('Close'),
-                onPressed: () {
-                  Navigator.pop(context);
-                })
+              context: context,
+              content: const Text('Close'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ).withPaddingSymetric(vertical: 16)
           ],
         ],
       ),

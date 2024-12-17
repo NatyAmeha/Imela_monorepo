@@ -6,6 +6,7 @@ import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_utils/helpers/date_utils.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 
 part 'order_config.model.freezed.dart';
 part 'order_config.model.g.dart';
@@ -42,11 +43,20 @@ class OrderConfig with _$OrderConfig {
   }
 
   DateTimeRange? getConfigDateRange() {
-    final dateRangeString = multipleValue?.take(2).toList();
-    if (dateRangeString?.length == 2) {
-      return DateHelper.parseDateRange(dateRangeString!, format: 'dd/MM/yyyy');
+    if (multipleValue != null && multipleValue!.length >= 2) {
+      final startDate = multipleValue!.first;
+      final endDate = multipleValue!.last;
+      return DateHelper.parseDateRange([startDate, endDate], format: 'dd/MM/yyyy');
     }
     return null;
+  }
+
+  String getConfigDateRangeString() {
+    final dateRange = getConfigDateRange();
+    if (dateRange != null) {
+      return '${dateRange.start.toFormattedString(format: 'dd/MM/yyyy')} - ${dateRange.end.toFormattedString(format: 'dd/MM/yyyy')}';
+    }
+    return '';
   }
 
   String? getConfigNameForPOSCart(String selectedLanguage) {
@@ -61,8 +71,8 @@ class OrderConfig with _$OrderConfig {
 
   String selectedConfigValue(List<ProductAddon>? addons, String? selectedLanguage) {
     if (type == AddonInputType.DATE_RANGE_INPUT.name) {
-      final dateRange = DateHelper.getDateRange(multipleValue!.take(2).toList());
-      return dateRange.toFormattedString();
+      final dateRange = getConfigDateRangeString();
+      return dateRange;
     } else if (type == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
       return '${productIds?.length} products';
     } else if (type == AddonInputType.SINGLE_SELECTION_INPUT.name || type == AddonInputType.MULTIPLE_SELECTION_INPUT.name) {
@@ -85,15 +95,27 @@ class OrderConfig with _$OrderConfig {
   }
 
   double getAdditionalPriceUpdated(List<ProductAddon>? addons, String selectedCurrency) {
-    if (type == AddonInputType.SINGLE_SELECTION_INPUT.name || type == AddonInputType.MULTIPLE_SELECTION_INPUT.name) {
-      final addon = addons?.firstOrNullWhere((e) => e.id == addonId);
-      final selectedOptions = addon?.options.where((e) => multipleValue?.contains(e.id) ?? false).toList();
-      if (selectedOptions?.isNotEmpty == true) {
-        return selectedOptions?.sumBy((e) => e.price?.toSelectedPrice(selectedCurrency)?.amount ?? 0) ?? addon?.additionalPrice?.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+    if (type == AddonInputType.QUANTITY_INPUT.name) {
+      final qty = double.tryParse(singleValue ?? '1') ?? 1;
+      return (additionalPrice * qty).getPresision(2);
+    } else if (type == AddonInputType.DATE_RANGE_INPUT.name) {
+      final dateRange = getConfigDateRange();
+      final numberOfDays = DateHelper.getNumberofDaysFromDateRange(dateRange);
+      return (additionalPrice * numberOfDays).getPresision(2).toDouble();
+    } else if (type == AddonInputType.MULTIPLE_SELECTION_INPUT.name || type == AddonInputType.SINGLE_SELECTION_INPUT.name) {
+      final selectedOptionsIds = type == AddonInputType.MULTIPLE_SELECTION_INPUT.name ? multipleValue : [singleValue];
+      if (selectedOptionsIds?.isNotEmpty == true) {
+        final selectedAddon = addons?.firstOrNullWhere((e) => e.id == addonId);
+        var selectedOptions = selectedAddon?.options.where((option) => selectedOptionsIds?.contains(option.id) ?? false).toList();
+        var optionTotalPrice = selectedOptions?.sumBy((options) => options.price?.toSelectedPrice(selectedCurrency)?.amount ?? 0);
+        if (optionTotalPrice == 0) {
+          return additionalPrice;
+        }
+        return optionTotalPrice ?? 0;
       }
-      return addon?.additionalPrice?.toSelectedPrice(selectedCurrency)?.amount ?? 0;
-    }
-    return 0;
+      return additionalPrice;
+    } 
+    return additionalPrice;
   }
 
   String getAdditionalPriceStringUpdated(List<ProductAddon>? addons, String selectedCurrency) {
@@ -111,22 +133,23 @@ class OrderConfig with _$OrderConfig {
     return selectedAddonOptions.map((e) => e.name.localize(selectedLanguage ?? 'ENGLISH')).join(', ');
   }
 
-  static OrderConfig createQtyOrderConfig(double selectedQty, {ProductAddon? addon}) {
+  static OrderConfig createQtyOrderConfig(double selectedQty, {ProductAddon? addon, bool isQtyConfig = false}) {
     return OrderConfig(
       singleValue: selectedQty.toString(),
       name: addon?.name,
       type: AddonInputType.QUANTITY_INPUT.name,
       calendarId: addon?.calendarId,
-      addonId: QTY_CONFIG_ID,
+      addonId: isQtyConfig ? QTY_CONFIG_ID : addon?.id,
       additionalPrice: 0,
     ).updateFinalPrice('ETB', addons: addon != null ? [addon] : null);
   }
 
   static OrderConfig createDateRangeOrderConfig(List<LocalizedField> name, DateTimeRange pickedDateRange, ProductAddon addon) {
+    final allDates = List.generate(pickedDateRange.duration.inDays + 1, (index) => pickedDateRange.start.add(Duration(days: index))).map((date) => date.toFormattedString(format: 'dd/MM/yyyy')).toList();
     return OrderConfig(
       name: name,
       type: AddonInputType.DATE_RANGE_INPUT.name,
-      multipleValue: [pickedDateRange.start.toString(), pickedDateRange.end.toString()],
+      multipleValue: allDates,
       addonId: addon.id,
       additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
     ).updateFinalPrice('ETB', addons: [addon]);
@@ -136,7 +159,7 @@ class OrderConfig with _$OrderConfig {
     return OrderConfig(
       name: name,
       type: AddonInputType.DATE_INPUT.name,
-      singleValue: pickedDate.toString(),
+      singleValue: pickedDate.toFormattedString(format: 'dd/MM/yyyy HH:mm'),
       addonId: addon.id,
       additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
     ).updateFinalPrice('ETB', addons: [addon]);

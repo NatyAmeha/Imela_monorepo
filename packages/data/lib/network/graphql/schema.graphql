@@ -34,6 +34,14 @@ enum AccountType {
   BUSINESS_OWNER
 }
 
+type AddonProductOptionInfo {
+  productId: String!
+  discounts: [Discount!]!
+  minQty: Float!
+  maxQty: Float!
+  product: Product
+}
+
 input AddOrderSchedulesInput {
   calendarId: String!
   bookedTimes: [DateTime!]!
@@ -424,6 +432,7 @@ input CreateOrderConfigInput {
 
 input CreateOrderInput {
   items: [CreateOrderItemInput!]!
+  businessName: [LocalizedFieldInput!]
   orderNumber: Float
   paymentType: PaymentOptionType!
   remainingAmount: Float
@@ -1087,6 +1096,7 @@ type Order {
   isOnlineOrder: Boolean
   note: String
   businessId: [String!]
+  businessName: [LocalizedField!]
   branchId: String
   schedules: [OrderSchedule!]!
   customerPhoneNumber: String
@@ -1132,7 +1142,7 @@ type OrderItemDiscount {
 }
 
 input OrderItemDiscountInput {
-  name: [LocalizedFieldInput!]!
+  name: [LocalizedFieldInput!]
   amount: Float!
   claimedRewardId: [String!]
 }
@@ -1374,6 +1384,7 @@ type ProductAddon {
   isProduct: Boolean!
   isDateRange: Boolean
   productIds: [String!]
+  productOptionInfos: [AddonProductOptionInfo!]
   includeOnPOS: Boolean
   products: [Product!]
   additionalPrice: [Price!]!
@@ -1596,12 +1607,12 @@ type StaffResponse {
 
 type Subscription {
   id: ID
-  startDate: DateTime!
-  endDate: DateTime!
+  startDate: DateTime
+  endDate: DateTime
   amountPaid: Float
   subscriptioinPlanId: String
-  isTrialPeriod: Boolean!
-  type: SubscriptionType!
+  isTrialPeriod: Boolean
+  type: String
   subscribedTo: String
 
   """

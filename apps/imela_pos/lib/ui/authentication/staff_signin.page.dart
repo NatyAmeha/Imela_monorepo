@@ -112,12 +112,14 @@ class _POSStaffSignInPageState extends State<POSStaffSignInPage> {
                         ],
                         const SizedBox(height: 16),
                         const SizedBox(height: 16),
-                        PhoneInputField(
-                          controller: viewmodel.phoneNumberController.value,
-                          autoFocus: true,
-                          onChanged: (value) {
-                            viewmodel.checkInputValidity();
-                          },
+                        Obx(
+                          () => PhoneInputField(
+                            controller: viewmodel.phoneNumberController.value,
+                            autoFocus: true,
+                            onChanged: (value) {
+                              viewmodel.checkInputValidity();
+                            },
+                          ),
                         ),
                         if (!viewmodel.isAdmin.value) ...[
                           const SizedBox(height: 16),

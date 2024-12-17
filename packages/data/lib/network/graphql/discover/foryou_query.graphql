@@ -62,6 +62,10 @@ query GetForYouData {
             value
           }
           discounts {
+            name {
+              key
+              value
+            }
             type
             value
             condition
@@ -86,7 +90,6 @@ query GetForYouData {
       title
       subtitle
       sequence
-      
       items {
         id
         name {
@@ -96,6 +99,12 @@ query GetForYouData {
         description{
           key
           value
+        }
+        discount {
+          type
+          value
+          condition
+          conditionValue
         }
         startDate
         endDate

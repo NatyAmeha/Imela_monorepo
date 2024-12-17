@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -130,7 +131,13 @@ class CartSummary extends StatelessWidget {
               widgetFactory.createText(context, cart.getTotalAmountPOSFormatted(selectedCurrency), style: Theme.of(context).textTheme.titleLarge),
             ],
           ),
-          const SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(Icons.loyalty_outlined, size: 16, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 4),
+              widgetFactory.createText(context, cart.totalEarnedPointString(selectedLanguage), style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.tertiary),
+            ],
+          ).withPaddingSymetric(vertical: 8),
           widgetFactory.createButton(
             context: context,
             content: Text(callToActionText),
@@ -138,7 +145,7 @@ class CartSummary extends StatelessWidget {
               onContinue?.call();
             },
           ),
-          widgetFactory.createText(context, cart.totalEarnedPointString(selectedLanguage), style: Theme.of(context).textTheme.bodyMedium),
+          
         ],
       ),
     );

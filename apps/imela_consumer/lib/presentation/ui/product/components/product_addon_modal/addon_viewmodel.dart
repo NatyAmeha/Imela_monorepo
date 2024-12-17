@@ -113,7 +113,6 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     applyDefaultQtyBasedAddonsToOrderConfigs();
     getUserSavedLocations();
     await getAddonsCalendar();
-    await getDisabledDatesForProductAddon(context!);
   }
 
   Future<void> getAddonsCalendar() async {
@@ -125,14 +124,15 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
           final calendarResponse = await calendarUsecase.getCalendar(addon.calendarId!);
           if (calendarResponse != null && calendarResponse.calendar != null) {
             selectedCalendars.add(calendarResponse.calendar!);
+            await getDisabledDatesForProductAddon(context!);
           }
         }
       });
-      print('selectedCalendars fetch ${selectedCalendars}');
-    } catch (e) {
-      appViewmmodel.getWidgetFactory(context!).showFlashMessage(context!, message: 'Failed to get disabled dates for product addon');
-    } finally {
       isLoading(false);
+    } catch (e) {
+      appViewmmodel.getWidgetFactory(context!).showFlashMessage(context!, message: 'Unable to get data, please try again later', isPersistent: true, onActinClicked: () {
+        getAddonsCalendar();
+      });
     }
   }
 
@@ -143,11 +143,11 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
         return;
       }
       addonsWithDisabledDates.value = await CalendarDateSelectorInfo.getDisabledDatesForProductAddon(productAddons.value, selectedCalendars.value, (calendarId) => orderUsecase.getSchedulesByCalendarId(calendarId));
-      print('addonsWithDisabledDates ${selectedCalendars.value} ${addonsWithDisabledDates.value}');
+      isLoading(false);
     } catch (e) {
-      appViewmmodel.getWidgetFactory(context).showFlashMessage(context, message: 'Failed to get disabled dates for product addon');
-    } finally {
-      isLoading.value = false;
+      appViewmmodel.getWidgetFactory(context).showFlashMessage(context, message: 'Unable to get data, please try again later', isPersistent: true, onActinClicked: () {
+        getAddonsCalendar();
+      });
     }
   }
 
@@ -253,7 +253,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   var selectedDiscoungtedProductsFromAddons = <Product>[].obs;
 
   void showProductSelectionDialog(BuildContext context, ProductAddon addon, {Product? parentProductInfo, String? pageId}) {
-    final addonDiscounts = parentProductInfo?.getAddonDiscounts(addonId: addon.id!, selectedLanguage: selectedLanguage, parentProduct: parentProductInfo!) ?? [];
+    // final addonDiscounts = parentProductInfo?.getAddonDiscounts(addonId: addon.id!, selectedLanguage: selectedLanguage, parentProduct: parentProductInfo!) ?? [];
     AppModalSheet.addPageToModal(
       context,
       ModalContent(
@@ -265,10 +265,9 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
             qtyInfo: selectedProductQty.value,
             widgetFactory: appViewmmodel.getWidgetFactory(context),
             selectedProducts: addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name ? selectedDiscoungtedProductsFromAddons.value : selectedProductsFromAddon.value,
-            discounts: addonDiscounts,
             isSelected: (product) => isProductdFromAddonIsSelected(addon.inputType, product),
-            addOrRemoveProductFromAddon: (cont, addon, product) {
-              addOrRemoveProductFromAddon(cont, addon, product);
+            addOrRemoveProductFromAddon: (cont, addon, productOptionInfo) {
+              addOrRemoveProductFromAddon(cont, addon, productOptionInfo);
             },
             onFinish: (modalContext) {
               AppModalSheet.previousPage(context: modalContext, pageIdtoremove: pageId);
@@ -289,20 +288,20 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     return false;
   }
 
-  Future<void> addOrRemoveProductFromAddon(BuildContext context, ProductAddon addon, Product product) async {
-    if (isProductdFromAddonIsSelected(addon.inputType, product)) {
+  Future<void> addOrRemoveProductFromAddon(BuildContext context, ProductAddon addon, AddonProductOptionInfo productOptionInfo) async {
+    if (isProductdFromAddonIsSelected(addon.inputType, productOptionInfo.product!)) {
       if (addon.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
-        selectedProductsFromAddon.remove(product);
+        selectedProductsFromAddon.remove(productOptionInfo.product!);
       } else if (addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name) {
-        selectedDiscoungtedProductsFromAddons.remove(product);
+        selectedDiscoungtedProductsFromAddons.remove(productOptionInfo.product!);
       }
     } else {
-      final selectedQty = await showQtyModifierModal(context, selectedProduct: product);
-      selectedProductQty[product.id!] = selectedQty;
+      final selectedQty = await showQtyModifierModal(context, selectedProduct: productOptionInfo.product!, minQty: productOptionInfo.minQty, maxQty: productOptionInfo.maxQty);
+      selectedProductQty[productOptionInfo.product!.id!] = selectedQty;
       if (addon.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
-        selectedProductsFromAddon.add(product);
+        selectedProductsFromAddon.add(productOptionInfo.product!);
       } else if (addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name) {
-        selectedDiscoungtedProductsFromAddons.add(product);
+        selectedDiscoungtedProductsFromAddons.add(productOptionInfo.product!);
       }
       applySelectedProductFromAddon(addon, selectedDiscoungtedProductsFromAddons.value);
     }
@@ -370,7 +369,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (orderConfigs[addon.id]?.multipleValue != null) ...[
-            Text('${orderConfigs[addon.id]?.multipleValue?.first} - ${orderConfigs[addon.id]?.multipleValue?.last}'),
+            widgetFactory.createText(context, '${orderConfigs[addon.id]?.getConfigDateRangeString()}', textAlign: TextAlign.end),
           ],
           widgetFactory.createButton(
             context: context,
@@ -382,7 +381,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
                 context,
                 firstDate: disabledDatesForBooking?.firstDate,
                 lastDate: disabledDatesForBooking?.lastDate,
-                initialDateRange: orderConfigs[addon.id]?.getConfigDateRange(), 
+                initialDateRange: orderConfigs[addon.id]?.getConfigDateRange(),
                 disabledDates: disabledDatesForBooking?.disabledDates ?? [],
               );
               applySelectedDateRange(addon, selectedDateRange);
@@ -505,11 +504,11 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     //   addonId: addon.id,
     //   additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
     // );
-    
   }
 
   void applySelectedDate(ProductAddon addon, DateTime? date) {
     if (date == null) return;
+    print('picked date final  ${date}');
     orderConfigs[addon.id!] = OrderConfig.createDateOrderConfig(addon.name!, date, addon);
     // orderConfigs[addon.id!] = OrderConfig(
     //   name: addon.name,
@@ -534,26 +533,35 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   }
 
   void applySelectedProductFromAddon(ProductAddon addon, List<Product> products) {
-    if (addon.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
-      orderConfigs[addon.id!] = OrderConfig(
-        name: addon.name,
-        type: addon.inputType,
-        productIds: products.map((e) => e.id!).toList(),
-        products: products,
-        calendarId: addon.calendarId,
-        addonId: addon.id,
-        additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
-      ).updateFinalPrice('ETB', addons: [addon]);
-    } else if (addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name) {
-      final addonDiscounts = parentProduct?.getAddonDiscounts(addonId: addon.id!, selectedLanguage: selectedLanguage, parentProduct: parentProduct!) ?? [];
+    // if (addon.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
+    //   orderConfigs[addon.id!] = OrderConfig(
+    //     name: addon.name,
+    //     type: addon.inputType,
+    //     productIds: products.map((e) => e.id!).toList(),
+    //     products: products,
+    //     calendarId: addon.calendarId,
+    //     addonId: addon.id,
+    //     additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
+    //   ).updateFinalPrice('ETB', addons: [addon]);
+    // } else
+
+    if (addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name || addon.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
       additionalProductOrderItems[addon.id!] = products.map((product) {
         final selectedQty = getSelectedProductQty(product.id!);
-        return product.getOrderItem(selectedQty, discounts: addonDiscounts);
+        final productAddonOptionInfo = addon.getProductAddonOptionInfo(product.id!, selectedLanguage);
+        final discounts = productAddonOptionInfo?.discounts ?? [];
+        return product.getOrderItem(
+          selectedQty,
+          discounts: discounts,
+          minQty: productAddonOptionInfo?.minQty ?? 0,
+          maxQty: productAddonOptionInfo?.maxQty ?? 0,
+          defaultDiscountName: addon.name,
+        );
       }).toList();
     }
   }
 
-  Future<double> showQtyModifierModal(BuildContext context, {Product? selectedProduct, int minQty = 1, int maxQty = 10}) async {
+  Future<double> showQtyModifierModal(BuildContext context, {Product? selectedProduct, double minQty = 1, double maxQty = 10}) async {
     double? basePrice = selectedProduct?.getTotalPriceUpdated('ETB', qtyInput: 1, discounts: []);
     final qtyResult = await AppModalSheet.showModal(
       context,
@@ -562,11 +570,12 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
         ModalContent(
           title: const Text('Modify Quantity'),
           content: ProductDynamicPricing(
-            dynamicPricingDiscounts: parentProduct!.sortedDynamicPricingDiscounts,
+            dynamicPricingDiscounts: parentProduct?.sortedDynamicPricingDiscounts ?? selectedProduct?.sortedDynamicPricingDiscounts ?? [],
             basePrice: basePrice!,
             product: selectedProduct!,
-            minQty: minQty.toDouble(),
-            maxQty: maxQty.toDouble(),
+            minQty: minQty,
+            maxQty: maxQty,
+            initialQty: minQty,
             showFinishBtn: true,
             onFinish: (modalContext, qty) {
               AppModalSheet.closeModal(context: modalContext, result: qty);
@@ -580,10 +589,11 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
 
   void closeAdddonConfigModalWithResult(BuildContext context, {double? selectedQty}) {
     if (selectedQty != null) {
-      orderConfigs[OrderConfig.QTY_CONFIG_ID] = OrderConfig.createQtyOrderConfig(selectedQty);
+      orderConfigs[OrderConfig.QTY_CONFIG_ID] = OrderConfig.createQtyOrderConfig(selectedQty, isQtyConfig: true);
     }
 
     var configs = orderConfigs.values.toList();
+    print('configs ${configs}');
     final result = AddonConfig(orderConfigs: configs, additionalItems: additionalProductOrderItems.values.flattened.toList());
     AppModalSheet.closeModal(context: context, result: result);
     orderConfigs.clear();

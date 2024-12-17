@@ -7,6 +7,7 @@ import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela_utils/helpers/screen_size_utils.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -204,7 +205,7 @@ class BaseWidgetFactory implements WidgetFactory {
                   initialSelectedRange: initialDateRange != null ? PickerDateRange(initialDateRange.start, initialDateRange.end) : null,
                   minDate: firstDate,
                   maxDate: lastDate,
-                enablePastDates: enablePastDates,
+                  enablePastDates: enablePastDates,
                   view: DateRangePickerView.month,
                   navigationMode: DateRangePickerNavigationMode.snap,
                   headerStyle: DateRangePickerHeaderStyle(
@@ -249,7 +250,8 @@ class BaseWidgetFactory implements WidgetFactory {
     return selectedDateRange;
   }
 
-  Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked}) async {
+  Future<FlashController<Object?>?> showFlashMessage(BuildContext context,
+      {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor = const Color(0xFF19DB8A), Color? textColor = Colors.white, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked}) async {
     FlashController<Object?>? flashController;
     showFlash(
       context: context,
@@ -261,15 +263,15 @@ class BaseWidgetFactory implements WidgetFactory {
           backgroundColor: backgroundColor,
           position: position == ToastPosition.top ? FlashPosition.top : FlashPosition.bottom,
           behavior: FlashBehavior.floating,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          margin: margin ?? const EdgeInsets.all(0),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          margin: Responsive.isSmallScreen(context) ? const EdgeInsets.all(0) : margin ?? Responsive.paddingSymetric(context, mediumHorizontal: 32, mediumVertical: 24, largeHorizontal: 60, largeVertical: 32),
           icon: Icon(icon ?? Icons.info, color: textColor),
           content: Row(
             children: [
               Expanded(child: Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor))),
               createButton(
                 context: context,
-                content: Text(actionText ?? 'OK'),
+                content: Text(actionText ?? 'OK', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)),
                 style: AppButtonStyle.textButtonStyle(context, padding: EdgeInsets.zero),
                 onPressed: () {
                   onActinClicked?.call();
@@ -282,6 +284,7 @@ class BaseWidgetFactory implements WidgetFactory {
         );
       },
     );
+    return flashController;
   }
 
   Widget createDropDownBeta<T>(BuildContext context,

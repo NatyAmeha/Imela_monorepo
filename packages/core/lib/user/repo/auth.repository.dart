@@ -154,6 +154,7 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<bool> saveAuthCredentialToPreference(AuthResponse authResponse) async {
     var result = false;
+    print('authResponse ${authResponse.toJson()}');
     result = await _sharedPreferenceDataStore.create<bool, String>(SharedPreferenceConstant.ACCESS_TOKEN, authResponse.accessToken!);
     if (authResponse.refreshToken != null) {
       result = await _sharedPreferenceDataStore.create(SharedPreferenceConstant.REFRESH_TOKEN, authResponse.refreshToken!);

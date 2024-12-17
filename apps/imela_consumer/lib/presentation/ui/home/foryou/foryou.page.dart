@@ -27,9 +27,9 @@ class _ForYouPageState extends State<ForYouPage> {
       body: Obx(
         () => PageContentLoader(
           isLoading: viewmodel.isForYouDataLoading.value,
-          hasError: viewmodel.exception.value?.isMainError ?? false,
+          hasError: viewmodel.foryouPageException.value?.isMainError ?? false,
           showContent: viewmodel.forYouData.value != null,
-          exception: viewmodel.exception.value,
+          exception: viewmodel.foryouPageException.value,
           content: const ResponsiveWrapper(
             smallScreen: ForYouSmallScreen(),
           ),

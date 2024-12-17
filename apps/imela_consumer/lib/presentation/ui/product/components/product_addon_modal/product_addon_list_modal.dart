@@ -6,7 +6,6 @@ import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/product/components/dynamic_price_viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/product_addon_modal/addon_viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/product_dynamic_pricing.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_core/calendar/model/calendar.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
@@ -76,127 +75,137 @@ class _ProductAddonModalState extends State<ProductAddonModal> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => PageContentLoader(
-        isDataLoading: viewmodel.isLoading.value,
-        showContent: true,
-        content: Column(
+      () => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Configurations', style: Theme.of(context).textTheme.titleLarge).withPaddingSymetric(horizontal: 16),
-            if (widget.productInfo != null)
-              widgetFactory.createCard(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
-                child: widgetFactory.createText(context, '${widget.productInfo?.name.localize(viewmodel.selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
-              ),
-            const SizedBox(height: 10),
-            if (widget.productInfo != null && widget.showqtyModfier == true)
-              Obx(
-                () => ProductDynamicPricing(
-                  dynamicPricingDiscounts: widget.productInfo!.sortedDynamicPricingDiscounts,
-                  basePrice: basePrice!,
-                  initialQty: viewmodel.selectedQty.value,
-                  product: widget.productInfo!,
-                  minQty: widget.minQty,
-                  maxQty: widget.maxQty,
-                  onQtyChange: (qty) {
-                    viewmodel.updateQty(qty);
-                  },
-                ),
-              ),
-            const Divider(height: 16),
-            Obx(
-              () => AppListView(
-                primary: false,
-                shrinkWrap: true,
-                items: viewmodel.productAddons.value,
-                separator: const Divider(),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                itemBuilder: (context, addon, index) {
-                  return Obx(() {
-                    final canEnableAddon = addon.canEnableAddon(selectedQty: viewmodel.selectedQty.value, totalPrice: widget.totalPrice, isUserMembershipvalid: viewmodel.appViewmmodel.currentUserIsMember(addon.membershipIds));
-                    final borderColor = canEnableAddon ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondaryContainer;
-                    return AbsorbPointer(
-                      absorbing: !canEnableAddon, //||  !viewmodel.currentUserIsMember(addon.membershipIds),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Stack(
-                          children: [
-                            widgetFactory.createCard(
-                              padding: viewmodel.getAddonListItemPadding(addon),
-                              margin: addon.membershipIds?.isEmpty == true ? const EdgeInsets.symmetric(horizontal: 6) : null,
-                              border: Border.all(color: borderColor),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(addon.name.localize(viewmodel.selectedLanguage), style: Theme.of(context).textTheme.titleSmall),
-                                            if (addon.additionalPrice?.isNotEmpty == true) Text('Additional Price: ${addon.additionalPrice.toSelectedPriceString("ETB")}'),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(child: viewmodel.getAddonModifierUI(context, addon, enabled: canEnableAddon, parentProduct: widget.parentProductInfo)),
-                                    ],
-                                  ),
-                                  const Divider(),
-                                  if (addon.description != null) Text(addon.description!.localize(viewmodel.selectedLanguage), style: Theme.of(context).textTheme.bodySmall),
-                                  Row(
-                                    children: [
-                                      widgetFactory.createText(context, 'Minimum - ${addon.minAmount}'),
-                                      const SizedBox(width: 16),
-                                      widgetFactory.createText(context, 'Maximum - ${addon.maxAmount}'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              left: 0,
-                              child: Row(
-                                children: [
-                                  if (addon.isRequired)
-                                    widgetFactory.createCard(
-                                      color: Theme.of(context).colorScheme.secondary,
-                                      padding: const EdgeInsets.all(3),
-                                      borderRadius: BorderRadius.only(topLeft: const Radius.circular(6)),
-                                      child: widgetFactory.createText(context, addon.requiredString("ENGLISH"), style: Theme.of(context).textTheme.bodySmall),
-                                    ),
-                                  const Spacer(),
-                                  if (!canEnableAddon) widgetFactory.createIcon(materialIcon: Icons.lock, color: Theme.of(context).colorScheme.primary, size: 20),
-                                  if (addon.membershipIds?.isNotEmpty == true) getMembershipBanner(addon),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  });
-                },
+            widgetFactory.createCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: Theme.of(context).colorScheme.surfaceContainerLowest,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Configurations', style: Theme.of(context).textTheme.titleMedium),
+                  if (widget.productInfo != null) widgetFactory.createText(context, '${widget.productInfo?.name.localize(viewmodel.selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
+                ],
               ),
             ),
+            Obx(() => viewmodel.isLoading.value ? const LinearProgressIndicator() : const SizedBox.shrink()),
             const SizedBox(height: 10),
-            Obx(
-              () => widgetFactory
-                  .createButton(
-                    context: context,
-                    content: Text(widget.callToAction),
-                    onPressed: viewmodel.isOrderconfigContainsRequiredAddon
-                        ? () {
-                            final selectedQty = widget.showqtyModfier ? dynamicPriceViewmodel.selectedQty.value : null;
-                            viewmodel.closeAdddonConfigModalWithResult(context, selectedQty: selectedQty);
-                          }
-                        : null,
-                  )
-                  .withPaddingSymetric(vertical: 16, horizontal: 16),
+            AbsorbPointer(
+              absorbing: viewmodel.isLoading.value,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (widget.productInfo != null && widget.showqtyModfier == true)
+                    Obx(
+                      () => ProductDynamicPricing(
+                        dynamicPricingDiscounts: widget.productInfo!.sortedDynamicPricingDiscounts,
+                        basePrice: basePrice!,
+                        initialQty: viewmodel.selectedQty.value,
+                        product: widget.productInfo!,
+                        minQty: widget.minQty,
+                        maxQty: widget.maxQty,
+                        onQtyChange: (qty) {
+                          viewmodel.updateQty(qty);
+                        },
+                      ),
+                    ),
+                  const Divider(height: 16),
+                  Obx(
+                    () => AppListView(
+                      primary: false,
+                      shrinkWrap: true,
+                      items: viewmodel.productAddons.value,
+                      separator: const Divider(),
+                      // padding: const EdgeInsets.symmetric(horizontal: 8),
+                      itemBuilder: (context, addon, index) {
+                        return Obx(() {
+                          final canEnableAddon = addon.canEnableAddon(selectedQty: viewmodel.selectedQty.value, totalPrice: widget.totalPrice, isUserMembershipvalid: viewmodel.appViewmmodel.currentUserIsMember(addon.membershipIds));
+                          final borderColor = canEnableAddon ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondaryContainer;
+                          return AbsorbPointer(
+                            absorbing: !canEnableAddon, //||  !viewmodel.currentUserIsMember(addon.membershipIds),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Stack(
+                                children: [
+                                  widgetFactory.createCard(
+                                    padding: viewmodel.getAddonListItemPadding(addon),
+                                    margin: addon.membershipIds?.isEmpty == true ? const EdgeInsets.symmetric(horizontal: 6) : null,
+                                    border: Border.all(color: borderColor),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(addon.name.localize(viewmodel.selectedLanguage), style: Theme.of(context).textTheme.titleSmall),
+                                                  if (addon.additionalPrice?.isNotEmpty == true) Text('+ ${addon.getAddonPriceUpdated("ETB", orderConfigs: viewmodel.orderConfigs.value)}'),
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(child: viewmodel.getAddonModifierUI(context, addon, enabled: canEnableAddon, parentProduct: widget.parentProductInfo)),
+                                          ],
+                                        ),
+                                        const Divider(),
+                                        if (addon.description != null) Text(addon.description!.localize(viewmodel.selectedLanguage), style: Theme.of(context).textTheme.bodySmall),
+                                        Row(
+                                          children: [
+                                            widgetFactory.createText(context, 'Minimum - ${addon.minAmount}'),
+                                            const SizedBox(width: 16),
+                                            widgetFactory.createText(context, 'Maximum - ${addon.maxAmount}'),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    left: 0,
+                                    child: Row(
+                                      children: [
+                                        if (addon.isRequired)
+                                          widgetFactory.createCard(
+                                            color: Theme.of(context).colorScheme.secondary,
+                                            padding: const EdgeInsets.all(3),
+                                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(6)),
+                                            child: widgetFactory.createText(context, addon.requiredString("ENGLISH"), style: Theme.of(context).textTheme.bodySmall),
+                                          ),
+                                        const Spacer(),
+                                        if (addon.membershipIds?.isNotEmpty == true) getMembershipBanner(addon),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Obx(
+                    () => widgetFactory.createButton(
+                      context: context,
+                      content: Text(widget.callToAction),
+                      onPressed: viewmodel.isOrderconfigContainsRequiredAddon
+                          ? () {
+                              final selectedQty = widget.showqtyModfier ? dynamicPriceViewmodel.selectedQty.value : null;
+                              viewmodel.closeAdddonConfigModalWithResult(context, selectedQty: selectedQty);
+                            }
+                          : null,
+                    ),
+                  ).withPaddingSymetric(vertical: 16)
+                ],
+              ),
             )
           ],
         ),

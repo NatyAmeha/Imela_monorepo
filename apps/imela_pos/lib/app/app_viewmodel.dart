@@ -6,6 +6,9 @@ import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_order_status.dart';
 import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/calendar/dto/calendar.response.dart';
+import 'package:imela_core/calendar/model/calendar.model.dart';
+import 'package:imela_core/calendar/model/calendar_booking.model.dart';
 import 'package:imela_core/customer/customer_usecase.dart';
 import 'package:imela_core/customer/model/customer.model.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
@@ -16,6 +19,7 @@ import 'package:imela_core/membership/membership_usecase.dart';
 import 'package:imela_core/membership/model/membership.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_core/product/product.usecase.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/staff/model/staff_response.dart';
 import 'package:imela_core/user/auth.usecase.dart';
@@ -29,12 +33,14 @@ import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
 import 'package:injectable/injectable.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 @injectable
 class AppViewmodel extends GetxController with BaseViewmodel {
   static WidgetFactory? _widgetFactoryInstance;
 
   final AuthUsecase authUsecase;
+  final ProductUsecase productUsecase;
   final CustomerUsecase customerUsecase;
   final MembershipUseCase membershipUsecase;
 
@@ -42,6 +48,7 @@ class AppViewmodel extends GetxController with BaseViewmodel {
     required this.authUsecase,
     required this.customerUsecase,
     required this.membershipUsecase,
+    required this.productUsecase,
   });
 
   late GoRouterService appRouter;
@@ -60,9 +67,14 @@ class AppViewmodel extends GetxController with BaseViewmodel {
   var selectedBranch = Rxn<Branch>();
   var selectedCustomer = Rxn<Customer>();
 
+  var productsCalendars = <Calendar>[].obs;
+
   var selectedBusinessLoyaltyInfo = Rxn<LoyaltyResponse>();
 
-  var cartInfo = const Cart(name: [LocalizedField(key: "ENGLISH", value: "Cart")], items: []).obs;
+  var cartInfo = Cart(name: [
+    LocalizedField(key: AppLanguage.ENGLISH.name, value: "Cart"),
+    LocalizedField(key: AppLanguage.AMHARIC.name, value: "ስምምነት"),
+  ], items: []).obs;
 
   List<Access> get loggedInStaffAccesses => loggedInStaffInfo.value?.authResponse?.accesses ?? [];
 
@@ -98,6 +110,8 @@ class AppViewmodel extends GetxController with BaseViewmodel {
   List<Reward> get branchRewards => selectedBusinessLoyaltyInfo.value?.rewards ?? [];
 
   List<BusinessOrderStatus> get businessOrderStatuses => selectedBusiness.value?.orderStatuses ?? [];
+
+  var reloadMembership = true;
 
   @override
   Future<void> initViewmodel({Map<String, dynamic>? data}) async {
@@ -189,7 +203,7 @@ class AppViewmodel extends GetxController with BaseViewmodel {
   Future<MembershipResponse?> getBusinessMemberships({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst, bool forceReload = true}) async {
     try {
       MembershipResponse? result;
-      if (forceReload) {
+      if (forceReload || reloadMembership) {
         result = await membershipUsecase.getMembershipPlansForPos(selectedBusinessId, fetchPolicy: fetchPolicy);
       } else {
         result = businessMembershipInfo.value;
@@ -202,6 +216,7 @@ class AppViewmodel extends GetxController with BaseViewmodel {
       }
       setBusinessMembershipInfo(result);
       setAllMemberships(result.memberships ?? []);
+      reloadMembership = false;
       return result;
     } catch (e) {
       print('error fetching user memberships: $e');
@@ -243,6 +258,8 @@ class AppViewmodel extends GetxController with BaseViewmodel {
                   final result = await authUsecase.logout();
                   loggedInStaffInfo.value = null;
                   if (result) {
+                    resetCustomerRelatedData();
+                    resetCartInfo();
                     POSStaffSignInPage.navigate(context, replaceRoute: true);
                   }
                 },
@@ -259,11 +276,25 @@ class AppViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
+  void resetCustomerRelatedData() {
+    setSelectedCustomer(null);
+    setPosCustomers([]);
+  }
+
+  void resetCartInfo() {
+    cartInfo.value = cartInfo.value.copyWith(items: []);
+  }
+
   void updateMembershipInfo(Membership? membership) {
     if (membership == null) return;
     final index = allMemberships.indexWhere((membership) => membership.id == membership.id);
     if (index != -1) {
       allMemberships[index] = membership;
     }
+  }
+
+  void setProductCalendars(List<Calendar>? calendars) {
+    if (calendars?.isEmpty ?? true) return;
+    productsCalendars.assignAll(calendars!);
   }
 }

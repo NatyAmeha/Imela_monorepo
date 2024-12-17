@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
 import 'package:imela_pos/ui/cart/component/cart_list_component.dart';
@@ -12,9 +11,9 @@ import 'package:imela_pos/ui/home/home_page.viewmodel.dart';
 import 'package:imela_pos/ui/search/search_list_page.dart';
 import 'package:imela_ui_kit/components/list/gridview.component.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
-import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/home';
@@ -47,6 +46,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final destinations = viewmodel.getDestinations(context);
     return Scaffold(
       drawer: HomePageSidenav(

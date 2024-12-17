@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imela/presentation/ui/bundle/bundle_list/bundle_list_page.dart';
 import 'package:imela/presentation/ui/business/business_section/business_section_page.dart';
 import 'package:imela/presentation/ui/location_selector/location_selector_page.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_details_page.dart';
@@ -16,6 +17,7 @@ import 'package:imela/presentation/ui/membership/membership_list/membership_list
 import 'package:imela/presentation/ui/membership/membership_plan_list/membership_plan_list_page.dart';
 import 'package:imela/presentation/ui/profile/profile_page.dart';
 import 'package:imela/presentation/ui/profile/update_profile/update_profile_page.dart';
+import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
 import 'package:imela_core/product/model/discount.model.dart';
@@ -128,6 +130,15 @@ class GoRouterService implements IRoutingService {
         },
       ),
       GoRoute(
+        path: BundleListPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final bundles = arguments[BundleListPage.BUNDLES_KEY] as List<ProductBundle>? ?? [];
+          final fetchPolicy = arguments[BundleListPage.FETCH_POLICY_KEY] as String?;
+          return buildPageWithCustomTransition(state, BundleListPage(bundles: bundles, fetchPolicy: fetchPolicy));
+        },
+      ),
+      GoRoute(
         path: BundleDetailPage.routeName,
         pageBuilder: (context, state) {
           final bundleId = state.pathParameters[BundleDetailPage.idQueryKey];
@@ -201,9 +212,10 @@ class GoRouterService implements IRoutingService {
         path: UpdateProfilePage.routeName,
         pageBuilder: (context, state) {
           final arguments = state.extra as Map<String, dynamic>;
-          final redirectUrl = arguments[UpdateProfilePage.REDIRECT_URL_KEY] as String;
+          final redirectUrl = arguments[UpdateProfilePage.REDIRECT_URL_KEY] as String?;
           final redirectExtra = arguments[UpdateProfilePage.REDIRECT_EXTRA_KEY] as Map<String, dynamic>?;
-          return buildPageWithCustomTransition(state, UpdateProfilePage(redirectUrl: redirectUrl, redirectExtra: redirectExtra));
+          final pageTitle = arguments[UpdateProfilePage.PAGE_TITLE_KEY] as String?;
+          return buildPageWithCustomTransition(state, UpdateProfilePage(redirectUrl: redirectUrl, redirectExtra: redirectExtra, pageTitle: pageTitle));
         },
       ),
       GoRoute(
@@ -231,7 +243,8 @@ class GoRouterService implements IRoutingService {
           final loyaltyInfo = arguments[LoyaltyDetailsPage.LOYALTY_INFO_KEY] as LoyaltyResponse?;
           final programName = arguments[LoyaltyDetailsPage.PROGRAM_NAME_KEY] as String;
           final businessId = arguments[LoyaltyDetailsPage.BUSINESS_ID_KEY] as String?;
-          return buildPageWithCustomTransition(state, LoyaltyDetailsPage(loyaltyInfo: loyaltyInfo, programName: programName, businessId: businessId));
+          final color = arguments[LoyaltyDetailsPage.COLOR_KEY] as Color?;
+          return buildPageWithCustomTransition(state, LoyaltyDetailsPage(loyaltyInfo: loyaltyInfo, programName: programName, businessId: businessId, color: color));
         },
       ),
       GoRoute(

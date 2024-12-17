@@ -12,6 +12,8 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
   final double? qty;
   final WidgetFactory widgetFactory;
   final Function? onRemove;
+  final double imageWidth;
+  final double imageHeight;
   const SelectedProductFromBundlListItem({
     super.key,
     required this.name,
@@ -22,6 +24,8 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
     this.qty = 1.0,
     this.height,
     this.onRemove,
+    this.imageWidth = 100,
+    this.imageHeight = 120,
   });
 
   @override
@@ -33,15 +37,26 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
       width: width,
       child: Stack(
         children: [
-          Positioned.fill(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppImage(imageUrl: image, borderRadius: BorderRadius.circular(6), width: double.infinity, height: 50),
-                widgetFactory.createText(context, name, style: Theme.of(context).textTheme.bodyMedium, maxLines: 2).withPaddingSymetric(horizontal: 4),
-                widgetFactory.createText(context, price, style: Theme.of(context).textTheme.titleSmall).withPaddingSymetric(horizontal: 4),
-              ],
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppImage(imageUrl: image, borderRadius: BorderRadius.circular(6), width: imageWidth, height: imageHeight),
+              const SizedBox(width: 16),
+              Expanded(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  widgetFactory.createText(context, name, style: Theme.of(context).textTheme.labelLarge, maxLines: 2).withPaddingSymetric(horizontal: 4),
+                  widgetFactory.createText(context, price, style: Theme.of(context).textTheme.titleSmall).withPaddingSymetric(horizontal: 4),
+                  const SizedBox(height: 8),
+                  widgetFactory.createCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    child: widgetFactory.createText(context, 'Qty - $qty', style: Theme.of(context).textTheme.bodyMedium),
+                  ),
+                ],
+              ).withPaddingSymetric(vertical: 4)),
+            ],
           ),
           Positioned(
             child: Align(
@@ -49,20 +64,12 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
               child: widgetFactory.createIcon(
                 materialIcon: Icons.close,
                 color: Colors.red,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                size: 24,
+                // backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                 onPressed: () {
                   onRemove?.call();
                 },
               ),
-            ),
-          ),
-          Positioned(
-            bottom: 8,
-            left: 4,
-            child: widgetFactory.createCard(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: widgetFactory.createText(context, 'Qty - ${qty}', style: Theme.of(context).textTheme.bodySmall),
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
+import 'package:imela_pos/l10n/l10n.dart';
 import 'package:imela_pos/ui/authentication/workspace_auth/workspace_auth_viewmodel.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
@@ -34,7 +35,7 @@ class _WorkspaceAuthState extends State<WorkspaceAuth> {
     final isSmallscreen = Responsive.isSmallScreen(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Workspace Input'),
+        title: Text(context.l10n.homeTitle),
       ),
       body: isSmallscreen ? _buildSmallScreenLayout() : _buildLargeScreenLayout(),
     );

@@ -1,3 +1,4 @@
+import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
 import 'material_widget.facotry.dart';
@@ -47,7 +48,7 @@ abstract class WidgetFactory {
 
   Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false});
 
-  Future<void> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked});
+  Future<FlashController<Object?>?> showFlashMessage(BuildContext context, {required String message, IconData? icon, EdgeInsets? margin, Color? backgroundColor, Color? textColor, int durationInSecond = 4, bool isPersistent = false, String? actionText, ToastPosition position = ToastPosition.bottom, Function? onActinClicked});
   Widget createDropDownBeta<T>(BuildContext context,
       {String? hintText, bool isMultiSelection = false, bool showSearch = false, required List<T> options, required List<T> selectedValues, required Function(List<T>) onChanged, Widget Function(BuildContext, T item, bool isSelected, void Function() onItemSelect)? itemBuilder, Widget Function(BuildContext, T items, bool isSelected)? headerBuilder});
   Widget createTextField(

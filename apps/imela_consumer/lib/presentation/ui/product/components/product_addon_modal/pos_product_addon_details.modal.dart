@@ -32,7 +32,7 @@ class ProductAddonDetailsModal extends StatelessWidget {
         children: [
           AppListView(
             header: ListHeader(title: addon.name.localize(selectedLanguage), widgetFactory: widgetFactory),
-            shrinkWrap: true,
+            // shrinkWrap: true,
             padding: const EdgeInsets.only(bottom: 75),
             items: addon.options,
             itemBuilder: (context, option, index) {
@@ -50,7 +50,7 @@ class ProductAddonDetailsModal extends StatelessWidget {
             },
           ),
           Positioned(
-            bottom: 50,
+            bottom: 40,
             left: 0,
             right: 0,
             child: Obx(

@@ -107,26 +107,37 @@ query GetPosBranch($businessId: String!, $branchId: String!) {
               currency
             }
           }
-          products {
-            id
-            name {
-              key
+          productOptionInfos {
+            productId
+            minQty
+            maxQty
+            discounts {
+              type
               value
+              condition
+              conditionValue
+              startDate
+              endDate
             }
-            gallery {
-              images {
-              url
-                featured
+            product {
+              id
+              name {
+                key
+                value
+              }
+              gallery {
+                images {
+                  url
+                  featured
+                }
+              }
+              prices {
+                price {
+                  currency
+                  amount
+                }
               }
             }
-          
-            prices {
-              price {
-                currency
-                amount
-              }
-            }
-          
           }
           additionalPrice {
             id

@@ -136,14 +136,16 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                             );
                           },
                         ),
-                        appWidgetFactory.createText(context, businessDescription.localize('ENGLISH'), style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis).showIfTrue(businessDescription?.isNotEmpty == true),
-                        const SizedBox(height: 16),
+                        if (businessDescription?.isNotEmpty == true) ...[
+                          appWidgetFactory.createText(context, businessDescription.localize('ENGLISH'), style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis).withPaddingSymetric(horizontal: 10),
+                          const SizedBox(height: 8),
+                        ],
                         // const BusinessAddressQuickActionComponenet(),
                         // const SizedBox(height: 16),
                         appWidgetFactory.createButton(
                             context: context,
                             content: const Text('Get more info'),
-                            style: AppButtonStyle.outlinedButtonStyle(context, borderRadius: 32, padding: const EdgeInsets.all(4)),
+                            style: AppButtonStyle.textButtonStyle(context, borderRadius: 32, padding: const EdgeInsets.all(4)),
                             onPressed: () {
                               viewmodel.showBusinessInfoDialog(context, appWidgetFactory);
                             }),
@@ -151,7 +153,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                     ),
                   ),
                   AppListView<ProductBundle>(
-                    header: appWidgetFactory.createText(context, 'Bundles', style: Theme.of(context).textTheme.titleMedium),
+                    header: appWidgetFactory.createText(context, 'Bundles', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 16, vertical: 8),
                     scrollDirection: Axis.horizontal,
                     items: viewmodel.businessBundles,
                     shrinkWrap: true,
@@ -172,8 +174,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   ).showIfTrue(viewmodel.businessBundles.isNotEmpty),
                   const SizedBox(height: 24),
                   AppGridView(
-                    header: appWidgetFactory.createText(context, 'Featured products', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.start),
-
+                    header: appWidgetFactory.createText(context, 'Featured products', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.start).withPaddingSymetric(horizontal: 12),
                     shrinkWrap: true,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     items: viewmodel.featuredProducts,

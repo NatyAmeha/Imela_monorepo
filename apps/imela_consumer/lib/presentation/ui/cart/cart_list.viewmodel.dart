@@ -70,7 +70,7 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
   List<Cart> get carts => appController.carts;
   List<PaymentOption> get businessPaymentOptions => selectedCart.value?.paymentOptions ?? [];
   String get callToActionText {
-    return orderAddonsConfigured.value == false && selectedCart.value?.hasOrderAddons() == true ? 'Configure your order' : 'Proceed to Payment';
+    return orderAddonsConfigured.value == false && selectedCart.value?.hasOrderAddons() == true ? 'Continue' : 'Proceed to Payment';
   }
 
   LoyaltyResponse? get selectedBusinessLoyaltyProgram => appController.selectedBusinessLoyaltyInfo.value;
@@ -200,12 +200,15 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
             title: const Text('Clear Cart'),
             content: const Text('Are you sure you want to clear the cart?'),
             actions: [
-              TextButton(onPressed: () {}, child: const Text('Cancel')),
+              TextButton(onPressed: () {
+                Navigator.pop(context);
+              }, child: const Text('Cancel')),
               TextButton(
                   onPressed: () {
                     selectedCart.value = selectedCart.value?.copyWith(items: []);
                     cartItemListController.setItems([]);
                     appController.carts.removeWhere((element) => element.id == selectedCart.value?.id);
+                    Navigator.pop(context);
                   },
                   child: const Text('Confirm')),
             ],
@@ -299,6 +302,7 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
   }
 
   Future<void> changeOrderConfigs(BuildContext context) async {
+    orderAddonsConfigured.value = false;
     // print('object')
     final configResult = await AppModalSheet.showModal<AddonConfig?>(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
       ModalContent(
@@ -308,7 +312,7 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
           initialOrderConfigs: selectedCart.value?.configs ?? [],
           showqtyModfier: false,
           totalPrice: selectedCart.value!.getTotatAmountPOS(),
-        ), 
+        ),
       )
 
       // ModalContent(
@@ -319,15 +323,26 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     if (configResult == null) {
       return;
     }
-    orderAddonsConfigured.value = true;
     if (configResult.orderConfigs.isNotEmpty == true) {
       selectedCart.value = selectedCart.value!.addSelectedOrderConfigs(configResult.orderConfigs);
     }
+    if (configResult.additionalItems?.isNotEmpty == true) {
+      var updatedCart = selectedCart.value!.addOrUpdateItems(configResult.additionalItems!);
+      cartItemListController.setItems(updatedCart.items ?? []);
+      updateCartState(updatedCart);
+    }
+    orderAddonsConfigured.value = true;
   }
 
   void handleNextScreenNavigation(BuildContext context) async {
-    if (selectedCart.value!.hasOrderAddons() == true && (selectedCart.value!.configs?.isEmpty ?? true)) {
-      await changeOrderConfigs(context);
+    if (selectedCart.value!.hasOrderAddons() == true) {
+      if (orderAddonsConfigured.value == true) {
+        OrderConfigurePage.navigateToOrderConfigurePage(context, router, cartInfo: selectedCart.value!);
+      } else if (selectedCart.value!.configs?.isEmpty ?? true) {
+        await changeOrderConfigs(context);
+      } else {
+        OrderConfigurePage.navigateToOrderConfigurePage(context, router, cartInfo: selectedCart.value!);
+      }
     } else {
       OrderConfigurePage.navigateToOrderConfigurePage(context, router, cartInfo: selectedCart.value!);
     }

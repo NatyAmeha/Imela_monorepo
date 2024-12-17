@@ -126,10 +126,12 @@ class PaymentPageViewmodel extends GetxController with BaseViewmodel {
 
   void updateSelectedPaymentOption(PaymentOption option) {
     selectedPaymentOption.value = option;
+    paymentMethodControllers.value = getPaymentMethodControllers();
+    selectPaymentMethod(paymentMethods.first);
   }
 
-  void updateAmountEntered(int value) {
-    amountEntered.value = value;
+  void updateAmountEntered() {
+    paymentMethodControllers.refresh();
   }
 
   bool isPaymentSelected(PaymentMethod paymentInfo) {
@@ -139,6 +141,7 @@ class PaymentPageViewmodel extends GetxController with BaseViewmodel {
   void selectPaymentMethod(PaymentMethod paymentInfo) {
     selectedPaymentMethod.value = paymentInfo;
     selectedPaymentMethod.refresh();
+    paymentMethodControllers.refresh();
   }
 
   void removeEntredAmount(PaymentMethod paymentMethod) {
@@ -158,14 +161,22 @@ class PaymentPageViewmodel extends GetxController with BaseViewmodel {
   Future<void> placeOrder(BuildContext context) async {
     try {
       isLoading.value = true;
-      final selectedPaymentMethodInfo = getSelecrtedPaymentMethodsForOrder().entries.map((entry) {
-        return SelectedPaymentMethod(id: entry.value.id, name: entry.value.name!, amount: Price(amount: entry.key, currency: 'ETB'), paymentMethodOption: null);
-      }).toList();
+      final selectedPaymentMethodInfo = getSelecrtedPaymentMethodsForOrder()
+          .entries
+          .map((entry) {
+            if (entry.key > 0) {
+              return SelectedPaymentMethod(id: entry.value.id, name: entry.value.name!, amount: Price(amount: entry.key, currency: 'ETB'), paymentMethodOption: null);
+            }
+            return null;
+          })
+          .whereNotNull()
+          .toList();
 
       final cartInfo = appViewmodel.cartInfo.value;
-      var orderInfo = OrderModel.Order.createOrderInfo(cartInfo, paymentOption: selectedPaymentOption.value!, paidAmount: totalPaidAmount, totalAmount: totalCartAmount, paymentMethods: selectedPaymentMethodInfo, branchId: appViewmodel.selectedBranch.value?.id);
+      var orderInfo = OrderModel.Order.createOrderInfo(cartInfo, paymentOption: selectedPaymentOption.value!, paidAmount: totalPaidAmount, totalAmount: totalCartAmount, paymentMethods: selectedPaymentMethodInfo, branchId: appViewmodel.selectedBranch.value?.id, orderNote: cartViewmodel.ordernote.value);
       final orderResponse = await orderUsecase.placePOSBusiness(appViewmodel.selectedBusiness.value!.id!, orderInfo, customerId: cartViewmodel.customerId);
       if (orderResponse.success ?? false) {
+        cleanupResources(context);
         handleOrderConfirmation(context, orderResponse.order);
       }
     } catch (ex) {
@@ -173,6 +184,14 @@ class PaymentPageViewmodel extends GetxController with BaseViewmodel {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void cleanupResources(BuildContext context) {
+    appViewmodel.resetCartInfo();
+    cartViewmodel.initCartActions();
+    cartViewmodel.removeAppliedDiscounts();
+    appViewmodel.setSelectedCustomer(null);
+    cartViewmodel.resetOrderNote(null);
   }
 
   Map<double, PaymentMethod> getSelecrtedPaymentMethodsForOrder() {

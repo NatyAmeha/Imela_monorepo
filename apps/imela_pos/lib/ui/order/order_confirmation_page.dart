@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imela_core/business/model/business_order_status.dart';
 import 'package:imela_core/order/model/order.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_pos/ui/home/home_page.dart';
 import 'package:imela_pos/ui/payment/payment_page.viewmodel.dart';
 import 'package:imela_ui_kit/components/badge/status_ladder.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
@@ -46,6 +47,12 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
     return Scaffold(
       appBar: AppBar(
         title: widgetFactory.createText(context, 'Order Confirmation', style: Theme.of(context).textTheme.titleLarge),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            HomePage.navigate(context, replace: true);
+          },
+        ),
       ),
       body: Responsive.isLargeScreen(context)
           ? Row(

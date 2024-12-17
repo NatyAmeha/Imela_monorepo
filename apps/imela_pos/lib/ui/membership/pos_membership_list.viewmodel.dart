@@ -21,6 +21,7 @@ import 'package:imela_pos/ui/membership/create_membership_page.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/helpers/file_upload.model.dart';
 import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
+import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
@@ -261,6 +262,31 @@ class POSMembershipListViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToCreateMember(BuildContext context) {
-    CreateMembershipPage.navigateTo(context, selectedMembership.value!.id!);
+    var widgetFactory = AppViewmodel.getWidgetFactory(context);
+    AppModalSheet.showModal(
+      context,
+      type: AppModalSheetType.DIALOG,
+      pages: [
+        ModalContent(
+          title: const Text('Create New membership'),
+          content: Column(
+            children: [
+              widgetFactory.createText(context, 'Membership creation is not supported in POS', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 16),
+              widgetFactory.createText(context, 'Customer should navigate to your  website to create a membership. You can send them the link to create a membership. Once they create a membership, you can approve it in the POS.'),
+              const SizedBox(height: 24),
+              widgetFactory.createButton(
+                context: context,
+                content: const Text('Send Link to Customer'),
+                onPressed: () {
+                  AppModalSheet.closeModal();
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ).withPaddingSymetric(horizontal: 16, vertical: 16)
+        )
+      ],
+    );
   }
 }

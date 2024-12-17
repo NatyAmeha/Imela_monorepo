@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -10,15 +8,22 @@ class AppException implements Exception {
   bool isMainError;
   IconData? errorIcon;
   String? actionText;
+  Function? onAction;
 
   dynamic exception;
 
   static const GraphQLErrorType = 'GraphQLError';
   static const DBErrorType = 'DBError';
 
-  AppException({this.message, this.code, this.type, this.isMainError = false, this.exception,
+  AppException({
+    this.message,
+    this.code,
+    this.type,
+    this.isMainError = false,
+    this.exception,
     this.errorIcon = Icons.error_outline,
-    this.actionText = 'Try again'
+    this.actionText = 'Try again',
+    this.onAction,
   });
 
   bool get isUnAuthorizedException {
@@ -32,11 +37,8 @@ class AppException implements Exception {
   static AppException unexpectedError(Object exception) {
     return AppException(message: 'An unexpected error occured $exception', isMainError: false, exception: exception);
   }
-
 }
 
 abstract class IExceptiionHandler {
   AppException getException(Exception excetpion);
 }
-
-

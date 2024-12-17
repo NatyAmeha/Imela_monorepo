@@ -64,11 +64,11 @@ class Cart with _$Cart {
   }
 
   String totalEarnedPointString(String selectedLanguage) {
-    final totalPoints = (items?.sumBy((element) => element.point ?? 0) ?? 0).getPresision(2);
+    final totalPoints = (items?.sumBy((element) => (element.product?.loyaltyPoint ?? 0) * element.quantity) ?? 0).getPresision(2);
     if (selectedLanguage == AppLanguage.AMHARIC.name) {
       return '$totalPoints ነጥብ ያገኛሉ';
     }
-    return 'You will earn $totalPoints points';
+    return 'You will earn ${totalPoints.getPresisionString()} points';
   }
 
   List<ItemDiscount> getAllItemDiscounts(List<OrderItem>? selectedItems, {List<String> rewardsId = const []}) {

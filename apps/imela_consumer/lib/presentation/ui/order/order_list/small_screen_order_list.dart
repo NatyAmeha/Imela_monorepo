@@ -14,8 +14,7 @@ class SmallScreenOrderList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Orders')),
-      body: AppListView(
+      body: AppListView(  
         controller: viewmodel.orderListController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         contentPadding: const EdgeInsets.symmetric(vertical: 4),

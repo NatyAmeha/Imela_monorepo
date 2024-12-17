@@ -88,13 +88,19 @@ class Business extends BaseModel with _$Business {
   //   );
   // }
 
-  List<ProductAddon> getSectionsOrderAddon(List<String> sectionIds) {
+  List<ProductAddon> getSectionsOrderAddon(List<String> selectedSectionIds) {
     if (sections == null) return [];
+
     final addons = <ProductAddon>[];
     sections?.forEach((section) {
-      if (sectionIds.contains(section.id)) {
+      print('order addons  ${section.id} ${selectedSectionIds}  ${selectedSectionIds.contains(section.id)}');
+      if (selectedSectionIds.contains(section.id.toString())) {
+      print('order addons  ${section.id} ${selectedSectionIds}  ${section.orderAddons}');
         addons.addAll(section.orderAddons ?? []);
       }
+      // "99c7fc8c-ebdd-4dc3-bd9c-17c92506d5cc";
+      // "99c7fc8c-ebdd-4dc3-bd9c-17c91506d5cc"
+
     });
     return addons;
   }

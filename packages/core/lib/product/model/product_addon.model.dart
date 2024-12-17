@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,7 @@ import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/price.model.dart';
+import 'package:imela_utils/helpers/date_utils.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
 import 'package:imela_utils/helpers/number_utils.dart';
 
@@ -58,7 +60,7 @@ class ProductAddon with _$ProductAddon {
     List<String>? tag,
     @Default(false) bool? isProduct,
     List<String>? productIds,
-    List<ProductAddonOptionInfo>? productOptionInfos,
+    List<AddonProductOptionInfo>? productOptionInfos,
     String? calendarId,
     @Default(true) bool includeOnPOS,
     List<Product>? products,
@@ -110,12 +112,50 @@ class ProductAddon with _$ProductAddon {
     return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * qty).getPresision(2).toDouble();
   }
 
+  double getAddonPriceUpdated(String selectedCurrency, {Map<String, OrderConfig>? orderConfigs}) {
+    final orderconfig = orderConfigs?[id];
+    if (inputType == AddonInputType.QUANTITY_INPUT.name) {
+      final qty = double.tryParse(orderconfig?.singleValue ?? '1') ?? 1;
+      return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * qty).getPresision(2).toDouble();
+    } else if (inputType == AddonInputType.DATE_RANGE_INPUT.name) {
+      final dateRange = orderconfig?.getConfigDateRange();
+      final numberOfDays = DateHelper.getNumberofDaysFromDateRange(dateRange);
+      return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * numberOfDays).getPresision(2).toDouble();
+    } else if (inputType == AddonInputType.MULTIPLE_SELECTION_INPUT.name) {
+      final selectedOptionsIds = orderconfig?.multipleValue;
+      if (selectedOptionsIds?.isNotEmpty == true) {
+        var selectedOptions = options.where((option) => selectedOptionsIds?.contains(option.id) ?? false).toList();
+        var optionTotalPrice = selectedOptions.sumBy((options) => options.price?.toSelectedPrice(selectedCurrency)?.amount ?? 0);
+        if (optionTotalPrice == 0) {
+          return additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+        }
+        return optionTotalPrice;
+      }
+      return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0)).getPresision(2).toDouble();
+    }
+    return additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+  }
+
   String getTotalAdditionalPriceString(String selectedCurrency, {double qty = 1}) {
     if (additionalPrice?.isEmpty == true) {
       return '';
     }
     final totalPrice = getTotalAdditionalPrice(selectedCurrency, qty: qty);
     return '+ $selectedCurrency $totalPrice';
+  }
+
+  // List<String> get productIds => productOptionInfos?.map((info) => info.productId).toList() ?? [];
+
+  List<Product> getProducts() {
+    return productOptionInfos?.map((info) => info.product).whereNotNull().toList() ?? [];
+  }
+
+  List<AddonProductOptionInfo> getProductOptionInfos() {
+    return productOptionInfos ?? [];
+  }
+
+  AddonProductOptionInfo? getProductAddonOptionInfo(String productId, String selectedLanguage) {
+    return productOptionInfos?.firstOrNullWhere((info) => info.productId == productId);
   }
 }
 
@@ -139,15 +179,17 @@ class ProductAddonOption with _$ProductAddonOption {
 }
 
 @freezed
-class ProductAddonOptionInfo with _$ProductAddonOptionInfo {
-  factory ProductAddonOptionInfo({
+class AddonProductOptionInfo with _$AddonProductOptionInfo {
+  const AddonProductOptionInfo._();
+  factory AddonProductOptionInfo({
     required String productId,
     required List<Discount> discounts,
     @Default(1) double minQty,
     @Default(10) double maxQty,
-  }) = _ProductAddonOptionInfo;
+    Product? product,
+  }) = _AddonProductOptionInfo;
 
-  factory ProductAddonOptionInfo.fromJson(Map<String, dynamic> json) => _$ProductAddonOptionInfoFromJson(json);
+  factory AddonProductOptionInfo.fromJson(Map<String, dynamic> json) => _$AddonProductOptionInfoFromJson(json);
 }
 
 @freezed

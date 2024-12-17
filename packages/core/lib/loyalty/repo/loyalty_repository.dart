@@ -9,8 +9,8 @@ import 'package:imela_data/network/graphql/loyalty/__generated__/get_customer_lo
 import 'package:injectable/injectable.dart';
 
 abstract class ILoyaltyRepository {
-  Future<LoyaltyResponse?> getCustomerLoyalties();
-  Future<LoyaltyResponse?> getCustomerBusinessLoyalty(String businessId);
+  Future<LoyaltyResponse?> getCustomerLoyalties({ApiDataFetchPolicy apiDataFeed});
+  Future<LoyaltyResponse?> getCustomerBusinessLoyalty(String businessId, {ApiDataFetchPolicy fetchPolicy});
 }
 
 @Injectable(as: ILoyaltyRepository)
@@ -22,8 +22,8 @@ class LoyaltyRepository implements ILoyaltyRepository {
   const LoyaltyRepository(@Named(GraphqlDatasource.injectName) this._graphQLDataSource);
 
   @override
-  Future<LoyaltyResponse?> getCustomerLoyalties() async {
-    final req = GGetMyLoyaltiesReq();
+  Future<LoyaltyResponse?> getCustomerLoyalties({ApiDataFetchPolicy apiDataFeed = ApiDataFetchPolicy.cacheFirst}) async {
+    final req = GGetMyLoyaltiesReq((b) => b..fetchPolicy = _graphQLDataSource.getFetchPolicy(apiDataFeed));
     final result = await _graphQLDataSource.request<GGetMyLoyaltiesData>(req, type: "Get User loyalties", isMainError: true);
     if (result == null) {
       return null;
@@ -32,15 +32,17 @@ class LoyaltyRepository implements ILoyaltyRepository {
   }
 
   @override
-  Future<LoyaltyResponse?> getCustomerBusinessLoyalty(String businessId) async {
+  Future<LoyaltyResponse?> getCustomerBusinessLoyalty(String businessId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
     final req = GGetCustomerBusinessLoyaltyReq(
-      (b) => b..vars.businessId = businessId,
+      (b) => b
+        ..vars.businessId = businessId
+        ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
     final result = await _graphQLDataSource.request<GGetCustomerBusinessLoyaltyData>(req, type: 'Get loyalty details', isMainError: true);
     if (result == null) {
       return null;
-    } 
+    }
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
     return LoyaltyResponse.fromJson(result.getCustomerBusinessLoyality.toJson());
   }

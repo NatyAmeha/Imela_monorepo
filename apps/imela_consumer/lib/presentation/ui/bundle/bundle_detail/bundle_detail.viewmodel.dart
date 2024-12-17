@@ -6,6 +6,7 @@ import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/resources/values.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/bundle/components/bundle_product_config_modal.dart';
+import 'package:imela/presentation/ui/bundle/components/selected_product_from_bundle.list_item.dart';
 import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
 import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/product_addon_modal/product_addon_list_modal.dart';
@@ -14,8 +15,8 @@ import 'package:imela/presentation/ui/product/product_details/product_details.vi
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:imela/presentation/utils/date_utils.dart';
-import 'package:imela/presentation/utils/number_utils.dart';
 import 'package:imela/presentation/utils/order_utils.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/bundle/model/bundle.response.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
@@ -27,9 +28,11 @@ import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/product/product.usecase.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/exception/app_exception.dart';
+import 'package:imela_utils/helpers/number_utils.dart';
 import 'package:injectable/injectable.dart';
 import 'package:imela_core/bundle/bundle.usecase.dart';
 import 'package:imela_core/order/order.usecase.dart';
@@ -141,8 +144,10 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
         totalAmount = totalAmount.minus(discountValue)!;
       }
     }
-    return totalAmount.isGreaterThan(0) ? totalAmount : CurrencyResources.AMOUNT_ZERO;
+    return totalAmount.isGreaterThan(0) ? totalAmount.getPresision(2) : CurrencyResources.AMOUNT_ZERO;
   }
+
+  String get bundlePriceString => '${appViewmodel.selectedCurrency.name} ${bundlePrice.getPresisionString()}';
 
   // data operation
   Future<void> getBundleDetails(String bundleId) async {
@@ -178,12 +183,12 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
         widgetFactory.showFlashMessage(context, message: 'Bundle expired ', backgroundColor: ColorManager.error);
         return;
       }
-      if (product.hasVariants()) { 
+      if (product.hasVariants()) {
         AppModalSheet.showModal(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
           ModalContent(
             title: widgetFactory.createText(context, 'Configure product', style: Theme.of(context).textTheme.titleMedium),
             content: BundleProductConfigModal(
-              product: product, 
+              product: product,
               widgetFactory: widgetFactory,
               discounts: bundleDiscounts,
               onConfirm: (selectedProduct, qty) {
@@ -231,6 +236,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
             productAddons: List.from(product.getAddons()),
             initialOrderConfigs: productOrderConfigs.getOrElse(product.id!, () => []),
             productInfo: product.copyWith(),
+            callToAction: 'Complete',
             showqtyModfier: true,
             minQty: productInfo?.minQty ?? 1,
             maxQty: productInfo?.maxQty ?? 10,
@@ -246,7 +252,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     final selectedQty = result.orderConfigs.getQtyConfigValue();
     final updatedResult = result.removeQtyConfig();
     productOrderConfigs[product.id!] = List<OrderConfig>.from(updatedResult.orderConfigs);
-    selectedBundleProducts[parentProduct!.id!] = parentProduct!.copyWith(qty: selectedQty);
+    selectedBundleProducts[parentProduct!.id!] = product.copyWith(qty: selectedQty);
     productListController.items.refresh();
   }
 
@@ -255,7 +261,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
       isLoading(true);
       var cartInfo = bundle!.getCartInfo(selectedBundleProducts.values.toList(), productOrderConfigs).addOrderAddons(bundle!.addons ?? []);
       cartListViewmodel.addCartToCartList(cartInfo, paymentOptions: bundle!.bundlePaymentOptions());
-      AppController.getInstance.getWidgetFactory(context).showFlashMessage(context, message: 'Item added to cart', actionText: 'View cart', onActinClicked: () {
+      AppController.getInstance.getWidgetFactory(context).showFlashMessage(context, message: 'Bundle added to cart', actionText: 'View cart', onActinClicked: () {
         CartDetailPage.navigateToCartDetailPage(context, router, cartInfo);
       });
       // // final result = await orderUsecase.addToCart(bundle!.id!, bundle!.name!, items, paymentOptions: bundle?.business?.paymentOptions);
@@ -281,6 +287,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
 
   void removeConfiguredProduct(Product product) {
     selectedBundleProducts.removeWhere((key, value) => value.id == product.id || key == product.id);
+    productOrderConfigs.removeWhere((key, value) => key == product.id);
     productListController.items.refresh();
   }
 
@@ -295,6 +302,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     isLoading.value = false;
     bundleResponse.value = null;
     selectedBundleProducts.value = {};
+    productOrderConfigs.value = {};
   }
 
   @override
@@ -304,5 +312,38 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     productListController.dispose();
     selectedBundleProducts.clear();
     super.dispose();
+  }
+
+  void showSelectedProductsModal(BuildContext context) {
+    var widgetFactory = AppController.getInstance.getWidgetFactory(context);
+    AppModalSheet.showModal(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
+      ModalContent(
+        title: const Text('Selected Products'),
+        content: Obx(
+          () => AppListView(
+            shrinkWrap: true,
+            header: widgetFactory.createText(context, 'Selected Products', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            items: selectedBundleProducts.values.toList(),
+            itemBuilder: (context, product, index) {
+              return SelectedProductFromBundlListItem(
+                name: product.name.localize('ENGLISH'),
+                image: product.getImageUrl(),
+                qty: product.qty,
+                imageWidth: 100,
+                imageHeight: 110,
+                price: product.getTotalPriceUpdatedString('ETB', discounts: bundleDiscounts, round: true),
+                width: 120,
+                widgetFactory: widgetFactory,
+                onRemove: () { 
+                  removeConfiguredProduct(product);
+                },
+              );
+            },
+          ),
+        ),
+      )
+    ]);
   }
 }

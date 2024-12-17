@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_page.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_ui_kit/components/badge/badge_list.dart';
+import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class ProductCallToActionBottomComponenet extends StatelessWidget {
@@ -40,12 +42,27 @@ class ProductCallToActionBottomComponenet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isMembershipProduct && !enableCallToActionBtn) ...[
-            Row(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 4),
-                Flexible(child: widgetFactory.createText(context, 'This product is for members only who have a membership plan on the business', style: Theme.of(context).textTheme.bodySmall)),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 4),
+                    Flexible(child: widgetFactory.createText(context, 'This product is for members only who have a membership plan on the business', style: Theme.of(context).textTheme.bodySmall)),
+                    
+                  ],
+                ),
+                widgetFactory.createButton(
+                  context: context,
+                  style: AppButtonStyle.textButtonStyle(context, ),
+                  content: const Text('Become a member'),
+                  onPressed: () {
+                    MembershipDetailsPage.navigate(context, product.membershipIds!.first);
+                  },
+                ),
               ],
             ),
           ],

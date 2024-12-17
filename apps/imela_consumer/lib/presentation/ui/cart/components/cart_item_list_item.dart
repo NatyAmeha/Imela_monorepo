@@ -8,6 +8,7 @@ import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_ui_kit/components/badge/badge_list.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -41,7 +42,8 @@ class CartItemListItem extends StatelessWidget {
     this.onAddonProductTap,
   });
 
-  bool get isDeductQtyDisabled => item.quantity <= (item.product?.minimumOrderQty ?? 0);
+  bool get isDeductQtyDisabled => item.quantity <= (item.minQty);
+  bool get isAddQtyDisabled => item.quantity >= (item.maxQty);
   List<Discount> get dynamicPriceDiscount => item.product?.sortedDynamicPricingDiscounts ?? [];
 
   @override
@@ -111,28 +113,62 @@ class CartItemListItem extends StatelessWidget {
                     child: QuantityModifierComponent(
                       currentQty: item.quantity,
                       deductQtyDisabled: isDeductQtyDisabled,
+                      addQtyDisabled: isAddQtyDisabled,
                       onQtyChange: (newValue) {
                         onQtyChange?.call(newValue);
                       },
                       widgetFactory: widgetFactory,
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      widgetFactory.createText(context, item.subtotalAmountString(selectedCurrency), style: Theme.of(context).textTheme.titleMedium),
-                      if (item.discount?.isNotEmpty == true)
-                        widgetFactory.createCard(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        InkWell(
                           onTap: () => onDiscountClicked?.call(item),
-                          child: Row(
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            runAlignment: WrapAlignment.center,
+                            // crossAxisAlignment: WrapCrossAlignment.end,
                             children: [
-                              widgetFactory.createText(context, item.getTotalDiscountAmountPOSString(currency: selectedCurrency), style: Theme.of(context).textTheme.bodySmall),
+                              widgetFactory.createText(context, item.subtotalAmountString(selectedCurrency), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
                               const SizedBox(width: 8),
-                              widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_down),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  widgetFactory.createText(context, item.totalAmountString(currency: selectedCurrency), style: Theme.of(context).textTheme.titleMedium),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.keyboard_arrow_down, size: 16),
+                                ],
+                              ),
                             ],
                           ),
                         ),
-                    ],
+                        if (item.discount?.isNotEmpty == true) 
+                          BadgeList(
+                            widgets: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  widgetFactory.createText(
+                                    context,
+                                    item.getTotalDiscountAmountPOSString(currency: selectedCurrency),
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                    // color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                              )
+                            ],
+                            colors: [Theme.of(context).colorScheme.primaryContainer],
+                            maxCeilWidth: 120,
+                            widgetFactory: widgetFactory,
+                            textStyle: Theme.of(context).textTheme.bodySmall,
+                            alignment: WrapAlignment.end,
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),

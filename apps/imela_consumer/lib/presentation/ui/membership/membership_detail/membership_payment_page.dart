@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_viewmodel.dart';
 import 'package:imela/presentation/ui/payment/components/selected_payment_method.dart';
@@ -52,7 +53,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                       widgetFactory.createText(context, viewmodel.membership?.description.localize(viewmodel.appViewmodel.selectedLanguage.name) ?? '', style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(height: 20),
                       buildMembershipSummary(),
-                      const SizedBox(height: 20),
+                      const Divider(height: 32),
                       widgetFactory.createText(context, 'Selected payment', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       if (viewmodel.selectedPaymentMethod.value != null)
@@ -78,6 +79,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                             viewmodel.showPaymentMethodListModal(context);
                           },
                         ),
+                        const SizedBox(height: 200),
                     ],
                   ),
                 ),
@@ -86,15 +88,41 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                 bottom: 16,
                 left: 16,
                 right: 16,
-                child: widgetFactory.createButton(
-                  context: context,
-                  content: const Text('Continue'),
-                  isLoading: viewmodel.isLoading.value,
-                  onPressed: viewmodel.selectedPaymentMethod.value != null
-                      ? () {
-                          viewmodel.requestToJoinMembership(context);
-                        }
-                      : null,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    widgetFactory.createCard(
+                      padding: const EdgeInsets.all(8),
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: widgetFactory.createText(
+                              context,
+                              'Choose payment method, upload your payment receipt and  We will verify your payment receipt and approve your membership request as soon as possible.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              // color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    widgetFactory.createButton(
+                      context: context,
+                      content: const Text('Send Request'),
+                      isLoading: viewmodel.isLoading.value,
+                      onPressed: viewmodel.canEnableRequestButton
+                          ? () {
+                              viewmodel.requestToJoinMembership(context);
+                            }
+                          : null,
+                    ),
+                  ],
                 ),
               )
             ],
@@ -116,7 +144,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               widgetFactory.createText(context, 'Price', style: Theme.of(context).textTheme.bodyMedium),
-              widgetFactory.createText(context, viewmodel.membershipPrice, style: Theme.of(context).textTheme.titleMedium),
+              widgetFactory.createText(context, viewmodel.membershipPrice, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
           const SizedBox(height: 8),
@@ -124,7 +152,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               widgetFactory.createText(context, 'Duration', style: Theme.of(context).textTheme.bodyMedium),
-              widgetFactory.createText(context, durationString, style: Theme.of(context).textTheme.titleMedium),
+              widgetFactory.createText(context, durationString, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
           const SizedBox(height: 8),
@@ -132,7 +160,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               widgetFactory.createText(context, 'Trial period', style: Theme.of(context).textTheme.bodyMedium),
-              widgetFactory.createText(context, trialPeriodString, style: Theme.of(context).textTheme.titleMedium),
+              widgetFactory.createText(context, trialPeriodString, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
         ],

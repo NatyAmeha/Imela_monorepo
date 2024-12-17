@@ -17,6 +17,7 @@ import 'package:imela_core/shared/utils/navigation_destination.dart';
 import 'package:imela_core/user/model/access/access.model.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
 import 'package:imela_pos/injection.dart';
+import 'package:imela_pos/l10n/l10n.dart';
 import 'package:imela_pos/ui/cart/cart.viewmodel.dart';
 import 'package:imela_pos/ui/cart/component/cart_list_component.dart';
 import 'package:imela_pos/ui/customer/customer_list_page.dart';
@@ -96,9 +97,9 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
 
   List<AppNavigationDestination> getDestinations(BuildContext context) {
     var defaultDestinations = [
-      AppNavigationDestination(name: 'Home', icon: Icons.home, screen: HomePage(), onTap: () => HomePage.navigate(context)),
-      AppNavigationDestination(name: 'Orders', icon: Icons.inventory_2, screen: OrderListPage(), onTap: () => OrderListPage.navigate(context)),
-      AppNavigationDestination(name: 'Customers', icon: Icons.inventory_2, screen: CustomerListPage(), onTap: () => CustomerListPage.navigate(context)),
+      AppNavigationDestination(name: context.l10n.homeTitle, icon: Icons.home, screen: HomePage(), onTap: () => HomePage.navigate(context)),
+      AppNavigationDestination(name: context.l10n.salesTitle, icon: Icons.inventory_2, screen: OrderListPage(), onTap: () => OrderListPage.navigate(context)),
+      AppNavigationDestination(name: context.l10n.inventoryTitle, icon: Icons.inventory_2, screen: CustomerListPage(), onTap: () => CustomerListPage.navigate(context)),
       AppNavigationDestination(name: 'Memberships', icon: Icons.wallet_membership_rounded, screen: POSMembershipListPage(), onTap: () => POSMembershipListPage.navigateTo(context)),
     ];
     if (appViewmodel.loggedInStaffAccesses.canAccessStaff()) {
@@ -110,7 +111,7 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
 
   void assignCategoryTabController(int length, TickerProvider vsync) {
     var productCategories = appViewmodel.allProducts.flatMap((e) => e.category ?? []).toSet()..removeWhere((element) => element.isEmpty);
-    categories.addAll(['All', ...productCategories]);
+    categories.assignAll(['All', ...productCategories]);
     selectedCategory.value = categories[0];
     businessSectionTabControllers = TabController(length: categories.length, vsync: vsync);
     businessSectionTabControllers.addListener(() {
@@ -156,34 +157,41 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
   void addProductToCartOrUpdateQty(BuildContext context, {double qty = 1, required Product product}) async {
     var selectedProductInfo = product;
     try {
-      List<OrderConfig> orderConfigs = [];
+      var orderConfigs = List<OrderConfig>.empty(growable: true);
       if (product.hasVariants()) {
         selectedProductInfo = await showVariantModal(context, product);
       }
       if (product.hasAddons()) {
-        final addonConfig = await showAddonModal(context, product.getAddons(forPOS: true));
-        orderConfigs = addonConfig.orderConfigs;
+        final addonConfig = await showAddonModal(context, product);
+        orderConfigs = List<OrderConfig>.from(addonConfig.orderConfigs);
+        var qtyFromConfigString = orderConfigs.firstWhereOrNull((e) => e.addonId == OrderConfig.QTY_CONFIG_ID)?.singleValue;
+        var qtyFromConfigDouble = double.tryParse(qtyFromConfigString ?? '1');
+        if (qtyFromConfigDouble != null) {
+          qty = qtyFromConfigDouble;
+        }
       }
+      orderConfigs.removeWhere((e) => e.addonId == OrderConfig.QTY_CONFIG_ID);
       final isProductInCart = cartViewmodel.isCartContainsProduct(selectedProductInfo.id!);
       if (isProductInCart) {
         cartViewmodel.updateProductQty(selectedProductInfo.id!, qty: qty);
       } else {
         final orderItem = selectedProductInfo.getOrderItem(qty, config: orderConfigs);
         cartViewmodel.addProductToCart(orderItem);
+        
       }
-      cartViewmodel.applyEligableDiscountsProactive();
     } catch (ex) {
       print('error adding product to cart: $ex');
     }
   }
 
-  Future<AddonConfig> showAddonModal(BuildContext context, List<ProductAddon> productAddons) async {
+  Future<AddonConfig> showAddonModal(BuildContext context, Product product) async {
     final configResult = await AppModalSheet.showModal<AddonConfig>(context, type: AppModalSheetType.SIDESHEET, pages: [
       ModalContent(
           title: const Text('Product Add-ons/configurations'),
           content: Obx(
             () => PosProductAddonModal(
-              productAddons: List.from(productAddons),
+              product: product,
+              productAddons: List.from(product.getAddons(forPOS: true)),
               customer: appViewmodel.selectedCustomer.value,
               callToAction: 'Add to Cart',
             ),

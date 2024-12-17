@@ -73,6 +73,7 @@ class _ProductDynamicPricingState extends State<ProductDynamicPricing> {
           padding: const EdgeInsets.all(10),
           border: Border.all(color: Theme.of(context).colorScheme.primaryContainer),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (widget.dynamicPricingDiscounts.isNotEmpty) ...[
                 Obx(
@@ -133,14 +134,16 @@ class _ProductDynamicPricingState extends State<ProductDynamicPricing> {
                   ],
                 ),
               ),
-              if (widget.showFinishBtn)
+              if (widget.showFinishBtn) ...[
+                const SizedBox(height: 16),
                 widgetFactory.createButton(
                   context: context,
-                  content: Text("Finish"),
+                  content: const Text('Finish'),
                   onPressed: () {
                     widget.onFinish?.call(context, viewmodel.selectedQty.value);
                   },
                 )
+              ]
             ],
           ),
         ),

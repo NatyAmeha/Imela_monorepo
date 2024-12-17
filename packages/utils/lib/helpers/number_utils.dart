@@ -1,11 +1,10 @@
-import 'package:get/get.dart';
 
 extension NumberUtils on num {
   double getPercentage(double percentage, {bool deductPercentageFromOriginalPrice = true}) {
     if (deductPercentageFromOriginalPrice) {
-      return (this - (this * (percentage / 100))).toPrecision(2);
+      return (this - (this * (percentage / 100))).getPresision(2);
     }
-    return (this * (percentage / 100)).toPrecision(2);
+    return (this * (percentage / 100)).getPresision(2);
   }
 
   double getPresision(int precision, {bool roundUp = false}) {
@@ -32,5 +31,18 @@ extension NumberUtils on num {
       total = total.getPercentage(percentage, deductPercentageFromOriginalPrice: deductPercentageFromOriginalPrice);
     }
     return total.getPresision(2);
+  }
+
+  String toDurationString() {
+    final duration = Duration(days: toInt());
+    if (duration.inDays >= 365) {
+      final years = (duration.inDays / 365).floor();
+      return '$years ${years == 1 ? 'year' : 'years'}';
+    } else if (duration.inDays >= 30) {
+      final months = (duration.inDays / 30).floor();
+      return '$months ${months == 1 ? 'month' : 'months'}';
+    } else {
+      return '${duration.inDays} ${duration.inDays == 1 ? 'day' : 'days'}';
+    }
   }
 }

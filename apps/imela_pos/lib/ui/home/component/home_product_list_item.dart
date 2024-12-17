@@ -49,7 +49,7 @@ class HomeProductListItem extends StatelessWidget {
               AppImage(imageUrl: product.getImageUrl(), height: imageHeight, width: double.infinity),
               const SizedBox(height: 5),
               widgetFactory.createText(context, product.name.localize(selectedLanguage), style: Theme.of(context).textTheme.bodyLarge, maxLines: 2).withPaddingSymetric(horizontal: 10),
-              widgetFactory.createText(context, product.getTotalPriceUpdatedString(selectedCurrency), style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 10),
+              widgetFactory.createText(context, product.getPriceRangeString(selectedCurrency), style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 10),
               if (product.category != null) widgetFactory.createText(context, product.getProductCategoryString(), style: Theme.of(context).textTheme.bodySmall).withPaddingSymetric(horizontal: 10),
             ],
           ),

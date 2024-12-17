@@ -48,7 +48,10 @@ class OrderDetailviewmodel extends GetxController with BaseViewmodel {
   // getters
   var appViewmodel = AppController.getInstance;
   List<Business> get orderBusinesses => businessInfo.value?.businesses ?? [];
-  List<BusinessOrderStatus> get orderStatuses => orderBusinesses.map((business) => business.orderStatuses ?? []).flattened.toList();
+  List<BusinessOrderStatus> get orderStatuses {
+    final statuses = orderBusinesses.map((business) => business.orderStatuses ?? []).flattened.toList();
+    return statuses.isEmpty ? BusinessOrderStatus.defaultOrderStatuses : statuses;
+  }
   List<String> get orderStatusString => orderStatuses.map((e) => e.status.localize(selectedLanguage)).toList();
   String get selectedLanguage => appViewmodel.selectedLanguageUpdated.value;
 

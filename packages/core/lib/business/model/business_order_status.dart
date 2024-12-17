@@ -19,10 +19,10 @@ class BusinessOrderStatus with _$BusinessOrderStatus {
   factory BusinessOrderStatus.fromJson(Map<String, dynamic> json) => _$BusinessOrderStatusFromJson(json);
 
   static const List<BusinessOrderStatus> defaultOrderStatuses = [
-    BusinessOrderStatus(id: 'PENDING', status: [const LocalizedField(key: 'ENGLISH', value: 'Pending'), const LocalizedField(key: 'AMHARIC', value: 'በመካሄድ ላይ')]),
-    BusinessOrderStatus(id: 'PAYMENT_CONFIRMED', status: [const LocalizedField(key: 'ENGLISH', value: 'Payment Confirmed'), const LocalizedField(key: 'AMHARIC', value: 'ከፈያ ተቀባይነት')]),
-    BusinessOrderStatus(id: 'CONFIRMED', status: [const LocalizedField(key: 'ENGLISH', value: 'Confirmed'), const LocalizedField(key: 'AMHARIC', value: 'መረጃ መመዝ ላይ')]),
-    BusinessOrderStatus(id: 'CANCELLED', status: [const LocalizedField(key: 'ENGLISH', value: 'Cancelled'), const LocalizedField(key: 'AMHARIC', value: 'ተሰርዟል')]),
-    BusinessOrderStatus(id: 'COMPLETED', status: [const LocalizedField(key: 'ENGLISH', value: 'Completed'), const LocalizedField(key: 'AMHARIC', value: 'ተጠናቋል')]),
+    BusinessOrderStatus(id: 'PENDING', status: [LocalizedField(key: 'ENGLISH', value: 'Pending'), LocalizedField(key: 'AMHARIC', value: 'በመካሄድ ላይ')], isDefault: true, sequence: 0),
+    BusinessOrderStatus(id: 'PAYMENT_CONFIRMED', status: [LocalizedField(key: 'ENGLISH', value: 'Payment Confirmed'), LocalizedField(key: 'AMHARIC', value: 'ከፈያ ተቀባይነት')], sequence: 1),
+    // BusinessOrderStatus(id: 'CONFIRMED', status: [LocalizedField(key: 'ENGLISH', value: 'Confirmed'), LocalizedField(key: 'AMHARIC', value: 'መረጃ መመዝ ላይ')], sequence: 2),
+    // BusinessOrderStatus(id: 'CANCELLED', status: [LocalizedField(key: 'ENGLISH', value: 'Cancelled'), LocalizedField(key: 'AMHARIC', value: 'ተሰርዟል')], sequence: 3),
+    BusinessOrderStatus(id: 'COMPLETED', status: [LocalizedField(key: 'ENGLISH', value: 'Completed'), LocalizedField(key: 'AMHARIC', value: 'ተጠናቋል')], sequence: 4),
   ];
 }

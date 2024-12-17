@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:imela_pos/app/app_constants.dart';
 import 'package:imela_pos/app/routing_service.dart';
 import 'package:imela_pos/app/theme.dart';
 import 'package:imela_pos/l10n/l10n.dart';
@@ -17,10 +18,10 @@ class App extends StatelessWidget {
       theme: AppThemeManager.getInstance(context).getLightTheme(),
       darkTheme: AppThemeManager.getInstance(context).getDarkTheme(),
       themeMode: ThemeMode.light,
+      locale: const Locale('en'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+      supportedLocales: AppConstants.supportedLocales,
       routerConfig: GoRouterService.routes,
     );
   }
 }
- 

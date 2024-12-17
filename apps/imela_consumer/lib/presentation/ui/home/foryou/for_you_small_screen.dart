@@ -36,44 +36,49 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
         homepageViewmodel.getForYouData(context, fetchPolicy: ApiDataFetchPolicy.networkOnly);
       },
       child: Scaffold(
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppListView(
-                  header: ListHeader(
-                    widgetFactory: widgetFactory,
-                    title: 'Your Favorite Businesses',
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    action: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.keyboard_arrow_right),
-                    ),
-                  ),
-                  scrollDirection: Axis.horizontal,
-                  items: homepageViewmodel.forYouData.value?.favoriteBusinesses ?? [],
-                  shrinkWrap: true,
-                  height: 250,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  itemBuilder: (context, business, index) {
-                    return BusinessListTile(
-                      business: business,
-                      width: 250,
+        body: RefreshIndicator(
+          onRefresh: () async {
+            homepageViewmodel.getForYouData(context, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+          },
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AppListView(
+                    header: ListHeader(
                       widgetFactory: widgetFactory,
-                      imageHeight: 110,
-                      onTap: () {
-                        homepageViewmodel.navigateToBusinessDetailPage(context, business);
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-                _buildBundleSection(context),
-                const SizedBox(height: 24),
-                _buildProductSection(context),
-              ],
+                      title: 'Your Favorite Businesses',
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      action: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.keyboard_arrow_right),
+                      ),
+                    ),
+                    scrollDirection: Axis.horizontal,
+                    items: homepageViewmodel.forYouData.value?.favoriteBusinesses ?? [],
+                    shrinkWrap: true,
+                    height: 250,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    itemBuilder: (context, business, index) {
+                      return BusinessListTile(
+                        business: business,
+                        width: 250,
+                        widgetFactory: widgetFactory,
+                        imageHeight: 110,
+                        onTap: () {
+                          homepageViewmodel.navigateToBusinessDetailPage(context, business);
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  _buildBundleSection(context),
+                  const SizedBox(height: 24),
+                  _buildProductSection(context),
+                ],
+              ),
             ),
           ),
         ),
@@ -135,7 +140,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
           scrollDirection: Axis.horizontal,
           items: product.items,
           shrinkWrap: true,
-          height: 275,
+          height: 300,
           width: MediaQuery.sizeOf(context).width,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
@@ -145,6 +150,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
               child: GridProductListItem(
                 product: product,
                 widgetFactory: widgetFactory,
+                discounts: product.getBusinessDiscounts(),
                 imageHeight: 125,
                 badgeInfos: ProductBadgeInfo.getProductBadgeInfo(product),
                 onTap: () {

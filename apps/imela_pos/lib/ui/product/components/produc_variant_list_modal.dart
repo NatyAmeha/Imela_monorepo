@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_pos/ui/product/components/product_list_item.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
-import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class ProductVariantListModal extends StatefulWidget {

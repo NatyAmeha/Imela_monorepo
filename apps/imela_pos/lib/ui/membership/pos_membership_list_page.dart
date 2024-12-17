@@ -42,6 +42,15 @@ class _POSMembershipListPageState extends State<POSMembershipListPage> {
       appBar: AppBar(
         title: const Text('Membership List', style: TextStyle(fontSize: 16)),
         actions: [
+          if (!Responsive.isSmallScreen(context)) ...[
+            widgetFactory.createButton(
+              context: context,
+              content: const Text('Create New membership'),
+              onPressed: () {
+                viewmodel.navigateToCreateMember(context);
+              },
+            ),
+          ],
           IconButton(
             onPressed: () {
               viewmodel.getMemberships(fetchPolicy: ApiDataFetchPolicy.networkOnly);

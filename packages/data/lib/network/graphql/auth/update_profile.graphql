@@ -1,6 +1,8 @@
 mutation UpdateProfile($input: UpdateUserInput!) {
     updateProfileInfo(user: $input) {
         success
+        accessToken
+        refreshToken
         user {
             id
             email

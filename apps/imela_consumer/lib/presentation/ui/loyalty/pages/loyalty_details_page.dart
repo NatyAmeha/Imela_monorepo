@@ -15,14 +15,16 @@ class LoyaltyDetailsPage extends StatefulWidget {
   static const LOYALTY_INFO_KEY = 'LOAYTY_INFO_KEY';
   static const PROGRAM_NAME_KEY = 'PROGRAM_NAME_KEY';
   static const BUSINESS_ID_KEY = 'BUSINESS_ID_KEY';
+  static const COLOR_KEY = 'COLOR_KEY';
   final String programName;
   final String? businessId;
   final LoyaltyResponse? loyaltyInfo;
-  const LoyaltyDetailsPage({super.key, required this.programName, this.loyaltyInfo, this.businessId});
+  final Color? color;
+  const LoyaltyDetailsPage({super.key, required this.programName, this.loyaltyInfo, this.businessId, this.color});
 
-  static void navigate(BuildContext context, {required String programName, LoyaltyResponse? loyaltyInfo, String? businessId}) {
+  static void navigate(BuildContext context, {required String programName, LoyaltyResponse? loyaltyInfo, String? businessId, Color? color}) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, routeName, extra: {LOYALTY_INFO_KEY: loyaltyInfo, PROGRAM_NAME_KEY: programName, BUSINESS_ID_KEY: businessId});
+    router.navigateTo(context, routeName, extra: {LOYALTY_INFO_KEY: loyaltyInfo, PROGRAM_NAME_KEY: programName, BUSINESS_ID_KEY: businessId, COLOR_KEY: color});
   }
 
   @override
@@ -63,7 +65,7 @@ class _LoyaltyDetailsPageState extends State<LoyaltyDetailsPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (viewmodel.customerLoyaltyInfo != null) ...[
-                  LoyaltyListItem(customerLoyalty: viewmodel.customerLoyaltyInfo!, selectedLanguage: selectedLanguage).withPaddingSymetric(vertical: 8),
+                  LoyaltyListItem(customerLoyalty: viewmodel.customerLoyaltyInfo!, selectedLanguage: selectedLanguage, color: widget.color, showSeeRewardBtn: false).withPaddingSymetric(vertical: 8),
                 ],
                 if (viewmodel.loyaltyRewards.isNotEmpty) ...[
                   const SizedBox(height: 16),

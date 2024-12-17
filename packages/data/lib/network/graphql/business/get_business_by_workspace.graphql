@@ -66,6 +66,38 @@ query GetBusinessByWorkspace($workspace: String!, $branchId: String) {
             }
             membershipIds
           }
+          productOptionInfos {
+            productId
+            minQty
+            maxQty
+            discounts {
+              type
+              value
+              condition
+              conditionValue
+              startDate
+              endDate
+            }
+            product {
+              id
+              name {
+                key
+                value
+              }
+              gallery {
+                images {
+                  url
+                  featured
+                }
+              }
+              prices {
+                price {
+                  currency
+                  amount
+                }
+              }
+            }
+          }
           isActive
           isRequired
           additionalPrice {
@@ -127,7 +159,6 @@ query GetBusinessByWorkspace($workspace: String!, $branchId: String) {
         }
         type
         upfrontPayment
-        dueDate
         dueAfterDays
       }
     }

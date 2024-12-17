@@ -255,7 +255,6 @@ class MaterialWidgetFactory extends BaseWidgetFactory {
     return pickedDate;
   }
 
-
   @override
   Widget createPopupMenu<T>({
     required BuildContext context,

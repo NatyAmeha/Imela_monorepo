@@ -42,16 +42,21 @@ class OrderScheduleViewModel extends GetxController with BaseViewmodel {
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
-    getBranchOrderSchedules();
+    var context = data?['context'];
+    getBranchOrderSchedules(context);
   }
 
-  Future<void> getBranchOrderSchedules() async {
+  Future<void> getBranchOrderSchedules(BuildContext context) async {
     try {
       isLoading(true);
       final branchId = appViewmodel.selectedBranchId;
       final result = await _orderUsecase.getBranchOrderSchedules(branchId);
       if (!(result?.success ?? false)) {
         exception.value = AppException(message: 'Error occured, please try again');
+        return;
+      }
+      if (result?.schedules?.isEmpty ?? true) {
+        AppViewmodel.getWidgetFactory(context).showFlashMessage(context, message: 'There is no order schedule for this branch');
         return;
       }
       branchOrderSchedules.value = result;

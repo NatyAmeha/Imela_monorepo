@@ -41,6 +41,7 @@ class CartViewmodel extends GetxController with BaseViewmodel {
   RxList<DiscountInfo> eligableDiscounts = <DiscountInfo>[].obs;
 
   var configuredOrderAddons = <OrderConfig>[].obs;
+  var ordernote = Rxn<String>();
 
   // getters
   AppViewmodel get appViewmodel => AppViewmodel.getInstance();
@@ -155,6 +156,7 @@ class CartViewmodel extends GetxController with BaseViewmodel {
 
   void addProductToCart(OrderItem item) {
     appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(items: [...appViewmodel.cartInfo.value.items ?? [], item]);
+    applyEligableDiscountsProactive(item);
   }
 
   void removeProductFromCart(String productId) {
@@ -173,7 +175,7 @@ class CartViewmodel extends GetxController with BaseViewmodel {
             context: context,
             content: const Text('Clear'),
             onPressed: () {
-              appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(items: []);
+              appViewmodel.resetCartInfo();
             },
           )
         ],
@@ -181,7 +183,7 @@ class CartViewmodel extends GetxController with BaseViewmodel {
     );
   }
 
-  Future<void> showCustomerListModal(BuildContext context, {required List<Customer> customers, String? title, String? description}) async {
+  Future<void> showCustomerListModal(BuildContext context, {required List<Customer> customers, String? title, String? description, bool showCreateCustomer = true}) async {
     final pageId = UniqueKey().toString();
     final customerDetailsPageId = UniqueKey().toString();
     await AppModalSheet.showModal(
@@ -196,6 +198,7 @@ class CartViewmodel extends GetxController with BaseViewmodel {
             selectedCustomer: appViewmodel.selectedCustomer.value,
             title: title ?? 'Select customer',
             description: description,
+            showCustomerCreate: showCreateCustomer,
             onCustomerSelected: (contextt, selectedCustomer) {
               addCustomerDetailPage(contextt, customerDetailsPageId, selectedCustomer);
             },
@@ -251,31 +254,65 @@ class CartViewmodel extends GetxController with BaseViewmodel {
     );
   }
 
-  void applyEligableDiscountsProactive() {
-    final discount = eligableDiscounts.firstOrNullWhere((e) => e.isApplied);
-    if (discount != null) {
-      final cartDiscountInfo = discount.toItemDiscount();
-      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.applyDiscountOnOrderItems([cartDiscountInfo], removeExistingDiscount: false);
+  void applyEligableDiscountsProactive(OrderItem item) {
+    final discount = appliedDiscounts.where((e) => e.isApplied).toList();
+    if (discount.isNotEmpty) {
+      final cartDiscountInfo = discount.map((e) => e.toItemDiscount()).toList();
+      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.applyDiscountOnOrderItems(discountList: cartDiscountInfo, selectedProductsForDiscount: [item.productId!], removeExistingDiscount: false);
     }
   }
 
   void toggleDiscount(DiscountInfo discount) {
-    discount = discount.copyWith(isApplied: !discount.isApplied);
+    discount = discount.copyWith(isApplied: !discount.isApplied); 
     final discountIndex = eligableDiscounts.indexWhere((e) => e.id == discount.id);
     if (discountIndex != -1) {
+      if (discount.source == DiscountSource.LOYALTY) {
+        if (discount.isApplied &&  !isCustomerHasEnoughPointsForLoyaltyDiscount(discount)) {
+          AppViewmodel.getWidgetFactory(contextB.value!).showFlashMessage(contextB.value!, message: 'Customer don\'t have enough points to apply this discount');
+          return;
+        }
+      }
       eligableDiscounts.value[discountIndex] = discount;
       final cartDiscountInfo = discount.toItemDiscount();
-      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.applyDiscountOnOrderItems([cartDiscountInfo], removeExistingDiscount: !discount.isApplied);
+      final allItems = appViewmodel.cartInfo.value.items?.map((e) => e.productId!).toList() ?? [];
+      appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.applyDiscountOnOrderItems(discountList: [cartDiscountInfo], selectedProductsForDiscount: allItems, removeExistingDiscount: !discount.isApplied);
       eligableDiscounts.refresh();
     }
   }
- 
+
+  bool isCustomerHasEnoughPointsForLoyaltyDiscount(DiscountInfo discount) {
+    var customerLoyalty = appViewmodel.getCustomerLoyaltyInfo(appViewmodel.selectedCustomer.value);
+    final totalExistingLoyaltyDiscountsPoints = appliedDiscounts.getLoyaltyDiscounts().getTotalPointApplied();
+    final newLoyaltyDiscountPoints = discount.pointApplied;
+    if ((totalExistingLoyaltyDiscountsPoints + newLoyaltyDiscountPoints) > (customerLoyalty?.currentPoints ?? 0)) {
+      return false;
+    }
+    return true;
+  }
+
   void navigateToNextPage(BuildContext context) async {
+    if (cart.haveMembershipProducts()) {
+      var membershipIds = cart.getMembershipIds().firstOrNull;
+      if (membershipIds != null) {
+        var customerMembership = appViewmodel.selectedCustomer.value?.getCustomerMembershipInfo(membershipIds, appViewmodel.allMemberships);
+        if (!(customerMembership?.subscription?.isSubscriptionActive() ?? false)) {
+          // no customer selected
+          showCustomerListModal(
+            context,
+            customers: appViewmodel.getMemberCustomers(membershipIds),
+            title: 'Select Membership Customer',
+            description: 'You need to select a customer with active membership',
+            showCreateCustomer: false,
+          );
+          return;
+        }
+      }
+    }
     if (orderconfigurations.isNotEmpty && configuredOrderAddons.isEmpty) {
       final addonConfig = await showOrderConfigurationPopup(context);
       if (addonConfig != null) {
         PaymentPage.navigate(context);
-      } 
+      }
     } else {
       PaymentPage.navigate(context);
     }
@@ -309,7 +346,10 @@ class CartViewmodel extends GetxController with BaseViewmodel {
       ModalContent(title: const Text('Product Add-ons/configurations'), content: PosProductAddonModal(productAddons: orderconfigurations, initialConfigs: configuredOrderAddons)),
     ]);
     if (configResult != null) {
-      configuredOrderAddons.value = configResult.orderConfigs;
+      var fetchedOrderConfigs = List<OrderConfig>.from(configResult.orderConfigs);
+      fetchedOrderConfigs.removeWhere((e) => e.addonId == OrderConfig.QTY_CONFIG_ID);
+      configuredOrderAddons.value = fetchedOrderConfigs;
+
       appViewmodel.cartInfo.value = appViewmodel.cartInfo.value.copyWith(configs: configuredOrderAddons);
     }
     return configResult;
@@ -324,5 +364,43 @@ class CartViewmodel extends GetxController with BaseViewmodel {
     } else {
       widgetFactory.showFlashMessage(context, message: 'This is a required addon, You can\'t remove it');
     }
+  }
+
+  void showOrderNotePopup(BuildContext context) {
+    final widgetFactory = AppViewmodel.getWidgetFactory(context);
+    final controller = TextEditingController();
+    AppModalSheet.showModal(
+      context,
+      type: AppModalSheetType.DIALOG,
+      pages: [
+        ModalContent(
+          title: const Text('Order Note'),
+          content: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                widgetFactory.createText(context, 'Order Note', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 16),
+                widgetFactory.createTextField(controller: controller, hintText: 'Enter order note', maxLines: 3),
+                const SizedBox(height: 24),
+                widgetFactory.createButton(
+                  context: context,
+                  content: const Text('Save'),
+                  onPressed: () {
+                    ordernote.value = controller.text;
+                    AppModalSheet.closeModal();
+                  },
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  void resetOrderNote(String? s) {
+    ordernote.value = s;
   }
 }

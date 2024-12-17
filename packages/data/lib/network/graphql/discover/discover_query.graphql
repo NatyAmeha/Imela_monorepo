@@ -47,12 +47,25 @@ query GetDiscoveryData {
             value
           }
           discounts {
+            name {
+              key
+              value
+            }
             type
             value
             condition
             conditionValue
             startDate
             endDate
+          }
+        }
+        variants{
+          id
+          prices {
+            price {
+              amount
+              currency
+            }
           }
         }
       }
@@ -84,6 +97,12 @@ query GetDiscoveryData {
         name{
           key
           value
+        }
+        discount {
+          type
+          value
+          condition
+          conditionValue
         }
         productIds
         products {

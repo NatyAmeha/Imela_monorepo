@@ -32,6 +32,7 @@ import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/components/language_selector.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/exception/app_exception.dart';
@@ -77,6 +78,9 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   var selectedBranch = Rxn<Branch>();
 
   var isAppbarExpanded = true.obs;
+
+  var preventBranchSelectedDialogFromDismissed = false;
+  bool _isCancelled = false;
 
   Map<String, CustomListController<Product>> sectionsWithProductsControllers = {};
   static const businessUiHeaderHeight = 170;
@@ -129,8 +133,6 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
       cleanupStateVariables();
       alreadySelectedBranchId = appViewmodel.getSelectedBusinessBranchId(businessId);
       await getBusinessDetails(context, businessId, branchId: alreadySelectedBranchId);
-      await appViewmodel.getCustomerBusinessLoyalty(businessId);
-      await getMembershipPlans();
     });
   }
 
@@ -146,29 +148,49 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   Future<void> getBusinessDetails(BuildContext context, String id, {String? branchId}) async {
     try {
+      _isCancelled = false;
       isLoading(true);
+      final response = await businessUsecase.getBusinessDetails(id, branchId: branchId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
 
-      final response = await businessUsecase.getBusinessDetails(id, branchId: branchId);
+      if (_isCancelled) return;
+
       if (response?.isBusinessDetailFetchSuccessfull() == true) {
         businessDetails.value = response;
-        if (businessBranches.isNotEmpty && alreadySelectedBranchId == null) {
-          showBusinessBranchSelectionModal(context);
+        if (businessBranches.isNotEmpty && branchId == null) {
+          if (_isCancelled) return;
+          preventBranchSelectedDialogFromDismissed = true;
+          await showBusinessBranchSelectionModal(context);
+        } else {
+          selectedBranch.value = businessBranches.firstWhere((element) => element.id == branchId);
         }
+
+        if (_isCancelled) return;
         productListController.addItems(response!.products);
         createBusinessSectionsWithProductListController();
         appViewmodel.addDiscounts(allDiscounts, clearPrevious: true);
-        addBusinessToFavorite(businessData!);
-        if (alreadySelectedBranchId != null) {
-          selectedBranch.value = businessBranches.firstWhere((element) => element.id == alreadySelectedBranchId);
-        }
+
+        if (_isCancelled) return;
+        await appViewmodel.getCustomerBusinessLoyalty(businessId);
+
+        if (_isCancelled) return;
+        await getMembershipPlans();
+
+        if (_isCancelled) return;
+        await addBusinessToFavorite(businessData!);
       } else {
-        exception(AppException(message: 'Business not found'));
+        if (!_isCancelled) {
+          exception(AppException(message: 'Business not found'));
+        }
       }
     } catch (e) {
-      print('exception $e');
-      exception(exceptiionHandler.getException(e as Exception));
+      if (!_isCancelled) {
+        print('exception $e');
+        exception(exceptiionHandler.getException(e as Exception));
+      }
     } finally {
-      isLoading(false);
+      if (!_isCancelled) {
+        isLoading(false);
+      }
     }
   }
 
@@ -190,9 +212,9 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     if (branch != null) {
       appViewmodel.setSelectedBusinessBranchId(businessId, branch.id!);
       alreadySelectedBranchId = branch.id;
+      selectedBranch.value = branch;
       await getBusinessDetails(context, businessId, branchId: branch.id);
     }
-    selectedBranch.value = branch;
   }
 
   Future<void> getMembershipPlans() async {
@@ -220,17 +242,28 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   Future<void> showBusinessBranchSelectionModal(BuildContext context) async {
     await AppModalSheet.showModal(
       context,
+      dimissable: false,
       type: AppModalSheetType.BOTTOMSHEET,
+      onClose: (context) {
+        if (selectedBranch.value != null) {
+          AppModalSheet.closeModal();
+        }
+      },
       pages: [
         ModalContent(
           title: const Text('Select branch'),
-          content: BusinessBranchListModal(
-            selectedBranch: selectedBranch.value,
-            branches: businessBranches,
-            onBranchSelected: (newBranch) {
-              selectBranch(context, newBranch);
-              AppModalSheet.closeModal();
+          content: WillPopScope(
+            onWillPop: () async {
+              return false;
             },
+            child: BusinessBranchListModal(
+              selectedBranch: selectedBranch.value,
+              branches: businessBranches,
+              onBranchSelected: (newBranch) {
+                selectBranch(context, newBranch);
+                AppModalSheet.closeModal();
+              },
+            ),
           ),
         ),
       ],

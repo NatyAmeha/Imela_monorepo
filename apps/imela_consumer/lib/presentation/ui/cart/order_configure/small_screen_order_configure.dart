@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/cart/order_configure/order_configure.viewmodel.dart';
-import 'package:imela/presentation/ui/payment/components/payment_method_list_item.dart';
 import 'package:imela/presentation/ui/payment/components/payment_option_item.dart';
 import 'package:imela/presentation/ui/payment/components/selected_payment_method.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
@@ -104,32 +103,45 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: widgetFactory.createCard(
                     color: Colors.white,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Obx(
-                          () => Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.bodyLarge),
-                              const SizedBox(width: 8),
-                              widgetFactory.createText(context, 'ETB ${viewmodel.currentPayment}', style: Theme.of(context).textTheme.titleLarge),
-                            ],
+                    child: Obx(
+                      () => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (viewmodel.paymentStatusMessage.isNotEmpty) ...[
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+                                const SizedBox(width: 8),
+                                Flexible(child: widgetFactory.createText(context, viewmodel.paymentStatusMessage, style: Theme.of(context).textTheme.bodyMedium)),
+                              ],
+                            ),
+                            const Divider(height: 8),
+                          ],
+                          Obx(
+                            () => Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.bodyLarge),
+                                const SizedBox(width: 8),
+                                widgetFactory.createText(context, 'ETB ${viewmodel.currentPayment}', style: Theme.of(context).textTheme.titleMedium),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Obx(
-                          () => widgetFactory.createButton(
-                            context: context,
-                            content: const Text('Place order'),
-                            onPressed: viewmodel.canEnablePlaceORderBtn ? () => viewmodel.placeOrder(context) : null,
+                          const SizedBox(height: 4),
+                          Obx(
+                            () => widgetFactory.createButton(
+                              context: context,
+                              content: const Text('Place order'),
+                              onPressed: viewmodel.canEnablePlaceORderBtn ? () => viewmodel.placeOrder(context) : null,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -132,7 +132,7 @@ class Product with _$Product {
 
     if (hasVariants()) {
       basePrice = getMinVariantPrice(currency);
-      finalPrice = getMaxVariantPrice(currency); 
+      finalPrice = getMaxVariantPrice(currency);
     }
 
     if (!showWithoutDiscount && discounts.isNotEmpty) {
@@ -145,7 +145,7 @@ class Product with _$Product {
     return '${basePrice?.currency} ${basePrice?.amount.getPresisionString()} - ${finalPrice?.currency} ${finalPrice?.amount.getPresisionString()}';
   }
 
-  double getTotalPriceUpdated(String currency, {double? qtyInput, List<Discount> discounts = const [], double additionalPrice = 0}) {
+  double getTotalPriceUpdated(String currency, {double? qtyInput, List<Discount> discounts = const [], double additionalPrice = 0, bool round = true}) {
     var basePrice = getPrice().toSelectedPrice(currency);
     if (basePrice == null) {
       return -1;
@@ -155,7 +155,11 @@ class Product with _$Product {
         basePrice = basePrice!.copyWith(amount: basePrice.amount.getPercentage(discount.value));
       }
     }
-    return ((basePrice!.amount + additionalPrice) * (qtyInput ?? qty ?? 1)).getPresision(2);
+    final finalPrice =  ((basePrice!.amount + additionalPrice).getPresision(2) * (qtyInput ?? qty ?? 1));
+    if(round){
+      return finalPrice.getPresision(2);
+    }
+    return finalPrice;
   }
 
   double calculateaAppliedDiscount(String currency, {double? qty, List<Discount> discounts = const []}) {
@@ -169,8 +173,8 @@ class Product with _$Product {
     return totalDiscountAmount.getPresision(2);
   }
 
-  String getTotalPriceUpdatedString(String currency, {double? qty, List<Discount> discounts = const [], double additionalPrice = 0}) {
-    var finalTotalPrice = getTotalPriceUpdated(currency, qtyInput: qty, discounts: discounts, additionalPrice: additionalPrice);
+  String getTotalPriceUpdatedString(String currency, {double? qty, List<Discount> discounts = const [], double additionalPrice = 0, bool round = true}) {
+    var finalTotalPrice = getTotalPriceUpdated(currency, qtyInput: qty, discounts: discounts, additionalPrice: additionalPrice, round: round);
     return '$currency ${finalTotalPrice.getPresisionString()}';
   }
 
@@ -292,27 +296,41 @@ class Product with _$Product {
     return orderConfig;
   }
 
-  Cart getCartInfo({double qty = 1, required Business businessInfo, List<OrderConfig> productOrderConfigs = const [], List<Discount> discounts = const [], List<ProductAddon> addons = const []}) {
+  Cart getCartInfo({double qty = 1, required Business businessInfo, List<OrderConfig> productOrderConfigs = const [], List<Discount> discounts = const [], List<ProductAddon> addons = const [], double productPoint = 0}) {
     final originalProductPrice = getTotalPriceUpdated('ETB', qtyInput: 1);
-    final item = getOrderItem(qty, originalPrice: originalProductPrice, discounts: discounts, config: productOrderConfigs, addons: addons);
+    final item = getOrderItem(qty, originalPrice: originalProductPrice, discounts: discounts, config: productOrderConfigs, addons: addons, productPoint: productPoint);
     return Cart(id: businessInfo.id, name: businessInfo.name, items: [item], paymentOptions: businessInfo.paymentOptions, businessIds: [businessInfo.id!]);
   }
 
-  OrderItem getOrderItem(double selectedQty, {double originalPrice = 0, String selectedCurrency = 'ETB', List<OrderConfig> config = const [], List<Discount> discounts = const [], List<ProductAddon> addons = const []}) {
+  OrderItem getOrderItem(
+    double selectedQty, {
+    double originalPrice = 0,
+    String selectedCurrency = 'ETB',
+    List<OrderConfig> config = const [],
+    List<Discount> discounts = const [],
+    List<ProductAddon> addons = const [],
+    double minQty = 1,
+    double maxQty = 10,
+    double? productPoint,
+    List<LocalizedField>? defaultDiscountName,
+  }) {
     final subtotalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: 1);
     final totalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: 1);
+    print('subtotalPrice $subtotalPrice');
     return OrderItem(
       name: name,
       product: copyWith(addons: addons),
       productId: id,
       image: getImageUrl(),
       originalPrice: originalPrice,
-      subTotal: subtotalPrice,
-      total: totalPrice,
-      point: loyaltyPoint.toDouble(),
-      discount: discounts.map((e) => e.toItemDiscount()).toList(),
+      subTotal: subtotalPrice.getPresision(2),
+      total: totalPrice.getPresision(2),
+      point: (productPoint ?? loyaltyPoint.toDouble()) * selectedQty,
+      discount: discounts.map((e) => e.toItemDiscount(defaultName: defaultDiscountName)).toList(),
       config: config,
       quantity: selectedQty,
+      minQty: minQty,
+      maxQty: maxQty,
     );
   }
 
@@ -339,6 +357,10 @@ class Product with _$Product {
 
   bool hasVariants() {
     return (variants?.isNotEmpty ?? false) || (variantsId?.isNotEmpty ?? false);
+  }
+
+  List<Discount> getBusinessDiscounts() {
+    return business?.discounts ?? [];
   }
 }
 

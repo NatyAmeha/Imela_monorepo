@@ -121,7 +121,7 @@ extension GraphqlDiscountInput on List<ItemDiscount>? {
         .map(
           (discount) => GOrderItemDiscountInput((discountInput) => discountInput
             ..amount = discount.amount
-            ..name.addAll(discount.name!.toLocalizedFieldInput())),
+            ..name.addAll(discount.name?.toLocalizedFieldInput() ?? [])),
         )
         .toList();
   }

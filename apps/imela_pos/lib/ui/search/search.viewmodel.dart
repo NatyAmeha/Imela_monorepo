@@ -9,6 +9,7 @@ import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
 import 'package:imela_pos/injection.dart';
+import 'package:imela_pos/ui/cart/component/cart_list_component.dart';
 import 'package:imela_pos/ui/home/home_page.viewmodel.dart';
 import 'package:imela_pos/ui/search/components/search_result_list_item.dart';
 import 'package:imela_pos/ui/search/search.model.dart';
@@ -263,6 +264,10 @@ class SearchViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToHompage(BuildContext context) {
-    appViewmodel.appRouter.goBack(context);
+    if (Responsive.isSmallScreen(context)) {
+      CartListPage.navigate(context);
+    } else {
+      appViewmodel.appRouter.goBack(context);
+    }
   }
 }

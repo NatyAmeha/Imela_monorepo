@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imela/app/app.dart';
@@ -10,6 +11,7 @@ import 'package:imela/presentation/ui/loyalty/pages/loyalty_list_page.dart';
 import 'package:imela/presentation/ui/membership/membership_list/membership_list_page.dart';
 import 'package:imela/presentation/ui/membership/membership_list/membership_list_viewmodel.dart';
 import 'package:imela/presentation/ui/order/order_list/order_list_page.dart';
+import 'package:imela/presentation/ui/profile/update_profile/update_profile_page.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_core/user/auth.usecase.dart';
@@ -50,7 +52,8 @@ class ProfileViewmodel extends GetxController with BaseViewmodel {
 
   // Add these getters for easy access to user information
 
-  String get fullName => (user.value?.username ?? '').trim();
+  String? get fullName => user.value?.username?.trim();
+  String get fullNameInitial => appViewmodel.loggedInUser.value?.username?.trim().substring(0, 1) ?? '';
   String get email => user.value?.email ?? '';
   int get loyaltyPoints => 15; // Placeholder, replace with actual data source
   String get phoneNumber => user.value?.phoneNumber ?? 'Add Number';
@@ -66,7 +69,8 @@ class ProfileViewmodel extends GetxController with BaseViewmodel {
   }
 
   void listenUserAuthChange(BuildContext context) {
-    ever(appViewmodel.loggedInUser, (value) {
+    ever(appViewmodel.loggedInUser, (value) { 
+      print('loggedInUser $value');
       setUser(value);
       getUserLoyaltyRewards(context);
     });
@@ -113,8 +117,28 @@ class ProfileViewmodel extends GetxController with BaseViewmodel {
   }
 
   Future<void> logout(BuildContext context) async {
-    appViewmodel.reloadHomePageDestination(true);
-    await appViewmodel.logout(context, redirectUrl: HomePage.routeName, redirectExtra: {});
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              appViewmodel.reloadHomePageDestination(true);
+              await appViewmodel.logout(context, redirectUrl: HomePage.routeName, redirectExtra: {});
+            },
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
   }
 
   void navigateToLoyaltyRewards(BuildContext context) {
@@ -156,5 +180,9 @@ class ProfileViewmodel extends GetxController with BaseViewmodel {
 
   void navigateToOrderList(BuildContext context) {
     OrderListPage.navigate(context);
+  }
+
+  void navigateToUpdateProfile(BuildContext context) {
+    UpdateProfilePage.navigate(context, pageTitle: 'Update Profile');
   }
 }

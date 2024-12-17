@@ -36,6 +36,7 @@ class OrderViewmodel extends GetxController with BaseViewmodel {
 
   // state variables
   var isLoading = false.obs;
+  var isOrderDetailsLoading = false.obs;
   var isUpdatingOrderStatus = false.obs;
   var exception = Rxn<AppException>();
 
@@ -59,14 +60,17 @@ class OrderViewmodel extends GetxController with BaseViewmodel {
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
+    var context = data?['context'];
     Future.delayed(Duration.zero, () {
-      getOrders();
+      getOrders(context);
     });
   }
 
-  Future<void> getOrders() async {
+  Future<void> getOrders(BuildContext context, {bool resetSelectedOrder = false}) async {
     try {
-      selectedOrder.value = null;
+      if (resetSelectedOrder) {
+        selectedOrder.value = null;
+      }
       isLoading.value = true;
       exception.value = null;
       final result = await orderUsecase.getPOSOrders(appViewmodel.selectedBranchId);
@@ -77,6 +81,7 @@ class OrderViewmodel extends GetxController with BaseViewmodel {
         }
         orders.value = result!.orders!;
         ordersController.setItems(orders.value);
+        setSelectedOrder(context, orders.value.first);
       }
     } catch (exception) {
       final ex = exceptiionHandler.getException(exception as Exception);
@@ -90,6 +95,26 @@ class OrderViewmodel extends GetxController with BaseViewmodel {
     selectedOrder.value = order;
     if (Responsive.isSmallScreen(context)) {
       OrderDetailsPage.navigateTo(context);
+    }
+    getOrderDetails(context, order.id!);
+  }
+
+  Future<void> getOrderDetails(BuildContext context, String orderId) async {
+    try {
+      isOrderDetailsLoading(true);
+      exception.value = null;
+      final orderResponse = await orderUsecase.getOrderDetails(orderId);
+      if (orderResponse?.success == true) {
+        selectedOrder.value = orderResponse?.order;
+        if (selectedOrder.value?.businessId != null) {}
+      }
+    } catch (ex) {
+      final widgetFactory = AppViewmodel.getWidgetFactory(context);
+      widgetFactory.showFlashMessage(context, message: 'Unable to get order details', isPersistent: true, onActinClicked: () {
+        getOrderDetails(context, orderId);
+      });
+    } finally {
+      isOrderDetailsLoading(false);
     }
   }
 

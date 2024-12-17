@@ -77,6 +77,18 @@ query GetMembershipDetails($membershipId: String!) {
         userId
         dateJoined
         memberStatus
+        userId
+          paymentMethod{
+            name{
+              key
+              value
+            }
+            amount{
+              amount
+              currency
+            }
+            receiptImages
+          }
         activeSubscription{
           id
           startDate

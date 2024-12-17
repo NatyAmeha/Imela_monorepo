@@ -33,7 +33,7 @@ class OrderItemListItem extends StatelessWidget {
                   ],
                 ),
               ),
-              widgetFactory.createText(context, orderItem.subtotalAmountString(selectedCurrency), style: Theme.of(context).textTheme.titleSmall),
+              widgetFactory.createText(context, orderItem.totalAmountString(currency:  selectedCurrency), style: Theme.of(context).textTheme.titleSmall),
             ],
           ),
           if (orderItem.config?.isNotEmpty == true) ...[

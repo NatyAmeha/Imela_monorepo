@@ -15,6 +15,7 @@ class PaymentMethodInputComponent extends StatelessWidget {
   final PaymentMethod? selectedPaymentMethod;
   final Function(PaymentMethod) onDelete;
   final Function(PaymentMethod) onSelected;
+  final Function(String) onAmountChanged;
   final Function() onPlaceOrderPressed;
   final bool canEnablePlaceOrder;
   final Map<String, TextEditingController> paymentMethodControllers;
@@ -31,6 +32,7 @@ class PaymentMethodInputComponent extends StatelessWidget {
     required this.onSelected,
     required this.canEnablePlaceOrder,
     required this.paymentMethodControllers,
+    required this.onAmountChanged,
   });
 
   final paymentViewmodel = PaymentPageViewmodel.getInstance();
@@ -58,11 +60,16 @@ class PaymentMethodInputComponent extends StatelessWidget {
                 selectedLanguage: selectedLanguage,
                 isSelected: isSelected(paymentMethod),
                 controller: paymentMethodControllers[paymentMethod.id] ?? TextEditingController(),
+                remainingAmountString: remainingAmount,
+                showRemainingAmount: true,
                 onSelected: () {
                   onSelected(paymentMethod);
                 },
                 onDelete: () {
                   onDelete(paymentMethod);
+                },
+                onAmountChanged: (value) {
+                  print('amount changed $value');
                 },
               );
             },

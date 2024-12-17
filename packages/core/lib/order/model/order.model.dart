@@ -136,6 +136,7 @@ class Order with _$Order {
 
   String getOrderStatus(String selectedLanguage, List<BusinessOrderStatus> businessOrderStatus) {
     final selectedStatus = businessOrderStatus.firstOrNullWhere((bs) => bs.id == status) ?? businessOrderStatus.firstOrNullWhere((bs) => bs.isDefault ?? false) ?? businessOrderStatus.firstOrNull;
+    print('selectedStatus ${businessOrderStatus} ${selectedStatus?.status?.localize(selectedLanguage)}');
     return selectedStatus?.status?.localize(selectedLanguage) ?? 'Pending';
   }
 

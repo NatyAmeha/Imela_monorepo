@@ -49,15 +49,13 @@ class BundleSummary extends StatelessWidget {
             )
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.all(4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              widgetFactory.createText(context, 'Time remaining', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
-              CountdownTimer(duration: viewmodel.remainingTime, backgroundColor: ColorManager.error),
-            ],
-          ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            widgetFactory.createText(context, 'Time remaining', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
+            CountdownTimer(duration: viewmodel.remainingTime, backgroundColor: ColorManager.error),
+          ],
         ),
       ],
     );

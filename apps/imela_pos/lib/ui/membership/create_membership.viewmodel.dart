@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/customer/customer_usecase.dart';
 import 'package:imela_core/customer/dto/customer_input.dart';
 import 'package:imela_core/customer/model/customer.model.dart';
 import 'package:imela_core/membership/dto/membership_response.dart';
 import 'package:imela_core/membership/membership_usecase.dart';
 import 'package:imela_core/membership/model/membership.model.dart';
+import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
 import 'package:imela_pos/injection.dart';
 import 'package:imela_pos/ui/customer/component/create_customer_modal.dart';
@@ -134,8 +137,19 @@ class CreateMembershipViewmodel extends GetxController with BaseViewmodel {
   Future<void> createMembership(BuildContext context) async {
     try {
       isLoading.value = true;
+      if (posMembershipListViewmodel.selectedPaymentMethods.value == null) {
+        var selectedPayment = SelectedPaymentMethod.cashPaymentAtStore(amoun: selectedMembership.value!.price?.toSelectedPrice('ETB')?.amount ?? 0);
+        posMembershipListViewmodel.selectedPaymentMethods.value = selectedPayment;
+      }
       if (posMembershipListViewmodel.selectedPaymentMethods.value != null) {
-        final result = await membershipUseCase.requestToJoinMembership(appViewmodel.selectedBusinessId, selectedMembership.value!.id!, membershipName: selectedMembership.value!.name.localize(selectedLanguage), memberId: selectedCustomer.value!.userId!, selectedPaymentMethod: posMembershipListViewmodel.selectedPaymentMethods.value!);
+        print('membership create info ${selectedCustomer.value?.userId} ${selectedMembership.value?.name}');
+        final result = await membershipUseCase.requestToJoinMembership(
+          appViewmodel.selectedBusinessId,
+          selectedMembership.value!.id!,
+          membershipName: selectedMembership.value!.name.localize(selectedLanguage),
+          memberId: selectedCustomer.value!.userId!,
+          selectedPaymentMethod: posMembershipListViewmodel.selectedPaymentMethods.value!,
+        );
         if (result?.success ?? false) {
           membershipJoinRequest.value = result;
           final approveMembershipResult = await membershipUseCase.renewMembership(
@@ -147,6 +161,8 @@ class CreateMembershipViewmodel extends GetxController with BaseViewmodel {
             selectedPaymentMethod: posMembershipListViewmodel.selectedPaymentMethods.value!,
           );
           if (approveMembershipResult?.success ?? false) {
+            appViewmodel.reloadMembership = true;
+            appViewmodel.getBusinessMemberships(fetchPolicy: ApiDataFetchPolicy.networkOnly);
             AppViewmodel.getWidgetFactory(context).showFlashMessage(context, message: 'Membership created successfully', actionText: 'ok');
             appViewmodel.appRouter.goBack(context);
           }

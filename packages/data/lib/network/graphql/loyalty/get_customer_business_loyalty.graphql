@@ -9,6 +9,10 @@ query GetCustomerBusinessLoyalty($businessId: String!) {
     }
     customerLoyalty {
       id
+      name {
+        key
+        value
+      }
       customerId
       businessId
       currentPoints

@@ -27,7 +27,9 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
   @override
   void initState() {
     super.initState();
-    viewmodel.initViewmodel();
+    viewmodel.initViewmodel(data: {
+      'context': context,
+    });
   }
 
   @override
@@ -40,11 +42,16 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
           isDataLoading: viewmodel.isLoading.value,
           exception: viewmodel.exception.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
+          onTryAgain: () {
+            viewmodel.getCustomerLoyalties(context);
+          },
           content: AppListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             items: viewmodel.customerLoyalties,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
             itemBuilder: (context, loyalty, item) {
               return LoyaltyListItem(
+                color: viewmodel.colors[item % viewmodel.colors.length],
                 customerLoyalty: loyalty,
                 selectedLanguage: selectedLanguage,
                 onTap: () {

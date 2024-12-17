@@ -55,25 +55,25 @@ class _BusinessSectionPageState extends State<BusinessSectionPage> {
         controller: viewmodel.businessHeaderScrollController,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            expandedHeight: 150,
+            expandedHeight: 60,
             collapsedHeight: 60,
             pinned: true,
             title: Obx(() => Text(viewmodel.sectionName)),
             floating: false,
             backgroundColor: Theme.of(context).colorScheme.primary,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SearchBar(
-                    hintText: 'Search products and bundles',
-                    leading: widgetFactory.createIcon(materialIcon: Icons.search),
-                    onTap: () {},
-                  ).paddingSymmetric(vertical: 10, horizontal: 16),
-                ],
-              ),
-              centerTitle: false,
-            ),
+            // flexibleSpace: FlexibleSpaceBar(
+            //   background: Column(
+            //     mainAxisAlignment: MainAxisAlignment.end,
+            //     children: [
+            //       SearchBar(
+            //         hintText: 'Search products and bundles',
+            //         leading: widgetFactory.createIcon(materialIcon: Icons.search),
+            //         onTap: () {},
+            //       ).paddingSymmetric(vertical: 10, horizontal: 16),
+            //     ],
+            //   ),
+            //   centerTitle: false,
+            // ),
             bottom: PreferredSize(
               preferredSize: Size(MediaQuery.of(context).size.width, 40),
               child: Obx(() => AppChoiceChipGroup(

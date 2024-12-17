@@ -34,7 +34,7 @@ class _MembershipConfirmationPageState extends State<MembershipConfirmationPage>
       appBar: AppBar(
         title: const Text('Confirmation'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(Icons.close),
           onPressed: () {
             MembershipDetailsPage.navigate(context, widget.membershipId, replace: true);
           },
@@ -64,7 +64,7 @@ class _MembershipConfirmationPageState extends State<MembershipConfirmationPage>
                       widgetFactory.createText(context, 'Pending', style: Theme.of(context).textTheme.bodyLarge),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  Divider(height: 32, color: Colors.grey[400]),
                   widgetFactory.createText(context, 'The business will review your membership request and approve it shortly. We will notify you via notification when your membership is approved.', style: Theme.of(context).textTheme.bodyMedium),
                 ],
               ),
@@ -82,6 +82,4 @@ class _MembershipConfirmationPageState extends State<MembershipConfirmationPage>
       ),
     );
   }
-
-  
 }

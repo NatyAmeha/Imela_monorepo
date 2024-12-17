@@ -49,6 +49,7 @@ class LoyaltyDetailsViewmodel extends GetxController with BaseViewmodel {
     try {
       exception.value = null;
       isLoading.value = true;
+      loyaltyDetail.value = loyaltyResponse;
       final result = await loyaltyUsecase.getCustomerBusinessLoyalty(businessId ?? '');
       if (result != null && result.success) {
         loyaltyDetail.value = result;

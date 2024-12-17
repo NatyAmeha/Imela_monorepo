@@ -30,7 +30,7 @@ class _OrderListPageState extends State<OrderListPage> {
   void initState() {
     widgetFactory = AppViewmodel.getWidgetFactory(context);
     super.initState();
-    viewmodel.initViewmodel(data: {});
+    viewmodel.initViewmodel(data: {'context': context});
   }
 
   @override
@@ -45,10 +45,10 @@ class _OrderListPageState extends State<OrderListPage> {
           exception: viewmodel.exception.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           onTryAgain: () {
-            viewmodel.getOrders();
+            viewmodel.getOrders(context);
           },
           content: widgetFactory.createCard(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: Responsive.getHeight(context, small: 16)),
             child: Row(
               children: [
                 Expanded(
@@ -56,6 +56,7 @@ class _OrderListPageState extends State<OrderListPage> {
                   child: Obx(
                     () => AppListView(
                       items: viewmodel.orders.value,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       itemBuilder: (context, order, index) {
                         final status = order.getOrderStatus(viewmodel.selectedLanguage, viewmodel.appViewmodel.businessOrderStatuses);
                         return Obx(

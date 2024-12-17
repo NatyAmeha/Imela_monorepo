@@ -2,6 +2,7 @@ import 'package:imela_core/settings/model/location.model.dart';
 import 'package:imela_core/settings/setting_info.dart';
 import 'package:imela_core/shared/repository.intereface.dart';
 import 'package:imela_data/database/db_datasource.dart';
+import 'package:imela_data/database/entity/locationentity.dart';
 
 import 'package:imela_data/shared_pref/preference_datastore.dart';
 import 'package:injectable/injectable.dart';
@@ -51,30 +52,28 @@ class SettingRepository implements ISettingRepository {
 
   @override
   Future<bool> saveLocationToDB(String dbName, Location locationInfo) async {
-    // final dbInstance = await dbDataSource.getDBInstance(dbName);
-    // final existingLocation = await dbDataSource.isDataExist(dbName, dbInstance.locationEntitys, (query) => query.nameEqualTo(locationInfo.name));
-    // if (existingLocation) {
-    //   return false;
-    // }
-    // final locationEntity = locationInfo.toLocationEntity();
-    // final saveResult = await dbDataSource.save(dbName, dbInstance.locationEntitys, locationEntity);
-    // return saveResult > 0;
-    return true;
+    final dbInstance = await dbDataSource.getDBInstance(dbName);
+    final existingLocation = await dbDataSource.isDataExist(dbName, dbInstance.locationEntitys, (query) => query.nameEqualTo(locationInfo.name));
+    if (existingLocation) {
+      return false;
+    }
+    final locationEntity = locationInfo.toLocationEntity();
+    final saveResult = await dbDataSource.save(dbName, dbInstance.locationEntitys, locationEntity);
+    return saveResult > 0;
   }
 
   @override
   Future<List<Location>> getLocationsFromDB(String dbName) async {
-    return [];
-    // var dIn = await dbDataSource.getDBInstance(dbName);
-    // final result = await dbDataSource.getAllData(dbName, dIn.locationEntitys);
-    // return result.map((e) => Location.fromLocationEntity(e)).toList();
+    var dIn = await dbDataSource.getDBInstance(dbName);
+    final result = await dbDataSource.getAllData(dbName, dIn.locationEntitys);
+    return result.map((e) => Location.fromLocationEntity(e)).toList();
   }
 
   @override
   Future<Location?> getLocationByIdFromDB(String dbName, int id) async {
-    return null;
-    // final dbInstance = await dbDataSource.getDBInstance(dbName);
-    // final result = await dbDataSource.getDataById(dbInstance.locationEntitys, id);
-    // return result != null ? Location.fromLocationEntity(result) : null;
+    final dbInstance = await dbDataSource.getDBInstance(dbName);
+    final result = await dbDataSource.getDataById(dbInstance.locationEntitys, id);
+    return result != null ? Location.fromLocationEntity(result) : null;
   }
 }
+ 

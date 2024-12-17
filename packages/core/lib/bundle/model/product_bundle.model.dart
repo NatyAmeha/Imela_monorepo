@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
@@ -86,16 +87,14 @@ class ProductBundle with _$ProductBundle {
     return discount?.conditionValue.toString() ?? '';
   }
 
-  Cart getCartInfo(
-    List<Product> products,
-    Map<String, List<OrderConfig>> productOrderConfigs,
-  ) {
+  Cart getCartInfo(List<Product> products, Map<String, List<OrderConfig>> productOrderConfigs) {
     final items = products.map((product) {
       final itemConfigs = productOrderConfigs[product.id!] ?? [];
       final originalProductPrice = product.getTotalPriceUpdated('ETB', qtyInput: 1);
       final bundleDiscounts = discount != null ? [discount!] : <Discount>[];
+      final selectedBundleProductInfo = productsInfo?.firstWhereOrNull((element) => element.productId == product.id);
       final updatedDiscountWithName = bundleDiscounts.map((discount) => discount.addName(name!)).toList();
-      final item = product.getOrderItem(product.qty ?? 1, originalPrice: originalProductPrice, discounts: updatedDiscountWithName, config: itemConfigs);
+      final item = product.getOrderItem(product.qty ?? 1, originalPrice: originalProductPrice, discounts: updatedDiscountWithName, config: itemConfigs, minQty: selectedBundleProductInfo?.minQty ?? 1, maxQty: selectedBundleProductInfo?.maxQty ?? 10);
       return item;
     }).toList();
     final paymentOptions = businesses?.first.paymentOptions;

@@ -31,7 +31,7 @@ class _OrderSchedulePageState extends State<OrderSchedulePage> {
   void initState() {
     super.initState();
     widgetFactory = AppViewmodel.getWidgetFactory(context);
-    viewModel.initViewmodel();
+    viewModel.initViewmodel(data: {'context': context});
   }
 
   @override
@@ -41,8 +41,9 @@ class _OrderSchedulePageState extends State<OrderSchedulePage> {
       body: Obx(
         () => PageContentLoader(
           isLoading: viewModel.isLoading.value,
-          showContent: viewModel.filteredBookings.isNotEmpty,
+          showContent: !(viewModel.exception.value?.isMainError ?? false),
           exception: viewModel.exception.value,
+          hasError: viewModel.exception.value?.isMainError ?? false,
           content: ScheduleComponent<CalendarBooking>(
             dataSource: OrderBookingScheduleDataSource(viewModel.filteredBookings),
             viewType: viewModel.calendarViewType.value,

@@ -88,7 +88,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   String get productName => productDetails.value?.product?.name.localize('ENGLISH') ?? '';
   String get getProductDescription => productDetails.value?.product?.description?.localize('ENGLISH') ?? '';
   List<String> get getProductImage => productDetails.value!.product?.gallery?.getImages() ?? [];
-  Business get businessInfo => productDetails.value!.product!.business!;
+  Business? get businessInfo => productDetails.value!.product?.business;
   List<PaymentOption> get productPaymentOption => productDetails.value?.product?.business?.paymentOptions ?? [];
 
   bool get isOptionSelected => productOptions.isNotEmpty ? selectedProductOption.value != null : true;
@@ -172,6 +172,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
       isLoading(true);
       final response = await productUsecase.getProductDetails(productId);
       productDetails.value = response;
+      addDiscountList(businessInfo?.discounts ?? [], clearPrevious: false);
 
       selectedProductQty.value = (productDetails.value?.product?.minimumOrderQty.toDouble() ?? 1.0);
       if (productOptions.isNotEmpty) {
@@ -183,7 +184,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
       exception.value = AppException.unexpectedError(e);
     } finally {
       isLoading.value = false;
-    } 
+    }
   }
 
   Future<void> getProductMembershipDetails() async {
@@ -207,10 +208,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
     if (clearPrevious) {
       discounts.clear();
     }
-    final productDiscounts = businessInfo.discounts ?? [];
-    productDiscounts.addAll(discountList ?? []);
-
-    discounts.addAll(productDiscounts);
+    discounts.addAll(discountList ?? []);
   }
 
   // view helper methods
@@ -283,7 +281,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
       if (dynamicPriceDiscounts != null) {
         finalDiscountsList.add(dynamicPriceDiscounts);
       }
-      final cartInfo = selectedProduct.getCartInfo(qty: qty, businessInfo: businessInfo, productOrderConfigs: orderConfigs, discounts: finalDiscountsList, addons: originalProductInfo!.getAddons());
+      final cartInfo = selectedProduct.getCartInfo(qty: qty, businessInfo: businessInfo!, productOrderConfigs: orderConfigs, discounts: finalDiscountsList, addons: originalProductInfo!.getAddons(), productPoint: originalProductInfo!.loyaltyPoint.toDouble());
       final orderAddons = originalProductInfo!.business?.getSectionsOrderAddon(originalProductInfo!.sectionId ?? []);
       final updatedCart = cartInfo.addPaymentOption(productPaymentOption).addOrderAddons(orderAddons ?? []).addOrUpdateItems(additionalItems ?? []);
       cartListViewmodel.addCartToCartList(updatedCart, paymentOptions: productPaymentOption);
@@ -371,14 +369,21 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToCartDetailsPage(BuildContext context) {
-    if (businessInfo.id == null) {
+    if (businessInfo?.id == null) {
       return;
     }
-    final selectedCart = appController.getCartByBusinessId(businessInfo.id!);
+    final selectedCart = appController.getCartByBusinessId(businessInfo!.id!);
     if (selectedCart == null) {
       CartListPage.navigate(context);
     } else {
       CartDetailPage.navigateToCartDetailPage(context, router, selectedCart);
     }
+  }
+
+  double getProductOptionHeight() {
+    if (productOptions.length > 1) {
+      return 200;
+    }
+    return 150;
   }
 }

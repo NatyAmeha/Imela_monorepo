@@ -25,10 +25,10 @@ class BusinessUsecase {
   Future<BusinessResponse?> getBusinessDetails(String businessId, {String? branchId, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     BusinessResponse? result;
     result = await _businessRepository.getBusinessDetailsFromApi(businessId, branchId: branchId, fetchPolicy: fetchPolicy);
-    if (fetchPolicy == ApiDataFetchPolicy.cacheFirst && result?.isBusinessDetailFetchSuccessfull() == false) {
+    if ((fetchPolicy == ApiDataFetchPolicy.cacheFirst) && result?.isBusinessDetailFetchSuccessfull() == false) {
       result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
-    return result;
+    return result; 
   }
 
   Future<BusinessResponse?> getBusinessesFromOrder(List<String> businessIds, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {

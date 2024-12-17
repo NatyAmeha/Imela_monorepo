@@ -29,8 +29,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   late OrderViewmodel viewmodel;
   late WidgetFactory widgetFactory;
 
-  
-
   var selectedCurrency = AppViewmodel.getInstance().selectedCurrency;
   var selectedLanguage = AppViewmodel.getInstance().selectedLanguage;
 
@@ -44,15 +42,20 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: widget.showAppbar ? AppBar(
-        title: widgetFactory.createText(context, 'Order Details', style: Theme.of(context).textTheme.titleMedium),
-      ) : null,
+      appBar: widget.showAppbar
+          ? AppBar(
+              title: widgetFactory.createText(context, 'Order Details', style: Theme.of(context).textTheme.titleMedium),
+            )
+          : null,
       body: Obx(
         () {
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               children: [
+                if (viewmodel.isOrderDetailsLoading.value) ...[
+                  const LinearProgressIndicator(),
+                ],
                 widgetFactory.createCard(
                   padding: const EdgeInsets.all(16),
                   border: Border.all(color: Theme.of(context).colorScheme.primary),

@@ -92,8 +92,8 @@ class _CustomerListPageState extends State<CustomerListPage> {
               value: viewmodel.searchType.value,
               onChanged: viewmodel.setSearchType,
               options: {
-                'phone': widgetFactory.createText(context, 'Phone'),
                 'name': widgetFactory.createText(context, 'Name'),
+                'phone': widgetFactory.createText(context, 'Phone'),
               },
             ),
           ),
@@ -112,12 +112,14 @@ class _CustomerListPageState extends State<CustomerListPage> {
           return Obx(() {
             return CustomerListItem(
               customer: customer,
-              isSelected: viewmodel.appViewmodel.selectedCustomer.value?.phoneNumber == customer.phoneNumber,
+              isSelected: customer.phoneNumber == viewmodel.appViewmodel.selectedCustomer.value?.phoneNumber,
+              memberships: viewmodel.appViewmodel.allMemberships,
               onSelected: () {
                 viewmodel.selectCustomer(context, customer);
               },
               widgetFactory: widgetFactory,
               onActionClick: (value) {},
+              showSubscriptionStatus: true,
             );
           });
         },

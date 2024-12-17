@@ -17,6 +17,7 @@ query GetMyLoyalties {
       customerId
       currentPoints
       createdAt
+      
     }
   }
 }

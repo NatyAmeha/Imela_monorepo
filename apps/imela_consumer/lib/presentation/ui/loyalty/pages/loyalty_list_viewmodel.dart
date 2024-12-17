@@ -1,13 +1,17 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
+import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/home/home.page.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_details_page.dart';
+import 'package:imela/presentation/ui/loyalty/pages/loyalty_list_page.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
 import 'package:imela_core/loyalty/loyalty_usecase.dart';
 import 'package:imela_core/loyalty/model/customer_loyalty.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:injectable/injectable.dart';
@@ -35,33 +39,69 @@ class LoyaltyListViewModel extends GetxController with BaseViewmodel {
 
   // getters
   AppController get appViewmodel => AppController.getInstance;
+  var colors = [
+    ColorManager.primary,
+    ColorManager.secondary,
+    ColorManager.tertiary,
+    ColorManager.alternate,
+    ColorManager.primaryText,
+    ColorManager.secondaryText,
+    ColorManager.primaryBackground,
+    ColorManager.secondaryBackground,
+    ColorManager.accent1,
+    ColorManager.accent2,
+    ColorManager.accent3,
+    ColorManager.accent4,
+    ColorManager.success,
+    ColorManager.warning,
+    ColorManager.error,
+    ColorManager.info,
+    ColorManager.white,
+    ColorManager.black,
+    ColorManager.blue
+  ];
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
+    var context = data?['context'];
     Future.delayed(Duration.zero, () {
-      getCustomerLoyalties();
+      getCustomerLoyalties(context);
     });
   }
 
-  Future<void> getCustomerLoyalties() async {
+  Future<void> getCustomerLoyalties(BuildContext context, {ApiDataFetchPolicy apiDataFeed = ApiDataFetchPolicy.cacheFirst}) async {
     try {
       isLoading.value = true;
-      final result = await loyaltyUsecase.getCustomerLoyalties();
-      if (result?.success ?? false) {
-        exception(AppException(message: 'No loyalty found'));
+      exception.value = null;
+      final result = await loyaltyUsecase.getCustomerLoyalties(apiDataFeed: appViewmodel.loggedInUser.value?.id == null ? ApiDataFetchPolicy.networkOnly : apiDataFeed);
+      if (!(result?.success ?? false) || (result?.customerLoyalties?.isEmpty ?? true)) {
+        exception(
+          AppException(
+            message: 'No loyalty found. Order products or services from your favorite businesses to earn rewards.',
+            actionText: 'Order Now',
+            isMainError: true,
+            onAction: () {
+              HomePage.navigate(context, replace: true);
+            },
+          ),
+        );
+        return;
       }
       loyaltyInfo.value = result;
       customerLoyalties.value = result?.customerLoyalties ?? [];
     } catch (e) {
-      exception(exceptiionHandler.getException(e as Exception));
+      var ex = exceptiionHandler.getException(e as Exception);
+      if (ex.isUnAuthorizedException == true) {
+        await appViewmodel.refreshTokenOrLogout(context, moveToLogin: true, showLoginMessage: true, redirectUrl: LoyaltyListPage.routeName, redirectExtra: {});
+      }
+      exception.value = ex;
     } finally {
       isLoading.value = false;
     }
   }
 
-  void navigateToLoyaltyDetails(BuildContext context, CustomerLoyalty loyalty) {
-    print('loyaltyInfo: ${loyalty.businessId}');
-    LoyaltyDetailsPage.navigate(context, programName: loyalty.name.localize(appViewmodel.selectedLanguage.name), loyaltyInfo: loyaltyInfo.value, businessId: loyalty.businessId);
+  void navigateToLoyaltyDetails(BuildContext context, CustomerLoyalty loyalty, {Color? color}) {
+    LoyaltyDetailsPage.navigate(context, programName: '${loyalty.name.localize(appViewmodel.selectedLanguage.name)} Rewards', loyaltyInfo: loyaltyInfo.value, businessId: loyalty.businessId, color: color);
   }
 }

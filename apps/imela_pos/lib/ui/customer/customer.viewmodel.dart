@@ -39,7 +39,7 @@ class CustomerViewmodel extends GetxController with BaseViewmodel {
   var customers = <Customer>[].obs;
   final RxList<Customer> filteredCustomers = <Customer>[].obs;
   final RxBool isLoadingSearch = false.obs;
-  final RxString searchType = 'phone'.obs;
+  final RxString searchType = 'name'.obs;
 
   var selectedLoyaltyReward = Rxn<Reward>();
 

@@ -14,6 +14,7 @@ import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela_utils/helpers/screen_size_utils.dart';
 
 class SmallScreenProductDetail extends StatefulWidget {
   final WidgetFactory widgetFactory;
@@ -105,34 +106,36 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                     ),
                     // widget.widgetFactory.createText(context, 'Minimum order: ${widget.viewmodel.selectedProduct.minimumOrderQty}', style: Theme.of(context).textTheme.labelMedium),
                     // widget.widgetFactory.createText(context, 'Remaining items: ${widget.viewmodel.productDetails.value?.product?.remainingAmount}', style: Theme.of(context).textTheme.labelMedium),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 24),
-                        widget.widgetFactory.createText(context, 'Available options', style: Theme.of(context).textTheme.titleMedium),
-                        const SizedBox(height: 16),
-                        AppGridView(
-                          controller: widget.viewmodel.productOptionListController,
-                          height: 190,
-                          itemExtent: 250,
-                          scrollDirection: Axis.horizontal,
-                          crossAxisCount: 2,
-                          itemBuilder: (context, productOption, index) {
-                            return Obx(
-                              () => ProductOptionItemComponent(
-                                productOption: productOption,
-                                isOptionSelected: widget.viewmodel.isProductOptionSelected(productOption),
-                                widgetFactory: widget.widgetFactory,
-                                onOptionSelected: () {
-                                  widget.viewmodel.selectProductOption(productOption);
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ).showIfTrue(widget.viewmodel.productOptions.isNotEmpty),
+                    if (widget.viewmodel.productOptions.isNotEmpty)
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 24),
+                          widget.widgetFactory.createText(context, 'Choose option', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 16),
+                          AppGridView(
+                            controller: widget.viewmodel.productOptionListController,
+                            shrinkWrap: true,
+                            primary: false,
+                            itemExtent: 90,
+                            scrollDirection: Axis.vertical,
+                            crossAxisCount: Responsive.getGridCount(context, itemWidth: 200),
+                            itemBuilder: (context, productOption, index) {
+                              return Obx(
+                                () => ProductOptionItemComponent(
+                                  productOption: productOption,
+                                  isOptionSelected: widget.viewmodel.isProductOptionSelected(productOption),
+                                  widgetFactory: widget.widgetFactory,
+                                  onOptionSelected: () {
+                                    widget.viewmodel.selectProductOption(productOption);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     if (widget.viewmodel.originalProductInfo?.isMembershipProduct == true) ...[
                       const SizedBox(height: 16),
                       ProductMembershipPerk(

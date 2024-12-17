@@ -65,7 +65,17 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
     return selectedPaymentOption.value?.currentPayment(totalAmount) ?? 0.0;
   }
 
-  @override
+  String get paymentStatusMessage {
+    if (selectedPaymentMethods.isEmpty) {
+      return 'Select a payment method to place the order';
+    }
+    if (selectedPaymentMethods.any((pm) => pm.requireReceiptImage == true && canEnablePlaceORderBtn == false)) {
+      return 'You need to upload payment receipt to place the order';
+    }
+    return '';
+  }
+
+  @override 
   void initViewmodel({Map<String, dynamic>? data}) {
     cartInfo.value = data?['cart'] as Cart?;
     selectedPaymentOption.value = cartInfo.value?.paymentOptions?.firstOrNull ?? PaymentOption.defaultPaymentOption();

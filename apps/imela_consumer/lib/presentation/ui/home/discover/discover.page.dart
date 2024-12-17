@@ -38,9 +38,9 @@ class _BrowsePageState extends State<BrowsePage> {
       body: Obx(
         () => PageContentLoader(
           isDataLoading: viewmodel.isBrowseDataLoading.value,
-          hasError: viewmodel.exception.value?.isMainError ?? false,
+          hasError: viewmodel.browsePageException.value?.isMainError ?? false,
           showContent: viewmodel.browseData.value != null,
-          exception: viewmodel.exception.value,
+          exception: viewmodel.browsePageException.value,
           content: ResponsiveWrapper(
             smallScreen: SmallDiscoverScreen(homepageViewmodel: viewmodel, widgetFactory: appWidgetFactory, scaffoldScreen: widget),
           ),

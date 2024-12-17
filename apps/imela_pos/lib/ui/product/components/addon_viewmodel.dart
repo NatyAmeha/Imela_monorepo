@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:imela_core/calendar/model/calendar.model.dart';
+import 'package:imela_core/calendar/model/calendar_booking.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/order/order.usecase.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
+import 'package:imela_core/product/product.usecase.dart';
 import 'package:imela_core/settings/model/location.model.dart';
 import 'package:imela_core/settings/setting_usecase.dart';
 import 'package:imela_core/shared/currency_utils.dart';
@@ -32,10 +35,12 @@ import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   // final Paymentusec businessUsecase;
   final SettingUsecase settingUsecase;
+  final OrderUsecase orderUsecase;
   final IExceptiionHandler exceptiionHandler;
 
   ProductAddonViewmodel({
     required this.settingUsecase,
+    required this.orderUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
   });
 
@@ -64,6 +69,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   AppViewmodel get appViewmmodel => AppViewmodel.getInstance();
   LocationViewmodel get locationSelectorViewmodel => getIt<LocationViewmodel>();
   String get selectedLanguage => appViewmmodel.selectedLanguage;
+  String get selectedCurrency => appViewmmodel.selectedCurrency;
 
   List<ProductAddon> get noDefaultAddons => productAddons.value.where((e) => e.inputType != AddonInputType.NONE.name).toList();
 
@@ -85,6 +91,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     Future.delayed(Duration.zero, () {
       context = data?['context'];
       parentProduct = data?['parentProduct'];
+      selectedQty.value = parentProduct?.minimumOrderQty.toDouble() ?? 1;
       requiredAddonsId.clear();
       addProductAddon(data?['PRODUCT_ADDONS']);
     });
@@ -95,7 +102,38 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     if (addons == null) return;
     productAddons.addAll(addons);
     requiredAddonsId.addAll(addons.getRequiredAddonsId());
+    getDisabledDatesForProductAddon();
     getUserSavedLocations();
+  }
+
+  var addonsWithDisabledDates = <String, CalendarDateSelectorInfo>{}.obs;
+  Future<void> getDisabledDatesForProductAddon() async {
+    try {
+      isLoading.value = true;
+      addonsWithDisabledDates.clear();
+      await Future.forEach(productAddons, (addon) async {
+        final calendar = appViewmmodel.productsCalendars.firstWhereOrNull((calendar) => calendar.id == addon.calendarId);
+        if (calendar == null) {
+          return;
+        }
+        final disabledDates = calendar.disabledDays ?? [];
+        final disabledHours = calendar.disabledHours ?? [];
+        var bookedDates = <DateTime>[];
+        final result = await orderUsecase.getSchedulesByCalendarId(calendar.id!);
+        if (result != null) {
+          bookedDates = result.schedules?.map((e) => e.bookedTimes ?? []).flatten().toList() ?? [];
+        }
+        addonsWithDisabledDates[addon.id!] = CalendarDateSelectorInfo(
+          disabledDates: [...disabledDates, ...disabledHours, ...bookedDates],
+          firstDate: calendar.fromDate,
+          lastDate: calendar.toDate,
+        );
+      });
+    } catch (e) {
+      print('exception $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> getUserSavedLocations() async {
@@ -112,7 +150,6 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   }
 
   void selectAddonOption(BuildContext context, ProductAddon addon, String? optionId) {
-    print('selectAddonOption ${addon.id} ${optionId}');
     var option = addon.options.firstWhere((element) => element.id == optionId);
     if (!selectedAddonOptions.containsKey(addon.id)) {
       selectedAddonOptions[addon.id!] = [];
@@ -164,6 +201,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
         content: PosProductAddonDetailsModal(
           addon: addon,
           selectedLanguage: selectedLanguage,
+          currency: selectedCurrency,
           widgetFactory: AppViewmodel.getWidgetFactory(context),
           onSelectionFinished: () {
             AppModalSheet.previousPage(pageIdtoremove: pageId);
@@ -256,7 +294,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (orderConfigs[addon.id]?.singleValue != null || orderConfigs[addon.id]?.multipleValue != null) ...[
-            widgetFactory.createText(context, selectedAddonOptionNames),
+            widgetFactory.createText(context, selectedAddonOptionNames, textAlign: TextAlign.end),
             const SizedBox(height: 2),
           ],
           widgetFactory.createButton(
@@ -318,11 +356,13 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
                 content: const Text('Select'),
                 style: AppButtonStyle.textButtonStyle(context),
                 onPressed: () async {
+                  var calendarDateSelectorInfo = addonsWithDisabledDates.value[addon.id] ?? CalendarDateSelectorInfo(disabledDates: []);
                   final selectedDateRange = await widgetFactory.showDateRangePickerUI(
                     context,
                     firstDate: productCalendar?.fromDate,
                     lastDate: productCalendar?.toDate,
-                  );
+                    disabledDates: calendarDateSelectorInfo.disabledDates,
+                  ); 
                   applySelectedDateRange(addon, selectedDateRange);
                 },
               );
@@ -351,7 +391,15 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
               padding: const EdgeInsets.symmetric(vertical: 0),
             ),
             onPressed: () async {
-              final selectedDate = await widgetFactory.showDateTimePicker(context, initialDate: productCalendar?.fromDate ?? DateTime.now(), firstDate: productCalendar?.fromDate, lastDate: productCalendar?.toDate, disabledDates: disabledDatesForBooking, showTiimePicker: addon.inputType == AddonInputType.DATE_TIME_INPUT.name);
+              var calendarDateSelectorInfo = addonsWithDisabledDates.value[addon.id] ?? CalendarDateSelectorInfo(disabledDates: []);
+              final selectedDate = await widgetFactory.showDateTimePicker(
+                context,
+                // initialDate:  DateTime.now(),
+                firstDate: DateTime.now(),
+                lastDate: calendarDateSelectorInfo.lastDate,
+                disabledDates: calendarDateSelectorInfo.disabledDates,
+                showTiimePicker: addon.inputType == AddonInputType.DATE_TIME_INPUT.name,
+              );
               applySelectedDate(addon, selectedDate);
             },
           ),
@@ -431,7 +479,6 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   }
 
   void applySelectedQtyToAddon(ProductAddon addon, double qty) {
-    selectedQty.value = qty;
     orderConfigs[addon.id!] = OrderConfig(
       name: addon.name,
       type: addon.inputType,

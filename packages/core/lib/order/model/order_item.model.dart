@@ -33,6 +33,8 @@ class OrderItem with _$OrderItem {
     String? calendarId,
     DateTime? createdAt,
     DateTime? updatedAt,
+    @Default(1) double minQty,
+    @Default(10) double maxQty,
   }) = _OrderItem;
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => _$OrderItemFromJson(json);
@@ -135,17 +137,17 @@ class OrderItem with _$OrderItem {
         totalDiscount += discountIteration;
       }
     }
-    return (totalDiscount).getPresision(2);
+    return (totalDiscount);
   }
 
   String getTotalDiscountAmountPOSString({String? currency}) {
     final totalDiscount = getTotalDiscountAmountPOS();
     if (totalDiscount == 0.0) return '';
-    return '- $currency ${totalDiscount.getPresisionString(precision: 2)}';
+    return '$currency ${totalDiscount.getPresisionString(precision: 2)} off';
   }
 
   double getSubtotalPOSUpdated({bool includeDynamicPricingDiscount = true, bool applyQty = true, bool includeAddonPrice = true}) {
-    final totalAmount = (((subTotal ?? 0) * (applyQty ? quantity : 1))).getPresision(2);
+    final totalAmount = (((subTotal ?? 0).getPresision(2) * (applyQty ? quantity : 1))).getPresision(2);
     if (includeAddonPrice) {
       return totalAmount + getTotalAddonPrices();
     }

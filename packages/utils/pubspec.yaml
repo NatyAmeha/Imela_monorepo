@@ -30,7 +30,6 @@ dependencies:
 
   file_picker: ^7.0.2
   qr_flutter: ^4.1.0
-  syncfusion_flutter_calendar: ^27.2.3
 
 dev_dependencies:
   build_runner: ^2.2.0

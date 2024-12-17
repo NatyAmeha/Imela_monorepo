@@ -36,33 +36,48 @@ class PosMembershipDetailsComponent extends StatelessWidget {
                 title: const Text('Membership Details'),
                 automaticallyImplyLeading: true,
                 actions: [
-                  isSmallScreen
-                      ? widgetFactory.createIcon(
-                          materialIcon: Icons.refresh,
-                          onPressed: () {
-                            viewmodel.getMembershipDetails(viewmodel.selectedMembership.value!.id!);
-                          })
-                      : const SizedBox.shrink(),
+                  if (isSmallScreen) ...[
+                    widgetFactory.createIcon(
+                      materialIcon: Icons.refresh,
+                      onPressed: () {
+                        viewmodel.getMembershipDetails(viewmodel.selectedMembership.value!.id!);
+                      },
+                    )
+                  ]
                 ],
                 bottom: buildTabBar())
             : buildTabBar(),
         body: TabBarView(
           children: [
             // Overview Tab
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  widgetFactory.createButton(
+            Stack(
+              children: [
+                Positioned.fill(
+                  child: SingleChildScrollView(
+                    padding: Responsive.paddingSymetric(context),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        widgetFactory.createText(context, 'Benefits', style: Theme.of(context).textTheme.titleMedium),
+                        buildMembershipBenefits(context),
+                      ],
+                    ),
+                  ),
+                ),
+                if (Responsive.isSmallScreen(context))
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    right: 16,
+                    child: widgetFactory.createButton(
                       context: context,
-                      content: const Text("Create New membership"),
+                      content: const Text('Create New membership'),
                       onPressed: () {
                         viewmodel.navigateToCreateMember(context);
-                      }),
-                  widgetFactory.createText(context, 'Benefits', style: Theme.of(context).textTheme.titleMedium),
-                  buildMembershipBenefits(),
-                ],
-              ),
+                      },
+                    ),
+                  )
+              ],
             ),
             // Products Tab
             buildMembershipMembersProducts(context),
@@ -114,11 +129,11 @@ class PosMembershipDetailsComponent extends StatelessWidget {
     );
   }
 
-  Widget buildMembershipBenefits() {
+  Widget buildMembershipBenefits(BuildContext context) {
     return widgetFactory.createCard(
       child: AppGridView(
         shrinkWrap: true,
-        crossAxisCount: 2,
+        crossAxisCount: Responsive.getGridCount(context, itemWidth: 500),
         itemExtent: 50,
         items: viewmodel.selectedMembershipBenefits,
         itemBuilder: (context, benefit, index) {
@@ -126,7 +141,7 @@ class PosMembershipDetailsComponent extends StatelessWidget {
             children: [
               widgetFactory.createIcon(materialIcon: Icons.check_circle, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 8),
-              widgetFactory.createText(context, benefit.name.localize(viewmodel.selectedLanguage)),
+              Flexible(child: widgetFactory.createText(context, benefit.name.localize(viewmodel.selectedLanguage))),
             ],
           );
         },

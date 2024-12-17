@@ -49,7 +49,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.sizeOf(context).width * 0.8,
                         child: Obx(
-                          () => StatusLadder(
+                          () => StatusLadder( 
                             items: viewmodel.orderStatusString.map((status) => widgetFactory.createText(context, status, style: Theme.of(context).textTheme.bodyMedium)).toList(),
                             currentIndex: viewmodel.orderStatusString.indexOf(viewmodel.orderInfo.value?.getOrderStatus(selectedLanguage, viewmodel.orderStatuses) ?? ''),
                             activeColor: Theme.of(context).colorScheme.primary,

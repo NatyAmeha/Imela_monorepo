@@ -71,6 +71,38 @@ query GetBusinessDetails($id: String!, $branchId: String) {
             }
             images
           }
+          productOptionInfos {
+            productId
+            minQty
+            maxQty
+            discounts {
+              type
+              value
+              condition
+              conditionValue
+              startDate
+              endDate
+            }
+            product {
+              id
+              name {
+                key
+                value
+              }
+              gallery {
+                images {
+                  url
+                  featured
+                }
+              }
+             prices {
+              price {
+                currency
+                amount
+                }
+              }
+            }
+          }
           isActive
           isRequired
           additionalPrice {
@@ -105,6 +137,12 @@ query GetBusinessDetails($id: String!, $branchId: String) {
         description{
           key
           value
+        }
+        discount {
+          type
+          value
+          condition
+          conditionValue
         }
         productIds
         startDate

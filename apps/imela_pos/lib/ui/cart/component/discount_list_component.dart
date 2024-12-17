@@ -48,6 +48,7 @@ class _DiscountListDialogState extends State<DiscountListDialog> {
                 return DiscountListItem(
                     discount: discount,
                     widgetFactory: widgetFactory,
+                    selectedLanguage: viewModel.appViewmodel.selectedLanguage,
                     onToggle: () {
                       widget.onDiscountToggle(discount);
                     });

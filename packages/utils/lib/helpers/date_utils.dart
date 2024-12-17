@@ -15,19 +15,27 @@ class DateHelper {
       return null;
     }
     final dateRangeInfo = DateHelper.parseDateRange(stringArray, format: 'dd/MM/yyyy');
-    
+
     if (dateRangeInfo == null) {
-      return null; 
+      return null;
     }
     return dateRangeInfo;
+  }
+
+  static double getNumberofDaysFromDateRange(DateTimeRange? dateRange) {
+    if (dateRange == null) {
+      return 0;
+    }
+    return dateRange.duration.inDays.toDouble();
   }
 
   static DateTimeRange? parseDateRange(List<String> stringArray, {String? format}) {
     if (stringArray.length != 2) {
       return null;
     }
-    final startDate = parseDate(stringArray[0], format: format);
-    final endDate = parseDate(stringArray[1], format: format);
+    final startDate = DateFormat("dd/MM/yyyy").tryParse(stringArray[0]);
+    final endDate = DateFormat("dd/MM/yyyy").tryParse(stringArray[1]);
+
     if (startDate == null || endDate == null) {
       return null;
     }
@@ -43,11 +51,14 @@ class DateHelper {
 }
 
 extension DateUtils on DateTime? {
-  String toFormattedString() {
+  String toFormattedString({String format = 'dd/MM/yyyy'}) {
     if (this == null) {
       return '';
     }
-    return '${this!.day}/${this!.month}/${this!.year}';
+    if (this!.hour == 0 && this!.minute == 0) {
+      return DateFormat('dd/MM/yyy').format(this!);
+    }
+    return DateFormat(format).format(this!);
   }
 }
 

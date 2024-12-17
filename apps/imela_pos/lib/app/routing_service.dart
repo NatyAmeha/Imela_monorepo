@@ -12,6 +12,7 @@ import 'package:imela_pos/ui/membership/components/pos_membership_details_compon
 import 'package:imela_pos/ui/membership/create_membership_page.dart';
 import 'package:imela_pos/ui/membership/pos_membership_list_page.dart';
 import 'package:imela_pos/ui/order/order_confirmation_page.dart';
+import 'package:imela_pos/ui/order/order_details_page.dart';
 import 'package:imela_pos/ui/order/order_list_page.dart';
 import 'package:imela_pos/ui/order/schedule/order_schedule_page.dart';
 import 'package:imela_pos/ui/payment/payment_page.dart';
@@ -71,6 +72,7 @@ class GoRouterService implements IRoutingService {
         },
       ),
       GoRoute(path: OrderListPage.routeName, builder: (context, state) => const OrderListPage()),
+      GoRoute(path: OrderDetailsPage.routeName, builder: (context, state) => const OrderDetailsPage()),
       GoRoute(path: CustomerListPage.routeName, builder: (context, state) => const CustomerListPage()),
       GoRoute(path: OrderListPage.routeName, builder: (context, state) => const OrderListPage()),
       GoRoute(path: StaffListPage.routeName, builder: (context, state) => const StaffListPage()),

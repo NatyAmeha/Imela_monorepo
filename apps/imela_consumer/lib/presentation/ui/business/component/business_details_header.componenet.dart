@@ -61,9 +61,6 @@ class BusinessDetailsHeader extends StatelessWidget {
                     IntrinsicHeight(
                       child: Row(
                         children: [
-                          
-                          _buildLanguageSelector(context, appWidgetFactory),
-                          const VerticalDivider(color: ColorManager.white),
                           if (business.categories?.isNotEmpty ?? false) ...[
                             ...business.categories!.map((e) => appWidgetFactory.createText(context, e, style: Theme.of(context).textTheme.titleSmall, color: ColorManager.white)),
                           ]
@@ -80,7 +77,7 @@ class BusinessDetailsHeader extends StatelessWidget {
 
   Widget _buildLanguageSelector(BuildContext context, WidgetFactory widgetFactory) {
     return widgetFactory.createCard(
-      onTap: () => onLanguageSelected(),
+        onTap: () => onLanguageSelected(),
         borderRadius: BorderRadius.circular(4),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         border: Border.all(color: Theme.of(context).colorScheme.primary),

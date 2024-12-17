@@ -64,8 +64,8 @@ class Discount with _$Discount {
     );
   }
 
-  ItemDiscount toItemDiscount() {
-    return ItemDiscount(id: id, name: name, percentage: value, amount: 0, source: source);
+  ItemDiscount toItemDiscount({List<LocalizedField>? defaultName}) {
+    return ItemDiscount(id: id, name: name ?? defaultName, percentage: value, amount: 0, source: source);
   }
 
   double getDiscountedSubtotal(double price) {

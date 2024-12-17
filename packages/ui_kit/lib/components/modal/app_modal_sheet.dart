@@ -21,7 +21,7 @@ String? currentPageId;
 
 class AppModalSheet {
   static BuildContext? modalContext;
-  static Future<T> showModal<T>(BuildContext context, {required AppModalSheetType type, required List<ModalContent> pages, bool dimissable = true}) async {
+  static Future<T> showModal<T>(BuildContext context, {required AppModalSheetType type, required List<ModalContent> pages, bool dimissable = true, Function(BuildContext modalContext)? onClose}) async {
     var modalPages = pages.mapIndexed(
       (index, page) {
         return SliverWoltModalSheetPage(
@@ -46,7 +46,11 @@ class AppModalSheet {
               backgroundColor: Colors.grey,
               child: InkWell(
                 onTap: () {
-                  AppModalSheet.closeModal();
+                  if (onClose == null) {
+                    AppModalSheet.closeModal();
+                  } else {
+                    onClose.call(modalContext!);
+                  }
                 },
                 child: page.trailing ?? const Icon(Icons.close),
               )).withPaddingAll(8),
@@ -148,7 +152,6 @@ class AppModalSheet {
     } catch (e) {
       print('Error adding page to modal: ${e.toString()}');
     }
-    
   }
 
   static closeModal<T>({BuildContext? context, T? result}) {

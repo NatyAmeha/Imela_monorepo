@@ -73,6 +73,9 @@ class PaymentOptionsComponent extends StatelessWidget {
                   onSelected: (paymentMethod) {
                     viewmodel.selectPaymentMethod(paymentMethod);
                   },
+                  onAmountChanged: (value) {
+                    viewmodel.updateAmountEntered();
+                  },
                   onDelete: (paymentMethod) {
                     viewmodel.removeEntredAmount(paymentMethod);
                   },

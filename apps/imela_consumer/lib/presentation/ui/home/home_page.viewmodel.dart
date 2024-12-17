@@ -62,7 +62,8 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   var forYouData = Rxn<ForYouResponse>();
   var isBrowseDataLoading = false.obs;
   var isForYouDataLoading = false.obs;
-  var exception = Rxn<AppException>();
+  var foryouPageException = Rxn<AppException>();
+  var browsePageException = Rxn<AppException>();
 
   // Getters
   AppController get appviewmodel => AppController.getInstance;
@@ -141,7 +142,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
       }
     } catch (e) {
       print("exception ${e.toString()}");
-      exception.value = exceptiionHandler.getException(e as Exception);
+      browsePageException.value = exceptiionHandler.getException(e as Exception);
     } finally {
       isBrowseDataLoading(false);
     }
@@ -162,6 +163,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
         await appviewmodel.refreshTokenOrLogout(context, moveToLogin: true, showLoginMessage: true, redirectUrl: HomePage.routeName);
         return;
       }
+      foryouPageException.value = ex;
     } finally {
       isForYouDataLoading(false);
     }
@@ -213,13 +215,13 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   }
 
   void cleanupStateVariables() {
-    exception.value = null;
+    browsePageException.value = null;
     isBrowseDataLoading.value = true;
     browseData.value = null;
   }
 
   void cleanupForYouStateVariables() {
-    exception.value = null;
+    foryouPageException.value = null;
     isForYouDataLoading.value = true;
     forYouData.value = null;
   }
@@ -231,7 +233,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToProductDetailPage(BuildContext context, Product product) {
-    ProductDetailPage.navigateBeta(context, product: product);
+    ProductDetailPage.navigateBeta(context, product: product, discounts: product.getBusinessDiscounts());
   }
 
   void navigateToBundleDetailPage(BuildContext context, ProductBundle bundle) {

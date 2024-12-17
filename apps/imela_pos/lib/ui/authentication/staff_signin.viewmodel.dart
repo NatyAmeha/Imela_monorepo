@@ -57,12 +57,14 @@ class StaffAuthViewmodel extends GetxController with BaseViewmodel {
     super.initViewmodel(data: data);
     Future.delayed(Duration.zero, () {
       exception.value = null;
+      pinController.value.text = '';
       handleLastLoginStaffPhone();
     });
   }
 
   void handleLastLoginStaffPhone() async {
     final phone = await staffUsecase.getLastLoginStaffPhone();
+    print('phone $phone');
     if (phone != null) {
       phoneNumberController.value.text = phone.removePrefix('+251');
     }

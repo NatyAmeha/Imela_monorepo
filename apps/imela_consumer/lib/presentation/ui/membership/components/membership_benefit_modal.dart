@@ -34,22 +34,24 @@ class MembershipBenefitsModal extends StatelessWidget {
   Widget build(BuildContext context) {
     var widgetFactory = AppController.getInstance.getWidgetFactory(context);
     double modalHeight = height ?? MediaQuery.of(context).size.height * 0.8;
-    return widgetFactory.createCard(
-      height: modalHeight,
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (qrcodeWidget != null) ...[
-            widgetFactory.createCard(width: 125, height: 125, color: Colors.grey, child: qrcodeWidget!),
-            const SizedBox(height: 16),
+            Align(alignment: Alignment.center, child: Padding(padding: const EdgeInsets.all(16), child: qrcodeWidget!)),
           ],
-          widgetFactory.createText(context, membershipInfo.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+          widgetFactory.createText(context, membershipInfo.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
           const SizedBox(height: 16),
           _buildMembershipSummary(context, widgetFactory, membershipInfo, selectedLanguage, currency),
+          const SizedBox(height: 16),
           widgetFactory.createText(context, 'Benefits', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(vertical: 16),
           AppListView(
             items: membershipInfo.benefits,
+            contentPadding: const EdgeInsets.symmetric(vertical: 6),
+            shrinkWrap: true,
+            primary: false,
             itemBuilder: (context, item, index) {
               return Row(
                 children: [

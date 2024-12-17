@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:imela_core/branch/branch.usecase.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/branch/model/branch.response.dart';
+import 'package:imela_core/product/product.usecase.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
 import 'package:imela_pos/injection.dart';
@@ -13,15 +14,17 @@ import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
 import 'package:injectable/injectable.dart';
+import 'package:imela_core/product/model/utils/product_extension.dart';
 
 @injectable
 class BranchSelectionViewmodel extends GetxController with BaseViewmodel {
   final BranchUsecase branchUsecase;
-
+  final ProductUsecase productUsecase;
   final IExceptiionHandler exceptiionHandler;
 
   BranchSelectionViewmodel({
     required this.branchUsecase,
+    required this.productUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
   });
 
@@ -59,18 +62,31 @@ class BranchSelectionViewmodel extends GetxController with BaseViewmodel {
     try {
       exception.value = null;
       isLoading.value = true;
-      print('branch id: ${branch.id}');
       final result = await branchUsecase.getPosBranchDetails(appViewmodel.selectedBusinessId, branch.id!);
       if (!result.isPosBranchFetchSuccessfull) {
         exception.value = AppException(message: result!.message ?? 'Unable to get branch details', isMainError: false);
         return;
       }
       appViewmodel.selectBranch(result!.branch);
+      await getProductsCalendar();
       HomePage.navigate(context, replace: true);
     } catch (e) {
       // widgetFactory.showFlashMessage(context, message: exception.value?.message ?? 'Error occured, please try again');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> getProductsCalendar() async {
+    try {
+      var productIds = appViewmodel.allProducts.map((product) => product.id!).toList();
+      if (productIds.isEmpty) return;
+      final result = await productUsecase.getProductsCalendar(appViewmodel.selectedBusinessId, appViewmodel.selectedBranchId, productIds);
+      if ((result?.success ?? false)) {
+        appViewmodel.setProductCalendars(result?.calendars);
+      }
+    } catch (e) {
+      print('error fetching products calendar: $e');
     }
   }
 

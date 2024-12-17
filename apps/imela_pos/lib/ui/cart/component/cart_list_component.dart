@@ -36,16 +36,17 @@ class CartListPage extends StatefulWidget {
 class _CartListPageState extends State<CartListPage> {
   final cartViewmodel = CartViewmodel.getInstance();
   final homePageviewmodel = HomePageViewmodel.getInstance();
+  late WidgetFactory widgetFactory;
 
   @override
   void initState() {
     super.initState();
+    widgetFactory = AppViewmodel.getWidgetFactory(context);
     cartViewmodel.initViewmodel(data: {'context': context});
   }
 
   @override
   Widget build(BuildContext context) {
-    final widgetFactory = AppViewmodel.getWidgetFactory(context);
     return Scaffold(
       appBar: Responsive.isSmallScreen(context) ? AppBar(title: const Text('Cart')) : null,
       body: widgetFactory.createCard(
@@ -55,12 +56,18 @@ class _CartListPageState extends State<CartListPage> {
           () => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (Responsive.isSmallScreen(context)) ...[Obx(() => cartViewmodel.isLoading.value ? const LinearProgressIndicator() : const SizedBox.shrink())],
+              if (Responsive.isSmallScreen(context)) ...[
+                Obx(() => cartViewmodel.isLoading.value ? const LinearProgressIndicator() : const SizedBox.shrink()),
+                buildOrderNoteUI(),
+              ],
               if (!Responsive.isSmallScreen(context)) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    widgetFactory.createText(context, 'Cart', style: Theme.of(context).textTheme.titleLarge),
+                    Expanded(
+                      child: widgetFactory.createText(context, 'Cart', style: Theme.of(context).textTheme.titleLarge),
+                    ),
                     widgetFactory.createIcon(
                       materialIcon: Icons.delete,
                       onPressed: () {
@@ -69,7 +76,8 @@ class _CartListPageState extends State<CartListPage> {
                     )
                   ],
                 ).withPaddingSymetric(horizontal: 16, vertical: 8),
-                Divider(height: 3, color: Colors.grey),
+                buildOrderNoteUI(),
+                const Divider(height: 3, color: Colors.grey),
               ],
               if (cartViewmodel.cart.items?.isNotEmpty == true)
                 AppListView(
@@ -151,10 +159,35 @@ class _CartListPageState extends State<CartListPage> {
     );
   }
 
+  Widget buildOrderNoteUI() {
+    return Obx(() => widgetFactory.createCard(
+          padding: const EdgeInsets.all(8),
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (cartViewmodel.ordernote.value != null) ...[
+                widgetFactory.createText(context, cartViewmodel.ordernote.value!, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 2),
+              ],
+              widgetFactory.createButton(
+                context: context,
+                content: const Text('Add Order note'),
+                style: AppButtonStyle.textButtonStyle(context, padding: EdgeInsets.zero),
+                onPressed: () {
+                  cartViewmodel.showOrderNotePopup(context);
+                },
+              ),
+            ],
+          ).withPaddingAll(8),
+        ));
+  }
+
   Widget buildOrderConfigurationActionUI(WidgetFactory widgetFactory) {
     return widgetFactory.createCard(
       padding: const EdgeInsets.all(8),
-      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      border: Border.all(color: Theme.of(context).colorScheme.primaryContainer),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -193,11 +226,17 @@ class _CartListPageState extends State<CartListPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   widgetFactory.createText(context, orderConfig.name.localize(cartViewmodel.appViewmodel.selectedLanguage), style: Theme.of(context).textTheme.labelMedium),
+                  const Spacer(),
                   widgetFactory.createText(context, orderConfigPrice.toString(), style: Theme.of(context).textTheme.labelMedium),
+                  const SizedBox(width: 8),
+                  InkWell(
+                      child: widgetFactory.createIcon(materialIcon: Icons.delete, size: 20),
+                      onTap: () {
+                        cartViewmodel.removeOrderConfig(context, orderConfig);
+                      })
                 ],
               ),
               // const Spacer(),
@@ -207,11 +246,6 @@ class _CartListPageState extends State<CartListPage> {
                 configValue.toString(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              // widgetFactory.createIcon(
-              //     materialIcon: Icons.delete,
-              //     onPressed: () {
-              //       cartViewmodel.removeOrderConfig(context, orderConfig);
-              //     })
             ],
           );
         },

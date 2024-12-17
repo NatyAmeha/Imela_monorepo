@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'theme.dart';
@@ -29,6 +30,13 @@ class _MelegnaCustomerAppState extends State<MelegnaCustomerApp> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
+      statusBarBrightness: Brightness.light, // For iOS (dark icons)
+      systemNavigationBarColor: Colors.white, // Navigation bar color
+      systemNavigationBarIconBrightness: Brightness.dark, // Navigation bar icons
+    ));
     appController.router.handleDeepLinks((Uri uri) {
       print('uri $uri');
       appController.router.navigateTo(context, uri.toString());

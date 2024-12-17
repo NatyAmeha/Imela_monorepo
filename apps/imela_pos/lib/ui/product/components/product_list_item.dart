@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
-import 'package:imela_pos/resources/colors.dart';
 import 'package:imela_ui_kit/components/image/app_image.dart';
 
 class HorizontalProductListItem extends StatelessWidget {
@@ -31,7 +30,7 @@ class HorizontalProductListItem extends StatelessWidget {
               children: [
                 widgetFactory.createText(context, product.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 4),
-                widgetFactory.createText(context, product.getTotalPriceUpdatedString(currency), style: Theme.of(context).textTheme.bodyLarge),
+                widgetFactory.createText(context, product.getPriceRangeString(currency), style: Theme.of(context).textTheme.bodyLarge),
               ],
             ),
           ),
