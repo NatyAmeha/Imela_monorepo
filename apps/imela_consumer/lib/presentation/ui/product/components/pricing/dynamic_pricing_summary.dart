@@ -27,7 +27,7 @@ class ProductDynamicPriceSummary extends StatelessWidget {
       color: Theme.of(context).colorScheme.surfaceContainerLow,
       padding: const EdgeInsets.all(8),
       child: SizedBox(
-        height: 60,
+        height: 50,
         child: ListView.separated(
           itemCount: dyanmicPrice.length + 1,
           shrinkWrap: true,
@@ -65,7 +65,7 @@ class ProductDynamicPriceSummary extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            widgetFactory.createText(context, priceString, style: Theme.of(context).textTheme.titleMedium),
+            widgetFactory.createText(context, priceString, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(width: 2),
             if (discountAmountString.isNotEmpty) ...[
               BadgeList(
@@ -78,7 +78,7 @@ class ProductDynamicPriceSummary extends StatelessWidget {
             ]
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         widgetFactory.createText(context, qtyConditionString, style: Theme.of(context).textTheme.bodyMedium),
       ],
     ).withPaddingSymetric(horizontal: 10);

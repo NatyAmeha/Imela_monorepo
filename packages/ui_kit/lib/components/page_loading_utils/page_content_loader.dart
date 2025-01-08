@@ -29,9 +29,9 @@ class PageContentLoader extends StatelessWidget {
           if (isLoading)
             showContent
                 ? InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                    onTap: (){},
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: () {},
                     child: Container(
                       width: double.infinity,
                       color: Colors.black.withOpacity(0.5),

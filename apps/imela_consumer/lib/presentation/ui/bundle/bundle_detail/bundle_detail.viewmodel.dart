@@ -22,6 +22,7 @@ import 'package:imela_core/bundle/model/bundle.response.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/calendar/dto/calendar.response.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
+import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
@@ -62,6 +63,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
 
   var bundleResponse = Rxn<BundleResponse>();
   var selectedBundleProducts = Map<String, Product>.of({}).obs; // this can be variant of the main product
+  var additionalItemsByProduct = Map<String, List<OrderItem>>.of({}).obs;
   var productCalendar = Rxn<CalendarResponse>();
 
   var productOrderConfigs = Map<String, List<OrderConfig>>.of({}).obs;
@@ -70,6 +72,8 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   // getters
   ProductBundle? get bundle => bundleResponse.value?.bundle;
   List<Product> get bundleProducts => bundle?.products ?? [];
+
+  List<OrderItem> get additionallySelectedOrderItems => additionalItemsByProduct.values.toList().flattened.toList();
 
   // widget controllers
   late CustomListController<Product> productListController;
@@ -226,52 +230,68 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
 
   Future<void> showProductConfigModal(BuildContext context, Product product, WidgetFactory widgetFactory) async {
     var productInfo = bundle?.productsInfo?.firstWhereOrNull((info) => info.productId == parentProduct!.id!);
-    var result = await AppModalSheet.showModal<AddonConfig>(
-      context,
-      type: AppModalSheetType.BOTTOMSHEET,
-      pages: [
-        ModalContent(
-          title: const Text('Order Configuration'),
-          content: ProductAddonModal(
-            productAddons: List.from(product.getAddons()),
-            initialOrderConfigs: productOrderConfigs.getOrElse(product.id!, () => []),
-            productInfo: product.copyWith(),
-            callToAction: 'Complete',
-            showqtyModfier: true,
-            minQty: productInfo?.minQty ?? 1,
-            maxQty: productInfo?.maxQty ?? 10,
-            discounts: bundleDiscounts,
-            productCalendars: productCalendar.value?.calendar != null ? [productCalendar.value!.calendar!] : null,
-          ),
-        )
-      ],
+    var resultMap = await showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog.fullscreen(
+        child: ProductAddonModal(
+          productAddons: List.from(parentProduct!.getAddons(forBundle: true)),
+          initialOrderConfigs: productOrderConfigs.getOrElse(parentProduct!.id!, () => []),
+          productInfo: product.copyWith(),
+          callToAction: 'Complete',
+          showqtyModfier: true,
+          minQty: productInfo?.minQty ?? 1,
+          maxQty: productInfo?.maxQty ?? 10,
+          discounts: bundleDiscounts,
+          productCalendars: productCalendar.value?.calendar != null ? [productCalendar.value!.calendar!] : null,
+        ),
+      ),
     );
-    if (result.orderConfigs.isEmpty) {
+    // var result = await AppModalSheet.showModal<AddonConfig>(
+    //   context,
+    //   type: AppModalSheetType.BOTTOMSHEET,
+    //   pages: [
+    //     ModalContent(
+    //       title: const Text('Order Configuration'),
+    //       content: ProductAddonModal(
+    //         productAddons: List.from(product.getAddons()),
+    //         initialOrderConfigs: productOrderConfigs.getOrElse(product.id!, () => []),
+    //         productInfo: product.copyWith(),
+    //         callToAction: 'Complete',
+    //         showqtyModfier: true,
+    //         minQty: productInfo?.minQty ?? 1,
+    //         maxQty: productInfo?.maxQty ?? 10,
+    //         discounts: bundleDiscounts,
+    //         productCalendars: productCalendar.value?.calendar != null ? [productCalendar.value!.calendar!] : null,
+    //       ),
+    //     )
+    //   ],
+    // );
+    if (resultMap == null) {
       return;
     }
+    final result = resultMap['CONFIG_DATA'] as AddonConfig;
     final selectedQty = result.orderConfigs.getQtyConfigValue();
     final updatedResult = result.removeQtyConfig();
     productOrderConfigs[product.id!] = List<OrderConfig>.from(updatedResult.orderConfigs);
-    selectedBundleProducts[parentProduct!.id!] = product.copyWith(qty: selectedQty);
+    selectedBundleProducts[parentProduct!.id!] = product.copyWith(qty: selectedQty, addons: parentProduct?.addons);
+    // additional items selected from bundle product
+    final additionalItems = result.additionalItems;
+    if (additionalItems != null) {
+      additionalItemsByProduct[product.id!] = additionalItems;
+    }
+
     productListController.items.refresh();
   }
 
   Future<void> addSelectedProductsToCart(BuildContext context) async {
     try {
       isLoading(true);
-      var cartInfo = bundle!.getCartInfo(selectedBundleProducts.values.toList(), productOrderConfigs).addOrderAddons(bundle!.addons ?? []);
+      var cartInfo = bundle!.getCartInfo(selectedBundleProducts.values.toList(), productOrderConfigs).addOrderAddons(bundle!.addons ?? []).addOrUpdateItems(additionallySelectedOrderItems);
       cartListViewmodel.addCartToCartList(cartInfo, paymentOptions: bundle!.bundlePaymentOptions());
-      AppController.getInstance.getWidgetFactory(context).showFlashMessage(context, message: 'Bundle added to cart', actionText: 'View cart', onActinClicked: () {
-        CartDetailPage.navigateToCartDetailPage(context, router, cartInfo);
-      });
-      // // final result = await orderUsecase.addToCart(bundle!.id!, bundle!.name!, items, paymentOptions: bundle?.business?.paymentOptions);
-      // if (result?.success == true && result?.cart != null) {
-      //   final updatedCart = result!.cart!.addPaymentOption(bundle!.business!.paymentOptions!);
-
-      // }
+      appViewmodel.showAddToCartDialog(context, message: 'Bundle added to cart successfully', cart: cartInfo);
     } catch (e) {
       exception.value = exceptiionHandler.getException(e as Exception);
-      print(' add to cart exception  ${exception.value?.code} ----- ${e.toString()}');
       if (exception.value?.code == ErrorResourceValues.UnAUTHORIZED_EXCEPTION_CODE) {
         AppController.getInstance.refreshTokenOrLogout(context);
       }
@@ -288,7 +308,12 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   void removeConfiguredProduct(Product product) {
     selectedBundleProducts.removeWhere((key, value) => value.id == product.id || key == product.id);
     productOrderConfigs.removeWhere((key, value) => key == product.id);
+    additionalItemsByProduct.removeWhere((key, value) => key == product.id);
     productListController.items.refresh();
+  }
+
+  List<OrderItem> getAdditionalItems(Product product) {
+    return additionalItemsByProduct.getOrElse(product.id!, () => []);
   }
 
   bool isProductSelected(Product product) {
@@ -303,6 +328,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     bundleResponse.value = null;
     selectedBundleProducts.value = {};
     productOrderConfigs.value = {};
+    additionalItemsByProduct.value = {};
   }
 
   @override
@@ -327,16 +353,18 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
             items: selectedBundleProducts.values.toList(),
             itemBuilder: (context, product, index) {
+              final additionalItems = getAdditionalItems(product);
               return SelectedProductFromBundlListItem(
                 name: product.name.localize('ENGLISH'),
                 image: product.getImageUrl(),
                 qty: product.qty,
+                additionalItems: additionalItems,
                 imageWidth: 100,
                 imageHeight: 110,
                 price: product.getTotalPriceUpdatedString('ETB', discounts: bundleDiscounts, round: true),
                 width: 120,
                 widgetFactory: widgetFactory,
-                onRemove: () { 
+                onRemove: () {
                   removeConfiguredProduct(product);
                 },
               );
@@ -345,5 +373,17 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
         ),
       )
     ]);
+  }
+
+  void navigateToCartDetailsPage(BuildContext context) {
+    if (bundle?.id == null) {
+      return;
+    }
+    final selectedCart = appViewmodel.carts.firstWhereOrNull((element) => element.id == bundle!.id);
+    if (selectedCart == null) {
+      appViewmodel.getWidgetFactory(context).showFlashMessage(context, message: 'No cart created for this business. Add products from this business first');
+      return;
+    }
+    CartDetailPage.navigateToCartDetailPage(context, router, selectedCart);
   }
 }

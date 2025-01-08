@@ -42,10 +42,7 @@ class DateHelper {
     return DateTimeRange(start: startDate, end: endDate);
   }
 
-  static DateTime? parseDate(String dateString, {String? format}) {
-    if (format == null) {
-      return DateTime.tryParse(dateString);
-    }
+  static DateTime parseDate(String dateString, {String format = 'dd/MM/yyyy'}) {
     return DateFormat(format).parse(dateString);
   }
 }

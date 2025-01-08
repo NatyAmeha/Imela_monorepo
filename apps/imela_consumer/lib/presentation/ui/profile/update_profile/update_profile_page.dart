@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/profile/update_profile/update_profile.viewmodel.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -46,7 +46,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       appBar: AppBar(title: Text(widget.pageTitle ?? 'Update Profile')),
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           showContent: true,
           onTryAgain: () => viewmodel.updateProfile(context),
           content: Stack(

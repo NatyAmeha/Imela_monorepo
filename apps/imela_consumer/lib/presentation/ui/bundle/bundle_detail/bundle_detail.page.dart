@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/small_bundle_detail.page.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class BundleDetailPage extends StatefulWidget {
@@ -27,7 +28,7 @@ class BundleDetailPage extends StatefulWidget {
   State<BundleDetailPage> createState() => _BundleDetailPageState();
 
   static void navigateToBundleDetailPage(BuildContext context, IRoutingService router, ProductBundle bundle, {Widget? previousPage}) {
-    router.navigateTo(context, '${BundleDetailPage.baseRouteName}/${bundle.id}', extra: {'name': '${bundle.name?.localize('ENGLISH')}', GoRouterService.PREVIOUS_PAGE_KEY: previousPage});
+    router.navigateTo(context, '${BundleDetailPage.baseRouteName}/${bundle.id}', extra: {'name': '${bundle.name?.localize('ENGLISH')}'});
   }
 }
 
@@ -43,7 +44,6 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
   @override
   void initState() {
     super.initState();
-    print("bundle detail page called");
     initViewmodel();
   }
 
@@ -52,11 +52,19 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
     final appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bundle Detail'),
+        title: const Text('Bundle Detail'),
+        actions: [
+          appWidgetFactory.createIcon(
+            materialIcon: Icons.shopping_cart,
+            onPressed: () {
+              viewmodel.navigateToCartDetailsPage(context);
+            },
+          )
+        ],
       ),
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           showContent: viewmodel.bundle != null,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           exception: viewmodel.exception.value,

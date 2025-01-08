@@ -10,9 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt getItInstance = GetIt.instance;
 
-class GraphQLConfig { 
+class GraphQLConfig {
   static Client? _ferryGraphQlClient;
-  static const String _baseUrl = 'http://212.2.242.96:3000/graphql'; // 'http://212.2.242.92:3000/graphql';
+  static const String _baseUrl = 'http://192.168.35.134:3000/graphql'; // 'http://212.2.242.96:3000/graphql'; //
   static Future<Client> getFerryGraphQlClient() async {
     try {
       await Hive.initFlutter();

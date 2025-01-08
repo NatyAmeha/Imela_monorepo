@@ -45,8 +45,9 @@ class AppThemeManager {
         centerTitle: true,
         elevation: 2,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: AppTypography.of(context).titleLarge.copyWith(color: ColorManager.primaryText),
+        titleTextStyle: AppTypography.of(context).titleMedium.copyWith(color: ColorManager.primaryText),
       ),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0))),
     );
   }
 

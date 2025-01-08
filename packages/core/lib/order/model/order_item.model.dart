@@ -94,8 +94,8 @@ class OrderItem with _$OrderItem {
     return (finalSubtotalAmount * (applyQty ? quantity : 1)).getPresision(2);
   }
 
-  String subtotalAmountString(String currency) {
-    return '$currency ${getSubtotalPOSUpdated().getPresisionString(precision: 2)}';
+  String subtotalAmountString(String currency, {bool applyQty = true, bool includeAddonPrice = true, bool includeDynamicPricingDiscount = true}) {
+    return '$currency ${getSubtotalPOSUpdated(applyQty: applyQty, includeAddonPrice: includeAddonPrice, includeDynamicPricingDiscount: includeDynamicPricingDiscount).getPresisionString(precision: 2)}';
   }
 
   double getTotalDiscountAmount({bool applyQty = false}) {
@@ -151,7 +151,7 @@ class OrderItem with _$OrderItem {
     if (includeAddonPrice) {
       return totalAmount + getTotalAddonPrices();
     }
-    return totalAmount;
+    return totalAmount; 
   }
 
   double getTotalAmountPOS({bool includeDynamicPricingDiscount = true}) {

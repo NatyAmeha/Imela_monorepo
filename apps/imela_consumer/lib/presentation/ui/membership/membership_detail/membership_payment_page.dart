@@ -4,8 +4,8 @@ import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_viewmodel.dart';
 import 'package:imela/presentation/ui/payment/components/selected_payment_method.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
@@ -38,7 +38,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
       appBar: AppBar(title: const Text('Membership Payment')),
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           showContent: true,
           content: Stack(
             children: [

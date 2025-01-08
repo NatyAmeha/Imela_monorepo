@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/product/model/addon_dependency.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
@@ -27,6 +29,7 @@ enum AddonInputType {
   TIME_INPUT,
   DATE_TIME_INPUT,
   DATE_RANGE_INPUT,
+  MULTIPLE_DATE_INPUT,
   LOCATION_PER_KM_INPUT,
   LOCATION_INPUT,
   PRODUCT_SELECTION_INPUT,
@@ -57,13 +60,16 @@ class ProductAddon with _$ProductAddon {
     @Default(false) bool isRequired,
     @Default('NONE') String condition,
     String? conditionValue,
+    List<AddonDependency>? dependencies,
     List<String>? tag,
     @Default(false) bool? isProduct,
     List<String>? productIds,
     List<AddonProductOptionInfo>? productOptionInfos,
     String? calendarId,
     @Default(true) bool includeOnPOS,
+    @Default(true) bool includeInBundle,
     List<Product>? products,
+    String? rewardType,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _ProductAddon;
@@ -78,6 +84,11 @@ class ProductAddon with _$ProductAddon {
   bool get isTimeINput => inputType == AddonInputType.TIME_INPUT.name;
   bool get isDateTimeInput => inputType == AddonInputType.DATE_TIME_INPUT.name;
 
+  String isOptionalOrRequiredString(String selectedLanguage) {
+    if (isRequired) return LocalizationUtils.returnLocalizedString(selectedLanguage, englishString: "Required", amharicString: "መምረጥ ያስፈልጋል");
+    return LocalizationUtils.returnLocalizedString(selectedLanguage, englishString: "Optional", amharicString: "ተጨማሪ");
+  }
+
   Map<String, Widget>? getAddonOptions(String selectedLanguage) {
     if (options.isEmpty) return {};
     Map<String, Widget>? optionsUI = {};
@@ -88,7 +99,6 @@ class ProductAddon with _$ProductAddon {
   }
 
   bool canEnableAddon({double selectedQty = 0, double totalPrice = 0, bool isUserMembershipvalid = false}) {
-    print('membership check ${selectedQty} ${condition} ${conditionValue} $totalPrice');
     var conditionCheck = false;
     if (condition == AddonCondition.NONE.name) {
       conditionCheck = true;
@@ -112,28 +122,55 @@ class ProductAddon with _$ProductAddon {
     return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * qty).getPresision(2).toDouble();
   }
 
-  double getAddonPriceUpdated(String selectedCurrency, {Map<String, OrderConfig>? orderConfigs}) {
+  double getAddonPriceUpdated(String selectedCurrency, {Map<String, OrderConfig>? orderConfigs, List<SelectedRewardInfo> selectedRewards = const []}) {
     final orderconfig = orderConfigs?[id];
+    var finalAddonPrice = additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0;
     if (inputType == AddonInputType.QUANTITY_INPUT.name) {
       final qty = double.tryParse(orderconfig?.singleValue ?? '1') ?? 1;
-      return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * qty).getPresision(2).toDouble();
+      finalAddonPrice = ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * qty).getPresision(2).toDouble();
     } else if (inputType == AddonInputType.DATE_RANGE_INPUT.name) {
       final dateRange = orderconfig?.getConfigDateRange();
       final numberOfDays = DateHelper.getNumberofDaysFromDateRange(dateRange);
-      return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * numberOfDays).getPresision(2).toDouble();
-    } else if (inputType == AddonInputType.MULTIPLE_SELECTION_INPUT.name) {
-      final selectedOptionsIds = orderconfig?.multipleValue;
+      finalAddonPrice = ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * numberOfDays).getPresision(2).toDouble();
+    } else if (inputType == AddonInputType.MULTIPLE_DATE_INPUT.name) {
+      final dates = orderconfig?.getConfigDates();
+      if (dates?.isNotEmpty == true) {
+        finalAddonPrice = ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * dates!.length).getPresision(2).toDouble();
+      }
+    } else if (inputType == AddonInputType.MULTIPLE_SELECTION_INPUT.name || inputType == AddonInputType.SINGLE_SELECTION_INPUT.name) {
+      finalAddonPrice = 0.0;
+      final selectedOptionsIds = inputType == AddonInputType.MULTIPLE_SELECTION_INPUT.name ? orderconfig?.multipleValue : [orderconfig?.singleValue];
       if (selectedOptionsIds?.isNotEmpty == true) {
         var selectedOptions = options.where((option) => selectedOptionsIds?.contains(option.id) ?? false).toList();
         var optionTotalPrice = selectedOptions.sumBy((options) => options.price?.toSelectedPrice(selectedCurrency)?.amount ?? 0);
-        if (optionTotalPrice == 0) {
-          return additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+        if (optionTotalPrice > 0) {
+          finalAddonPrice = optionTotalPrice;
         }
-        return optionTotalPrice;
       }
-      return ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0)).getPresision(2).toDouble();
+    } else if (inputType == AddonInputType.SINGLE_SELECTION_INPUT.name) {
+      final selectedOptionId = orderconfig?.singleValue;
+      if (selectedOptionId?.isNotEmpty == true) {
+        var selectedOption = options.firstOrNullWhere((option) => option.id == selectedOptionId);
+        finalAddonPrice = selectedOption?.price?.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+      }
     }
-    return additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+    finalAddonPrice = getAddonPriceAfterRewards(finalAddonPrice, selectedCurrency, selectedRewards);
+    return finalAddonPrice;
+  }
+
+  double getAddonPriceAfterRewards(double addonPrice, String selectedCurrency, List<SelectedRewardInfo> selectedRewards) {
+    var rewards = getSelectedRewardsInfo(selectedRewards);
+    for (var reward in rewards) {
+      if (reward.reward.isDeliveryReward()) {
+        var deliveryDiscountAmount = reward.deliveryFeeDiscount ?? 0;
+        addonPrice = addonPrice.getPercentageOff([deliveryDiscountAmount]);
+      }
+    }
+    return addonPrice;
+  }
+
+  List<SelectedRewardInfo> getSelectedRewardsInfo(List<SelectedRewardInfo> selectedRewards) {
+    return selectedRewards.where((element) => element.reward.rewardTypes?.contains(rewardType) ?? false).toList();
   }
 
   String getTotalAdditionalPriceString(String selectedCurrency, {double qty = 1}) {
@@ -210,5 +247,43 @@ class AddonConfig with _$AddonConfig {
 extension ProductAddonExtension on List<ProductAddon> {
   List<String> getRequiredAddonsId() {
     return where((element) => element.isRequired).map((e) => e.id!).toList();
+  }
+
+  List<String> getRequiredQtyTypeAddonsId() {
+    return where((element) => element.isRequired && element.inputType == AddonInputType.QUANTITY_INPUT.name).map((e) => e.id!).toList();
+  }
+
+  List<ProductAddon> getProductSelectionAddons() {
+    return where((element) => element.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name || element.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name).toList();
+  }
+
+  List<ProductAddon> getNonDependentAddons({bool getDefault = false, bool forPOS = false, List<OrderConfig>? orderConfigs}) {
+    var result = this;
+
+    if (forPOS) {
+      result = result.where((e) => e.includeOnPOS == true).toList();
+    }
+    if (getDefault) {
+      result = result.where((e) => e.inputType == 'NONE').toList();
+      return result;
+    }
+    result = result.where((e) => e.inputType != 'NONE').toList();
+
+    // Create a new list of addons that meet the dependency requirements
+    result = result.where((addon) {
+      if (addon.dependencies == null || addon.dependencies!.isEmpty) return true;
+
+      for (var dependency in addon.dependencies!) {
+        if (dependency.type == AddonDependencyType.ADDON_VALUE.name) {
+          var dependencyAddonConfig = orderConfigs?.firstOrNullWhere((e) => addon.dependencies?.firstOrNull?.addonId == e.addonId);
+          if (!(dependency.value?.contains(dependencyAddonConfig?.singleValue) ?? false) && !(dependency.value?.containsAny(dependencyAddonConfig?.multipleValue ?? []) ?? false)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }).toList();
+
+    return result;
   }
 }

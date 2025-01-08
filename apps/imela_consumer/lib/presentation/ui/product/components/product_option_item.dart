@@ -33,7 +33,6 @@ class ProductOptionItemComponent extends StatelessWidget {
         border: Border.all(color: isOptionSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer, width: 2),
         borderRadius: BorderRadius.circular(8),
         width: width,
-        height: 20,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,7 +44,8 @@ class ProductOptionItemComponent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 4),
-                  widgetFactory.createText(context, productOption.name.localize('ENGLISH'), style: Theme.of(context).textTheme.labelMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  widgetFactory.createText(context, productOption.name.localize('ENGLISH')*4, style: Theme.of(context).textTheme.labelMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
                   if (discounts.isNotEmpty) ...[
                     widgetFactory.createText(context, productOption.getTotalPriceUpdatedString('ETB'), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
                   ],

@@ -3,12 +3,12 @@ import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/cart/components/cart_dynamic_pricing_componenet.dart';
 import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
-import 'package:imela/presentation/ui/shared/qty_modifier.component.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/components/badge/badge_list.dart';
+import 'package:imela_ui_kit/components/qty_modifier.component.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -51,9 +51,10 @@ class CartItemListItem extends StatelessWidget {
     return Stack(
       children: [
         widgetFactory.createCard(
-          padding: const EdgeInsets.all(16),
+          elevation: 1,
+          padding: const EdgeInsets.all(8),
+          borderRadius: BorderRadius.circular(2),
           width: width,
-          // height: height,
           child: Column(
             children: [
               Row(
@@ -87,7 +88,7 @@ class CartItemListItem extends StatelessWidget {
               const SizedBox(height: 8),
               if (item.config?.isNotEmpty == true) ...[
                 widgetFactory.createCard(
-                  color: Theme.of(context).colorScheme.primaryContainer,
+                  border: Border.all(color: Theme.of(context).colorScheme.primaryContainer),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                   child: Column(
                     children: item.config!.map((config) {
@@ -103,7 +104,7 @@ class CartItemListItem extends StatelessWidget {
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
               ],
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -114,6 +115,7 @@ class CartItemListItem extends StatelessWidget {
                       currentQty: item.quantity,
                       deductQtyDisabled: isDeductQtyDisabled,
                       addQtyDisabled: isAddQtyDisabled,
+                      height: 40,
                       onQtyChange: (newValue) {
                         onQtyChange?.call(newValue);
                       },
@@ -121,54 +123,7 @@ class CartItemListItem extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        InkWell(
-                          onTap: () => onDiscountClicked?.call(item),
-                          child: Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            runAlignment: WrapAlignment.center,
-                            // crossAxisAlignment: WrapCrossAlignment.end,
-                            children: [
-                              widgetFactory.createText(context, item.subtotalAmountString(selectedCurrency), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
-                              const SizedBox(width: 8),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  widgetFactory.createText(context, item.totalAmountString(currency: selectedCurrency), style: Theme.of(context).textTheme.titleMedium),
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.keyboard_arrow_down, size: 16),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (item.discount?.isNotEmpty == true) 
-                          BadgeList(
-                            widgets: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  widgetFactory.createText(
-                                    context,
-                                    item.getTotalDiscountAmountPOSString(currency: selectedCurrency),
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                    // color: Colors.white,
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                              )
-                            ],
-                            colors: [Theme.of(context).colorScheme.primaryContainer],
-                            maxCeilWidth: 120,
-                            widgetFactory: widgetFactory,
-                            textStyle: Theme.of(context).textTheme.bodySmall,
-                            alignment: WrapAlignment.end,
-                          ),
-                      ],
-                    ),
+                    child: buildPriceSection(context),
                   ),
                 ],
               ),
@@ -187,6 +142,47 @@ class CartItemListItem extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Widget buildPriceSection(BuildContext context) {
+    return InkWell(
+      onTap: () => onDiscountClicked?.call(item),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (item.discount?.isNotEmpty == true) ...[
+                widgetFactory.createText(
+                  context,
+                  item.subtotalAmountString(selectedCurrency, includeAddonPrice: false),
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textDecoration: TextDecoration.lineThrough,
+                ),
+                const SizedBox(width: 4),
+                BadgeListTile(
+                  widgetFactory: widgetFactory,
+                  value: item.getTotalDiscountAmountPOSString(currency: selectedCurrency),
+                  textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9),
+                  color: Colors.transparent,
+                  borderColor: Colors.grey,
+                ),
+              ],
+              const SizedBox(width: 8),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              widgetFactory.createText(context, item.totalAmountString(currency: selectedCurrency), style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(width: 4),
+              const Icon(Icons.keyboard_arrow_down, size: 16),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

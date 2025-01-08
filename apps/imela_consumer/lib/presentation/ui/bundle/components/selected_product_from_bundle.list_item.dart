@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela/presentation/utils/widget_extesions.dart';
+import 'package:imela_core/order/model/order_item.model.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class SelectedProductFromBundlListItem extends StatelessWidget {
@@ -14,6 +18,7 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
   final Function? onRemove;
   final double imageWidth;
   final double imageHeight;
+  final List<OrderItem> additionalItems;
   const SelectedProductFromBundlListItem({
     super.key,
     required this.name,
@@ -26,6 +31,7 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
     this.onRemove,
     this.imageWidth = 100,
     this.imageHeight = 120,
+    this.additionalItems = const [],
   });
 
   @override
@@ -37,25 +43,49 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
       width: width,
       child: Stack(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              AppImage(imageUrl: image, borderRadius: BorderRadius.circular(6), width: imageWidth, height: imageHeight),
-              const SizedBox(width: 16),
-              Expanded(
-                  child: Column(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, name, style: Theme.of(context).textTheme.labelLarge, maxLines: 2).withPaddingSymetric(horizontal: 4),
-                  widgetFactory.createText(context, price, style: Theme.of(context).textTheme.titleSmall).withPaddingSymetric(horizontal: 4),
-                  const SizedBox(height: 8),
-                  widgetFactory.createCard(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    child: widgetFactory.createText(context, 'Qty - $qty', style: Theme.of(context).textTheme.bodyMedium),
+                  AppImage(imageUrl: image, borderRadius: BorderRadius.circular(6), width: imageWidth, height: imageHeight),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        widgetFactory.createText(context, name, style: Theme.of(context).textTheme.labelLarge, maxLines: 2).withPaddingSymetric(horizontal: 4),
+                        widgetFactory.createText(context, price, style: Theme.of(context).textTheme.titleSmall).withPaddingSymetric(horizontal: 4),
+                        const SizedBox(height: 8),
+                        widgetFactory.createCard(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          child: widgetFactory.createText(context, 'Qty - $qty', style: Theme.of(context).textTheme.bodyMedium),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ).withPaddingSymetric(vertical: 4),
                   ),
                 ],
-              ).withPaddingSymetric(vertical: 4)),
+              ),
+              if (additionalItems.isNotEmpty) ...[
+                const Divider(),
+                // widgetFactory.createText(context, 'Additional Items', style: Theme.of(context).textTheme.bodySmall),
+                AppListView(
+                  header: widgetFactory.createText(context, 'Additional Items', style: Theme.of(context).textTheme.bodyMedium).paddingSymmetric(horizontal: 8),
+                  items: additionalItems,
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  scrollDirection: Axis.horizontal,
+                  width: double.infinity,
+                  height: 45,
+                  itemBuilder: (context, item, index) {
+                    return AppImage(imageUrl: item.image, borderRadius: BorderRadius.circular(6), width: 45, height: 40);
+                  },
+                ),
+              ],
             ],
           ),
           Positioned(

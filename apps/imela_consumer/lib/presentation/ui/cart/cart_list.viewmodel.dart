@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
@@ -5,6 +6,8 @@ import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
 import 'package:imela/presentation/ui/cart/components/discount_list_modal.dart';
 import 'package:imela/presentation/ui/cart/order_configure/order_configure_page.dart';
+import 'package:imela/presentation/ui/cart/reward_apply/apply_reward_page.dart';
+import 'package:imela/presentation/ui/cart/reward_apply/viewmodel.apply_reward.dart';
 import 'package:imela/presentation/ui/loyalty/components/reward_list_modal.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_details_page.dart';
 import 'package:imela/presentation/ui/product/components/product_addon_modal/product_addon_list_modal.dart';
@@ -21,6 +24,7 @@ import 'package:imela_core/product/discount.usecase.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -32,14 +36,6 @@ import 'package:injectable/injectable.dart';
 class CartListViewmodel extends GetxController with BaseViewmodel {
   static const FETCH_CART_FROM_API_KEY = 'fetch_cart_from_api';
   final DiscountUseCase discountUseCase;
-
-  // page state variables
-  final isLoading = false.obs;
-  final exception = Rxn<AppException>();
-  var isRewardLoading = false.obs;
-
-  var selectedCart = Rxn<Cart>();
-  var orderAddonsConfigured = false.obs;
 
   final OrderUsecase orderUsecase;
   final IExceptiionHandler exceptiionHandler;
@@ -55,9 +51,22 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     return BaseViewmodel.isViewmodelRegistered(getIt<CartListViewmodel>());
   }
 
-  AppController get appController => AppController.getInstance;
+  // page state variables
+  final isLoading = false.obs;
+  var exception = Rxn<AppException>();
+  var isRewardLoading = false.obs;
 
+  var selectedCart = Rxn<Cart>();
+  var orderAddonsConfigured = false.obs;
+  var businessesWithReward = <String, List<Reward>>{}.obs;
   RxList<DiscountInfo> eligableDiscounts = <DiscountInfo>[].obs;
+
+  var selectedRewardInfo = <SelectedRewardInfo>[].obs;
+  double get usedLoyaltyPoints => selectedRewardInfo.sumBy((info) => info.reward.minPointsToRedeem.toDouble());
+  var configResult = Rxn<AddonConfig>();
+
+  bool get isUserLoggedin => appController.isAuthenticated;
+  AppController get appController => AppController.getInstance;
 
   late BuildContext context;
 
@@ -69,6 +78,7 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
 
   List<Cart> get carts => appController.carts;
   List<PaymentOption> get businessPaymentOptions => selectedCart.value?.paymentOptions ?? [];
+  List<String> get businessesInCart => selectedCart.value?.businessIds ?? [];
   String get callToActionText {
     return orderAddonsConfigured.value == false && selectedCart.value?.hasOrderAddons() == true ? 'Continue' : 'Proceed to Payment';
   }
@@ -81,6 +91,30 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     final fetchCartFromApi = data?[FETCH_CART_FROM_API_KEY] as bool? ?? true;
     context = data?['context'] as BuildContext;
     super.initViewmodel(data: data);
+  }
+
+  // Future<void> fetchBusinessRewards() async {
+  //   try {
+  //     final businessId = selectedCart.value?.businessIds;
+  //     if (businessId == null) return;
+  //     await Future.forEach(businessId, (businessId) async {
+  //       final result = await appController.getCustomerBusinessLoyalty(context, businessId);
+  //       if (result != null) {
+  //         businessesWithReward[businessId] = result.tier?.rewards ?? [];
+  //       }
+  //     });
+  //   } catch (e) {
+  //     print('exception $e');
+  //   }
+  // }
+
+  void listenToSelectedRewardInfo() {
+    ever(selectedRewardInfo, (value) {
+      appController.updateUsedRewardPoints(usedLoyaltyPoints);
+      if (configResult.value != null) {
+        applyOrderAddonConfigAndRewards(configResult.value!);
+      }
+    });
   }
 
   void fecthAvailableDiscounts() {
@@ -157,25 +191,32 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     CartDetailPage.navigateToCartDetailPage(context, router, cart);
   }
 
-  void showBusinessRewardsPage(BuildContext context) {
-    if (selectedBusinessLoyaltyProgram != null) {
-      LoyaltyDetailsPage.navigate(context, programName: 'Loyalty Info', loyaltyInfo: selectedBusinessLoyaltyProgram);
-    }
-  }
+  void showBusinessRewardsPage(BuildContext context) {}
 
   // cart details logic
 
-  void seselectedCart(Cart selectedCart) {
+  void seselectedCart(BuildContext cont, Cart selectedCart) {
     Future.delayed(Duration.zero, () async {
-      this.selectedCart.value = selectedCart;
-      cartItemListController.setItems(selectedCart.items ?? []);
-      final businessId = selectedCart.businessIds?.first;
-      if (businessId != null) {
+      try {
         isRewardLoading(true);
-        final result = await appController.getCustomerBusinessLoyalty(businessId);
-        if (result != null) {
-          isRewardLoading(false);
+        this.selectedCart.value = selectedCart;
+        cartItemListController.setItems(selectedCart.items ?? []);
+        final businessId = selectedCart.businessIds?.firstOrNull;
+        if (businessId != null) {
+          final result = await appController.getCustomerBusinessLoyalty(cont, businessId);
+          if (result != null) {
+            isRewardLoading(false);
+          }
         }
+      } catch (e) {
+        var ex = exceptiionHandler.getException(e as Exception);
+        if (!ex.isUnAuthorizedException) {
+          appController.getWidgetFactory(context).showFlashMessage(context, message: ex.message ?? 'Something went wrong', actionText: 'Retry', onActinClicked: () {
+            seselectedCart(context, selectedCart);
+          });
+        }
+      } finally {
+        isRewardLoading(false);
       }
     });
   }
@@ -194,26 +235,31 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
 
   void clearSelectedCart(BuildContext context) {
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Clear Cart'),
-            content: const Text('Are you sure you want to clear the cart?'),
-            actions: [
-              TextButton(onPressed: () {
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Clear Cart'),
+          content: const Text('Are you sure you want to clear the cart?'),
+          actions: [
+            TextButton(
+              onPressed: () {
                 Navigator.pop(context);
-              }, child: const Text('Cancel')),
-              TextButton(
-                  onPressed: () {
-                    selectedCart.value = selectedCart.value?.copyWith(items: []);
-                    cartItemListController.setItems([]);
-                    appController.carts.removeWhere((element) => element.id == selectedCart.value?.id);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Confirm')),
-            ],
-          );
-        });
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+                onPressed: () {
+                  selectedCart.value = selectedCart.value?.copyWith(items: []);
+                  cartItemListController.setItems([]);
+                  selectedRewardInfo.value = [];
+                  appController.carts.removeWhere((element) => element.id == selectedCart.value?.id);
+                  Navigator.pop(context);
+                },
+                child: const Text('Confirm')),
+          ],
+        );
+      },
+    );
   }
 
   void showEligableRewardsModal(BuildContext context) async {
@@ -246,7 +292,36 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     var allRewardIds = appController.allRewards.map((e) => e.id).toList();
     selectedCart.value = selectedCart.value!.removeAppliedLoyaltyDiscounts(allRewardIds);
     cartItemListController.setItems(selectedCart.value!.items ?? []);
-    appController.updateUsedRewardPoints(0);
+    for (var reward in selectedRewardInfo.value) {
+      removeAppliedRewards(reward.reward);
+    }
+    selectedRewardInfo.value = [];
+  }
+
+  void removeAppliedRewards(Reward reward) {
+    var updatedCart = selectedCart.value;
+    var rewardProductIds = selectedRewardInfo.map((info) => info.products?.map((product) => product.id!)).whereNotNull().flatten().toList();
+    updatedCart = updatedCart?.removeItems(rewardProductIds);
+    if (updatedCart != null) {
+      updateCartState(updatedCart);
+      selectedCart.value = selectedCart.value?.copyWith(items: updatedCart.items);
+      cartItemListController.setItems(selectedCart.value!.items ?? []);
+    }
+
+    for (var info in selectedRewardInfo.value) {
+      if (info.discount != null) {
+        var discount = info.discount!;
+        final updatedDiscount = discount.copyWith(id: info.reward.id, source: DiscountSource.LOYALTY);
+        var selectedProductIds = selectedCart.value?.items?.map((product) => product.productId).whereNotNull().toList() ?? [];
+        var discountItem = updatedDiscount.toItemDiscount(defaultName: [const LocalizedField(key: 'ENGLISH', value: 'Reward discount')]);
+        updatedCart = updatedCart?.applyDiscountOnOrderItems(discountList: [discountItem], selectedProductsForDiscount: selectedProductIds, removeExistingDiscount: true);
+        if (updatedCart != null) {
+          updateCartState(updatedCart);
+          selectedCart.value = selectedCart.value?.copyWith(items: updatedCart.items);
+          cartItemListController.setItems(selectedCart.value!.items ?? []);
+        }
+      }
+    }
   }
 
   Future<void> updateItemQty(String productId, int index, double qty) async {
@@ -260,8 +335,8 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
         updatedItem = updatedItem.removeDiscountById(DiscountSource.DYNAMIC_PRICING.name);
       }
       selectedCart.value = selectedCart.value?.updateOrderItem(updatedItem);
-      updateCartState(selectedCart.value!);
       cartItemListController.updateItem(index, updatedItem);
+      updateCartState(selectedCart.value!);
     } catch (ex) {
       print('exception $ex');
       exception.value = exceptiionHandler.getException(ex as Exception);
@@ -301,44 +376,74 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     ]);
   }
 
-  Future<void> changeOrderConfigs(BuildContext context) async {
+  var orderAddonsToShow = <ProductAddon>[].obs;
+  Future<void> changeOrderConfigs(BuildContext context, {List<ProductAddon>? productAddons}) async {
     orderAddonsConfigured.value = false;
-    // print('object')
-    final configResult = await AppModalSheet.showModal<AddonConfig?>(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
-      ModalContent(
-        title: const Text('Order Configuration'),
-        content: ProductAddonModal(
-          productAddons: List.from(selectedCart.value!.getAddons()),
-          initialOrderConfigs: selectedCart.value?.configs ?? [],
-          showqtyModfier: false,
-          totalPrice: selectedCart.value!.getTotatAmountPOS(),
+    orderAddonsToShow.value = selectedCart.value!.getAddons();
+    var result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog.fullscreen(
+        child: Obx(
+          () => ProductAddonModal(
+              productAddons: productAddons ?? orderAddonsToShow.value,
+              initialOrderConfigs: selectedCart.value?.configs ?? [],
+              showqtyModfier: false,
+              totalPrice: selectedCart.value!.getTotatAmountPOS(),
+              selectedRewards: selectedRewardInfo.value,
+              onPageChange: () {
+                orderAddonsToShow.value = List.from(selectedCart.value!.getAddons());
+              }),
         ),
-      )
+      ),
+    );
+    // configResult.value = await AppModalSheet.showModal<AddonConfig?>(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
+    //   ModalContent(
+    //     title: const Text('Order Configuration'),
+    //     content: ProductAddonModal(
+    //       productAddons: [
+    //         ...List.from(selectedCart.value!.getAddons()),
+    //       ],
+    //       initialOrderConfigs: selectedCart.value?.configs ?? [],
+    //       showqtyModfier: false,
+    //       totalPrice: selectedCart.value!.getTotatAmountPOS(),
+    //       selectedRewards: selectedRewardInfo.value,
+    //     ),
+    //   )
 
-      // ModalContent(
-      //   title: const Text('Order Configurations'),
-      //   content: ProductAddonModal(productAddons: selectedCart.value!.orderAddons!, initialOrderConfigs: selectedCart.value?.configs ?? []),
-      // ),
-    ]);
-    if (configResult == null) {
+    // ModalContent(
+    //   title: const Text('Order Configurations'),
+    //   content: ProductAddonModal(productAddons: selectedCart.value!.orderAddons!, initialOrderConfigs: selectedCart.value?.configs ?? []),
+    // ),
+    // ]);
+    if (result == null) {
       return;
     }
-    if (configResult.orderConfigs.isNotEmpty == true) {
-      selectedCart.value = selectedCart.value!.addSelectedOrderConfigs(configResult.orderConfigs);
+    configResult.value = result['CONFIG_DATA'] as AddonConfig?;
+    if (configResult.value == null) {
+      return;
     }
-    if (configResult.additionalItems?.isNotEmpty == true) {
-      var updatedCart = selectedCart.value!.addOrUpdateItems(configResult.additionalItems!);
-      cartItemListController.setItems(updatedCart.items ?? []);
-      updateCartState(updatedCart);
+    if (configResult.value!.orderConfigs.isNotEmpty == true) {
+      applyOrderAddonConfigAndRewards(configResult.value!);
+    }
+    if (configResult.value!.additionalItems?.isNotEmpty == true) {
+      selectedCart.value = selectedCart.value!.addOrUpdateItems(configResult.value!.additionalItems!);
+      cartItemListController.setItems(selectedCart.value!.items ?? []);
+      updateCartState(selectedCart.value!);
     }
     orderAddonsConfigured.value = true;
   }
 
+  void applyOrderAddonConfigAndRewards(AddonConfig configResult) {
+    final updatedConfigs = configResult.orderConfigs.addOrRemoveRewards(selectedRewardInfo.value);
+
+    selectedCart.value = selectedCart.value!.addSelectedOrderConfigs(updatedConfigs);
+  }
+
   void handleNextScreenNavigation(BuildContext context) async {
     if (selectedCart.value!.hasOrderAddons() == true) {
-      if (orderAddonsConfigured.value == true) {
-        OrderConfigurePage.navigateToOrderConfigurePage(context, router, cartInfo: selectedCart.value!);
-      } else if (selectedCart.value!.configs?.isEmpty ?? true) {
+      print('config result ${configResult.value}');
+      if (configResult.value == null) {
         await changeOrderConfigs(context);
       } else {
         OrderConfigurePage.navigateToOrderConfigurePage(context, router, cartInfo: selectedCart.value!);
@@ -354,12 +459,32 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     super.dispose();
   }
 
-  void showProductDetailPage(BuildContext context, Product product) {
-    //  AppModalSheet.showModal(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
-    //   ModalContent(
-    //     title: const Text('Product Details'),
-    //     content: ProductDetailPage(product: product),
-    //   )
-    // ]);
+  void navigatetoApplyRewardPage(BuildContext context) async {
+    var eligibleRewards = appController.allRewards.getEligibleRewardsBasedOnAddonReward(orderAddonsToShow.value);
+    await appController.router.navigateTo(context, ApplyRewardPage.routeName, extra: {
+      ApplyRewardPage.REWARDS_KEY: eligibleRewards,
+      ApplyRewardPage.REMAINING_POINT_KEY: appController.remainingPoints,
+      ApplyRewardPage.SELECTED_REWARD_KEY: selectedRewardInfo.value,
+    });
+    selectedRewardInfo.refresh();
+  }
+
+  void setSelectedRewardInfo(List<SelectedRewardInfo> value) {
+    selectedRewardInfo.value = value;
+  }
+
+  void goToLoginPage(BuildContext context) async {
+    await appController.refreshTokenOrLogout(
+      context,
+      moveToLogin: true,
+      showLoginMessage: true,
+      redirectUrl: CartDetailPage.routeName,
+      redirectExtra: {CartDetailPage.CART_DATA: selectedCart.value},
+    );
+  }
+
+  void showAdditionalItems(BuildContext context) {
+    var productSelectionAddons = orderAddonsToShow.value.getProductSelectionAddons();
+    changeOrderConfigs(context, productAddons: productSelectionAddons);
   }
 }

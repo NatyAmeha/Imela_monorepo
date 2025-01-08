@@ -23,58 +23,57 @@ class LocationListModal extends StatelessWidget {
     required this.widgetFactory,
   });
 
-
   @override
   Widget build(BuildContext context) {
     var widgetContext = context;
-    return widgetFactory.createCard(
-      padding: const EdgeInsets.all(16),
-      height: MediaQuery.of(context).size.height * 0.8,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          widgetFactory.createText(context, title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 24),
-          if (locations.isEmpty)
-            widgetFactory.createCard(
-              child: Column(
-                children: [
-                  widgetFactory.createText(context, 'No locations found', style: Theme.of(context).textTheme.bodyLarge),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            )
-          else
-            Expanded(
-              child: AppListView(
-                items: locations,
-                contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                shrinkWrap: true,
-                itemBuilder: (context, location, index) {
-                  return widgetFactory.createCard(
-                    onTap: () => onLocationSelected(widgetContext, location),
-                    padding: const EdgeInsets.all(10),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey),
-                    child: widgetFactory.createText(context, location.name, style: Theme.of(context).textTheme.bodyMedium),
-                  );
-                },
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        widgetFactory.createText(context, title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        if (locations.isEmpty)
+          widgetFactory.createCard(
+            child: Column(
+              children: [
+                widgetFactory.createText(context, 'No locations found', style: Theme.of(context).textTheme.bodyLarge),
+                const SizedBox(height: 24),
+              ],
             ),
-          const SizedBox(height: 24),
-          widgetFactory
-              .createButton(
-                context: context,
-                content: const Text('Add new location'),
-                style: AppButtonStyle.textButtonStyle(context),
-                onPressed: () {
-                  onAddLocation.call(context);
-                },
-              )
-              .withPaddingAll(24)
-        ],
-      ),
+          )
+        else
+          AppListView(
+            items: locations,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            shrinkWrap: true,
+            itemBuilder: (context, location, index) {
+              var isSelected = selectedLocation?.id == location.id;
+              return widgetFactory.createCard(
+                onTap: () => onLocationSelected(widgetContext, location),
+                padding: const EdgeInsets.all(16),
+                borderRadius: BorderRadius.circular(10),
+                elevation: isSelected ? 1 : 0,
+                border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer),
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on, color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer),
+                    const SizedBox(width: 8),
+                    widgetFactory.createText(context, location.name, style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+              );
+            },
+          ),
+        const Divider(height: 16),
+        widgetFactory.createButton(
+          context: context,
+          content: const Text('Add new location'),
+          style: AppButtonStyle.textButtonStyle(context),
+          onPressed: () {
+            onAddLocation.call(context);
+          },
+        )
+      ],
     );
   }
 }

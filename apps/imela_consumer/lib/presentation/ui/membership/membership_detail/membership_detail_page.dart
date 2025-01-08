@@ -5,11 +5,11 @@ import 'package:imela/presentation/ui/membership/components/user_membership_card
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela/presentation/utils/widget_extesions.dart';
 import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/number_utils.dart';
@@ -54,7 +54,7 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
       body: Obx(
         () {
           return PageContentLoader(
-            isDataLoading: viewmodel.isLoading.value,
+            isLoading: viewmodel.isLoading.value,
             showContent: viewmodel.membershipDetails.value != null,
             exception: viewmodel.exception.value,
             hasError: viewmodel.exception.value?.isMainError ?? false,

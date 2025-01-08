@@ -6,23 +6,25 @@ class BadgeList extends StatelessWidget {
   final List<String>? values;
   final List<Widget>? widgets;
   final List<Color> colors;
+  final List<Color>? borderColors;
   final WidgetFactory widgetFactory;
   final double width;
   final double height;
   final TextStyle? textStyle;
   final double maxCeilWidth;
-  final WrapAlignment alignment;
+  final WrapAlignment? alignment;
   const BadgeList({
     super.key,
     this.values,
     this.widgets,
     required this.colors,
+    this.borderColors,
     required this.widgetFactory,
     this.width = double.infinity,
     this.height = 25,
     this.textStyle,
     this.maxCeilWidth = 150,
-    this.alignment = WrapAlignment.start,
+    this.alignment,
   });
 
   @override
@@ -31,9 +33,7 @@ class BadgeList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Wrap(
-          alignment: alignment,
-          // runAlignment: WrapAlignment.start,
-          
+          alignment: alignment ?? WrapAlignment.start,
           runSpacing: 4,
           children: [
             for (var i = 0; i < (values?.length ?? widgets?.length ?? 0); i++)
@@ -42,6 +42,7 @@ class BadgeList extends StatelessWidget {
                 value: values?[i],
                 widget: widgets?[i],
                 color: colors[i],
+                borderColor: borderColors?[i],
                 isFirst: i == 0,
                 isLast: i == (values?.length ?? widgets?.length ?? 0) - 1,
                 textStyle: textStyle,
@@ -61,13 +62,14 @@ class BadgeListTile extends StatelessWidget {
   final String? value;
   final Widget? widget;
   final Color? color;
+  final Color? borderColor;
   final EdgeInsetsGeometry? padding;
   final bool isFirst;
   final bool isLast;
   final TextStyle? textStyle;
   final double width;
   final double height;
-  final WrapAlignment alignment;
+  final WrapAlignment? alignment;
 
   const BadgeListTile({
     super.key,
@@ -75,13 +77,14 @@ class BadgeListTile extends StatelessWidget {
     this.value,
     this.widget,
     this.color,
+    this.borderColor,
     this.padding,
     this.isFirst = false,
     this.isLast = false,
     this.textStyle,
     this.width = 80,
     this.height = 20,
-    this.alignment = WrapAlignment.start,
+    this.alignment,
   });
 
   @override
@@ -91,7 +94,12 @@ class BadgeListTile extends StatelessWidget {
       child: Container(
         height: height,
         // width: width,
-        color: color ?? Theme.of(context).colorScheme.primary,
+        
+        decoration: BoxDecoration(
+          color: color ?? Theme.of(context).colorScheme.primary,
+          border: Border.all(color: borderColor ?? Colors.transparent),
+          borderRadius: BorderRadius.circular(4),
+        ),
         alignment: Alignment.center,
         // constraints:  BoxConstraints(maxWidth: width + 25),
         padding: padding ?? (alignment == WrapAlignment.start ? const EdgeInsets.only(left: 6, right: 12, top: 2, bottom: 2) : const EdgeInsets.only(left: 12, right: 6, top: 2, bottom: 2)),
@@ -100,7 +108,7 @@ class BadgeListTile extends StatelessWidget {
               context,
               value ?? '',
               enableResize: true,
-              style: (textStyle ?? Theme.of(context).textTheme.bodySmall)?.copyWith(color: Colors.white),
+              style: (textStyle ?? Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white)),
             ),
       ),
     );
@@ -109,18 +117,19 @@ class BadgeListTile extends StatelessWidget {
 
 class ParallelogramClipper extends CustomClipper<Path> {
   final bool isFirst;
-  final WrapAlignment alignment;
+  final WrapAlignment? alignment;
 
-  ParallelogramClipper({
-    required this.isFirst,
-    required this.alignment,
-  });
+  ParallelogramClipper({required this.isFirst, this.alignment});
 
   @override
   Path getClip(Size size) {
     final path = Path();
-
-    if (alignment == WrapAlignment.end) {
+    if (alignment == null) {
+      path.moveTo(0, 0);
+      path.lineTo(size.width, 0);
+      path.lineTo(size.width, size.height);
+      path.lineTo(0, size.height);
+    } else if (alignment == WrapAlignment.end) {
       // Right-to-left cutout
       path.moveTo(5, 0);
       path.lineTo(size.width, 0);

@@ -5,7 +5,7 @@ import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/loyalty/components/loyalty_list_item.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_list_viewmodel.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 
 class LoyaltyListPage extends StatefulWidget {
   static const routeName = '/loyalty-list';
@@ -39,7 +39,7 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
       body: Obx(
         () => PageContentLoader(
           showContent: viewmodel.customerLoyalties.isNotEmpty,
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           exception: viewmodel.exception.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           onTryAgain: () {
@@ -51,11 +51,11 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
             itemBuilder: (context, loyalty, item) {
               return LoyaltyListItem(
-                color: viewmodel.colors[item % viewmodel.colors.length],
+                color: viewmodel.colorLoyaltyCardColors[item % viewmodel.colorLoyaltyCardColors.length],
                 customerLoyalty: loyalty,
                 selectedLanguage: selectedLanguage,
                 onTap: () {
-                  viewmodel.navigateToLoyaltyDetails(context, loyalty);
+                  viewmodel.navigateToLoyaltyDetail(context, loyalty);
                 },
               );
             },

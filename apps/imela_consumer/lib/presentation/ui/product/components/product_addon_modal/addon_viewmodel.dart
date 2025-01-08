@@ -13,6 +13,7 @@ import 'package:imela/presentation/ui/product/components/product_dynamic_pricing
 import 'package:imela/presentation/ui/shared/qty_modifier.component.dart';
 import 'package:imela_core/calendar/model/calendar.model.dart';
 import 'package:imela_core/calendar/model/calendar_booking.model.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/order/order.usecase.dart';
@@ -21,6 +22,7 @@ import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/settings/model/location.model.dart';
 import 'package:imela_core/settings/setting_usecase.dart';
 import 'package:imela_core/shared/currency_utils.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 
@@ -51,6 +53,8 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     return BaseViewmodel.isViewmodelRegistered(getIt<ProductAddonViewmodel>());
   }
 
+  PageController pageController = PageController();
+
   // state variables
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
@@ -58,12 +62,16 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   var productAddons = <ProductAddon>[].obs;
   var selectedAddonOptions = <String, List<ProductAddonOption>>{}.obs;
   final orderConfigs = <String, OrderConfig>{}.obs;
+  var selectedAddonConfigPageIndex = 0.obs;
+  var canGoToNextAddonConfigPage = false.obs;
+
+  var showProductQtyModifier = true.obs;
 
   var additionalProductOrderItems = <String, List<OrderItem>>{};
   var selectedProductQty = <String, double>{}.obs;
 
   var selectedQty = 1.0.obs;
-  var requiredAddonsId = <String>{}.obs;
+  var requiredQtyAddonsId = <String>{}.obs;
 
   var savedLocations = <Location>[].obs;
   var selectedLocation = Rxn<Location>();
@@ -73,13 +81,32 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   // getters
   AppController get appViewmmodel => AppController.getInstance;
   String get selectedLanguage => appViewmmodel.selectedLanguage.name;
+  String get selectedCurrency => appViewmmodel.selectedCurrency.name;
 
   BuildContext? context;
   Product? parentProduct;
+  List<SelectedRewardInfo> selectedRewards = [];
 
   bool get isOrderconfigContainsRequiredAddon {
-    if (requiredAddonsId.isEmpty) return true;
-    return requiredAddonsId.every((addonId) => orderConfigs.containsKey(addonId));
+    if (requiredQtyAddonsId.isEmpty) return true;
+    return requiredQtyAddonsId.every((addonId) => orderConfigs.containsKey(addonId));
+  }
+
+  List<ProductAddon> get quantityAddons {
+    var qtyBasedAdons = productAddons.value.getNonDependentAddons(orderConfigs: orderConfigs.value.values.toList()).where((addon) => addon.inputType == AddonInputType.NUMBER_INPUT.name || addon.inputType == AddonInputType.QUANTITY_INPUT.name).toList();
+    return [...qtyBasedAdons];
+  }
+
+  List<ProductAddon> get nonQtyAddons {
+    var nonQtyAddons = productAddons.value.getNonDependentAddons(orderConfigs: orderConfigs.value.values.toList()).where((addon) => addon.inputType != AddonInputType.NUMBER_INPUT.name && addon.inputType != AddonInputType.QUANTITY_INPUT.name).toList();
+    return [...nonQtyAddons];
+  }
+
+  int get pageLength {
+    if (quantityAddons.isNotEmpty || showProductQtyModifier.value) {
+      return 1 + nonQtyAddons.length;
+    }
+    return nonQtyAddons.length;
   }
 
   List<String> selectedAddonOptionsId(String addonId) => (selectedAddonOptions[addonId] ?? []).map((e) => e.id!).toList();
@@ -92,25 +119,79 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     context = data?['context'];
     final resetQty = data?['resetQty'];
     parentProduct = data?['parentProduct'];
-
+    selectedRewards = data?['selectedRewards'];
+    showProductQtyModifier.value = data?['SHOW_PRODUCT_QTY_MODIFIER'] ?? true;
     final initialQty = data?['initialQty'] ?? 1;
     if (resetQty) {
       selectedQty.value = initialQty.toDouble();
     }
     Future.delayed(Duration.zero, () {
       addonsWithDisabledDates.clear();
-      addProductAddon(data?['productAddons']);
+      addProductAddon(data?['productAddons'], data?['INITIAL_ORDER_CONFIGS'] as List<OrderConfig> ?? []);
+      listenOrderConfigChange();
+      applyDefaultQtyBasedAddonsToOrderConfigs();
     });
   }
 
-  void addProductAddon(List<ProductAddon>? addons) async {
-    productAddons.clear();
-    requiredAddonsId.clear();
+  int getAddonIndex(int index) {
+    if (showProductQtyModifier.value) {
+      return index - 1;
+    } else {
+      return quantityAddons.isEmpty ? index : index - 1;
+    }
+  }
 
+  void listenOrderConfigChange() {
+    everAll([selectedAddonConfigPageIndex, orderConfigs], (value) {
+      controlAddonNavigation();
+    });
+  }
+
+  void controlAddonNavigation() {
+    if (selectedAddonConfigPageIndex.value == 0) {
+      var requiredQtyAddons = requiredQtyAddonsId.where((addonId) => quantityAddons.map((e) => e.id).contains(addonId));
+      if (requiredQtyAddons.isEmpty) {
+        canGoToNextAddonConfigPage.value = true;
+      } else {
+        canGoToNextAddonConfigPage.value = requiredQtyAddonsId.every((addonId) => orderConfigs.containsKey(addonId));
+      }
+    } else {
+      var selectedAddon = nonQtyAddons[getAddonIndex(selectedAddonConfigPageIndex.value)];
+      if (!selectedAddon.isRequired) {
+        canGoToNextAddonConfigPage.value = true;
+      } else {
+        if (selectedAddon.inputType == AddonInputType.MULTIPLE_SELECTION_INPUT.name || selectedAddon.inputType == AddonInputType.SINGLE_SELECTION_INPUT.name) {
+          canGoToNextAddonConfigPage.value = canEnableOptionSelection.value;
+        } else if (selectedAddon.inputType == AddonInputType.DATE_RANGE_INPUT.name) {
+          var configuredDateRange = orderConfigs[selectedAddon.id]?.getConfigDateRange();
+          canGoToNextAddonConfigPage.value = configuredDateRange != null;
+        } else if (selectedAddon.inputType == AddonInputType.DATE_INPUT.name || selectedAddon.inputType == AddonInputType.DATE_TIME_INPUT.name) {
+          var configuredDate = orderConfigs[selectedAddon.id]?.singleValue;
+          canGoToNextAddonConfigPage.value = configuredDate != null;
+        } else if (selectedAddon.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name || selectedAddon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name) {
+          var productSelected = selectedAddon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name ? selectedDiscoungtedProductsFromAddons.value : selectedProductsFromAddon.value;
+          var canEnable = productSelected.isNotEmpty && productSelected.length <= selectedAddon.maxAmount && productSelected.length >= selectedAddon.minAmount;
+          canGoToNextAddonConfigPage.value = canEnable;
+        }
+      }
+    }
+  }
+
+  bool isPassingMembershipCheck(ProductAddon addon) {
+    if (addon.membershipIds == null || addon.membershipIds!.isEmpty) return true;
+    return appViewmmodel.currentUserIsMember(addon.membershipIds);
+  }
+
+  void addProductAddon(List<ProductAddon>? addons, List<OrderConfig> initialConfigs) async {
+    productAddons.clear();
+    requiredQtyAddonsId.clear();
+    selectedAddonConfigPageIndex.value = 0;
     if (addons == null) return;
+    if (initialConfigs.isNotEmpty) {
+      orderConfigs.value = initialConfigs.groupBy((e) => e.addonId!).map((key, value) => MapEntry(key, value.first));
+    }
     productAddons.addAll(addons);
-    requiredAddonsId.addAll(addons.getRequiredAddonsId());
-    applyDefaultQtyBasedAddonsToOrderConfigs();
+    requiredQtyAddonsId.addAll(addons.getRequiredQtyTypeAddonsId());
     getUserSavedLocations();
     await getAddonsCalendar();
   }
@@ -152,9 +233,10 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   }
 
   void applyDefaultQtyBasedAddonsToOrderConfigs() {
-    for (var addon in productAddons) {
-      if (addon.inputType == AddonInputType.QUANTITY_INPUT.name) {
+    for (var addon in quantityAddons) {
+      if (addon.isRequired) {
         orderConfigs[addon.id!] = OrderConfig.createQtyOrderConfig(addon.minAmount, addon: addon);
+        orderConfigs.refresh();
       }
     }
   }
@@ -209,17 +291,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
       orderConfigs.remove(addon.id!);
     } else {
       orderConfigs[addon.id!] = addon.inputType == AddonInputType.SINGLE_SELECTION_INPUT.name ? OrderConfig.createSingleSelectOrderConfig(addon.name!, selectedAddonOptionsId.first, addon) : OrderConfig.createMultipleSelectOrderConfig(addon.name!, selectedAddonOptionsId, addon);
-      // orderConfigs[addon.id!] = OrderConfig(
-      //   name: addon.name,
-      //   type: addon.inputType,
-      //   calendarId: addon.calendarId,
-      //   singleValue: addon.inputType == AddonInputType.SINGLE_SELECTION_INPUT.name ? selectedAddonOptionsId.first : null,
-      //   multipleValue: addon.inputType == AddonInputType.MULTIPLE_SELECTION_INPUT.name ? selectedAddonOptionsId : null,
-      //   addonId: addon.id,
-      //   additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
-      // );
     }
-
     orderConfigs.refresh();
     selectedAddonOptions.refresh();
   }
@@ -303,8 +375,8 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
       } else if (addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name) {
         selectedDiscoungtedProductsFromAddons.add(productOptionInfo.product!);
       }
-      applySelectedProductFromAddon(addon, selectedDiscoungtedProductsFromAddons.value);
     }
+    applySelectedProductFromAddon(addon, addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name ? selectedDiscoungtedProductsFromAddons.value : selectedProductsFromAddon.value);
   }
 
   EdgeInsets getAddonListItemPadding(ProductAddon addon) {
@@ -416,7 +488,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
                 disabledDates: disabledDatesForBooking?.disabledDates ?? [],
                 showTiimePicker: addon.inputType == AddonInputType.DATE_TIME_INPUT.name,
               );
-              applySelectedDate(addon, selectedDate);
+              // applySelectedDate(addon, selectedDate);
             },
           ),
         ],
@@ -442,6 +514,15 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     }
     orderConfigs.refresh();
     return const SizedBox();
+  }
+
+  Widget showRewardOnAddon(ProductAddon addon) {
+    final rewards = addon.getSelectedRewardsInfo(selectedRewards);
+    if (rewards.isEmpty) return const SizedBox();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: rewards.map((reward) => Text(reward.reward.name.localize(selectedLanguage))).toList(),
+    );
   }
 
   void showLocationSelectorModal(BuildContext context, ProductAddon addon) {
@@ -492,34 +573,19 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
       addonId: addon.id,
       additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
     );
+    orderConfigs.refresh();
   }
 
   void applySelectedDateRange(ProductAddon addon, DateTimeRange? dateRange) {
-    if (dateRange == null) return;
     orderConfigs[addon.id!] = OrderConfig.createDateRangeOrderConfig(addon.name!, dateRange, addon);
-    // orderConfigs[addon.id!] = OrderConfig(
-    //   name: addon.name,
-    //   type: addon.inputType,
-    //   singleValue: qty.toString(),
-    //   addonId: addon.id,
-    //   additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
-    // );
   }
 
-  void applySelectedDate(ProductAddon addon, DateTime? date) {
-    if (date == null) return;
-    print('picked date final  ${date}');
-    orderConfigs[addon.id!] = OrderConfig.createDateOrderConfig(addon.name!, date, addon);
-    // orderConfigs[addon.id!] = OrderConfig(
-    //   name: addon.name,
-    //   type: addon.inputType,
-    //   singleValue: date.toFormattedString(),
-    //   addonId: addon.id,
-    //   additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
-    // ).updateFinalPrice('ETB', addons: addon != null ? [addon] : null);
+  void applySelectedDate(ProductAddon addon, List<DateTime>? dates) {
+    if (dates == null) return;
+    orderConfigs[addon.id!] = OrderConfig.createDateOrderConfig(addon.name!, dates, addon);
   }
 
-  void applySelectedLocation(BuildContext context, ProductAddon addon, Location? location) {
+  void applySelectedLocation(BuildContext context, ProductAddon addon, Location? location) async {
     if (location == null) return;
     orderConfigs[addon.id!] = OrderConfig(
       name: addon.name,
@@ -528,6 +594,8 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
       addonId: addon.id,
       additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
     );
+    selectedLocation.value = location;
+    await settingUsecase.saveUserLocation(location, AppConstants.APP_DB_NAME);
     orderConfigs.refresh();
     AppModalSheet.previousPage(context: context);
   }
@@ -545,20 +613,23 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     //   ).updateFinalPrice('ETB', addons: [addon]);
     // } else
 
-    if (addon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name || addon.inputType == AddonInputType.PRODUCT_SELECTION_INPUT.name) {
-      additionalProductOrderItems[addon.id!] = products.map((product) {
-        final selectedQty = getSelectedProductQty(product.id!);
-        final productAddonOptionInfo = addon.getProductAddonOptionInfo(product.id!, selectedLanguage);
-        final discounts = productAddonOptionInfo?.discounts ?? [];
-        return product.getOrderItem(
-          selectedQty,
-          discounts: discounts,
-          minQty: productAddonOptionInfo?.minQty ?? 0,
-          maxQty: productAddonOptionInfo?.maxQty ?? 0,
-          defaultDiscountName: addon.name,
-        );
-      }).toList();
-    }
+    additionalProductOrderItems[addon.id!] = products.map((product) {
+      final selectedQty = getSelectedProductQty(product.id!);
+      final productAddonOptionInfo = addon.getProductAddonOptionInfo(product.id!, selectedLanguage);
+      final discounts = productAddonOptionInfo?.discounts ?? [];
+      return product.getOrderItem(
+        selectedQty,
+        discounts: discounts,
+        minQty: productAddonOptionInfo?.minQty ?? 0,
+        maxQty: productAddonOptionInfo?.maxQty ?? 0,
+        defaultDiscountName: addon.name,
+      );
+    }).toList();
+    orderConfigs.refresh();
+  }
+
+  void setProductQtyAddon(double selectedQty) {
+    orderConfigs[OrderConfig.QTY_CONFIG_ID] = OrderConfig.createQtyOrderConfig(selectedQty, isQtyConfig: true);
   }
 
   Future<double> showQtyModifierModal(BuildContext context, {Product? selectedProduct, double minQty = 1, double maxQty = 10}) async {
@@ -588,14 +659,13 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   }
 
   void closeAdddonConfigModalWithResult(BuildContext context, {double? selectedQty}) {
-    if (selectedQty != null) {
+    if (selectedQty != null && showProductQtyModifier.value) {
       orderConfigs[OrderConfig.QTY_CONFIG_ID] = OrderConfig.createQtyOrderConfig(selectedQty, isQtyConfig: true);
     }
 
     var configs = orderConfigs.values.toList();
-    print('configs ${configs}');
     final result = AddonConfig(orderConfigs: configs, additionalItems: additionalProductOrderItems.values.flattened.toList());
-    AppModalSheet.closeModal(context: context, result: result);
+    appViewmmodel.router.goBack(context, returnValue: {'CONFIG_DATA': result});
     orderConfigs.clear();
     selectedProductsFromAddon.clear();
     additionalProductOrderItems.clear();
@@ -605,5 +675,49 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
 
   void updateQty(double qty) {
     selectedQty.value = qty;
+  }
+
+  void addLocationSearchPage(BuildContext context, ProductAddon addon) {
+    final locationSearchPageId = 'location_search_${addon.id}';
+    AppModalSheet.showModal(
+      context,
+      type: AppModalSheetType.DIALOG,
+      pages: [
+        ModalContent(
+          id: locationSearchPageId,
+          title: const Text('Search your locatioin'),
+          content: LocationSelectorPage(
+            onLocationSelected: (locationSearchContext, location) {
+              savedLocations.add(location);
+              AppModalSheet.closeModal();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void handleAddonConfigPageChange(BuildContext context, {bool showQtyModifier = false, double? selectedQty}) {
+    if (selectedAddonConfigPageIndex.value >= pageLength - 1) {
+      closeAdddonConfigModalWithResult(context, selectedQty: selectedQty);
+    } else {
+      pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+      selectedAddonConfigPageIndex.value = selectedAddonConfigPageIndex.value + 1;
+      // if (selectedAddonConfigPageIndex.value < pageLength - 1) {
+      // }
+    }
+  }
+
+  void backToPreviousAddonConfigPage(BuildContext context) {
+    selectedAddonConfigPageIndex.value = selectedAddonConfigPageIndex.value - 1;
+    pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+  }
+
+  void closeAddonConfigModal(BuildContext context) {
+    appViewmmodel.router.goBack(context);
+    orderConfigs.value = {};
+    selectedProductsFromAddon.clear();
+    additionalProductOrderItems.clear();
+    selectedDiscoungtedProductsFromAddons.clear();
   }
 }

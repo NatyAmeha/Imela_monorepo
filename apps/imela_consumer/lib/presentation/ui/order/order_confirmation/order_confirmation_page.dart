@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/order/order_confirmation/order_confirmation.viewmodel.dart';
 import 'package:imela/presentation/ui/order/order_confirmation/small_screen_order_confirmation.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela_core/order/model/order.model.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 
 class OrderConfirmationPage extends StatefulWidget {
   static const routeName = '/order-confirmation';

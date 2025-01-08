@@ -11,7 +11,7 @@ class SubscriptionRenewalListItem extends StatelessWidget {
   final double? height;
   final Function? onSelected;
   const SubscriptionRenewalListItem({
-    super.key,
+    super.key, 
     required this.subscriptionRenewal,
     required this.basePrice,
     this.selectedPricingOptionId,

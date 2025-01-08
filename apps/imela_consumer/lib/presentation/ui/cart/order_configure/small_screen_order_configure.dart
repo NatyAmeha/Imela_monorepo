@@ -4,9 +4,9 @@ import 'package:imela/presentation/ui/cart/order_configure/order_configure.viewm
 import 'package:imela/presentation/ui/payment/components/payment_option_item.dart';
 import 'package:imela/presentation/ui/payment/components/selected_payment_method.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
@@ -26,7 +26,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
       ),
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: true,
           content: Stack(
@@ -37,7 +37,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      widgetFactory.createText(context, 'Payment options', style: Theme.of(context).textTheme.titleLarge),
+                      widgetFactory.createText(context, 'Choose payment option', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       AppListView<PaymentOption>(
                         items: cart.paymentOptions ?? [],
@@ -57,21 +57,17 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           );
                         },
                       ),
-                      const Divider(height: 24),
-                      widgetFactory.createText(context, 'Selected payment method', style: Theme.of(context).textTheme.titleLarge),
+                      // const Divider(height: 24),
                       const SizedBox(height: 24),
                       Obx(() {
-                        if (viewmodel.selectedPaymentMethods.isEmpty) {
-                          return widgetFactory.createButton(
-                            context: context,
-                            content: const Text('Select payment method'),
-                            style: AppButtonStyle.outlinedButtonStyle(context),
-                            onPressed: () {
-                              viewmodel.showPaymentMethodListModal(context);
-                            },
-                          );
-                        }
                         return AppListView(
+                          header: viewmodel.selectedPaymentMethods.isNotEmpty
+                              ? widgetFactory.createText(
+                                  context,
+                                  'Selected payment method',
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                )
+                              : null,
                           shrinkWrap: true,
                           primary: false,
                           contentPadding: const EdgeInsets.symmetric(vertical: 8),
@@ -136,8 +132,8 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           Obx(
                             () => widgetFactory.createButton(
                               context: context,
-                              content: const Text('Place order'),
-                              onPressed: viewmodel.canEnablePlaceORderBtn ? () => viewmodel.placeOrder(context) : null,
+                              content: Text(viewmodel.orderCallToactionTest),
+                              onPressed: () => viewmodel.placeOrder(context),
                             ),
                           ),
                         ],

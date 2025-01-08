@@ -94,7 +94,7 @@ class ProductBundle with _$ProductBundle {
       final bundleDiscounts = discount != null ? [discount!] : <Discount>[];
       final selectedBundleProductInfo = productsInfo?.firstWhereOrNull((element) => element.productId == product.id);
       final updatedDiscountWithName = bundleDiscounts.map((discount) => discount.addName(name!)).toList();
-      final item = product.getOrderItem(product.qty ?? 1, originalPrice: originalProductPrice, discounts: updatedDiscountWithName, config: itemConfigs, minQty: selectedBundleProductInfo?.minQty ?? 1, maxQty: selectedBundleProductInfo?.maxQty ?? 10);
+      final item = product.getOrderItem(product.qty ?? 1, originalPrice: originalProductPrice, discounts: updatedDiscountWithName, config: itemConfigs, minQty: selectedBundleProductInfo?.minQty ?? 1, maxQty: selectedBundleProductInfo?.maxQty ?? 10, addons: product.addons ?? []);
       return item;
     }).toList();
     final paymentOptions = businesses?.first.paymentOptions;

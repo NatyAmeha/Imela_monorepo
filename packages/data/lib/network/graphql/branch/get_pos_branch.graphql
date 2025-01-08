@@ -94,6 +94,13 @@ query GetPosBranch($businessId: String!, $branchId: String!) {
           checkCalendar
           calendarId
           includeOnPOS
+          includeInBundle
+          dependencies{
+            id
+            addonId
+            type
+            value
+          }
           options {
             id
             name {

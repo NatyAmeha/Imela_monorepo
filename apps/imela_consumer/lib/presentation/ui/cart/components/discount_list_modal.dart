@@ -23,7 +23,7 @@ class DiscountListModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    subtotalAfterDiscount = item.getSubtotalPOSUpdated();
+    subtotalAfterDiscount = item.getSubtotalPOSUpdated(includeAddonPrice: false);
     final totalAddonPrice = item.getTotalAddonPrices();
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -36,7 +36,7 @@ class DiscountListModal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               widgetFactory.createText(context, 'Subtotal', style: Theme.of(context).textTheme.bodyLarge),
-              widgetFactory.createText(context, item.subtotalAmountString(selectedCurrency), style: Theme.of(context).textTheme.titleSmall),
+              widgetFactory.createText(context, item.subtotalAmountString(selectedCurrency, includeAddonPrice: false), style: Theme.of(context).textTheme.titleSmall),
             ],
           ).withPaddingSymetric(vertical: 6),
           if (totalAddonPrice > 0) ...[

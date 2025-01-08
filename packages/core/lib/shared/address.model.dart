@@ -1,8 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:imela_data/network/graphql/__generated__/schema.schema.gql.dart';
 
 part 'address.model.freezed.dart';
 part 'address.model.g.dart';
+
+
+
 
 @freezed
 class Address with _$Address {
@@ -12,6 +14,8 @@ class Address with _$Address {
     String? address,
     required String city,
     String? location,
+    double? latitude,
+    double? longitude,
   }) = _Address;
 
   factory Address.fromJson(Map<String, dynamic> json) => _$AddressFromJson(json);

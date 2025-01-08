@@ -63,9 +63,9 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              widget.widgetFactory.createText(context, widget.product.name.localize('ENGLISH'), style: Theme.of(context).textTheme.headlineMedium),
+              widget.widgetFactory.createText(context, widget.product.name.localize('ENGLISH'), style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
-              widget.widgetFactory.createText(context, widget.product.description.localize('ENGLISH'), maxLines: 4, style: Theme.of(context).textTheme.bodyLarge),
+              widget.widgetFactory.createText(context, widget.product.description.localize('ENGLISH'), maxLines: 4, style: Theme.of(context).textTheme.bodyMedium),
               if (productOptionAvailable)
                 Column(
                   mainAxisSize: MainAxisSize.min,

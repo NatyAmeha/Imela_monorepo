@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
@@ -41,7 +42,8 @@ class PhotoViewerScreen extends StatelessWidget {
               scrollPhysics: const BouncingScrollPhysics(),
               builder: (context, index) {
                 return PhotoViewGalleryPageOptions(
-                  imageProvider: NetworkImage(viewModel.photos[index]),
+                  
+                  imageProvider: CachedNetworkImageProvider(viewModel.photos[index]),
                   minScale: PhotoViewComputedScale.contained,
                   maxScale: PhotoViewComputedScale.covered * 2,
                 );

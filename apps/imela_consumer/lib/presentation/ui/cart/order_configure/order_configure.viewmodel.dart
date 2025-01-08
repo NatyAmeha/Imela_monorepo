@@ -11,6 +11,7 @@ import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_core/order/order.usecase.dart';
 import 'package:imela_core/shared/price.model.dart';
@@ -60,6 +61,13 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
         selectedPaymentOptionId?.isNotEmpty == true;
   }
 
+  String get orderCallToactionTest {
+    if (canEnablePlaceORderBtn) {
+      return 'Place Order';
+    }
+    return 'Continue';
+  }
+
   double get totalAmount => cartInfo.value?.getTotatAmountPOS() ?? 0.0;
   double get currentPayment {
     return selectedPaymentOption.value?.currentPayment(totalAmount) ?? 0.0;
@@ -75,7 +83,7 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
     return '';
   }
 
-  @override 
+  @override
   void initViewmodel({Map<String, dynamic>? data}) {
     cartInfo.value = data?['cart'] as Cart?;
     selectedPaymentOption.value = cartInfo.value?.paymentOptions?.firstOrNull ?? PaymentOption.defaultPaymentOption();
@@ -127,18 +135,39 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
 
   Future<void> placeOrder(BuildContext context) async {
     try {
+      if (!canEnablePlaceORderBtn) {
+        if (selectedPaymentMethods.isEmpty) {
+          showPaymentMethodListModal(context);
+        }
+        return;
+      }
       if (cartInfo.value == null || selectedPaymentOption.value == null) {
+        appController.getWidgetFactory(context).showFlashMessage(context, message: 'Please select a payment method and payment option');
+        return;
+      }
+      if (appController.isAuthenticated == false) {
+        await appController.refreshTokenOrLogout(context, moveToLogin: true, showLoginMessage: true, redirectUrl: OrderConfigurePage.routeName, redirectExtra: {'cart': cartInfo.value});
         return;
       }
       isLoading(true);
-      final orderInfo = OrderModel.Order.createOrderInfo(cartInfo.value!, paymentOption: selectedPaymentOption.value!, paymentMethods: selectedPaymentMethods, totalAmount: totalAmount, paidAmount: currentPayment);
+      var appliedRewardIds = cartListViewmodel.selectedRewardInfo.value.getRewardIds();
+      final orderInfo = OrderModel.Order.createOrderInfo(
+        cartInfo.value!,
+        paymentOption: selectedPaymentOption.value!,
+        paymentMethods: selectedPaymentMethods,
+        totalAmount: totalAmount,
+        paidAmount: currentPayment,
+        usedRewardsPoints: appController.usedRewardPoints.value,
+        appliedRewards: appliedRewardIds,
+      );
       if (cartInfo.value?.businessIds?.isEmpty == true) {
         appController.getWidgetFactory(context).showFlashMessage(context, message: 'Please select at least one business');
         return;
       }
       var placeOrderResult = await orderUsecase.placeOrderForBusiness(cartInfo.value!.businessIds!, cartInfo.value!.id!, orderInfo);
       if (placeOrderResult.success == true) {
-        cartListViewmodel.removeCart(cartInfo.value!.id!);
+        cleanupData();
+        
         OrderConfirmationPage.navigate(context, placeOrderResult.order!);
         appController.setRefetchOrderList(true);
       } else {
@@ -152,6 +181,15 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
     } finally {
       isLoading(false);
     }
+  }
+
+  void cleanupData() {
+    cartListViewmodel.removeCart(cartInfo.value!.id!);
+    cartInfo.value = null;
+    selectedPaymentOption.value = null;
+    selectedPaymentMethods.value = [];
+    cartListViewmodel.configResult.value = null;
+    cartListViewmodel.selectedRewardInfo.clear();
   }
 
   void navigateToHome(BuildContext context) {

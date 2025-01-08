@@ -1,3 +1,5 @@
+import 'package:dartx/dartx.dart';
+import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/branch/repo/branch.repository.dart';
 import 'package:imela_core/business/dto/create_business_input.dart';
 import 'package:imela_core/business/model/business.section.dart';
@@ -5,18 +7,21 @@ import 'package:imela_core/business/model/business_response.dart';
 import 'package:imela_core/business/repo/business_repository.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_utils/location/location_info.dart';
+import 'package:imela_utils/location/location_service.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class BusinessUsecase {
   final IBusinessrepository _businessRepository;
   final IBranchRepository _branchRepository;
+  final ILocationService _locationService;
 
   const BusinessUsecase(
     @Named(BusinessRepository.injectName) this._businessRepository,
     @Named(BranchRepository.injectName) this._branchRepository,
+    @Named(LocationService.injectName) this._locationService,
   );
-
 
   Future<BusinessResponse> registerBusiness(CreateBusinessInput businessInfo) async {
     return await _businessRepository.registerBusiness(businessInfo);
@@ -28,7 +33,17 @@ class BusinessUsecase {
     if ((fetchPolicy == ApiDataFetchPolicy.cacheFirst) && result?.isBusinessDetailFetchSuccessfull() == false) {
       result = await _businessRepository.getBusinessDetailsFromApi(businessId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
-    return result; 
+    return result;
+  }
+
+  Future<Branch> getNearestBranch(List<Branch> branches) async {
+    final currentLocation = await _locationService.getCurrentLocation();
+    var branchLocations = branches.map((branch) => branch.address?.latitude != null && branch.address?.longitude != null ? AppLatLng(branch.address!.latitude!, branch.address!.longitude!) : null).whereNotNull().toList();
+    if (branchLocations.isEmpty) {
+      return branches.first;
+    }
+    final nearestBranch = _locationService.findNearestLocation(branchLocations, currentLocation);
+    return branches.firstWhere((branch) => branch.address?.latitude == nearestBranch.latitude && branch.address?.longitude == nearestBranch.longitude);
   }
 
   Future<BusinessResponse?> getBusinessesFromOrder(List<String> businessIds, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
@@ -85,6 +100,4 @@ class BusinessUsecase {
   Future<BusinessResponse?> createBusinessProductSection(String businessId, List<BusinessSection> sections) async {
     return await _businessRepository.createBusinessSection(businessId, sections);
   }
-
-  
 }

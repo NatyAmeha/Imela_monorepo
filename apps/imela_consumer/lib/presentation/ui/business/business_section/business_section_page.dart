@@ -5,9 +5,9 @@ import 'package:imela/presentation/ui/business/business_section/business_section
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:imela/presentation/ui/product/components/product_item_badge.dart';
 import 'package:imela/presentation/ui/shared/app_choicechip_group.component.dart';
-import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_core/business/model/business.section.dart';
+import 'package:imela_ui_kit/components/list/gridview.component.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
@@ -19,13 +19,13 @@ class BusinessSectionPage extends StatefulWidget {
 
   final String businessId;
   final String sectionId;
-  final BusinessSection sectionInfo;
+  final BusinessSection? sectionInfo;
 
   const BusinessSectionPage({
     super.key,
     required this.businessId,
     required this.sectionId,
-    required this.sectionInfo,
+    this.sectionInfo,
   });
 
   @override
@@ -54,44 +54,49 @@ class _BusinessSectionPageState extends State<BusinessSectionPage> {
       body: NestedScrollView(
         controller: viewmodel.businessHeaderScrollController,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            expandedHeight: 60,
-            collapsedHeight: 60,
-            pinned: true,
-            title: Obx(() => Text(viewmodel.sectionName)),
-            floating: false,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            // flexibleSpace: FlexibleSpaceBar(
-            //   background: Column(
-            //     mainAxisAlignment: MainAxisAlignment.end,
-            //     children: [
-            //       SearchBar(
-            //         hintText: 'Search products and bundles',
-            //         leading: widgetFactory.createIcon(materialIcon: Icons.search),
-            //         onTap: () {},
-            //       ).paddingSymmetric(vertical: 10, horizontal: 16),
-            //     ],
-            //   ),
-            //   centerTitle: false,
-            // ),
-            bottom: PreferredSize(
-              preferredSize: Size(MediaQuery.of(context).size.width, 40),
-              child: Obx(() => AppChoiceChipGroup(
-                height: 40,
-                isScrollable: true,
-                choices: viewmodel.sectionProductstags,
-                selectedChoices: [viewmodel.selectedTag.value],
-                onSelectionChanged: (value) {
-                  viewmodel.chooseProductsByTags(value);
-
-                },
-              )),
+          Obx(
+            () => SliverAppBar(
+              expandedHeight: 60,
+              collapsedHeight: 60,
+              pinned: true,
+              title: Text(viewmodel.sectionName),
+              floating: false,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              // flexibleSpace: FlexibleSpaceBar(
+              //   background: Column(
+              //     mainAxisAlignment: MainAxisAlignment.end,
+              //     children: [
+              //       SearchBar(
+              //         hintText: 'Search products and bundles',
+              //         leading: widgetFactory.createIcon(materialIcon: Icons.search),
+              //         onTap: () {},
+              //       ).paddingSymmetric(vertical: 10, horizontal: 16),
+              //     ],
+              //   ),
+              //   centerTitle: false,
+              // ),
+              bottom: PreferredSize(
+                preferredSize: Size(MediaQuery.of(context).size.width, 40),
+                child: viewmodel.businessSectionDetails.value != null
+                    ? Obx(
+                        () => AppChoiceChipGroup(
+                          height: 40,
+                          isScrollable: true,
+                          choices: viewmodel.sectionProductstags,
+                          selectedChoices: [viewmodel.selectedTag.value],
+                          onSelectionChanged: (value) {
+                            viewmodel.chooseProductsByTags(value);
+                          },
+                        ), 
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ),
           ),
         ],
         body: Obx(
           () => PageContentLoader(
-            isDataLoading: viewmodel.isLoading.value,
+            isLoading: viewmodel.isLoading.value,
             showContent: viewmodel.businessSectionDetails.value != null && (viewmodel.filteredProducts.isNotEmpty),
             exception: viewmodel.exception.value,
             hasError: viewmodel.exception.value?.isMainError ?? false,

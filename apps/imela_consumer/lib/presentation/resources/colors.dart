@@ -38,4 +38,26 @@ class ColorManager {
   static const Color warningDark = Color(0xFFCC8E30);
   static const Color errorDark = Color(0xFFFF5963);
   static const Color infoDark = Color(0xFFFFFFFF);
+
+  static const colors = [
+    ColorManager.primary,
+    ColorManager.secondary,
+    ColorManager.tertiary,
+    ColorManager.alternate,
+    ColorManager.primaryText,
+    ColorManager.secondaryText,
+    ColorManager.primaryBackground,
+    ColorManager.secondaryBackground,
+    ColorManager.accent1,
+    ColorManager.accent2,
+    ColorManager.accent3,
+    ColorManager.accent4,
+    ColorManager.success,
+    ColorManager.warning,
+    ColorManager.error,
+    ColorManager.info,
+    ColorManager.white,
+    ColorManager.black,
+    ColorManager.blue
+  ];
 }

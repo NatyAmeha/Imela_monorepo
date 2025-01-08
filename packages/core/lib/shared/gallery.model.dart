@@ -17,6 +17,14 @@ class Gallery with _$Gallery {
 
   factory Gallery.fromJson(Map<String, dynamic> json) => _$GalleryFromJson(json);
 
+  List<String> getImages({bool? featured = false}) {
+    if (images?.isEmpty == null) return [];
+    if (featured == true) {
+      return images!.where((element) => element.featured == true).map((e) => e.url).whereNotNull().toList();
+    }
+    return images!.map((e) => e.url).whereNotNull().toList();
+  }
+
   Function toGraphQLInput() {
     return (b) => b
       ..logoImage = logoImage

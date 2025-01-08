@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
@@ -14,6 +15,7 @@ class OrderItemConfigListITemTile extends StatelessWidget {
   final Product? product;
   final String selectedLanguage;
   final List<ProductAddon>? orderAddons;
+  final List<SelectedRewardInfo>? selectedRewards;
   final Function(Product)? onProductTap;
   const OrderItemConfigListITemTile({
     super.key,
@@ -23,6 +25,7 @@ class OrderItemConfigListITemTile extends StatelessWidget {
     this.product,
     required this.selectedLanguage,
     this.onProductTap,
+    this.selectedRewards = const [],
     this.orderAddons = const [],
   });
 
@@ -52,9 +55,11 @@ class OrderItemConfigListITemTile extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 16),
-        widgetFactory.createText(context, config.getAdditionalPriceStringUpdated(orderAddons, selectedCurrency), style: Theme.of(context).textTheme.titleSmall).showIfTrue(config.additionalPrice > 0)
-      ], 
+        if (config.getAdditionalPriceUpdated(orderAddons, selectedCurrency) > 0) ...[
+          const SizedBox(width: 16),
+          widgetFactory.createText(context, config.getAdditionalPriceStringUpdated([...(orderAddons ?? [])], selectedCurrency), style: Theme.of(context).textTheme.titleSmall).showIfTrue(config.additionalPrice > 0)
+        ]
+      ],
     );
-  } 
-} 
+  }
+}

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/home/home_page.viewmodel.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'profile_viewmodel.dart';

@@ -45,6 +45,8 @@ class Order with _$Order {
     @Default(0) double remainingAmount,
     List<OrderConfig>? config,
     List<SelectedPaymentMethod>? paymentMethods,
+    @Default([]) List<String>? appliedRewards,
+    @Default(0) double usedRewardsPoints,
     bool? isOnlineOrder,
     String? note,
     List<String>? businessId,
@@ -55,22 +57,33 @@ class Order with _$Order {
 
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
-  static Order createOrderInfo(Cart cartIfno, {required PaymentOption paymentOption, required double paidAmount, required double totalAmount, required List<SelectedPaymentMethod> paymentMethods, String? branchId, String? orderNote}) {
+  static Order createOrderInfo(
+    Cart cartIfno, {
+    required PaymentOption paymentOption,
+    required double paidAmount,
+    required double totalAmount,
+    required List<SelectedPaymentMethod> paymentMethods,
+    String? branchId,
+    String? orderNote,
+    List<String>? appliedRewards,
+    double? usedRewardsPoints,
+  }) {
     final remainingAmount = totalAmount - paidAmount;
     return Order(
-      paymentType: paymentOption.type,
-      items: cartIfno.items,
-      isOnlineOrder: true,
-      subTotal: cartIfno.getSubtotal,
-      totalAmount: totalAmount,
-      config: cartIfno.configs,
-      paidAmount: paidAmount,
-      note: orderNote,
-      remainingAmount: remainingAmount,
-      paymentMethods: paymentMethods,
-      businessId: cartIfno.businessIds,
-      branchId: branchId,
-    );
+        paymentType: paymentOption.type,
+        items: cartIfno.items,
+        isOnlineOrder: true,
+        subTotal: cartIfno.getSubtotal,
+        totalAmount: totalAmount,
+        config: cartIfno.configs,
+        paidAmount: paidAmount,
+        note: orderNote,
+        remainingAmount: remainingAmount,
+        paymentMethods: paymentMethods,
+        businessId: cartIfno.businessIds,
+        branchId: branchId,
+        appliedRewards: appliedRewards,
+        usedRewardsPoints: usedRewardsPoints ?? 0.0);
   }
 
   double getSubtotalAmount() {

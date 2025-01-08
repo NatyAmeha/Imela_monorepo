@@ -53,6 +53,12 @@ query GetBusinessByWorkspace($workspace: String!, $branchId: String) {
           inputType
           minAmount
           maxAmount
+          dependencies{
+            id
+            addonId
+            type
+            value
+          }
           options {
             id
             name {
@@ -108,6 +114,7 @@ query GetBusinessByWorkspace($workspace: String!, $branchId: String) {
           productIds
           calendarId
           includeOnPOS
+          includeInBundle
         }
       } 
       orderStatuses{

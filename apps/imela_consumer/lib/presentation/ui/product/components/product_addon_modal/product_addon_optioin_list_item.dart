@@ -26,8 +26,9 @@ class ProductAddonOptioinListItem extends StatelessWidget {
         ? widgetFactory.createRadioListTile(
             context,
             title: option.name.localize('ENGLISH'),
+            subtitle: option.getOptionPriceString(currency),
             value: option.id!,
-            groupValue: selectedOptionsId.firstOrNull,
+            groupValue: selectedOptionsId.firstOrNull, 
             onChanged: (value) {
               onOptionSelected(value, null);
             },

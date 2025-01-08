@@ -22,6 +22,7 @@ class ProductFeaturesListComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return widgetFactory.createCard(
       padding: const EdgeInsets.all(8),
+      border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
       borderRadius: BorderRadius.circular(8),
       child: AppGridView(
           items: features,

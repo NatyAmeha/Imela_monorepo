@@ -27,7 +27,19 @@ abstract class WidgetFactory {
 
   Widget createListTile({required Widget title, Widget? subtitle, Widget? leading, Widget? trailing, Function()? onTap});
 
-  Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged});
+  Widget createPageView(
+    BuildContext context, {
+    required int itemCount,
+    required IndexedWidgetBuilder itemBuilder,
+    required PageController controller,
+    required double width,
+    required double height,
+    Axis? scrollDirection,
+    ValueChanged<int>? onPageChanged,
+    bool showIndicator = true,
+    bool autoScroll = false,
+    Duration autoScrollDuration = const Duration(seconds: 3),
+  });
 
   Future<DateTimeRange?> showDateRangePickerUI(BuildContext context,
       {DateTimeRange? initialDateRange,

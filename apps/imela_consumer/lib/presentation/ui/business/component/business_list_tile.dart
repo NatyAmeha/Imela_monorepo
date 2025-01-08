@@ -7,13 +7,13 @@ import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
-
 class BusinessListTile extends StatelessWidget {
   final Business business;
   final WidgetFactory widgetFactory;
   final double width;
   final double imageHeight;
   final bool showDescription;
+  final bool showScrollableImage;
   final Function? onTap;
 
   const BusinessListTile({
@@ -23,22 +23,44 @@ class BusinessListTile extends StatelessWidget {
     required this.imageHeight,
     this.width = double.infinity,
     this.showDescription = false,
+    this.showScrollableImage = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final pageController = PageController();
     return widgetFactory.createCard(
       onTap: () {
         onTap?.call();
       },
       width: width,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(6),
       border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppImage(imageUrl: business.gallery?.getImage(featured: true), width: double.infinity, height: imageHeight),
+          if (showScrollableImage)
+            widgetFactory.createPageView(
+              context,
+              itemCount: business.gallery?.getImages().length ?? 0,
+              itemBuilder: (context, index) => AppImage(
+                imageUrl: business.gallery?.getImages()[index],
+                width: double.infinity,
+                height: imageHeight,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              controller: pageController,
+              width: width,
+              height: imageHeight,
+            )
+          else
+            AppImage(
+              imageUrl: business.gallery?.getImage(featured: true),
+              width: double.infinity,
+              height: imageHeight,
+              borderRadius: BorderRadius.circular(6),
+            ),
           // widgetFactory.createText(context, business.categories?.join(","), style: Theme.of(context).textTheme.bodySmall).showIf(business.categories?.isNotEmpty == true),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -64,7 +86,7 @@ class BusinessListTile extends StatelessWidget {
                 ),
               )
             ],
-          ).withPaddingSymetric(horizontal: 16, vertical: 8),
+          ).withPaddingSymetric(horizontal: 8, vertical: 4),
         ],
       ),
     );

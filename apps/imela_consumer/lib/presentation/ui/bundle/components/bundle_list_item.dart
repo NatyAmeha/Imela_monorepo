@@ -35,85 +35,88 @@ class BundleListItem extends StatelessWidget {
       },
       width: width,
       height: height,
-      color: Theme.of(context).colorScheme.primaryContainer,
+      border: Border.all(color: Theme.of(context).colorScheme.primaryContainer),
       borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
           Positioned.fill(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 16),
-                    widgetFactory.createText(context, bundleData.name.localize('ENGLISH'), style: Theme.of(context).textTheme.titleMedium),
-                    widgetFactory
-                        .createText(
-                          context,
-                          bundleData.description.localize('ENGLISH'),
-                          maxLines: 2,
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        )
-                        .showIfNotNull(bundleData.description),
-                    const SizedBox(height: 4),
-                    widgetFactory.createCard(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                widgetFactory.createText(context, 'Discount', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
-                                widgetFactory.createText(context, '${bundleData.discount?.value} OFF', style: Theme.of(context).textTheme.bodyMedium, enableResize: true),
-                              ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: remainingTime != null ? 16 : 8),
+                      widgetFactory.createText(context, bundleData.name.localize('ENGLISH'), style: Theme.of(context).textTheme.titleMedium),
+                      widgetFactory
+                          .createText(
+                            context,
+                            bundleData.description.localize('ENGLISH'),
+                            maxLines: 2,
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            style: Theme.of(context).textTheme.labelMedium,
+                          )
+                          .showIfNotNull(bundleData.description),
+                      const SizedBox(height: 4),
+                      widgetFactory.createCard(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  widgetFactory.createText(context, 'Discount', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
+                                  widgetFactory.createText(context, '${bundleData.discount?.value} OFF', style: Theme.of(context).textTheme.bodyMedium, enableResize: true),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 30, child: VerticalDivider(thickness: 1)),
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                widgetFactory.createText(context, 'Products', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
-                                widgetFactory.createText(context, bundleData.getBundleProducts(), style: Theme.of(context).textTheme.bodyMedium, enableResize: true, maxLines: 1),
-                              ],
+                            const SizedBox(height: 30, child: VerticalDivider(thickness: 1)),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  widgetFactory.createText(context, 'Products', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
+                                  widgetFactory.createText(context, bundleData.getBundleProducts(), style: Theme.of(context).textTheme.bodyMedium, enableResize: true, maxLines: 1),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+                Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
+                      child: AppListView(
+                        shrinkWrap: true,
+                        height: 50,
+                        scrollDirection: Axis.horizontal,
+                        primary: false,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                        items: productImages.toList(),
+                        itemBuilder: (context, imageUrl, index) {
+                          return AppImage(imageUrl: imageUrl, width: 50, height: 50, fit: BoxFit.cover, borderRadius: BorderRadius.circular(8));
+                        },
+                      ).showIfNotNull(productImages.isNotEmpty),
                     ),
                   ],
                 ),
-              ),
-              Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-                    child: AppListView(
-                      shrinkWrap: true,
-                      height: 50,
-                      scrollDirection: Axis.horizontal,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                      items: productImages.toList(),
-                      itemBuilder: (context, imageUrl, index) {
-                        return AppImage(imageUrl: imageUrl, width: 50, height: 50, fit: BoxFit.cover, borderRadius: BorderRadius.circular(8));
-                      },
-                    ).showIfNotNull(productImages.isNotEmpty),
-                  ),
-                ],
-              ),
-            ],
-          ).withPaddingAll(8)),
+              ],
+            ).withPaddingAll(8),
+          ),
           if (remainingTime != null)
             Positioned(
               top: 0,

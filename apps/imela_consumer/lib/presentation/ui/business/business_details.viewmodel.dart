@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/app/app.dart';
@@ -6,8 +7,9 @@ import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/branch/component/business_branch_list_modal.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:imela/presentation/ui/business/business_section/business_section_page.dart';
+import 'package:imela/presentation/ui/business/service_overview/service_overview_list_page.dart';
 import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
-import 'package:imela/presentation/ui/loyalty/pages/loyalty_details_page.dart';
+import 'package:imela/presentation/ui/loyalty/pages/loyalty_tier/loyalty_tier_page.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_page.dart';
 import 'package:imela/presentation/ui/membership/membership_plan_list/membership_plan_list_page.dart';
 import 'package:imela/presentation/ui/product/components/product_item_badge.dart';
@@ -23,6 +25,7 @@ import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_response.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/business/model/service_overview.model.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
 import 'package:imela_core/loyalty/loyalty_usecase.dart';
 import 'package:imela_core/membership/dto/membership_response.dart';
@@ -33,6 +36,7 @@ import 'package:imela_core/shared/components/language_selector.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_ui_kit/components/image/photo_viewer/photo_viewer.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/exception/app_exception.dart';
@@ -65,12 +69,12 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   AppController get appViewmodel => AppController.getInstance;
 
 // widget controllers
-  final productListController = Get.put(CustomListController<Product>(), tag: 'AllProducts');
   late TabController businessSectionTabControllers;
   ScrollController businessHeaderScrollController = ScrollController();
 
   // page state variables
   var isLoading = false.obs;
+  var isSecondLoading = false.obs;
   var exception = Rxn<AppException>();
   var errorMessage = ''.obs;
 
@@ -80,13 +84,12 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   var isAppbarExpanded = true.obs;
 
   var preventBranchSelectedDialogFromDismissed = false;
-  bool _isCancelled = false;
 
-  Map<String, CustomListController<Product>> sectionsWithProductsControllers = {};
   static const businessUiHeaderHeight = 170;
 
   // getters
   Business? get businessData => businessDetails.value?.business;
+  List<ServiceOverview> get serviceOverviews => businessDetails.value?.business?.serviceOverviews?.sortedByDescending((element) => element.featured == true ? 1 : 0).toList() ?? [];
   List<BusinessSection> get sections => businessDetails.value?.business?.sections ?? [];
   List<Product> get featuredProducts => businessDetails.value?.products?.where((element) => element.featured == true).toList() ?? [];
   List<Branch> get businessBranches => businessDetails.value?.branches ?? [];
@@ -101,38 +104,21 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   List<ProductBundle> get businessBundles => businessData?.bundles ?? [];
 
-  String get businessLoyaltyProgramName => '${businessData?.name?.localize('ENGLISH')} Rewards';
   LoyaltyResponse? get businessLoyaltyInfo => appViewmodel.selectedBusinessLoyaltyInfo.value;
   MembershipResponse? get businessMembershipInfo => appViewmodel.businessMembershipInfo.value;
 
-  void createBusinessSectionsWithProductListController() {
-    sectionsWithProductsControllers = {'Overview': productListController};
-    for (var section in sections) {
-      final sectionName = section.name?.localize('ENGLISH');
-      if (sectionName?.isNotEmpty == true) {
-        var products = productListController.items.where((element) => section.productIds?.contains(element.id) == true).toList();
-        var newProductListController = Get.put(CustomListController<Product>(), tag: sectionName);
-        newProductListController.addItems(products);
-        sectionsWithProductsControllers[sectionName!] = newProductListController;
-      }
-    }
-  }
 
   List<String> get categories => businessDetails.value?.business?.categories ?? [];
-
-  void assignTabController(int length, TickerProvider vsync) {
-    businessSectionTabControllers = TabController(length: length, vsync: vsync);
-  }
-
   @override
   void initViewmodel({Map<String, dynamic>? data}) async {
     Future.delayed(Duration.zero, () async {
       super.initViewmodel(data: data);
       businessId = data!['id'] as String;
       final context = data['context'] as BuildContext;
+      final branches = data['branches'] as List<Branch>;
       cleanupStateVariables();
       alreadySelectedBranchId = appViewmodel.getSelectedBusinessBranchId(businessId);
-      await getBusinessDetails(context, businessId, branchId: alreadySelectedBranchId);
+      await getBusinessDetails(context, businessId, branchId: alreadySelectedBranchId, branchListWithAddress: branches);
     });
   }
 
@@ -146,50 +132,49 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     });
   }
 
-  Future<void> getBusinessDetails(BuildContext context, String id, {String? branchId}) async {
+  Future<void> getBusinessDetails(BuildContext context, String id, {String? branchId, List<Branch> branchListWithAddress = const []}) async {
     try {
-      _isCancelled = false;
       isLoading(true);
+
+      if (branchListWithAddress.isNotEmpty) {
+        final nearestBranch = await businessUsecase.getNearestBranch(branchListWithAddress);
+        branchId = nearestBranch.id;
+        selectedBranch.value = nearestBranch;
+        alreadySelectedBranchId = nearestBranch.id;
+      }
       final response = await businessUsecase.getBusinessDetails(id, branchId: branchId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
-
-      if (_isCancelled) return;
-
       if (response?.isBusinessDetailFetchSuccessfull() == true) {
         businessDetails.value = response;
         if (businessBranches.isNotEmpty && branchId == null) {
-          if (_isCancelled) return;
-          preventBranchSelectedDialogFromDismissed = true;
-          await showBusinessBranchSelectionModal(context);
+          final nearestBranch = await businessUsecase.getNearestBranch(businessBranches);
+          alreadySelectedBranchId = nearestBranch.id;
+          branchId = nearestBranch.id;
+          selectedBranch.value = nearestBranch;
+          await getBusinessDetails(context, id, branchId: selectedBranch.value?.id);
+          return;
         } else {
-          selectedBranch.value = businessBranches.firstWhere((element) => element.id == branchId);
+          selectedBranch.value ??= businessBranches.firstWhereOrNull((element) => element.id == branchId);
         }
 
-        if (_isCancelled) return;
-        productListController.addItems(response!.products);
-        createBusinessSectionsWithProductListController();
         appViewmodel.addDiscounts(allDiscounts, clearPrevious: true);
-
-        if (_isCancelled) return;
-        await appViewmodel.getCustomerBusinessLoyalty(businessId);
-
-        if (_isCancelled) return;
+        isLoading(false);
+        isSecondLoading(true);
+        await appViewmodel.getCustomerBusinessLoyalty(context, businessId);
         await getMembershipPlans();
-
-        if (_isCancelled) return;
-        await addBusinessToFavorite(businessData!);
       } else {
-        if (!_isCancelled) {
-          exception(AppException(message: 'Business not found'));
-        }
+        exception(AppException(message: 'Business not found'));
       }
     } catch (e) {
-      if (!_isCancelled) {
-        print('exception $e');
-        exception(exceptiionHandler.getException(e as Exception));
+      print('exception $e');
+      var ex = exceptiionHandler.getException(e as Exception);
+      if (!ex.isUnAuthorizedException) {
+        exception(ex);
       }
     } finally {
-      if (!_isCancelled) {
-        isLoading(false);
+      isLoading(false);
+      isSecondLoading(false);
+      if (businessData != null) {
+        await addBusinessToFavorite(businessData!);
       }
     }
   }
@@ -252,18 +237,13 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
       pages: [
         ModalContent(
           title: const Text('Select branch'),
-          content: WillPopScope(
-            onWillPop: () async {
-              return false;
+          content: BusinessBranchListModal(
+            selectedBranch: selectedBranch.value,
+            branches: businessBranches,
+            onBranchSelected: (newBranch) {
+              selectBranch(context, newBranch);
+              AppModalSheet.closeModal();
             },
-            child: BusinessBranchListModal(
-              selectedBranch: selectedBranch.value,
-              branches: businessBranches,
-              onBranchSelected: (newBranch) {
-                selectBranch(context, newBranch);
-                AppModalSheet.closeModal();
-              },
-            ),
           ),
         ),
       ],
@@ -278,8 +258,8 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     return badgeInfos;
   }
 
-  void showLoyaltyProgramDetailModel(BuildContext context) {
-    LoyaltyDetailsPage.navigate(context, programName: businessLoyaltyProgramName, loyaltyInfo: businessLoyaltyInfo, businessId: businessId);
+  void showLoyaltyTierListPage(BuildContext context) {
+    LoyaltyTierListPage.navigate(context, businessId: businessId);
   }
 
   void navigateToMembership(BuildContext context) {
@@ -310,12 +290,6 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     }
     CartDetailPage.navigateToCartDetailPage(context, router, selectedCart);
   }
-
-  // Widget helpers
-  List<Widget> getBusinessSectionTabs() {
-    return sectionsWithProductsControllers.keys.map((e) => Tab(text: e)).toList();
-  }
-
   // navigation helpers
   void navigateToProductDetails(BuildContext context, Product productInfo) {
     router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.localize('ENGLISH')});
@@ -335,22 +309,16 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     businessDetails.value = null;
     selectedBranch.value = null;
     exception.value = null;
-    productListController.items.clear();
     appViewmodel.setSelectedBusinessLoyaltyInfo(null);
     appViewmodel.setBusinessMembershipInfo(null);
-    sectionsWithProductsControllers.forEach((key, value) {
-      value.items.clear();
-    });
+    
   }
 
   @override
   void dispose() {
     print("dispose business details viewmodel");
 
-    // businessHeaderScrollController.dispose();
-    sectionsWithProductsControllers.forEach((key, value) {
-      value.dispose();
-    });
+  
     super.dispose();
   }
 
@@ -382,5 +350,13 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   Duration getBundleRemainingTime(ProductBundle bundle) {
     return DateHelper.getDateDifference(startDate: bundle.startDate, endDate: bundle.endDate);
+  }
+
+  void navigateToServiceOverviewDetails(BuildContext context, List<ServiceOverview> serviceOverviews) {
+    ServiceOverviewListPage.navigate(context, serviceOverviews: serviceOverviews);
+  }
+
+  void navigateToPhotoViewerPage(BuildContext context, List<String> photoUrls, int startIndex) {
+    PhotoViewerScreen.navigate(context, photoUrls, startIndex);
   }
 }

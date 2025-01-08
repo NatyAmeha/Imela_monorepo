@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:imela_ui_kit/helpers/constants/constant.dart';
 
 class AppImage extends StatelessWidget {
@@ -14,6 +15,8 @@ class AppImage extends StatelessWidget {
   final Gradient? gradient;
   final String? heroTag;
   final File? file;
+  final bool isSvg;
+  final bool isNetworkSvg;
   final String placeholderImageUrl;
 
   const AppImage({
@@ -27,26 +30,40 @@ class AppImage extends StatelessWidget {
     this.heroTag,
     this.placeholderImageUrl = Constatnts.productPlaceholderImage,
     this.file,
+    this.isSvg = false,
+    this.isNetworkSvg = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget image = file != null
-        ? Image.file(
-            file!,
-            fit: fit,
-            width: width,
-            height: height,
-            errorBuilder: (context, url, error) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
-          )
-        : CachedNetworkImage(
-            imageUrl: imageUrl ?? '',
-            fit: fit,
-            width: width,
-            height: height,
-            placeholder: (context, url) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
-            errorWidget: (context, url, error) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
-          );
+    Widget image = isSvg
+        ? isNetworkSvg
+            ? SvgPicture.network(
+                imageUrl ?? '',
+                width: width,
+                height: height,
+                placeholderBuilder: (BuildContext context) => Container(
+                  padding: const EdgeInsets.all(30.0),
+                  child: const CircularProgressIndicator(),
+                ),
+              )
+            : SvgPicture.asset(imageUrl ?? '')
+        : file != null
+            ? Image.file(
+                file!,
+                fit: fit,
+                width: width,
+                height: height,
+                errorBuilder: (context, url, error) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
+              )
+            : CachedNetworkImage(
+                imageUrl: imageUrl ?? '',
+                fit: fit,
+                width: width,
+                height: height,
+                placeholder: (context, url) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
+                errorWidget: (context, url, error) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
+              );
 
     if (borderRadius != null) {
       image = ClipRRect(borderRadius: borderRadius!, child: image);

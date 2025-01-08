@@ -26,7 +26,7 @@ class QuantityModifierComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return widgetFactory.createCard(
       width: width,
-      padding: const EdgeInsets.all(0),
+      height: height,
       borderRadius: BorderRadius.circular(32),
       border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
       child: Row(
@@ -54,6 +54,7 @@ class QuantityModifierComponent extends StatelessWidget {
               onPressed: addQtyDisabled
                   ? null
                   : () {
+                      print('current qty ${currentQty}');
                       onQtyChange(currentQty + 1.0);
                     }),
         ],

@@ -8,13 +8,15 @@ import 'package:imela/injection.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
+import 'package:imela/presentation/ui/bundle/bundle_list/bundle_list_page.dart';
 import 'package:imela/presentation/ui/business/business_details.page.dart';
+import 'package:imela/presentation/ui/business/business_list/business_list_page.dart';
 import 'package:imela/presentation/ui/cart/cart_list_page.dart';
 import 'package:imela/presentation/ui/home/foryou/foryou.page.dart';
 import 'package:imela/presentation/ui/home/home.page.dart';
 import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
+import 'package:imela/presentation/ui/product/product_list/product_list_page.dart';
 import 'package:imela/presentation/ui/profile/profile_page.dart';
-import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:imela/presentation/utils/screen_size_utils.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
@@ -27,6 +29,7 @@ import 'package:imela_core/discovery/model/product_discovery.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_ui_kit/components/list/list_componenet.viewmodel.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:injectable/injectable.dart';
@@ -207,7 +210,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   }
 
   void navigateToBusinessDetailPage(BuildContext context, Business business, {Widget? previousPage}) {
-    BusinessDetailsPage.navigateToBusinessDetailPage(context, router, business, previousPage: null);
+    BusinessDetailsPage.navigateToBusinessDetailPage(context, router, business);
   }
 
   void moveToBundleDetailPage(BuildContext context, ProductBundle bundle, {Widget? previousPage}) {
@@ -238,5 +241,17 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
 
   void navigateToBundleDetailPage(BuildContext context, ProductBundle bundle) {
     BundleDetailPage.navigateToBundleDetailPage(context, router, bundle);
+  }
+
+  void navigateToProductListPage(BuildContext context, {required List<Product> products, required String title}) {
+    ProductListPage.navigate(context, products: products, title: title);
+  }
+
+  void navigateToBundleListPage(BuildContext context, {required List<ProductBundle> bundles, required String title}) {
+    BundleListPage.navigateTo(context, bundles: bundles, title: title);
+  }
+
+  void navigateToBusinessListPage(BuildContext context, {String? title}) {
+    BusinessListPage.navigate(context, businesses: businessListController.items, title: title ?? 'Business List');
   }
 }

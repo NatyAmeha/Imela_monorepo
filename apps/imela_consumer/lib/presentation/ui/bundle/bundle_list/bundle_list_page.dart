@@ -9,20 +9,21 @@ import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.d
 import 'package:imela_utils/helpers/screen_size_utils.dart';
 
 class BundleListPage extends StatefulWidget {
-  static const String routeName = '/bundle-list';
-  static const FETCH_POLICY_KEY = 'fetchPolicy';
+  static const String routeName = '/bundles';
+  static const String titleQueryKey = 'title';
+
   static const BUNDLES_KEY = 'bundles';
 
-  final List<ProductBundle> bundles;
-  final String? fetchPolicy;
-  const BundleListPage({super.key, required this.bundles,  this.fetchPolicy});
+  final List<ProductBundle>? bundles;
+  final String? title;
+  const BundleListPage({super.key, this.bundles, this.title});
 
   @override
   State<BundleListPage> createState() => _BundleListPageState();
 
-  static navigateTo(BuildContext context, {List<ProductBundle> bundles = const [], BundleListFetchPolicy fetchPolicy = BundleListFetchPolicy.all}) {
+  static navigateTo(BuildContext context, {List<ProductBundle> bundles = const [], String? title}) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, routeName, extra: {BUNDLES_KEY: bundles, FETCH_POLICY_KEY: fetchPolicy});
+    router.navigateTo(context, routeName, extra: {BundleListPage.BUNDLES_KEY: bundles, BundleListPage.titleQueryKey: title});
   }
 }
 
@@ -32,14 +33,14 @@ class _BundleListPageState extends State<BundleListPage> {
   @override
   void initState() {
     super.initState();
-    viewmodel.initViewmodel(data: {BundleListPage.BUNDLES_KEY: widget.bundles, BundleListPage.FETCH_POLICY_KEY: widget.fetchPolicy});
+    viewmodel.initViewmodel(data: {BundleListPage.BUNDLES_KEY: widget.bundles});
   }
 
   @override
   Widget build(BuildContext context) {
     final widgetFactory = viewmodel.appController.getWidgetFactory(context);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text(widget.title ?? 'Bundles')),
       body: Obx(
         () => PageContentLoader(
           isLoading: viewmodel.isLoading.value,
@@ -48,7 +49,9 @@ class _BundleListPageState extends State<BundleListPage> {
           hasError: viewmodel.exception.value != null,
           content: AppGridView(
             items: viewmodel.bundles,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             crossAxisCount: Responsive.getGridCount(context, itemWidth: 250),
+            itemExtent: 225,
             itemBuilder: (context, bundle, index) {
               return BundleListItem(bundleData: bundle, widgetFactory: widgetFactory);
             },

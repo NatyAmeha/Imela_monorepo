@@ -18,6 +18,8 @@ mutation CreatePOSOrder($businessId: String!,  $orderInput: CreateOrderInput!, $
                     value
                 }
             }
+            appliedRewards
+            usedRewardsPoints
             items {
                 id
                 name {

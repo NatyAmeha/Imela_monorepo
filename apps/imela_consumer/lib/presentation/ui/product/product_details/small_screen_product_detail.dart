@@ -10,8 +10,8 @@ import 'package:imela/presentation/ui/product/components/product_option_item.dar
 import 'package:imela/presentation/ui/product/product_details/product_details.viewmodel.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
-import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_ui_kit/components/image/markdown_text.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
@@ -63,14 +63,16 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
               centerTitle: true,
               background: widget.widgetFactory.createPageView(
                 context,
-                itemCount: widget.viewmodel.productDetails.value!.product?.gallery?.getImages().length ?? 0,
+                itemCount: widget.viewmodel.selectedProduct.gallery?.getImages().length ?? 0,
                 controller: PageController(),
+                autoScroll: true,
+                autoScrollDuration: const Duration(seconds: 7),
                 width: double.infinity,
                 height: NumberResources.EXPANDED_APPBAR_HEIGHT,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      widget.viewmodel.navigateToPhotoViewerPage(context, widget.viewmodel.productDetails.value!.product?.gallery?.getImages() ?? [], index);
+                      widget.viewmodel.navigateToPhotoViewerPage(context, widget.viewmodel.selectedProduct.gallery?.getImages() ?? [], index);
                     },
                     child: AppImage(imageUrl: widget.viewmodel.getProductImage[index]),
                   );
@@ -90,8 +92,7 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     widget.widgetFactory.createText(context, widget.viewmodel.productName, style: Theme.of(context).textTheme.headlineMedium),
-                    const SizedBox(height: 8),
-                    widget.widgetFactory.createText(context, widget.viewmodel.getProductDescription, maxLines: 4, style: Theme.of(context).textTheme.bodyLarge),
+
                     const SizedBox(height: 16),
                     if (widget.viewmodel.originalProductInfo?.haveDynamicPricing == true) ...[
                       ProductDynamicPriceSummary(product: widget.viewmodel.originalProductInfo!, widgetFactory: widget.widgetFactory, selectedCurrency: widget.viewmodel.selectedCurrency, additionalDiscounts: widget.viewmodel.discounts),
@@ -104,6 +105,8 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                         widget.viewmodel.showFeatureDescriptionModal(context, selectedFEature);
                       },
                     ),
+                    const SizedBox(height: 8),
+                    MarkdownText(data: widget.viewmodel.getProductDescription, maxHeight: 400),
                     // widget.widgetFactory.createText(context, 'Minimum order: ${widget.viewmodel.selectedProduct.minimumOrderQty}', style: Theme.of(context).textTheme.labelMedium),
                     // widget.widgetFactory.createText(context, 'Remaining items: ${widget.viewmodel.productDetails.value?.product?.remainingAmount}', style: Theme.of(context).textTheme.labelMedium),
                     if (widget.viewmodel.productOptions.isNotEmpty)
@@ -136,7 +139,7 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                           ),
                         ],
                       ),
-                    if (widget.viewmodel.originalProductInfo?.isMembershipProduct == true) ...[
+                    if (widget.viewmodel.originalProductInfo?.getMembershipAddons().isNotEmpty == true || widget.viewmodel.originalProductInfo?.getNonMembershipAddons().isNotEmpty == true) ...[
                       const SizedBox(height: 16),
                       ProductMembershipPerk(
                         widgetFactory: widget.widgetFactory,

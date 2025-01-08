@@ -39,7 +39,7 @@ class AppListView<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     if (shrinkWrap) {
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (header != null) ...[

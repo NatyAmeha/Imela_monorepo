@@ -5,12 +5,12 @@ import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/product/components/product_detail_loading.dart';
 import 'package:imela/presentation/ui/product/product_details/product_details.viewmodel.dart';
 import 'package:imela/presentation/ui/product/product_details/small_screen_product_detail.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -56,7 +56,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: viewmodel.productDetails.value != null,
           exception: viewmodel.exception.value,

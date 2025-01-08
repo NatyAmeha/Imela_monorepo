@@ -52,6 +52,7 @@ query OrderBusinessList($businessIds: [String!]!) {
           productIds
           calendarId
           includeOnPOS
+          includeInBundle
         }
       }
       

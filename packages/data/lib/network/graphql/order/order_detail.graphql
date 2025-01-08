@@ -26,6 +26,8 @@ query OrderDetail($orderId: String!) {
           currency
         }
       }
+      appliedRewards
+      usedRewardsPoints
       discount {
         id
         amount

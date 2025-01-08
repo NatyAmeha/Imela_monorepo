@@ -16,6 +16,7 @@ class GridProductListItem extends StatelessWidget {
   final Product product;
   final double? imageHeight;
   final double? height;
+  final double? width;
   final double? imageWidth;
   final WidgetFactory widgetFactory;
   final bool showBusiness;
@@ -32,6 +33,7 @@ class GridProductListItem extends StatelessWidget {
     this.imageHeight,
     this.height,
     this.imageWidth = double.infinity,
+    this.width = double.infinity,
     this.showBusiness = false,
     this.showRemainingItem = true,
     this.isSelected = false,
@@ -52,6 +54,7 @@ class GridProductListItem extends StatelessWidget {
     return widgetFactory.createCard(
       border: border,
       height: height,
+      width: width,
       borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
@@ -75,45 +78,46 @@ class GridProductListItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   widgetFactory.createText(context, '${product.getLocalizedProductName(AppLanguage.ENGLISH.name)}', style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
+                  if (discounts.isNotEmpty) ...[
+                    widgetFactory.createText(context, product.getPriceRangeString('ETB'), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
+                  ],
                   Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (discounts.isNotEmpty) ...[
-                        widgetFactory.createText(context, product.getPriceRangeString('ETB'), style: Theme.of(context).textTheme.bodySmall, textDecoration: TextDecoration.lineThrough),
-                      ],
+                      widgetFactory.createText(context, product.getPriceRangeString('ETB', discounts: discounts), style: Theme.of(context).textTheme.bodyLarge),
                       if (!showDiscountedBanner && discounts.isNotEmpty) ...[
                         const SizedBox(width: 4),
                         BadgeList(
                           values: [product.getTotalDiscountPercentageApplied('ETB', discounts: discounts)],
-                          colors: [Theme.of(context).colorScheme.tertiary],
-                          height: 15,
-                          width: 20,
+                          borderColors: [Theme.of(context).colorScheme.tertiary],
+                          colors: const [Colors.transparent],
+                          textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black),
+                          height: 20,
                           widgetFactory: widgetFactory,
                         ),
                       ],
                     ],
                   ),
-                  widgetFactory.createText(context, product.getPriceRangeString('ETB', discounts: discounts), style: Theme.of(context).textTheme.bodyLarge),
-                  const SizedBox(height: 4),
                   if (product.loyaltyPoint.isGreaterThan(0)) ...[
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         widgetFactory.createIcon(materialIcon: Icons.loyalty, color: ColorManager.tertiary, size: 12),
                         const SizedBox(width: 2),
-                        widgetFactory.createText(context, product.getLoyaltyPointString("ENGLISH"), style: Theme.of(context).textTheme.labelSmall, color: ColorManager.tertiary),
+                        widgetFactory.createText(context, product.getLoyaltyPointString('ENGLISH'), style: Theme.of(context).textTheme.labelSmall, color: ColorManager.tertiary),
                       ],
                     ),
                   ],
                   const SizedBox(height: 2),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      widgetFactory.createIcon(materialIcon: Icons.book, size: 16),
-                      const SizedBox(width: 4),
-                      widgetFactory.createText(context, remainingQtyInfo, style: Theme.of(context).textTheme.bodySmall),
-                    ],
-                  ).showIfTrue(canShowRemainingQty),
+                  // Row(
+                  //   mainAxisSize: MainAxisSize.min,
+                  //   children: [
+                  //     widgetFactory.createIcon(materialIcon: Icons.book, size: 16),
+                  //     const SizedBox(width: 4),
+                  //     widgetFactory.createText(context, remainingQtyInfo, style: Theme.of(context).textTheme.bodySmall),
+                  //   ],
+                  // ).showIfTrue(canShowRemainingQty),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisSize: MainAxisSize.min,

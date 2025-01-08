@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/order/order_list/order_list.viewmodel.dart';
 import 'package:imela/presentation/ui/order/order_list/small_screen_order_list.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 
 class OrderListPage extends StatefulWidget {
   static const routeName = '/orders';
@@ -44,7 +44,7 @@ class _OrderListPageState extends State<OrderListPage> {
       ),
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: viewmodel.orderList.value.isNotEmpty,
           exception: viewmodel.exception.value,

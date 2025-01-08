@@ -17,24 +17,6 @@ query GetCustomerBusinessLoyalty($businessId: String!) {
       businessId
       currentPoints
     }
-    rewards {
-      id
-      name {
-        key
-        value
-      }
-      description {
-        key
-        value
-      }
-      conditions {
-        key
-        value
-      }
-      minPointsToRedeem
-      businessId
-      discountAmount
-      isActive
-    }
+    
   }
 }

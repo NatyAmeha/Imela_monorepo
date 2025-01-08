@@ -62,7 +62,7 @@ class BusinessSectionViewModel extends GetxController with BaseViewmodel {
     Future.delayed(Duration.zero, () async {
       businessId = data![BusinessSectionPage.BUSINESS_ID_KEY] as String;
       sectionId = data[BusinessSectionPage.SECTION_ID_KEY] as String;
-      sectionInfo.value = data[BusinessSectionPage.SECTION_INFO_KEY] as BusinessSection;
+      sectionInfo.value = data[BusinessSectionPage.SECTION_INFO_KEY] as BusinessSection?;
       super.initViewmodel(data: data);
 
       await getBusinessSectionDetails();

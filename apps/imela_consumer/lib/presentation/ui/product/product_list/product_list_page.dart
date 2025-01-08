@@ -1,43 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
+import 'package:imela/presentation/ui/product/components/product_item_badge.dart';
 import 'package:imela/presentation/ui/product/components/product_list_item.dart';
 import 'package:imela/presentation/ui/product/product_list/product_list.viewmodel.dart';
-import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
 import 'package:imela/presentation/ui/shared/list/list_display_style.constants.dart';
-import 'package:imela/presentation/ui/shared/list/listview.component.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_ui_kit/components/list/gridview.component.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
-
+import 'package:imela_utils/helpers/screen_size_utils.dart';
 
 class ProductListPage extends StatefulWidget {
   static const baseRouteName = '/products';
   static const routeName = '$baseRouteName/:query';
 
+  static const PRODUCT_LIST_KEY = 'productList';
+  static const TITLE_KEY = 'title';
+
   final ProductListViewmodel? productListViewmodel;
   final String title;
   final List<Product>? products;
-  final ListDisplayStyle displayStyle;
   const ProductListPage({
     super.key,
     required this.title,
     this.productListViewmodel,
     this.products,
-    required this.displayStyle,
   });
 
   @override
   State<ProductListPage> createState() => _ProductListPageState();
+
+  static navigate(BuildContext context, {List<Product> products = const [], ProductListViewmodel? productListViewmodel, String title = ''}) {
+    final router = AppController.getInstance.router;
+    router.navigateTo(context, routeName, extra: {ProductListPage.PRODUCT_LIST_KEY: products, ProductListPage.TITLE_KEY: title});
+  }
 }
 
 class _ProductListPageState extends State<ProductListPage> {
   ProductListViewmodel get viewmodel => widget.productListViewmodel ?? Get.put(getIt<ProductListViewmodel>());
-  late WidgetFactory appWidgetFactory;
+  late WidgetFactory widgetFactory;
   void initializeViewmodel() {
     Future.delayed(Duration.zero, () {
-      viewmodel.initViewmodel(data: {'products': widget.products});
+      viewmodel.initViewmodel(data: {ProductListPage.PRODUCT_LIST_KEY: widget.products, ProductListPage.TITLE_KEY: widget.title});
     });
   }
 
@@ -49,7 +57,7 @@ class _ProductListPageState extends State<ProductListPage> {
 
   @override
   Widget build(BuildContext context) {
-    appWidgetFactory = WidgetFactory(Theme.of(context).platform);
+    widgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -57,18 +65,23 @@ class _ProductListPageState extends State<ProductListPage> {
       ),
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
-          showContent: viewmodel.productListController.items.isNotEmpty,
+          isLoading: viewmodel.isLoading.value,
+          showContent: viewmodel.products.value?.isNotEmpty ?? false,
+          exception: viewmodel.exception.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
-          content: widget.displayStyle == ListDisplayStyle.Grid
+          content: Responsive.isLargeOrMediumScreen(context)
               ? AppGridView(
-                  controller: viewmodel.productListController,
+                  items: viewmodel.products.value ?? [],
                   isStaggered: true,
                   padding: const EdgeInsets.all(12),
                   itemBuilder: (context, product, index) {
                     return GridProductListItem(
                       product: product,
-                      widgetFactory: appWidgetFactory,
+                      widgetFactory: widgetFactory,
+                      imageHeight: 150,
+                      imageWidth: double.infinity,
+                      badgeInfos: ProductBadgeInfo.getProductBadgeInfo(product),
+                      discounts: product.getBusinessDiscounts(),
                       onTap: () {
                         viewmodel.navigateToProductDetail(context, product);
                       },
@@ -79,13 +92,13 @@ class _ProductListPageState extends State<ProductListPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   scrollDirection: Axis.vertical,
                   contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  controller: viewmodel.productListController,
+                  items: viewmodel.products.value ?? [],
                   itemBuilder: (context, product, index) {
                     return VerticalProductListItem(
                       product: product,
                       imageHeight: 140,
                       imageWidth: 125,
-                      widgetFactory: appWidgetFactory,
+                      widgetFactory: widgetFactory,
                       onTap: () {
                         viewmodel.navigateToProductDetail(context, product);
                       },

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
+import 'package:imela/presentation/ui/cart/reward_apply/apply_reward_page.dart';
 import 'package:imela/presentation/ui/cart/small_screen_cart_detail_page.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/order/model/cart.model.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class CartDetailPage extends StatefulWidget {
@@ -25,13 +26,14 @@ class CartDetailPage extends StatefulWidget {
   State<CartDetailPage> createState() => _CartDetailPageState();
 }
 
-class _CartDetailPageState extends State<CartDetailPage> {
+class _CartDetailPageState extends State<CartDetailPage> with RouteAware {
   var viewmodel = CartListViewmodel.getInstance();
 
   @override
   void initState() {
     super.initState();
-    viewmodel.seselectedCart(widget.selectedCart);
+    viewmodel.seselectedCart(context, widget.selectedCart);
+    viewmodel.listenToSelectedRewardInfo();
   }
 
   @override
@@ -40,7 +42,7 @@ class _CartDetailPageState extends State<CartDetailPage> {
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           showContent: true,
           content: ResponsiveWrapper(
             smallScreen: SmallScreenCartDetailPage(viewmodel: viewmodel, widgetFactory: appWidgetFactory),
@@ -48,5 +50,16 @@ class _CartDetailPageState extends State<CartDetailPage> {
         ),
       ),
     );
+  }
+
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    GoRouterService.routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    GoRouterService.routeObserver.unsubscribe(this);
+    super.dispose();
   }
 }

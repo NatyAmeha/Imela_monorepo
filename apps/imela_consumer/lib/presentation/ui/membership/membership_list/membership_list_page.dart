@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/components/user_membership_card.dart';
 import 'package:imela/presentation/ui/membership/membership_list/membership_list_viewmodel.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
 
@@ -51,7 +51,7 @@ class _UserMembershipListPageState extends State<UserMembershipListPage> {
             viewmodel.getUserMemberships(context);
           },
           child: PageContentLoader(
-            isDataLoading: viewmodel.isLoading.value,
+            isLoading: viewmodel.isLoading.value,
             exception: viewmodel.exception.value,
             hasError: viewmodel.exception.value?.isMainError ?? false,
             onTryAgain: () {

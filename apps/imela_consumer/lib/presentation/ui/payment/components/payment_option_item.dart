@@ -35,7 +35,7 @@ class PaymentOptionListItem extends StatelessWidget {
       onTap: () {
         onSelected?.call();
       },
-      border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer, width: 1),
+      border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer, width: 2),
       width: width,
       height: height,
       borderRadius: BorderRadius.circular(8),
@@ -61,7 +61,7 @@ class PaymentOptionListItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               widgetFactory.createText(context, 'Current payment', style: Theme.of(context).textTheme.labelMedium),
-              widgetFactory.createText(context, paymentOption.currentPaymentString(totalAmount), style: Theme.of(context).textTheme.titleMedium),
+              widgetFactory.createText(context, paymentOption.currentPaymentString(totalAmount), style: Theme.of(context).textTheme.bodyLarge),
             ],
           ).withPaddingSymetric(horizontal: 16, vertical: 8),
           if (paymentOption.isPartialPaymentOption())
@@ -76,9 +76,9 @@ class PaymentOptionListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       widgetFactory.createText(context, 'Remaining amount', style: Theme.of(context).textTheme.labelMedium),
-                      widgetFactory.createText(context, paymentOption.remainingPaymentString(totalAmount), style: Theme.of(context).textTheme.titleMedium),
+                      widgetFactory.createText(context, paymentOption.remainingPaymentString(totalAmount), style: Theme.of(context).textTheme.bodyLarge),
                     ],
-                  ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption()),
+                  ).withPaddingSymetric(vertical: 0).showIfTrue(paymentOption.isPartialPaymentOption()),
                   Row(
                     children: [
                       widgetFactory.createText(context, 'Pay remaining on delivery', style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),

@@ -4,8 +4,8 @@ import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/authentication/auth.viewmodel.dart';
 import 'package:imela/presentation/ui/authentication/small_screen_auth_selection.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class AuthSelectionPage extends StatefulWidget {
@@ -48,7 +48,7 @@ class _AuthSelectionPageState extends State<AuthSelectionPage> {
     final appWidgetfactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
       body: PageContentLoader(
-        isDataLoading: viewmodel.isLoading.value,
+        isLoading: viewmodel.isLoading.value,
         hasError: viewmodel.exception.value?.isMainError ?? false,
         showContent: true,
         exception: viewmodel.exception.value,

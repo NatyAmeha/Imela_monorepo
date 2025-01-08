@@ -96,6 +96,58 @@ query GetBundleDetail($id : String!){
 					calendarId
 					membershipIds
 					includeOnPOS
+					includeInBundle
+					dependencies{
+          				id
+          				addonId
+          				type
+          				value
+        			}
+					options {
+          				id
+          				name {
+            				key
+            				value
+          				}
+          				images
+          				membershipIds
+          				price{
+            				amount
+            				currency
+          				}
+                    }
+        			productOptionInfos {
+						productId
+						minQty
+						maxQty
+						discounts {
+							type
+							value
+							condition
+							conditionValue
+							startDate
+							endDate
+						}
+          				product {
+							id
+							name {
+								key
+								value
+							}
+							gallery {
+								images {
+									url
+									featured
+								}
+							}
+							prices {
+								price {
+									currency
+									amount
+								}
+							}
+          				}
+        			}
 					additionalPrice {
 						id
 						amount

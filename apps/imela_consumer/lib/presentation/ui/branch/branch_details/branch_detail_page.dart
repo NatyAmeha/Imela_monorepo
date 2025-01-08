@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/branch/branch_details/branch_details.viewmodel.dart';
 import 'package:imela/presentation/ui/branch/branch_details/small_screen_branch_detail.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class BranchDetailPage extends StatefulWidget {
@@ -46,7 +46,7 @@ class _BranchDetailPageState extends State<BranchDetailPage> {
     return Scaffold(
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           hasError: viewmodel.exception.value?.isMainError ?? false,
           showContent: true,
           exception: viewmodel.exception.value,

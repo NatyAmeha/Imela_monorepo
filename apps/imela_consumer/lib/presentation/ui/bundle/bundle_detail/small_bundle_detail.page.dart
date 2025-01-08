@@ -3,12 +3,10 @@ import 'package:get/get.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
 import 'package:imela/presentation/ui/bundle/components/bundle_summary.dart';
-import 'package:imela/presentation/ui/bundle/components/selected_product_from_bundle.list_item.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
 import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
-import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
@@ -32,7 +30,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
               children: [
                 widgetFactory.createText(context, viewmodel.bundle?.name?.localize('ENGLISH') ?? '', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
-                widgetFactory.createText(context, viewmodel.bundleDescription, style: Theme.of(context).textTheme.labelLarge, maxLines: 4),
+                widgetFactory.createText(context, viewmodel.bundleDescription, style: Theme.of(context).textTheme.bodyMedium, maxLines: 4),
                 const SizedBox(height: 16),
                 BundleSummary(widgetFactory: widgetFactory, bundle: viewmodel.bundle!, viewmodel: viewmodel),
                 const SizedBox(height: 24),
@@ -41,12 +39,12 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       widgetFactory.createText(context, 'Items', style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       widgetFactory.createCard(
                         padding: const EdgeInsets.all(8),
                         color: ColorManager.primaryBackground,
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
                             const SizedBox(width: 8),

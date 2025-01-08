@@ -45,13 +45,16 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const SizedBox(height: 16),
                   AppListView(
                     header: ListHeader(
                       widgetFactory: widgetFactory,
                       title: 'Your Favorite Businesses',
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       action: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          homepageViewmodel.navigateToBusinessListPage(context);
+                        },
                         icon: const Icon(Icons.keyboard_arrow_right),
                       ),
                     ),
@@ -59,14 +62,14 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
                     items: homepageViewmodel.forYouData.value?.favoriteBusinesses ?? [],
                     shrinkWrap: true,
                     height: 250,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.only(right : 8),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                     itemBuilder: (context, business, index) {
                       return BusinessListTile(
                         business: business,
                         width: 250,
                         widgetFactory: widgetFactory,
-                        imageHeight: 110,
+                        imageHeight: 125,
                         onTap: () {
                           homepageViewmodel.navigateToBusinessDetailPage(context, business);
                         },
@@ -96,7 +99,9 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
             title: bundle.title,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             action: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                homepageViewmodel.navigateToBundleListPage(context, bundles: bundle.items, title: bundle.title);
+              },
               icon: const Icon(Icons.arrow_forward_ios),
             ),
           ),
@@ -104,7 +109,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
           items: bundle.items,
           shrinkWrap: true,
           height: 225,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.only(right: 8),
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
           itemBuilder: (context, bundle, index) {
             return BundleListItem(
@@ -133,7 +138,9 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
             title: product.title,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             action: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                homepageViewmodel.navigateToProductListPage(context, products: product.items, title: product.title);
+              },
               icon: const Icon(Icons.keyboard_arrow_right),
             ),
           ),
@@ -142,7 +149,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
           shrinkWrap: true,
           height: 300,
           width: MediaQuery.sizeOf(context).width,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.only(right: 8),
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
           itemBuilder: (context, product, index) {
             return SizedBox(

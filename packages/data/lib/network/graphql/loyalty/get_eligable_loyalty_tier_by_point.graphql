@@ -1,0 +1,112 @@
+query GetEligableLoyaltyTierByPOint($businessId: String!, $points: Float!) {
+    getCustomerEligibleTiers(businessId: $businessId, points: $points) {
+    success
+    tiers {
+      id
+      name {
+        key
+        value
+      }
+      description {
+        key
+        value
+      }
+      businessIds
+      businesses{
+        id
+        name
+        {
+          key
+          value
+        }
+      }
+      minPoints
+      maxPoints
+      rewards {
+        id
+        name {
+          key
+          value
+        }
+        description {
+          key
+          value
+        }
+        minPointsToRedeem
+        businessIds
+        rewardTypes
+        applyOnAddon
+        rewardInfo {
+          deliveryRewardInfo {
+            discount {
+              id
+              name {
+                key
+                value
+              }
+              value
+              condition
+              conditionValue
+              startDate
+              endDate
+            }
+          }
+          products {
+            productId
+            minQty
+            maxQty
+            discount {
+            	id
+            	name {
+              	key
+              	value
+            	}
+            	value
+            	condition
+            	conditionValue
+            	startDate
+              endDate
+            }
+            product {
+              id
+              name {
+                key
+                value
+              }
+              gallery{
+                images{
+                  url
+                  
+                }
+              }
+              loyaltyPoint
+							minimumOrderQty
+							calendars {
+								id
+							}
+              prices {
+          			price {
+            			amount
+            			currency
+          			}
+        		}
+              variantsId
+            }
+          }
+          discount {
+            id
+            name {
+              key
+              value
+            }
+            value
+            condition
+            conditionValue
+            startDate
+            endDate
+          }
+        }
+      }
+    }
+  }
+}

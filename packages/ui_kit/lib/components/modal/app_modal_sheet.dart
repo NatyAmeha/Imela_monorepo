@@ -25,10 +25,15 @@ class AppModalSheet {
     var modalPages = pages.mapIndexed(
       (index, page) {
         return SliverWoltModalSheetPage(
-          navBarHeight: 40,
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           hasSabGradient: false,
+          isTopBarLayerAlwaysVisible: true,
           surfaceTintColor: Colors.transparent,
+          useSafeArea: true,
+          resizeToAvoidBottomInset: true,
+          hasTopBarLayer: false,
+          navBarHeight: 40,
+          topBarTitle: page.title,
           leadingNavBarWidget: page.leading ??
               (index > 0
                   ? CircleAvatar(
@@ -54,7 +59,6 @@ class AppModalSheet {
                 },
                 child: page.trailing ?? const Icon(Icons.close),
               )).withPaddingAll(8),
-          topBarTitle: page.title,
           mainContentSliversBuilder: (context) {
             return [SliverToBoxAdapter(child: page.content)];
           },
@@ -118,7 +122,11 @@ class AppModalSheet {
           id: page.id,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           hasSabGradient: false,
+          isTopBarLayerAlwaysVisible: true,
           surfaceTintColor: Colors.transparent,
+          useSafeArea: true,
+          resizeToAvoidBottomInset: true,
+          hasTopBarLayer: false,
           navBarHeight: 40,
           topBarTitle: page.title,
           leadingNavBarWidget: CircleAvatar(

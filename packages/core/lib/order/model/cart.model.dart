@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:dartx/dartx.dart';
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
+import 'package:imela_core/product/model/addon_dependency.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
@@ -40,7 +40,8 @@ class Cart with _$Cart {
   }
 
   List<ProductAddon> getAddons({bool getDefault = false, bool forPOS = false}) {
-    var result = List<ProductAddon>.from(orderAddons ?? []);
+    var result = <ProductAddon>[if (orderAddons != null) ...orderAddons!];
+
     if (forPOS) {
       result = orderAddons?.where((e) => e.includeOnPOS == true).toList() ?? [];
     }
@@ -48,8 +49,23 @@ class Cart with _$Cart {
       result = orderAddons?.where((e) => e.inputType == 'NONE').toList() ?? [];
       return result;
     }
-
     result = result.where((e) => e.inputType != 'NONE').toList();
+
+    // Create a new list of addons that meet the dependency requirements
+    // result = result.where((addon) {
+    //   if (addon.dependencies == null || addon.dependencies!.isEmpty) return true;
+
+    //   for (var dependency in addon.dependencies!) {
+    //     if (dependency.type == AddonDependencyType.ADDON_VALUE.name) {
+    //       var dependencyAddonConfig = configs?.firstOrNullWhere((e) => addon.dependencies?.firstOrNull?.addonId == e.addonId);
+    //       if (!(dependency.value?.contains(dependencyAddonConfig?.singleValue) ?? false) && !(dependency.value?.containsAny(dependencyAddonConfig?.multipleValue ?? []) ?? false)) {
+    //         return false;
+    //       }
+    //     }
+    //   }
+    //   return true;
+    // }).toList(); 
+
     return result;
   }
 
@@ -64,7 +80,7 @@ class Cart with _$Cart {
   }
 
   String totalEarnedPointString(String selectedLanguage) {
-    final totalPoints = (items?.sumBy((element) => (element.product?.loyaltyPoint ?? 0) * element.quantity) ?? 0).getPresision(2);
+    final totalPoints = (items?.sumBy((element) => (element.point ?? 0) * element.quantity) ?? 0).getPresision(2);
     if (selectedLanguage == AppLanguage.AMHARIC.name) {
       return '$totalPoints ነጥብ ያገኛሉ';
     }
@@ -104,10 +120,13 @@ class Cart with _$Cart {
     return (items?.sumBy((element) => element.getTotalAmount()) ?? 0).getPresision(2);
   }
 
-  double getSubtotalPOSUpdated({bool includeDynamicPricingDiscount = true}) {
-    var subtotal = items?.sumBy((element) => element.getSubtotalPOSUpdated(includeDynamicPricingDiscount: includeDynamicPricingDiscount)) ?? 0;
+  double getSubtotalPOSUpdated({bool includeDynamicPricingDiscount = true, bool includeAddonPrice = false}) {
+    var subtotal = items?.sumBy((element) => element.getSubtotalPOSUpdated(includeDynamicPricingDiscount: includeDynamicPricingDiscount, includeAddonPrice: includeAddonPrice)) ?? 0;
     var orderAddonsTotalAmount = configs?.sumBy((element) => element.additionalPrice) ?? 0;
-    return (subtotal + orderAddonsTotalAmount).getPresision(2);
+    if (includeAddonPrice) {
+      subtotal += orderAddonsTotalAmount;
+    }
+    return subtotal.getPresision(2);
   }
 
   double getTotalDiscountAmountPOS() {
@@ -115,15 +134,17 @@ class Cart with _$Cart {
     return (dicountInfo).getPresision(2);
   }
 
-  double getTotatAmountPOS() {
-    final itemsTotalAmount = getSubtotalPOSUpdated();
+  double getTotatAmountPOS({String selectedCurrency = 'ETB', bool includeAddonPrice = false}) {
+    final itemsTotalAmount = getSubtotalPOSUpdated(includeAddonPrice: includeAddonPrice);
+    final totalAddonsAmount = getAddonsAmount(selectedCurrency);
     final discounts = getTotalDiscountAmountPOS();
-    return (itemsTotalAmount - discounts).getPresision(2);
+    final totalAmountAfterDiscount = (itemsTotalAmount - discounts).getPresision(2);
+    return (totalAmountAfterDiscount + totalAddonsAmount).getPresision(2);
   }
 
   double getAddonsAmount(String selectedCurrency) {
     var cartLevelAddonsAmount = configs?.sumBy((element) => element.getAdditionalPriceUpdated(orderAddons, selectedCurrency)) ?? 0;
-    var itemLevelAddonsAmount = items?.sumBy((element) => element.config?.sumBy((config) => config.getAdditionalPriceUpdated(orderAddons, selectedCurrency)) ?? 0) ?? 0;
+    var itemLevelAddonsAmount = items?.sumBy((element) => element.config?.sumBy((config) => config.finalPrice) ?? 0.0) ?? 0;
     return (cartLevelAddonsAmount + itemLevelAddonsAmount).getPresision(2);
   }
 
@@ -140,7 +161,7 @@ class Cart with _$Cart {
   }
 
   String getTotalAmountPOSFormatted(String selectedCurrency) {
-    return '$selectedCurrency ${getTotatAmountPOS()}';
+    return '$selectedCurrency ${getTotatAmountPOS(selectedCurrency: selectedCurrency)}';
   }
 
   String getFormattedTotalPrice(BuildContext context) {
@@ -166,7 +187,7 @@ class Cart with _$Cart {
       final newItems = nItems.where((nItem) => !existedItemsId.contains(nItem.productId)).toList();
       finalItems.addAll(newItems);
       final updatedItems = existingItems.map((item) {
-        final existedItem = nItems.firstWhereOrNull((newItem) => newItem.productId == item.productId);
+        final existedItem = nItems.firstOrNullWhere((newItem) => newItem.productId == item.productId);
         if (existedItem != null) {
           return existedItem.copyWith(quantity: increaseQty ? item.quantity + existedItem.quantity : existedItem.quantity);
         }

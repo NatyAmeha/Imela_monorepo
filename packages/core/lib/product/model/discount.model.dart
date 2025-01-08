@@ -18,9 +18,9 @@ class Discount with _$Discount {
   factory Discount({
     String? id,
     List<LocalizedField>? name,
-    required String type,
-    required double value,
-    @Default('NONE') String condition,
+    @Default("PERCENTAGE") String type,
+    @Default(0) double value,
+    @Default('NONE') String condition, 
     String? conditionValue,
     DateTime? startDate,
     DateTime? endDate,

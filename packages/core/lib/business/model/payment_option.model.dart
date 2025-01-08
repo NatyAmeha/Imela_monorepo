@@ -71,11 +71,11 @@ class PaymentOption with _$PaymentOption {
   }
 
   String currentPaymentString(double totalAmount, {String currency = 'ETB'}) {
-    return '$currency ${currentPayment(totalAmount).getPresision(2)}';
+    return '$currency ${currentPayment(totalAmount).getPresisionString(precision: 2)}';
   }
 
   String remainingPaymentString(double totalAmount, {String currency = 'ETB'}) {
-    return '$currency ${remainingPayment(totalAmount).getPresision(2)}';
+    return '$currency ${remainingPayment(totalAmount).getPresisionString(precision:  2)}';
   }
 
   factory PaymentOption.fromJson(Map<String, dynamic> json) => _$PaymentOptionFromJson(json);

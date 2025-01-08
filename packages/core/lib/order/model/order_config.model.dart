@@ -1,6 +1,7 @@
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
@@ -27,6 +28,8 @@ class OrderConfig with _$OrderConfig {
     List<Product>? products,
     @Default(0) double additionalPrice,
     @Default(0) double finalPrice,
+    List<String>? rewardTypes,
+    List<SelectedRewardInfo>? rewards,
     String? addonId,
   }) = _OrderConfig;
 
@@ -47,6 +50,20 @@ class OrderConfig with _$OrderConfig {
       final startDate = multipleValue!.first;
       final endDate = multipleValue!.last;
       return DateHelper.parseDateRange([startDate, endDate], format: 'dd/MM/yyyy');
+    }
+    return null;
+  }
+
+  List<DateTime>? getConfigDates() {
+    if (multipleValue != null) {
+      return multipleValue!.map((date) => DateHelper.parseDate(date, format: 'dd/MM/yyyy HH:mm')).toList();
+    }
+    return null;
+  }
+
+  DateTime? getConfigDate() {
+    if (singleValue != null) {
+      return DateHelper.parseDate(singleValue!, format: 'dd/MM/yyyy HH:mm');
     }
     return null;
   }
@@ -114,7 +131,7 @@ class OrderConfig with _$OrderConfig {
         return optionTotalPrice ?? 0;
       }
       return additionalPrice;
-    } 
+    }
     return additionalPrice;
   }
 
@@ -133,19 +150,35 @@ class OrderConfig with _$OrderConfig {
     return selectedAddonOptions.map((e) => e.name.localize(selectedLanguage ?? 'ENGLISH')).join(', ');
   }
 
+  OrderConfig addRewards(List<SelectedRewardInfo> rewards) {
+    return copyWith(rewards: rewards);
+  }
+
+  OrderConfig removeRewards(List<SelectedRewardInfo> rewards) {
+    final rewardsToRemove = rewards.map((e) => e.reward.id).toList();
+    final updatedRewards = this.rewards?.where((e) => !rewardsToRemove.contains(e.reward.id)).toList();
+    return copyWith(rewards: updatedRewards);
+  }
+
+  OrderConfig removeAllRewards() {
+    return copyWith(rewards: []);
+  }
+
   static OrderConfig createQtyOrderConfig(double selectedQty, {ProductAddon? addon, bool isQtyConfig = false}) {
+    final additionalPrice = addon?.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0;
     return OrderConfig(
       singleValue: selectedQty.toString(),
       name: addon?.name,
       type: AddonInputType.QUANTITY_INPUT.name,
       calendarId: addon?.calendarId,
       addonId: isQtyConfig ? QTY_CONFIG_ID : addon?.id,
-      additionalPrice: 0,
+      additionalPrice: additionalPrice,
+      finalPrice: (additionalPrice * selectedQty).getPresision(2),
     ).updateFinalPrice('ETB', addons: addon != null ? [addon] : null);
   }
 
-  static OrderConfig createDateRangeOrderConfig(List<LocalizedField> name, DateTimeRange pickedDateRange, ProductAddon addon) {
-    final allDates = List.generate(pickedDateRange.duration.inDays + 1, (index) => pickedDateRange.start.add(Duration(days: index))).map((date) => date.toFormattedString(format: 'dd/MM/yyyy')).toList();
+  static OrderConfig createDateRangeOrderConfig(List<LocalizedField> name, DateTimeRange? pickedDateRange, ProductAddon addon) {
+    final allDates = List.generate(pickedDateRange?.duration.inDays ?? 0 + 1, (index) => pickedDateRange?.start.add(Duration(days: index))).map((date) => date.toFormattedString(format: 'dd/MM/yyyy')).toList();
     return OrderConfig(
       name: name,
       type: AddonInputType.DATE_RANGE_INPUT.name,
@@ -155,11 +188,12 @@ class OrderConfig with _$OrderConfig {
     ).updateFinalPrice('ETB', addons: [addon]);
   }
 
-  static OrderConfig createDateOrderConfig(List<LocalizedField> name, DateTime pickedDate, ProductAddon addon) {
+  static OrderConfig createDateOrderConfig(List<LocalizedField> name, List<DateTime> pickedDates, ProductAddon addon) {
     return OrderConfig(
       name: name,
       type: AddonInputType.DATE_INPUT.name,
-      singleValue: pickedDate.toFormattedString(format: 'dd/MM/yyyy HH:mm'),
+      multipleValue: pickedDates.map((date) => date.toFormattedString(format: 'dd/MM/yyyy HH:mm')).toList(),
+      singleValue: addon.inputType == AddonInputType.MULTIPLE_DATE_INPUT.name ? null : pickedDates.first.toFormattedString(format: 'dd/MM/yyyy HH:mm'),
       addonId: addon.id,
       additionalPrice: addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0,
     ).updateFinalPrice('ETB', addons: [addon]);
@@ -170,12 +204,14 @@ class OrderConfig with _$OrderConfig {
   }
 
   static OrderConfig createSingleSelectOrderConfig(List<LocalizedField> name, String selectedValue, ProductAddon addon) {
+    var selectedOption = addon.options.firstWhere((e) => e.id == selectedValue);
+    final additionalPrice = selectedOption.price?.toSelectedPrice('ETB')?.amount ?? addon.additionalPrice?.toSelectedPrice('ETB')?.amount ?? 0;
     return OrderConfig(
       name: name,
       type: AddonInputType.SINGLE_SELECTION_INPUT.name,
       singleValue: selectedValue,
       addonId: addon.id,
-      additionalPrice: addon.additionalPrice!.toSelectedPrice('ETB')?.amount ?? 0,
+      additionalPrice: additionalPrice,
     ).updateFinalPrice('ETB', addons: [addon]);
   }
 
@@ -191,12 +227,31 @@ class OrderConfig with _$OrderConfig {
   }
 
   static OrderConfig createMultipleSelectOrderConfig(List<LocalizedField> name, List<String> selectedValues, ProductAddon addon) {
+    final selectedOptions = addon.options.where((e) => selectedValues.contains(e.id)).toList();
+    final additionalPrice = selectedOptions.sumBy((options) => options.price?.toSelectedPrice('ETB')?.amount ?? 0);
     return OrderConfig(
       name: name,
       type: AddonInputType.MULTIPLE_SELECTION_INPUT.name,
       multipleValue: selectedValues,
       addonId: addon.id,
-      additionalPrice: addon.additionalPrice!.toSelectedPrice('ETB')?.amount ?? 0,
+      additionalPrice: additionalPrice,
     ).updateFinalPrice('ETB', addons: [addon]);
+  }
+}
+
+extension OrderConfigExtension on List<OrderConfig> {
+  List<OrderConfig> addOrRemoveRewards(List<SelectedRewardInfo> rewards) {
+    final updatedConfigs = <OrderConfig>[];
+    for (var config in this) {
+      final rewardForConfig = rewards.where((e) => e.reward.rewardTypes?.containsAny(config.rewardTypes ?? []) ?? false).toList();
+      if (rewardForConfig.isNotEmpty == true) {
+        final updatedConfig = config.addRewards(rewardForConfig);
+        updatedConfigs.add(updatedConfig);
+      } else {
+        final updatedConfig = config.removeAllRewards();
+        updatedConfigs.add(updatedConfig);
+      }
+    }
+    return updatedConfigs;
   }
 }

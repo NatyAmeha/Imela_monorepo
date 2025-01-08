@@ -5,6 +5,7 @@ import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_order_status.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/business/model/service_overview.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/pricelist.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
@@ -56,6 +57,7 @@ class Business extends BaseModel with _$Business {
     List<PriceList>? priceLists,
     List<PaymentOption>? paymentOptions,
     List<Discount>? discounts,
+    List<ServiceOverview>? serviceOverviews,
     @Default(false) bool requireBranchSelection,
     @Default(BusinessOrderStatus.defaultOrderStatuses) List<BusinessOrderStatus>? orderStatuses,
 

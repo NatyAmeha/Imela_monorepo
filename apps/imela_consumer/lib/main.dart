@@ -9,21 +9,21 @@ import 'services/routing_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  await Firebase.initializeApp( 
+    options: DefaultFirebaseOptions.currentPlatform, 
   );  
   setupGetIt(); 
-  await getIt.allReady();
+  await getIt.allReady(); 
   // initialize singleton custom go_rotuer_service
   GoRouterService();
   CachedNetworkImage.logLevel = CacheManagerLogLevel.none;
   FlutterError.onError = (FlutterErrorDetails details) {
     if (details.exception is! NetworkImageLoadException) {
       FlutterError.dumpErrorToConsole(details);
-    }
+    } 
   };
   final appController = getIt<AppController>();
   await appController.initViewmodel();
   runApp(MelegnaCustomerApp.instance);
 }
- 
+  

@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
+import 'package:imela_ui_kit/components/calendar/date_range_picker.dart';
+import 'package:imela_ui_kit/components/calendar/date_time_picker.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
@@ -112,7 +116,33 @@ class BaseWidgetFactory implements WidgetFactory {
   }
 
   @override
-  Widget createPageView(BuildContext context, {required int itemCount, required IndexedWidgetBuilder itemBuilder, required PageController controller, required double width, required double height, Axis? scrollDirection, ValueChanged<int>? onPageChanged}) {
+  Widget createPageView(
+    BuildContext context, {
+    required int itemCount,
+    required IndexedWidgetBuilder itemBuilder,
+    required PageController controller,
+    required double width,
+    required double height,
+    Axis? scrollDirection,
+    ValueChanged<int>? onPageChanged,
+    bool showIndicator = true,
+    bool autoScroll = false,
+    Duration autoScrollDuration = const Duration(seconds: 3),
+  }) {
+    if (autoScroll && itemCount > 1) {
+      Future.delayed(Duration.zero, () {
+        Timer.periodic(autoScrollDuration, (Timer timer) {
+          if (controller.hasClients) {
+            if (controller.page?.round() == itemCount - 1) {
+              controller.animateToPage(0, duration: const Duration(milliseconds: 10), curve: Curves.easeInOut);
+            } else {
+              controller.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+            }
+          }
+        });
+      });
+    }
+
     return SizedBox(
       width: width,
       height: height,
@@ -125,36 +155,55 @@ class BaseWidgetFactory implements WidgetFactory {
               controller: controller,
               scrollDirection: scrollDirection = Axis.horizontal,
               onPageChanged: onPageChanged,
+              allowImplicitScrolling: true,
             ),
           ),
-          Positioned(
-            bottom: 8,
-            left: 0,
-            right: 0,
-            child: Align(
-              alignment: const AlignmentDirectional(0, 1),
-              child: SmoothPageIndicator(
-                controller: controller,
-                count: itemCount,
-                effect: ExpandingDotsEffect(
-                  expansionFactor: 3,
-                  spacing: 6,
-                  dotWidth: 8,
-                  dotHeight: 8,
-                  dotColor: Theme.of(context).colorScheme.secondary,
-                  activeDotColor: Theme.of(context).colorScheme.primary,
+          if (showIndicator)
+            Positioned(
+              bottom: 8,
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: const AlignmentDirectional(0, 1),
+                child: SmoothPageIndicator(
+                  controller: controller,
+                  count: itemCount,
+                  effect: ExpandingDotsEffect(
+                    expansionFactor: 3,
+                    spacing: 6,
+                    dotWidth: 8,
+                    dotHeight: 8,
+                    dotColor: Theme.of(context).colorScheme.secondary,
+                    activeDotColor: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 
   @override
-  Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false}) {
-    throw UnimplementedError();
+  Future<DateTime?> showDateTimePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate, List<DateTime> disabledDates = const [], String? confirmText, String? cancelText, bool dismissable = true, bool showTiimePicker = false}) async {
+    return showDialog<DateTime>(
+      context: context,
+      barrierDismissible: dismissable,
+      useSafeArea: true,
+      builder: (BuildContext context) {
+        return Dialog.fullscreen(
+          child: DateTimePicker(
+            initialDate: initialDate,
+            firstDate: firstDate,
+            lastDate: lastDate,
+            disabledDates: disabledDates,
+            confirmText: confirmText,
+            cancelText: cancelText,
+            showTimePicker: showTiimePicker,
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -174,80 +223,29 @@ class BaseWidgetFactory implements WidgetFactory {
       bool enablePastDates = true,
       bool showTodayButton = true,
       bool allowViewNavigation = true}) async {
-    // Date range to return
-    DateTimeRange? selectedDateRange;
-
-    await showDialog(
+    return showDialog<DateTimeRange>(
       context: context,
       barrierDismissible: dismissable,
       useSafeArea: true,
       builder: (BuildContext context) {
         return Dialog.fullscreen(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(null),
-                ),
-                title: Text(headerText ?? 'Select Dates'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(selectedDateRange),
-                    child: Text(confirmText ?? 'Confirm'),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: SfDateRangePicker(
-                  selectionMode: DateRangePickerSelectionMode.range,
-                  initialSelectedRange: initialDateRange != null ? PickerDateRange(initialDateRange.start, initialDateRange.end) : null,
-                  minDate: firstDate,
-                  maxDate: lastDate,
-                  enablePastDates: enablePastDates,
-                  view: DateRangePickerView.month,
-                  navigationMode: DateRangePickerNavigationMode.snap,
-                  headerStyle: DateRangePickerHeaderStyle(
-                    textAlign: TextAlign.center,
-                    backgroundColor: headerBackgroundColor,
-                    textStyle: headerTextStyle,
-                  ),
-                  onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
-                    if (args.value is PickerDateRange) {
-                      final range = args.value as PickerDateRange;
-                      if (range.startDate != null && range.endDate != null) {
-                        selectedDateRange = DateTimeRange(
-                          start: range.startDate!,
-                          end: range.endDate!,
-                        );
-                      }
-                    }
-                  },
-                  monthCellStyle: const DateRangePickerMonthCellStyle(
-                    blackoutDateTextStyle: TextStyle(
-                      color: Colors.red,
-                      decoration: TextDecoration.lineThrough,
-                      decorationColor: Colors.red,
-                      decorationThickness: 2,
-                    ),
-                  ),
-                  navigationDirection: DateRangePickerNavigationDirection.horizontal,
-                  monthViewSettings: DateRangePickerMonthViewSettings(
-                    blackoutDates: [...(disabledDates ?? []), ...(blackoutDates ?? [])],
-                    enableSwipeSelection: false,
-                  ),
-                  allowViewNavigation: allowViewNavigation,
-                  showTodayButton: showTodayButton,
-                ),
-              ),
-            ],
+          child: DateRangePicker(
+            initialDateRange: initialDateRange,
+            firstDate: firstDate,
+            lastDate: lastDate,
+            disabledDates: disabledDates,
+            headerText: headerText,
+            headerBackgroundColor: headerBackgroundColor,
+            headerTextStyle: headerTextStyle,
+            blackoutDates: blackoutDates,
+            enablePastDates: enablePastDates,
+            showTodayButton: showTodayButton,
+            allowViewNavigation: allowViewNavigation,
+            confirmText: confirmText,
           ),
         );
       },
     );
-
-    return selectedDateRange;
   }
 
   Future<FlashController<Object?>?> showFlashMessage(BuildContext context,

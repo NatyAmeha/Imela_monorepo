@@ -66,6 +66,8 @@ class OrderRepository implements IOrderRepository {
               ..subTotal = orderInfo.subTotal?.toDouble()
               ..totalAmount = orderInfo.totalAmount?.toDouble()
               ..config.addAll(orderInfo.config.toOrderConfigInput())
+              ..appliedRewards.addAll(orderInfo.appliedRewards ?? [])
+              ..usedRewardsPoints = orderInfo.usedRewardsPoints?.toDouble()
               ..paymentMethods.addAll(orderInfo.paymentMethods.toPaymentMethodInput())
               ..branchId = orderInfo.branchId
               ..items.addAll(orderInfo.items!.toOrderItemInput())

@@ -1,0 +1,52 @@
+query GetBusinessLoyaltyTiers($businessId: String!){
+  getBusinessLoyaltyTiers(businessId: $businessId) {
+    success
+    tiers {
+      id
+      name {
+        key
+        value
+      }
+      description {
+        key
+        value
+      }
+      minPoints
+      businessIds
+      rewards {
+        id
+        name {
+          key
+          value
+        }
+        description {
+          key
+          value
+        }
+        minPointsToRedeem
+        businessIds
+        rewardTypes
+        applyOnAddon
+        rewardInfo {
+          products {
+            productId
+            minQty
+            maxQty
+          }
+          discount {
+            id
+            name {
+              key
+              value
+            }
+            value
+            condition
+            conditionValue
+            startDate
+            endDate
+          }
+        }
+      }
+    }
+  }
+}

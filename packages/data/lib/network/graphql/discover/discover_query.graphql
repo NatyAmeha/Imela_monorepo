@@ -86,6 +86,20 @@ query GetDiscoveryData {
             featured
           }
         }
+        branches {
+          id
+          name {
+            key
+            value
+          }
+          address{
+            city
+            address
+            location
+            latitude
+            longitude
+          }
+        }
       }
     }
     bundlesResponse{
@@ -95,6 +109,10 @@ query GetDiscoveryData {
       items{
         id
         name{
+          key
+          value
+        }
+        description{
           key
           value
         }

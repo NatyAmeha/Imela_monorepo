@@ -6,9 +6,12 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imela/presentation/ui/bundle/bundle_list/bundle_list_page.dart';
 import 'package:imela/presentation/ui/business/business_section/business_section_page.dart';
+import 'package:imela/presentation/ui/business/service_overview/service_overview_list_page.dart';
+import 'package:imela/presentation/ui/cart/reward_apply/apply_reward_page.dart';
 import 'package:imela/presentation/ui/location_selector/location_selector_page.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_details_page.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_list_page.dart';
+import 'package:imela/presentation/ui/loyalty/pages/loyalty_tier/loyalty_tier_page.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_confirmation_page.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_page.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_payment_page.dart';
@@ -17,9 +20,14 @@ import 'package:imela/presentation/ui/membership/membership_list/membership_list
 import 'package:imela/presentation/ui/membership/membership_plan_list/membership_plan_list_page.dart';
 import 'package:imela/presentation/ui/profile/profile_page.dart';
 import 'package:imela/presentation/ui/profile/update_profile/update_profile_page.dart';
+import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
+import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
+import 'package:imela_core/business/model/service_overview.model.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
+import 'package:imela_core/loyalty/model/loyalty_tier.model.dart';
+import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:injectable/injectable.dart';
@@ -29,6 +37,7 @@ import 'package:imela/presentation/ui/authentication/phone_login_page.dart';
 import 'package:imela/presentation/ui/authentication/phone_verify_page.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
 import 'package:imela/presentation/ui/business/business_details.page.dart';
+import 'package:imela/presentation/ui/business/business_list/business_list_page.dart';
 import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
 import 'package:imela/presentation/ui/cart/cart_list_page.dart';
 import 'package:imela/presentation/ui/cart/order_configure/order_configure_page.dart';
@@ -69,13 +78,15 @@ class GoRouterService implements IRoutingService {
   // Access the previous route
   static Widget? previousWidget;
 
+  static final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
   static final GoRouter routes = GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: HomePage.routeName,
     redirect: (context, state) async {
       return null;
     },
-    observers: [],
+    observers: [routeObserver],
     routes: [
       GoRoute(
         path: HomePage.routeName,
@@ -90,9 +101,18 @@ class GoRouterService implements IRoutingService {
         pageBuilder: (context, state) {
           final businessId = state.pathParameters[BusinessSectionPage.BUSINESS_ID_KEY];
           final sectionId = state.pathParameters[BusinessSectionPage.SECTION_ID_KEY];
-          final arguments = state.extra as Map<String, dynamic>;
-          final sectionInfo = arguments[BusinessSectionPage.SECTION_INFO_KEY] as BusinessSection;
+          final arguments = state.extra as Map<String, dynamic>?;
+          final sectionInfo = arguments?[BusinessSectionPage.SECTION_INFO_KEY] as BusinessSection?;
           return buildPageWithCustomTransition(state, BusinessSectionPage(businessId: businessId!, sectionId: sectionId!, sectionInfo: sectionInfo));
+        },
+      ),
+      GoRoute(
+        path: BusinessListPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final businesses = arguments[BusinessListPage.BUSINESS_LIST_KEY] as List<Business>? ?? [];
+          final title = arguments[BusinessListPage.TITLE_KEY] as String? ?? '';
+          return buildPageWithCustomTransition(state, BusinessListPage(businesses: businesses, title: title));
         },
       ),
       GoRoute(
@@ -101,9 +121,17 @@ class GoRouterService implements IRoutingService {
           final businessId = state.pathParameters[BusinessDetailsPage.idQueryParameter];
           final arguments = state.extra as Map<String, dynamic>;
           final businessName = arguments['name'] as String?;
-          final prevScreen = arguments[GoRouterService.PREVIOUS_PAGE_KEY] as Widget?;
+          final branches = arguments['branches'] as List<Branch>? ?? [];
 
-          return buildPageWithCustomTransition(state, BusinessDetailsPage(businessId: businessId!, businessName: businessName), previousScreen: prevScreen);
+          return buildPageWithCustomTransition(state, BusinessDetailsPage(businessId: businessId!, businessName: businessName, branches: branches));
+        },
+      ),
+      GoRoute(
+        path: ServiceOverviewListPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final serviceOverviews = arguments[ServiceOverviewListPage.SERVICE_OVERVIEWS_KEY] as List<ServiceOverview>? ?? [];
+          return buildPageWithCustomTransition(state, ServiceOverviewListPage(serviceOverviews: serviceOverviews), transitionType: PageTransitionType.bottomToTop);
         },
       ),
       GoRoute(
@@ -111,7 +139,7 @@ class GoRouterService implements IRoutingService {
         pageBuilder: (context, state) {
           // ignore: prefer_single_quotes
 
-          final productId = state.pathParameters["id"];
+          final productId = state.pathParameters['id'];
           final arguments = state.extra as Map<String, dynamic>;
           final productName = arguments['name'];
           final discounts = arguments['discounts'] as List<Discount>?;
@@ -122,11 +150,9 @@ class GoRouterService implements IRoutingService {
         path: ProductListPage.routeName,
         pageBuilder: (context, state) {
           final title = (state.extra as Map<String, dynamic>)['title'];
-          final arguments = state.extra as Map<String, dynamic>;
-          final prevScreen = arguments[GoRouterService.PREVIOUS_PAGE_KEY] as Widget?;
-          final List<Product>? products = arguments['products'];
-          final ListDisplayStyle displayStyle = arguments['displayStyle'];
-          return buildPageWithCustomTransition(state, ProductListPage(products: products, title: title, displayStyle: displayStyle), previousScreen: prevScreen);
+          final arguments = state.extra as Map<String, dynamic>? ?? {};
+          final List<Product>? products = arguments[ProductListPage.PRODUCT_LIST_KEY];
+          return buildPageWithCustomTransition(state, ProductListPage(products: products, title: title));
         },
       ),
       GoRoute(
@@ -134,8 +160,8 @@ class GoRouterService implements IRoutingService {
         pageBuilder: (context, state) {
           final arguments = state.extra as Map<String, dynamic>;
           final bundles = arguments[BundleListPage.BUNDLES_KEY] as List<ProductBundle>? ?? [];
-          final fetchPolicy = arguments[BundleListPage.FETCH_POLICY_KEY] as String?;
-          return buildPageWithCustomTransition(state, BundleListPage(bundles: bundles, fetchPolicy: fetchPolicy));
+          final title = arguments[BundleListPage.titleQueryKey] as String?;
+          return buildPageWithCustomTransition(state, BundleListPage(bundles: bundles, title: title));
         },
       ),
       GoRoute(
@@ -160,6 +186,21 @@ class GoRouterService implements IRoutingService {
           final arguments = state.extra as Map<String, dynamic>;
           final Cart cartInfo = arguments[CartDetailPage.CART_DATA];
           return buildPageWithCustomTransition(state, CartDetailPage(selectedCart: cartInfo));
+        },
+      ),
+      GoRoute(
+        path: ApplyRewardPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final rewards = arguments[ApplyRewardPage.REWARDS_KEY] as List<Reward>;
+          final remainingPoint = arguments[ApplyRewardPage.REMAINING_POINT_KEY] as double;
+          final selectedReward = arguments[ApplyRewardPage.SELECTED_REWARD_KEY] as List<SelectedRewardInfo>? ?? [];
+          return buildPageWithCustomTransition(
+            state,
+            ApplyRewardPage(rewards: rewards, remainingPoint: remainingPoint, selectedReward: selectedReward),
+            transitionType: PageTransitionType.bottomToTopPop,
+            previousScreen: previousWidget,
+          );
         },
       ),
       GoRoute(
@@ -237,14 +278,22 @@ class GoRouterService implements IRoutingService {
         },
       ),
       GoRoute(
+        path: LoyaltyTierListPage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final businessId = arguments[LoyaltyTierListPage.BUSINESS_ID_KEY] as String;
+          return buildPageWithCustomTransition(state, LoyaltyTierListPage(businessId: businessId));
+        },
+      ),
+      GoRoute(
         path: LoyaltyDetailsPage.routeName,
         pageBuilder: (context, state) {
           final arguments = state.extra as Map<String, dynamic>;
-          final loyaltyInfo = arguments[LoyaltyDetailsPage.LOYALTY_INFO_KEY] as LoyaltyResponse?;
           final programName = arguments[LoyaltyDetailsPage.PROGRAM_NAME_KEY] as String;
-          final businessId = arguments[LoyaltyDetailsPage.BUSINESS_ID_KEY] as String?;
+          final businessId = arguments[LoyaltyDetailsPage.BUSINESS_ID_KEY] as String;
+          final tierId = arguments[LoyaltyDetailsPage.TIER_ID_KEY] as String?;
           final color = arguments[LoyaltyDetailsPage.COLOR_KEY] as Color?;
-          return buildPageWithCustomTransition(state, LoyaltyDetailsPage(loyaltyInfo: loyaltyInfo, programName: programName, businessId: businessId, color: color));
+          return buildPageWithCustomTransition(state, LoyaltyDetailsPage(programName: programName, businessId: businessId, color: color, tierId: tierId));
         },
       ),
       GoRoute(
@@ -290,11 +339,14 @@ class GoRouterService implements IRoutingService {
   );
   @override
   Future<T?> navigateTo<T>(BuildContext context, String path, {Map<String, dynamic> queryParam = const {}, Map<String, dynamic>? extra, bool replace = false}) async {
+    // Store the current page as the previous page before navigation
+    previousWidget = context.widget;
+
     if (replace) {
       context.go(Uri(path: path, queryParameters: queryParam).toString(), extra: extra);
       return await Future.value(null);
     }
-    previousWidget = extra?[PREVIOUS_PAGE_KEY] as Widget?;
+
     final result = await context.push<T>(path, extra: extra);
     return result;
   }
@@ -336,6 +388,7 @@ class GoRouterService implements IRoutingService {
   }
 
   static Page buildPageWithCustomTransition(GoRouterState state, Widget child, {PageTransitionType? transitionType, Widget? previousScreen}) {
+    print('child current ${previousScreen.runtimeType}');
     return CustomTransitionPage<void>(
       key: state.pageKey,
       name: state.name,
@@ -344,9 +397,9 @@ class GoRouterService implements IRoutingService {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return PageTransition(
           child: child,
-          type: transitionType ?? (previousScreen != null ? PageTransitionType.rightToLeftJoined : PageTransitionType.rightToLeft),
+          type: transitionType ?? PageTransitionType.rightToLeft,
           maintainStateData: true,
-          childCurrent: previousScreen,
+          childCurrent: previousWidget,
           duration: const Duration(milliseconds: 300),
           reverseDuration: const Duration(milliseconds: 300),
           alignment: Alignment.center,

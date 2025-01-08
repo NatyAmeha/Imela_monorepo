@@ -7,13 +7,14 @@ import 'package:imela/presentation/ui/home/components/feature_promo_banner.dart'
 import 'package:imela/presentation/ui/home/home_page.viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:imela/presentation/ui/product/components/product_item_badge.dart';
-import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
-import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
-import 'package:imela/presentation/ui/shared/list/listview.component.dart';
+import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_ui_kit/components/list/gridview.component.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela/presentation/ui/shared/list/list_header.dart';
 
 class SmallDiscoverScreen extends StatelessWidget {
   final HomepageViewmodel homepageViewmodel;
@@ -42,18 +43,23 @@ class SmallDiscoverScreen extends StatelessWidget {
                   ),
                   ...homepageViewmodel.sequenceOneBusinessResponse.map(
                     (businessResponse) {
-                      return AppListView(
-                        // header: AppListHeader(
-                        //   title: businessResponse.title,
-                        //   subtitle: businessResponse.subtitle,
-                        //   onActionClicked: () {},
-                        //   padding: const EdgeInsets.all(16),
-                        // ),
+                      return AppListView<Business>(
+                        header: ListHeader(
+                            widgetFactory: widgetFactory,
+                            title: businessResponse.title,
+                            subtitle: businessResponse.subtitle,
+                            action: IconButton(
+                              onPressed: () {
+                                homepageViewmodel.navigateToBusinessListPage(context);
+                              },
+                              icon: const Icon(Icons.arrow_forward_ios_rounded),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                         scrollDirection: Axis.horizontal,
                         controller: homepageViewmodel.businessListController,
                         shrinkWrap: true,
                         height: 250,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                         itemBuilder: (context, business, index) {
                           return BusinessListTile(
@@ -73,18 +79,24 @@ class SmallDiscoverScreen extends StatelessWidget {
                   ...homepageViewmodel.sequenceOneProductResponse.map(
                     (productResponse) {
                       return AppGridView<Product>(
-                        // header: AppListHeader(
-                        //   title: productResponse.title ?? '',
-                        //   subtitle: productResponse.subtitle,
-                        //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                        //   onActionClicked: () {},
-                        // ),
+                        header: ListHeader(
+                          widgetFactory: widgetFactory,
+                          title: productResponse.title ?? '',
+                          subtitle: productResponse.subtitle,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          action: IconButton(
+                            onPressed: () {
+                              homepageViewmodel.navigateToProductListPage(context, products: productResponse.items, title: productResponse.title);
+                            },
+                            icon: const Icon(Icons.keyboard_arrow_right),
+                          ),
+                        ),
                         controller: homepageViewmodel.sequenceZeroproductListController,
                         primary: false,
                         shrinkWrap: true,
                         crossAxisCount: 2,
                         isStaggered: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         itemBuilder: (context, productData, index) {
                           return GridProductListItem(
                             product: productData,
@@ -105,13 +117,18 @@ class SmallDiscoverScreen extends StatelessWidget {
                   ...homepageViewmodel.bundleResponse.map(
                     (bundleResponse) {
                       return AppListView(
-                        // header: AppListHeader(
-                        //   title: bundleResponse.title,
-                        //   subtitle: bundleResponse.subtitle,
-                        //   padding: const EdgeInsets.all(16),
-                        //   trailing: widgetFactory.createIcon(materialIcon: Icons.arrow_forward_ios, cupertinoIcon: CupertinoIcons.chevron_right),
-                        //   onActionClicked: () {},
-                        // ),
+                        header: ListHeader(
+                          widgetFactory: widgetFactory,
+                          title: bundleResponse.title,
+                          subtitle: bundleResponse.subtitle,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          action: IconButton(
+                            onPressed: () {
+                              homepageViewmodel.navigateToBundleListPage(context, bundles: bundleResponse.items, title: bundleResponse.title);
+                            },
+                            icon: const Icon(Icons.arrow_forward_ios_rounded),
+                          ),
+                        ),
                         scrollDirection: Axis.horizontal,
                         controller: homepageViewmodel.bundleListController,
                         shrinkWrap: true,

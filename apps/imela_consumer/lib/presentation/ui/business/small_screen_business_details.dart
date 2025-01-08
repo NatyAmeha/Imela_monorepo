@@ -5,6 +5,7 @@ import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/bundle/components/bundle_list_item.dart';
 import 'package:imela/presentation/ui/business/component/business_loyalty_banner.dart';
 import 'package:imela/presentation/ui/business/component/business_section_list_item.dart';
+import 'package:imela/presentation/ui/business/service_overview/service_overview_summary.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
 import 'package:imela/presentation/ui/shared/discount/business_discount_card.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
@@ -38,7 +39,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
   @override
   void initState() {
     super.initState();
-    viewmodel.assignTabController(viewmodel.sectionsWithProductsControllers.keys.length, this);
+    // viewmodel.assignTabController(viewmodel.sectionsWithProductsControllers.keys.length, this);
     viewmodel.listenAppbarHeaderScroll();
   }
 
@@ -52,13 +53,14 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         Obx(
           () => SliverAppBar(
-            expandedHeight: 225,
+            expandedHeight: 210,
             collapsedHeight: 60,
             pinned: true,
-            title: viewmodel.isAppbarExpanded.value ? null : Text('${viewmodel.businessData?.getLocalizedBusinessName(AppLanguage.ENGLISH.name)}'),
             floating: false,
+            centerTitle: false,
             backgroundColor: ColorManager.alternate,
             automaticallyImplyLeading: false,
+            title: viewmodel.isAppbarExpanded.value ? null : Text('${viewmodel.businessData?.getLocalizedBusinessName(AppLanguage.ENGLISH.name)}'),
             leading: appWidgetFactory.createIcon(
               materialIcon: Icons.arrow_back_ios,
               onPressed: () {
@@ -66,6 +68,12 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               },
             ),
             actions: [
+              appWidgetFactory.createIcon(
+                materialIcon: Icons.language,
+                onPressed: () {
+                  viewmodel.showLanguageSelectorDialog(context);
+                },
+              ),
               appWidgetFactory.createIcon(
                 materialIcon: Icons.shopping_cart,
                 onPressed: () {
@@ -75,7 +83,6 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
             ],
             toolbarHeight: 60,
             flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
               expandedTitleScale: 1.0,
               background: Obx(
                 () => BusinessDetailsHeader(
@@ -84,8 +91,12 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   height: 150,
                   selectedLanguage: viewmodel.appViewmodel.selectedLanguageUpdated.value,
                   controller: PageController(initialPage: 0),
+
                   onLanguageSelected: () {
                     viewmodel.showLanguageSelectorDialog(context);
+                  },
+                  onTap: (index) {
+                    viewmodel.navigateToPhotoViewerPage(context, viewmodel.businessData!.gallery?.getImages() ?? [], index ?? 0);
                   },
                 ),
               ),
@@ -107,16 +118,29 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (viewmodel.allDiscounts.isNotEmpty) ...[
-                          Obx(
-                            () => BusinessDiscountCard(
-                              discounts: viewmodel.allDiscounts,
-                              selectedCurrency: viewmodel.appViewmodel.selectedCurrency.name,
-                              selectedLanguage: viewmodel.appViewmodel.selectedLanguage.name,
-                              onDiscountSelected: (discount) {},
-                            ),
+                        if (viewmodel.serviceOverviews.isNotEmpty) ...[
+                          ServiceOverviewSummary(
+                            serviceOverviews: viewmodel.serviceOverviews,
+                            widgetFactory: appWidgetFactory,
+                            selectedLanguage: viewmodel.appViewmodel.selectedLanguage.name,
+                            width: MediaQuery.sizeOf(context).width,
+                            height: 10,
+                            controller: PageController(initialPage: 0),
+                            onTap: (selectedIndex) {
+                              viewmodel.navigateToServiceOverviewDetails(context, viewmodel.serviceOverviews);
+                            },
                           ),
                         ],
+                        // if (viewmodel.allDiscounts.isNotEmpty) ...[
+                        //   Obx(
+                        //     () => BusinessDiscountCard(
+                        //       discounts: viewmodel.allDiscounts,
+                        //       selectedCurrency: viewmodel.appViewmodel.selectedCurrency.name,
+                        //       selectedLanguage: viewmodel.appViewmodel.selectedLanguage.name,
+                        //       onDiscountSelected: (discount) {},
+                        //     ),
+                        //   ),
+                        // ],
                         const SizedBox(height: 16),
                         AppGridView(
                           shrinkWrap: true,
@@ -137,18 +161,29 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                           },
                         ),
                         if (businessDescription?.isNotEmpty == true) ...[
-                          appWidgetFactory.createText(context, businessDescription.localize('ENGLISH'), style: Theme.of(context).textTheme.labelMedium, maxLines: 3, overflow: TextOverflow.ellipsis).withPaddingSymetric(horizontal: 10),
+                          appWidgetFactory
+                              .createText(
+                                context,
+                                businessDescription.localize('ENGLISH'),
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                              .withPaddingSymetric(horizontal: 6),
                           const SizedBox(height: 8),
                         ],
                         // const BusinessAddressQuickActionComponenet(),
                         // const SizedBox(height: 16),
-                        appWidgetFactory.createButton(
-                            context: context,
-                            content: const Text('Get more info'),
-                            style: AppButtonStyle.textButtonStyle(context, borderRadius: 32, padding: const EdgeInsets.all(4)),
-                            onPressed: () {
-                              viewmodel.showBusinessInfoDialog(context, appWidgetFactory);
-                            }),
+                        appWidgetFactory
+                            .createButton(
+                              context: context,
+                              content: const Text('Get more info'),
+                              style: AppButtonStyle.outlinedButtonStyle(context, borderRadius: 32, padding: const EdgeInsets.all(4)),
+                              onPressed: () {
+                                viewmodel.showBusinessInfoDialog(context, appWidgetFactory);
+                              },
+                            )
+                            .withPaddingSymetric(horizontal: 6),
                       ],
                     ),
                   ),
@@ -216,12 +251,12 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
               left: 0,
               child: Column(
                 children: [
+                  Obx(() => viewmodel.isSecondLoading.value ? const LinearProgressIndicator() : const SizedBox.shrink()),
                   BusinessLoyaltyBanner(
                     loyaltyInfo: viewmodel.businessLoyaltyInfo,
-                    loyaltyProgramName: viewmodel.businessLoyaltyProgramName,
                     membershipInfo: viewmodel.businessMembershipInfo,
                     onLoyaltCardClicked: () {
-                      viewmodel.showLoyaltyProgramDetailModel(context);
+                      viewmodel.showLoyaltyTierListPage(context);
                     },
                     onMembershipCardClicked: () {
                       viewmodel.navigateToMembership(context);

@@ -35,6 +35,7 @@ class Product with _$Product {
     List<Calendar>? calendars,
     List<String>? tag,
     @Default(1) int minimumOrderQty,
+    int? maximumOrderQty, // not part of the api response
     @Default(0) int loyaltyPoint,
     String? businessId,
     List<String>? sectionId,
@@ -207,11 +208,14 @@ class Product with _$Product {
     return null;
   }
 
-  List<ProductAddon> getAddons({bool getDefault = false, bool forPOS = false}) {
+  List<ProductAddon> getAddons({bool getDefault = false, bool forPOS = false, bool forBundle = false}) {
     // return addons;
     var result = List<ProductAddon>.from(addons ?? []);
     if (forPOS) {
       result = result.where((e) => e.includeOnPOS == true).toList();
+    }
+    if (forBundle) {
+      result = result.where((e) => e.includeInBundle == true).toList();
     }
     if (getDefault) {
       result = result.where((e) => e.inputType == 'NONE').toList();
@@ -220,6 +224,14 @@ class Product with _$Product {
 
     result = result.where((e) => e.inputType != 'NONE').toList();
     return result;
+  }
+
+  List<ProductAddon> getMembershipAddons() {
+    return getAddons(getDefault: true).where((addon) => addon.membershipIds?.isNotEmpty == true).toList();
+  }
+
+  List<ProductAddon> getNonMembershipAddons() {
+    return getAddons(getDefault: true).where((addon) => addon.membershipIds?.isEmpty == true || addon.membershipIds == null).toList();
   }
 
   List<String> getBadgeInfos({bool forPOS = false}) {
@@ -316,7 +328,6 @@ class Product with _$Product {
   }) {
     final subtotalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: 1);
     final totalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: 1);
-    print('subtotalPrice $subtotalPrice');
     return OrderItem(
       name: name,
       product: copyWith(addons: addons),
@@ -325,7 +336,7 @@ class Product with _$Product {
       originalPrice: originalPrice,
       subTotal: subtotalPrice.getPresision(2),
       total: totalPrice.getPresision(2),
-      point: (productPoint ?? loyaltyPoint.toDouble()) * selectedQty,
+      point: (productPoint ?? loyaltyPoint.toDouble()),
       discount: discounts.map((e) => e.toItemDiscount(defaultName: defaultDiscountName)).toList(),
       config: config,
       quantity: selectedQty,
@@ -375,3 +386,119 @@ class ProductOption with _$ProductOption {
 }
 
 enum CallToAction { Order, Call, Book, Reserve }
+
+
+
+
+var fakeProductList = [
+  Product(
+    id: 'prod_001',
+    name: [
+      const LocalizedField(key: 'ENGLISH', value: 'Macchiato'),
+      const LocalizedField(key: 'AMHARIC', value: 'ማክያቶ'),
+    ],
+    description: [
+      const LocalizedField(key: 'ENGLISH', value: 'Rich espresso with steamed milk'),
+      const LocalizedField(key: 'AMHARIC', value: 'ጣፋጭ እስፕሬሶ ከፍቅ ወተት ጋር'),
+    ],
+    gallery: const Gallery(
+      logoImage: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800',
+      images: [
+        GalleryData(url: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800'),
+        GalleryData(url: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800'),
+        GalleryData(url: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800')
+      ],
+    ),
+    prices: [
+      ProductPrice(
+        price: [Price(amount: 45.0, currency: 'ETB')],
+        isDefault: true,
+      ),
+    ],
+    isActive: true,
+    category: ['Beverages', 'Hot Drinks'],
+    loyaltyPoint: 5,
+  ),
+  Product(
+    id: 'prod_002',
+    name: [
+      const LocalizedField(key: 'ENGLISH', value: 'Tiramisu Cake'),
+      const LocalizedField(key: 'AMHARIC', value: 'ትራሚሱ ኬክ'),
+    ],
+    description: [
+      const LocalizedField(key: 'ENGLISH', value: 'Classic Italian dessert with coffee-soaked ladyfingers'),
+    ],
+    gallery: const Gallery(
+      logoImage: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800',
+      images: [
+        GalleryData(url: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800'),
+        GalleryData(url: 'https://images.unsplash.com/photo-1542124948-dc391252a940?w=800'),
+      ],
+    ),
+    prices: [
+      ProductPrice(
+        price: [Price(amount: 120.0, currency: 'ETB')],
+        isDefault: true,
+      ),
+    ],
+    isActive: true,
+    category: ['Desserts', 'Cakes'],
+    featured: true,
+    loyaltyPoint: 10,
+  ),
+  Product(
+    id: 'prod_003',
+    name: [
+      const LocalizedField(key: 'ENGLISH', value: 'Breakfast Combo'),
+      const LocalizedField(key: 'AMHARIC', value: 'የቁርስ ኮምቦ'),
+    ],
+    description: [
+      const LocalizedField(key: 'ENGLISH', value: 'Eggs, bread, and coffee - perfect start to your day'),
+    ],
+    gallery: const Gallery(
+      logoImage: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=800',
+      images: [
+        GalleryData(url: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=800'),
+        GalleryData(url: 'https://images.unsplash.com/photo-1496042399014-dc73c4f2bde1?w=800'),
+      ],
+    ),
+    prices: [
+      ProductPrice(
+        price: [Price(amount: 200.0, currency: 'ETB')],
+        isDefault: true,
+      ),
+    ],
+    isActive: true,
+    category: ['Breakfast', 'Combos'],
+    minimumOrderQty: 1,
+    loyaltyPoint: 15,
+    
+  ),
+  Product(
+    id: 'prod_004',
+    name: [
+      const LocalizedField(key: 'ENGLISH', value: 'Fresh Fruit Salad'),
+      const LocalizedField(key: 'AMHARIC', value: 'የፍራፍሬ ሰላጣ'),
+    ],
+    description: [
+      const LocalizedField(key: 'ENGLISH', value: 'Mix of seasonal fruits with honey drizzle'),
+    ],
+    gallery: const Gallery(
+      logoImage: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=800',
+      images: [
+        GalleryData(url: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=800'),
+        GalleryData(url: 'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?w=800'),
+      ],
+    ),
+    prices: [
+      ProductPrice(
+        price: [Price(amount: 85.0, currency: 'ETB')],
+        isDefault: true,
+      ),
+    ],
+    isActive: true,
+    category: ['Healthy', 'Salads'],
+    featured: true,
+    loyaltyPoint: 8,
+  ),
+];

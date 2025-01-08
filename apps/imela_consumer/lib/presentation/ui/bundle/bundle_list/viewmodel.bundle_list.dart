@@ -44,9 +44,7 @@ class BundleListViewModel extends GetxController with BaseViewmodel {
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
     final bundleListFromPreviousPage = data?[BundleListPage.BUNDLES_KEY] as List<ProductBundle>? ?? [];
-    final fetchPolicy = data?[BundleListPage.FETCH_POLICY_KEY] as String? ?? BundleListFetchPolicy.all.name;
     Future.delayed(Duration.zero, () {
-      currentFetchPolicy.value = fetchPolicy;
       if (bundleListFromPreviousPage.isNotEmpty) {
         bundles.value = bundleListFromPreviousPage;
       }

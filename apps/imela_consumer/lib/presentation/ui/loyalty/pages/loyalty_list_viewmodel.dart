@@ -39,27 +39,8 @@ class LoyaltyListViewModel extends GetxController with BaseViewmodel {
 
   // getters
   AppController get appViewmodel => AppController.getInstance;
-  var colors = [
-    ColorManager.primary,
-    ColorManager.secondary,
-    ColorManager.tertiary,
-    ColorManager.alternate,
-    ColorManager.primaryText,
-    ColorManager.secondaryText,
-    ColorManager.primaryBackground,
-    ColorManager.secondaryBackground,
-    ColorManager.accent1,
-    ColorManager.accent2,
-    ColorManager.accent3,
-    ColorManager.accent4,
-    ColorManager.success,
-    ColorManager.warning,
-    ColorManager.error,
-    ColorManager.info,
-    ColorManager.white,
-    ColorManager.black,
-    ColorManager.blue
-  ];
+  String get selectedLanguage => appViewmodel.selectedLanguageUpdated.value;
+  var colorLoyaltyCardColors = ColorManager.colors;
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
@@ -101,7 +82,9 @@ class LoyaltyListViewModel extends GetxController with BaseViewmodel {
     }
   }
 
-  void navigateToLoyaltyDetails(BuildContext context, CustomerLoyalty loyalty, {Color? color}) {
-    LoyaltyDetailsPage.navigate(context, programName: '${loyalty.name.localize(appViewmodel.selectedLanguage.name)} Rewards', loyaltyInfo: loyaltyInfo.value, businessId: loyalty.businessId, color: color);
+  void navigateToLoyaltyDetail(BuildContext context, CustomerLoyalty loyalty) {
+    LoyaltyDetailsPage.navigate(context, programName: loyalty.currentTier?.name?.localize(selectedLanguage) ?? '', businessId: loyalty.businessId!);
   }
+
+  
 }

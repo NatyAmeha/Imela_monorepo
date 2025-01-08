@@ -1,0 +1,199 @@
+query GetLoyaltyTier($businessId: String!, $tierId: String!) {
+  getBusinessLoyaltyTier(businessId: $businessId, tierId : $tierId) {
+    success
+    tier {
+      id
+      name {
+        key
+        value
+      }
+      description {
+        key
+        value
+      }
+      minPoints
+      businessIds
+      businesses{
+        id
+        name
+        {
+          key
+          value
+        }
+		gallery{
+        	images{
+          		featured
+          		url
+        	}
+      	}
+      }
+
+      rewards {
+        id
+        name {
+          key
+          value
+        }
+        description {
+          key
+          value
+        }
+        minPointsToRedeem
+        businessIds
+        
+        rewardTypes
+		applyOnAddon
+        rewardInfo {
+			deliveryRewardInfo {
+            discount {
+              id
+              name {
+                key
+                value
+              }
+              value
+              condition
+              conditionValue
+              startDate
+              endDate
+            }
+          }
+          products {
+            productId
+            minQty
+            maxQty
+			discount {
+            	id
+            	name {
+              		key
+              	  	value
+            	}
+            	value
+            	condition
+            	conditionValue
+            	startDate
+                endDate
+            }
+            product {
+				id
+				name {
+					key
+					value
+				}
+				description {
+					key
+					value
+				}
+				prices {
+          			price {
+            			amount
+            			currency
+          			}
+        		}
+				gallery {
+					images {
+						featured
+						url
+					}
+				}
+				loyaltyPoint
+				minimumOrderQty
+				calendars {
+					id
+				}
+				addons {
+        			id
+        			name {
+          				key
+          				value
+        			}
+        			inputType
+					minAmount
+					maxAmount
+					tag
+					isActive
+					isRequired
+					isProduct
+					productIds
+					checkCalendar
+					calendarId
+					membershipIds
+					includeOnPOS
+					includeInBundle
+					dependencies{
+          				id
+          				addonId
+          				type
+          				value
+        			}
+					additionalPrice {
+						id
+						amount
+						currency
+					}
+      			}
+				inventory {
+					qty
+					unit
+					minOrderQty
+					maxOrderQty
+					isAvailable
+					optionsIncluded
+				}
+				variants {
+					id
+					name {
+						key
+						value
+					}
+					gallery {
+						images {
+							featured
+							url
+						}
+					}
+					prices{
+            			price{
+              				amount
+              				currency
+            			}
+          			}
+					description {
+						key
+						value
+					}
+					inventory {
+						qty
+						unit
+						minOrderQty
+						maxOrderQty
+						isAvailable
+						optionsIncluded
+        			}
+				}
+
+				business {
+					name {
+						key
+						value
+					}
+				}
+			}
+          }
+          discount {
+            id
+            name {
+              key
+              value
+            }
+            value
+            condition
+            conditionValue
+            startDate
+            endDate
+          }
+        }
+      }
+    }
+  }
+}

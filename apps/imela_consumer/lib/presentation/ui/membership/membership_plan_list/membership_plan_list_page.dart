@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/components/membership_list_item.dart';
 import 'package:imela/presentation/ui/membership/membership_plan_list/memership_plan_list_viewmodel.dart';
-import 'package:imela/presentation/ui/shared/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
+import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 
 class MembershipPlanListPage extends StatefulWidget {
   static const routeName = "/membership-plan-list";
@@ -35,7 +35,7 @@ class _MembershipPlanListPageState extends State<MembershipPlanListPage> {
       appBar: AppBar(title: Text("Membership Plans")),
       body: Obx(
         () => PageContentLoader(
-          isDataLoading: viewmodel.isLoading.value,
+          isLoading: viewmodel.isLoading.value,
           showContent: viewmodel.membershipPlans.value.isNotEmpty,
           content: AppListView(
             padding: const EdgeInsets.symmetric(horizontal: 16),

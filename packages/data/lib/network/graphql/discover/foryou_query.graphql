@@ -13,6 +13,20 @@ query GetForYouData {
           featured
         }
       }
+      branches {
+        id
+        name {
+          key
+          value
+        }
+        address{
+          city
+          address
+          location
+          latitude
+          longitude
+        }
+      }
     }
     topProductsByBusiness {
       title

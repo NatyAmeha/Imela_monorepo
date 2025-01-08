@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela_core/business/model/business.model.dart';
-import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
 
@@ -13,6 +12,7 @@ class BusinessDetailsHeader extends StatelessWidget {
   final PageController? controller;
   final String selectedLanguage;
   final Function() onLanguageSelected;
+  final Function(int? index)? onTap;
   const BusinessDetailsHeader({
     super.key,
     required this.business,
@@ -21,6 +21,7 @@ class BusinessDetailsHeader extends StatelessWidget {
     this.controller,
     required this.selectedLanguage,
     required this.onLanguageSelected,
+    this.onTap,
   });
 
   @override
@@ -35,8 +36,15 @@ class BusinessDetailsHeader extends StatelessWidget {
             controller: controller ?? PageController(),
             width: width,
             height: height,
+            autoScroll: true,
+            autoScrollDuration: const Duration(seconds: 5),
             itemBuilder: (context, index) {
-              return AppImage(imageUrl: business.gallery?.getImages()[index]);
+              return InkWell(
+                onTap: () {
+                  onTap?.call(index);
+                },
+                child: AppImage(imageUrl: business.gallery?.getImages()[index]),
+              );
             },
           ),
         ),

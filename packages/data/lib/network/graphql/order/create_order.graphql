@@ -27,6 +27,8 @@ mutation CreateOrder($cartId : String, $businessIds: [String!]!,  $orderInput: C
                     currency
                 }
             }
+            appliedRewards
+            usedRewardsPoints
             discount {
                 id
                 amount

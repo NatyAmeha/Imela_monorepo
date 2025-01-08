@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
+import 'package:imela/presentation/ui/product/product_list/product_list_page.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
 import 'package:imela/services/routing_service.dart';
@@ -21,18 +22,19 @@ class ProductListViewmodel extends GetxController with BaseViewmodel {
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
     @Named(GoRouterService.injectName) required this.router,
   });
-  final productListController = Get.put(CustomListController<Product>(), tag: 'productListPageList');
 
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
 
+  var products = Rxn<List<Product>>();
+
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     super.initViewmodel(data: data);
-    productListController.items.clear();
-    var products = data?['products'] as List<Product>;
+    var products = data?[ProductListPage.PRODUCT_LIST_KEY] as List<Product>;
+
     if (products.isNotEmpty) {
-      productListController.addItems(products);
+      this.products.value = products;
     }
   }
 

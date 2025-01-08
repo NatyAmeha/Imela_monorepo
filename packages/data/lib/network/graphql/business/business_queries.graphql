@@ -19,7 +19,10 @@ query GetBusinessDetails($id: String!, $branchId: String) {
       phoneNumber
       mainAddress{
         city
+        address
         location
+        latitude
+        longitude
       }
       isActive
       creator
@@ -54,6 +57,7 @@ query GetBusinessDetails($id: String!, $branchId: String) {
           value
         }
         productIds
+        images
         orderAddons {
           id
           name {
@@ -70,6 +74,12 @@ query GetBusinessDetails($id: String!, $branchId: String) {
               value
             }
             images
+          }
+          dependencies{
+            id
+            addonId
+            type
+            value
           }
           productOptionInfos {
             productId
@@ -113,6 +123,7 @@ query GetBusinessDetails($id: String!, $branchId: String) {
           productIds
           calendarId
           includeOnPOS
+          includeInBundle
         }
       }
       discounts {
@@ -128,7 +139,7 @@ query GetBusinessDetails($id: String!, $branchId: String) {
         startDate
         endDate
       }
-      bundles(branchId: $branchId){
+      bundles{
         id
         name{
           key
@@ -155,6 +166,34 @@ query GetBusinessDetails($id: String!, $branchId: String) {
             }
           }
         }
+      }
+      serviceOverviews {
+        id
+        title {
+          key
+          value
+        }
+        description {
+          key
+          value
+        }
+        callToAction {
+          key
+          value
+        }
+        callToActionUrl
+        gallery{
+          images{
+            url
+            featured
+          }
+          videos{
+            url
+            featured
+          }
+        }
+        featured
+        isActive
       }
     }
     products {
@@ -208,6 +247,13 @@ query GetBusinessDetails($id: String!, $branchId: String) {
       id
       name {
         value
+      }
+      address{
+        city
+        address
+        location
+        latitude
+        longitude
       }
     }
     memberships{

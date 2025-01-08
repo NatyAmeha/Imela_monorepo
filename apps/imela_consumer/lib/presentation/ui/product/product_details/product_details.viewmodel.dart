@@ -87,7 +87,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
 
   String get productName => productDetails.value?.product?.name.localize('ENGLISH') ?? '';
   String get getProductDescription => productDetails.value?.product?.description?.localize('ENGLISH') ?? '';
-  List<String> get getProductImage => productDetails.value!.product?.gallery?.getImages() ?? [];
+  List<String> get getProductImage => selectedProduct.gallery?.getImages() ?? [];
   Business? get businessInfo => productDetails.value!.product?.business;
   List<PaymentOption> get productPaymentOption => productDetails.value?.product?.business?.paymentOptions ?? [];
 
@@ -232,27 +232,47 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
   }
 
   void handleJourney(BuildContext context, WidgetFactory widgetFactory) async {
-    var result = await AppModalSheet.showModal<AddonConfig?>(
-      context,
-      type: AppModalSheetType.BOTTOMSHEET,
-      pages: [
-        ModalContent(
-          title: const Text('Order Configuration'),
-          content: ProductAddonModal(
-            productAddons: List.from(originalProductInfo?.getAddons() ?? []),
-            initialOrderConfigs: productOrderConfig.value,
-            productInfo: selectedProduct,
-            parentProductInfo: originalProductInfo!.copyWith(),
-            showqtyModfier: true,
-            discounts: discounts,
-            callToAction: 'Add to cart',
-          ),
-        )
-      ],
+    var resultMap = await showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog.fullscreen(
+        child: ProductAddonModal(
+          productAddons: List.from(originalProductInfo?.getAddons() ?? []),
+          initialOrderConfigs: productOrderConfig.value,
+          productInfo: selectedProduct,
+          parentProductInfo: originalProductInfo!.copyWith(),
+          showqtyModfier: true,
+          discounts: discounts,
+          callToAction: 'Add to cart',
+        ),
+      ),
     );
-    if (result == null) {
+    // var result = await AppModalSheet.showModal<AddonConfig?>(
+    //   context,
+    //   type: AppModalSheetType.BOTTOMSHEET,
+    //   pages: [
+    //     ModalContent(
+    //       title: const Text('Order Configuration'),
+    //       content: SizedBox(
+    //         width: MediaQuery.of(context).size.width,
+    //         height: 1000,
+    //         child: ProductAddonModal(
+    //           productAddons: List.from(originalProductInfo?.getAddons() ?? []),
+    //           initialOrderConfigs: productOrderConfig.value,
+    //           productInfo: selectedProduct,
+    //           parentProductInfo: originalProductInfo!.copyWith(),
+    //           showqtyModfier: true,
+    //           discounts: discounts,
+    //           callToAction: 'Add to cart',
+    //         ),
+    //       ),
+    //     )
+    //   ],
+    // );
+    if (resultMap == null) {
       return;
     }
+    final result = resultMap['CONFIG_DATA'] as AddonConfig;
     final selectedQtyConfig = result.orderConfigs.firstWhere((element) => element.addonId == OrderConfig.QTY_CONFIG_ID);
     final selectedQty = double.tryParse(selectedQtyConfig.singleValue ?? '1') ?? 1;
     final updatedResult = result.removeQtyConfig();
@@ -286,9 +306,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
       final updatedCart = cartInfo.addPaymentOption(productPaymentOption).addOrderAddons(orderAddons ?? []).addOrUpdateItems(additionalItems ?? []);
       cartListViewmodel.addCartToCartList(updatedCart, paymentOptions: productPaymentOption);
 
-      appController.getWidgetFactory(context).showFlashMessage(context, message: 'Item added to cart', actionText: 'View cart', onActinClicked: () {
-        CartDetailPage.navigateToCartDetailPage(context, router, appController.getCartById(updatedCart.id!)!);
-      });
+      appController.showAddToCartDialog(context, message: 'Item added to the cart successfully.', cart: updatedCart);
     } catch (e) {
       exception.value = exceptiionHandler.getException(e as Exception);
       if (exception.value?.code == ErrorResourceValues.UnAUTHORIZED_EXCEPTION_CODE) {
