@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../resources/asset_manager.dart';
 
@@ -24,15 +25,24 @@ class AppImage extends StatelessWidget {
     this.placeholderImageUrl = AssetManager.productPlaceholderImage,
   });
 
+  String _getProxiedUrl(String url) {
+    if (!kIsWeb) return url;
+    // Use a CORS proxy service for web platform
+    return 'https://api.allorigins.win/raw?url=${Uri.encodeComponent(url)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget image = CachedNetworkImage(
-      imageUrl: imageUrl ?? '',
+      imageUrl: _getProxiedUrl(imageUrl ?? ''),
       fit: fit,
       width: width,
       height: height,
       placeholder: (context, url) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
-      errorWidget: (context, url, error) => Image.asset(placeholderImageUrl, fit: BoxFit.cover),
+      errorWidget: (context, url, error) {
+        print('Error loading image: $error');
+        return Image.asset(placeholderImageUrl, fit: BoxFit.cover);
+      },
     );
 
     if (borderRadius != null) {

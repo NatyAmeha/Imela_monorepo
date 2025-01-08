@@ -199,8 +199,8 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     Future.delayed(Duration.zero, () async {
       try {
         isRewardLoading(true);
-        this.selectedCart.value = selectedCart;
         cartItemListController.setItems(selectedCart.items ?? []);
+        this.selectedCart.value = selectedCart;
         final businessId = selectedCart.businessIds?.firstOrNull;
         if (businessId != null) {
           final result = await appController.getCustomerBusinessLoyalty(cont, businessId);

@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:imela_core/settings/model/location.model.dart';
 import 'package:imela_core/settings/setting_info.dart';
 import 'package:imela_core/settings/setting_repository.dart';
@@ -21,8 +22,6 @@ class SettingUsecase {
     @Named(LocationService.injectName) required this.locationService,
     @Named(AppPermissionHandler.InjectableName) required this.permissionHandler,
   });
-
-  
 
   Future<bool> saveSelectedLanguage(String language) async {
     final settingInfo = SettingInfo(key: SettingKey.SELECTED_LANGUAGE, value: language);
@@ -79,14 +78,23 @@ class SettingUsecase {
   }
 
   Future<List<Location>> getUserSavedLocations(String dbName) async {
+    if (kIsWeb) {
+      return [];
+    }
     return await settingRepository.getLocationsFromDB(dbName);
   }
 
   Future<Location?> getLocationByIdFromDB(String dbName, int id) async {
+    if (kIsWeb) {
+      return null;
+    }
     return await settingRepository.getLocationByIdFromDB(dbName, id);
   }
 
   Future<bool> saveUserLocation(Location location, String dbName) async {
+    if (kIsWeb) {
+      return false;
+    }
     return await settingRepository.saveLocationToDB(dbName, location);
   }
 }

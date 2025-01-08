@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:imela/firebase_options.dart';
 import 'app/app.dart';
 import 'injection.dart'; 
@@ -24,6 +25,7 @@ void main() async {
   };
   final appController = getIt<AppController>();
   await appController.initViewmodel();
+  usePathUrlStrategy();
   runApp(MelegnaCustomerApp.instance);
 }
   

@@ -19,7 +19,13 @@ class UserMembershipListPage extends StatefulWidget {
 
   static void navigateTo(BuildContext context, MembershipListType membershipListType) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, routeName, extra: {MEMBERSHIP_LIST_TYPE_KEY: membershipListType.name});
+    final encodedMembershipListType = Uri.encodeComponent(membershipListType.name);
+    router.navigateTo(
+      context,
+      routeName,
+      queryParam: {MEMBERSHIP_LIST_TYPE_KEY: encodedMembershipListType},
+      extra: {MEMBERSHIP_LIST_TYPE_KEY: encodedMembershipListType},
+    );
   }
 }
 

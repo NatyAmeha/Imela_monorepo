@@ -39,7 +39,16 @@ class LoyaltyDetailsPage extends StatefulWidget {
 
   static void navigate(BuildContext context, {required String programName, required String businessId, String? tierId, Color? color}) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, routeName, extra: {PROGRAM_NAME_KEY: programName, BUSINESS_ID_KEY: businessId, TIER_ID_KEY: tierId, COLOR_KEY: color});
+    final encodedProgramName = Uri.encodeComponent(programName);
+    final encodedBusinessId = Uri.encodeComponent(businessId);
+    final encodedTierId = Uri.encodeComponent(tierId ?? '');
+    final encodedColor = Uri.encodeComponent(color?.toString() ?? '');
+    router.navigateTo(
+      context,
+      routeName,
+      queryParam: {PROGRAM_NAME_KEY: encodedProgramName, BUSINESS_ID_KEY: encodedBusinessId, TIER_ID_KEY: encodedTierId, COLOR_KEY: encodedColor},
+      extra: {PROGRAM_NAME_KEY: encodedProgramName, BUSINESS_ID_KEY: encodedBusinessId, TIER_ID_KEY: encodedTierId, COLOR_KEY: encodedColor},
+    );
   }
 
   @override

@@ -27,7 +27,14 @@ class MembershipDetailsPage extends StatefulWidget {
 
   static void navigate(BuildContext context, String membershipId, {bool replace = false}) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, routeName, extra: {MEMBERSHIP_ID_KEY: membershipId}, replace: replace);
+    final encodedMembershipId = Uri.encodeComponent(membershipId);
+    router.navigateTo(
+      context,
+      routeName,
+      queryParam: {MEMBERSHIP_ID_KEY: encodedMembershipId},
+      extra: {MEMBERSHIP_ID_KEY: encodedMembershipId},
+      replace: replace,
+    );
   }
 }
 

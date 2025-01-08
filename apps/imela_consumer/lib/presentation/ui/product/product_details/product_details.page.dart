@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
@@ -26,12 +29,40 @@ class ProductDetailPage extends StatefulWidget {
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 
   static void navigate(BuildContext context, IRoutingService router, Product product, {List<Discount>? discounts}) {
-    router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize('ENGLISH')}', 'discounts': discounts});
+    final router = AppController.getInstance.router;
+    final discountString = discounts?.map((e) => e.toJson()).toList().joinToString();
+    router.navigateTo(
+      context,
+      '${ProductDetailPage.baseRouteName}/${product.id}',
+      queryParam: {
+        'name': '${product.name?.localize('ENGLISH')}',
+        // if (discountString != null) 'discounts': discountString,
+      },
+      extra: {
+        'name': '${product.name?.localize('ENGLISH')}',
+        if (discountString != null) 'discounts': discountString,
+      },
+    );
   }
 
   static void navigateBeta(BuildContext context, {required Product product, List<Discount>? discounts}) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, '${ProductDetailPage.baseRouteName}/${product.id}', extra: {'name': '${product.name?.localize('ENGLISH')}', 'discounts': discounts});
+    final discountString = discounts?.firstOrNull != null 
+        ? Uri.encodeComponent(jsonEncode(discounts!.first.toJson()))
+        : null;
+        
+    router.navigateTo(
+      context,
+      '${ProductDetailPage.baseRouteName}/${product.id}',
+      queryParam: {
+        'name': '${product.name?.localize('ENGLISH')}',
+        if (discountString != null) 'discounts': discountString,
+      },
+      extra: {
+        'name': '${product.name?.localize('ENGLISH')}',
+        if (discountString != null) 'discounts': discountString,
+      },
+    );
   }
 }
 

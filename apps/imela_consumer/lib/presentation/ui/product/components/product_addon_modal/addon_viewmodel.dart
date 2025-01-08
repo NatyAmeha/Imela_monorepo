@@ -242,6 +242,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   }
 
   Future<void> getUserSavedLocations() async {
+    
     var locationsFromDb = await settingUsecase.getUserSavedLocations(AppConstants.APP_DB_NAME);
     savedLocations.value = locationsFromDb;
   }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
@@ -18,7 +20,8 @@ class ServiceOverviewListPage extends StatefulWidget {
 
   const ServiceOverviewListPage({super.key, required this.serviceOverviews});
   static void navigate(BuildContext context, {List<ServiceOverview>? serviceOverviews}) {
-    AppController.getInstance.router.navigateTo(context, routeName, extra: {SERVICE_OVERVIEWS_KEY: serviceOverviews});
+    final encodedServiceData = Uri.encodeComponent(jsonEncode(serviceOverviews?.map((e) => e.toJson()).toList()));
+    AppController.getInstance.router.navigateTo(context, routeName,  extra: {SERVICE_OVERVIEWS_KEY: encodedServiceData});
   }
 
   @override

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -83,6 +85,7 @@ class GoRouterService implements IRoutingService {
   static final GoRouter routes = GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: HomePage.routeName,
+    
     redirect: (context, state) async {
       return null;
     },
@@ -91,25 +94,16 @@ class GoRouterService implements IRoutingService {
       GoRoute(
         path: HomePage.routeName,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final reload = extra?['RELOAD_PAGE'] as bool? ?? false;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>?;
+          final reload = arguments?['RELOAD_PAGE'] as bool? ?? false;
           return HomePage(reload: reload);
         },
       ),
-      GoRoute(
-        path: BusinessSectionPage.routeName,
-        pageBuilder: (context, state) {
-          final businessId = state.pathParameters[BusinessSectionPage.BUSINESS_ID_KEY];
-          final sectionId = state.pathParameters[BusinessSectionPage.SECTION_ID_KEY];
-          final arguments = state.extra as Map<String, dynamic>?;
-          final sectionInfo = arguments?[BusinessSectionPage.SECTION_INFO_KEY] as BusinessSection?;
-          return buildPageWithCustomTransition(state, BusinessSectionPage(businessId: businessId!, sectionId: sectionId!, sectionInfo: sectionInfo));
-        },
-      ),
+      
       GoRoute(
         path: BusinessListPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final businesses = arguments[BusinessListPage.BUSINESS_LIST_KEY] as List<Business>? ?? [];
           final title = arguments[BusinessListPage.TITLE_KEY] as String? ?? '';
           return buildPageWithCustomTransition(state, BusinessListPage(businesses: businesses, title: title));
@@ -119,18 +113,62 @@ class GoRouterService implements IRoutingService {
         path: BusinessDetailsPage.routeName,
         pageBuilder: (context, state) {
           final businessId = state.pathParameters[BusinessDetailsPage.idQueryParameter];
-          final arguments = state.extra as Map<String, dynamic>;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final businessName = arguments['name'] as String?;
-          final branches = arguments['branches'] as List<Branch>? ?? [];
+          List<Branch> branches = [];
+          
+          final encodedBranchesData = arguments['branches'] as String?;
+          if (encodedBranchesData != null) {
+            try {
+              final decodedJson = Uri.decodeComponent(encodedBranchesData);
+              final branchesJson = jsonDecode(decodedJson) as List;
+              branches = branchesJson.map((e) => Branch.fromJson(e)).toList();
+            } catch (e) {
+              print('Error parsing branches data: $e');
+              branches = [];
+            }
+          }
 
           return buildPageWithCustomTransition(state, BusinessDetailsPage(businessId: businessId!, businessName: businessName, branches: branches));
         },
       ),
       GoRoute(
+        path: BusinessSectionPage.routeName,
+        pageBuilder: (context, state) {
+          final businessId = state.pathParameters[BusinessSectionPage.BUSINESS_ID_KEY];
+          final sectionId = state.pathParameters[BusinessSectionPage.SECTION_ID_KEY];
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>?;
+          final encodedSectionInfo = arguments?[BusinessSectionPage.SECTION_INFO_KEY] as String?;
+          BusinessSection? sectionInfo;
+          if (encodedSectionInfo != null) {
+            try {
+              final decodedJson = Uri.decodeComponent(encodedSectionInfo);
+              final sectionJson = jsonDecode(decodedJson);
+              sectionInfo = BusinessSection.fromJson(sectionJson);
+            } catch (e) {
+              print('Error parsing section info: $e');
+            }
+          }
+          return buildPageWithCustomTransition(state, BusinessSectionPage(businessId: businessId!, sectionId: sectionId!, sectionInfo: sectionInfo));
+        },
+      ),
+      GoRoute(
         path: ServiceOverviewListPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
-          final serviceOverviews = arguments[ServiceOverviewListPage.SERVICE_OVERVIEWS_KEY] as List<ServiceOverview>? ?? [];
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
+          List<ServiceOverview> serviceOverviews = [];
+          
+          final encodedServiceData = arguments[ServiceOverviewListPage.SERVICE_OVERVIEWS_KEY] as String?;
+          if (encodedServiceData != null) {
+            try {
+              final decodedJson = Uri.decodeComponent(encodedServiceData);
+              final servicesJson = jsonDecode(decodedJson) as List;
+              serviceOverviews = servicesJson.map((e) => ServiceOverview.fromJson(e)).toList();
+            } catch (e) {
+              print('Error parsing service overviews data: $e');
+              serviceOverviews = [];
+            }
+          }
           return buildPageWithCustomTransition(state, ServiceOverviewListPage(serviceOverviews: serviceOverviews), transitionType: PageTransitionType.bottomToTop);
         },
       ),
@@ -140,26 +178,65 @@ class GoRouterService implements IRoutingService {
           // ignore: prefer_single_quotes
 
           final productId = state.pathParameters['id'];
-          final arguments = state.extra as Map<String, dynamic>;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final productName = arguments['name'];
-          final discounts = arguments['discounts'] as List<Discount>?;
-          return buildPageWithCustomTransition(state, ProductDetailPage(productId: productId!, productName: productName, discounts: discounts));
+          final encodedDiscountData = arguments['discounts'] as String?;
+          print('state path path params ${state.uri.queryParameters} encoded');
+          List<Discount>? discounts;
+          if (encodedDiscountData != null) {
+            try {
+              // Decode the URL-encoded JSON string
+              final decodedJson = Uri.decodeComponent(encodedDiscountData);
+              // Parse single discount object
+              final discountJson = jsonDecode(decodedJson);
+              discounts = [Discount.fromJson(discountJson)];
+            } catch (e) {
+              print('Error parsing discount data: $e');
+              discounts = [];
+            }
+          }
+
+          return buildPageWithCustomTransition(state, ProductDetailPage(productId: productId!, productName: productName, discounts: discounts ?? []));
         },
       ),
       GoRoute(
         path: ProductListPage.routeName,
         pageBuilder: (context, state) {
-          final title = (state.extra as Map<String, dynamic>)['title'];
-          final arguments = state.extra as Map<String, dynamic>? ?? {};
-          final List<Product>? products = arguments[ProductListPage.PRODUCT_LIST_KEY];
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>?;
+          final title = arguments?['title'];
+          List<Product>? products;
+          
+          final encodedProductsData = arguments?[ProductListPage.PRODUCT_LIST_KEY] as String?;
+          if (encodedProductsData != null) {
+            try {
+              final decodedJson = Uri.decodeComponent(encodedProductsData);
+              final productsJson = jsonDecode(decodedJson) as List;
+              products = productsJson.map((e) => Product.fromJson(e)).toList();
+            } catch (e) {
+              print('Error parsing products data: $e');
+              products = [];
+            }
+          }
           return buildPageWithCustomTransition(state, ProductListPage(products: products, title: title));
         },
       ),
       GoRoute(
         path: BundleListPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
-          final bundles = arguments[BundleListPage.BUNDLES_KEY] as List<ProductBundle>? ?? [];
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
+          List<ProductBundle> bundles = [];
+          
+          final encodedBundlesData = arguments[BundleListPage.BUNDLES_KEY] as String?;
+          if (encodedBundlesData != null) {
+            try {
+              final decodedJson = Uri.decodeComponent(encodedBundlesData);
+              final bundlesJson = jsonDecode(decodedJson) as List;
+              bundles = bundlesJson.map((e) => ProductBundle.fromJson(e)).toList();
+            } catch (e) {
+              print('Error parsing bundles data: $e');
+              bundles = [];
+            }
+          }
           final title = arguments[BundleListPage.titleQueryKey] as String?;
           return buildPageWithCustomTransition(state, BundleListPage(bundles: bundles, title: title));
         },
@@ -168,10 +245,9 @@ class GoRouterService implements IRoutingService {
         path: BundleDetailPage.routeName,
         pageBuilder: (context, state) {
           final bundleId = state.pathParameters[BundleDetailPage.idQueryKey];
-          final arguments = state.extra as Map<String, dynamic>;
-          final prevScreen = arguments[GoRouterService.PREVIOUS_PAGE_KEY] as Widget?;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final bundleName = arguments[BundleDetailPage.nameQueryKey];
-          return buildPageWithCustomTransition(state, BundleDetailPage(id: bundleId!, bundleName: bundleName), previousScreen: prevScreen);
+          return buildPageWithCustomTransition(state, BundleDetailPage(id: bundleId!, bundleName: bundleName));
         },
       ),
       GoRoute(
@@ -183,9 +259,20 @@ class GoRouterService implements IRoutingService {
       GoRoute(
         path: CartDetailPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
-          final Cart cartInfo = arguments[CartDetailPage.CART_DATA];
-          return buildPageWithCustomTransition(state, CartDetailPage(selectedCart: cartInfo));
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
+          Cart? cartInfo;
+          
+          final encodedCartData = arguments[CartDetailPage.CART_DATA] as String?;
+          if (encodedCartData != null) {
+            try {
+              final decodedJson = Uri.decodeComponent(encodedCartData);
+              final cartJson = jsonDecode(decodedJson);
+              cartInfo = Cart.fromJson(cartJson);
+            } catch (e) {
+              print('Error parsing cart data: $e');
+            }
+          }
+          return buildPageWithCustomTransition(state, CartDetailPage(selectedCart: cartInfo!));
         },
       ),
       GoRoute(
@@ -280,7 +367,7 @@ class GoRouterService implements IRoutingService {
       GoRoute(
         path: LoyaltyTierListPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final businessId = arguments[LoyaltyTierListPage.BUSINESS_ID_KEY] as String;
           return buildPageWithCustomTransition(state, LoyaltyTierListPage(businessId: businessId));
         },
@@ -288,11 +375,23 @@ class GoRouterService implements IRoutingService {
       GoRoute(
         path: LoyaltyDetailsPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final programName = arguments[LoyaltyDetailsPage.PROGRAM_NAME_KEY] as String;
           final businessId = arguments[LoyaltyDetailsPage.BUSINESS_ID_KEY] as String;
           final tierId = arguments[LoyaltyDetailsPage.TIER_ID_KEY] as String?;
-          final color = arguments[LoyaltyDetailsPage.COLOR_KEY] as Color?;
+          
+          Color? color;
+          final encodedColor = arguments[LoyaltyDetailsPage.COLOR_KEY] as String?;
+          if (encodedColor != null) {
+            try {
+              final decodedJson = Uri.decodeComponent(encodedColor);
+              final colorValue = int.parse(decodedJson);
+              color = Color(colorValue);
+            } catch (e) {
+              print('Error parsing color data: $e');
+            }
+          }
+          
           return buildPageWithCustomTransition(state, LoyaltyDetailsPage(programName: programName, businessId: businessId, color: color, tierId: tierId));
         },
       ),
@@ -308,7 +407,7 @@ class GoRouterService implements IRoutingService {
         path: MembershipDetailsPage.routeName,
         name: MembershipDetailsPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final membershipId = arguments[MembershipDetailsPage.MEMBERSHIP_ID_KEY] as String;
           return buildPageWithCustomTransition(state, MembershipDetailsPage(membershipId: membershipId));
         },
@@ -330,7 +429,7 @@ class GoRouterService implements IRoutingService {
       GoRoute(
         path: UserMembershipListPage.routeName,
         pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           String membershipListType = arguments[UserMembershipListPage.MEMBERSHIP_LIST_TYPE_KEY] ?? MembershipListType.USER_MEMBERSHIP.name;
           return buildPageWithCustomTransition(state, UserMembershipListPage(membershipListType: membershipListType));
         },
@@ -342,11 +441,14 @@ class GoRouterService implements IRoutingService {
     // Store the current page as the previous page before navigation
     previousWidget = context.widget;
 
+    if (kIsWeb) {
+      context.go(Uri(path: path, queryParameters: queryParam).toString(), extra: extra);
+      return await Future.value(null);
+    }
     if (replace) {
       context.go(Uri(path: path, queryParameters: queryParam).toString(), extra: extra);
       return await Future.value(null);
     }
-
     final result = await context.push<T>(path, extra: extra);
     return result;
   }

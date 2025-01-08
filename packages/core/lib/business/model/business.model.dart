@@ -95,13 +95,11 @@ class Business extends BaseModel with _$Business {
 
     final addons = <ProductAddon>[];
     sections?.forEach((section) {
-      print('order addons  ${section.id} ${selectedSectionIds}  ${selectedSectionIds.contains(section.id)}');
       if (selectedSectionIds.contains(section.id.toString())) {
-      print('order addons  ${section.id} ${selectedSectionIds}  ${section.orderAddons}');
         addons.addAll(section.orderAddons ?? []);
       }
       // "99c7fc8c-ebdd-4dc3-bd9c-17c92506d5cc";
-      // "99c7fc8c-ebdd-4dc3-bd9c-17c91506d5cc"
+      // "99c7fc8c-ebdd-4dc3-bd9c-17c91506d5cc" 
 
     });
     return addons;

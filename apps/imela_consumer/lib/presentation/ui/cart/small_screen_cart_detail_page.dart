@@ -81,7 +81,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                           },
                         ),
                       ),
-                      if (viewmodel.configResult.value!.additionalItems?.isNotEmpty == true)
+                      if (viewmodel.configResult.value?.additionalItems?.isNotEmpty == true)
                         widgetFactory.createButton(
                           context: context,
                           content: widgetFactory.createText(context, 'See Additional items', style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.secondary),

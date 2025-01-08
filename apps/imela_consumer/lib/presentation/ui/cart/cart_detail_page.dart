@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
@@ -17,11 +19,12 @@ class CartDetailPage extends StatefulWidget {
   static const CART_DATA = 'cart';
 
   static void navigateToCartDetailPage(BuildContext context, IRoutingService router, Cart cart) {
-    router.navigateTo(context, CartDetailPage.routeName, extra: {CartDetailPage.CART_DATA: cart});
+    final encodedCartData = Uri.encodeComponent(jsonEncode(cart.toJson()));
+    router.navigateTo(context, '${CartDetailPage.baseRouteName}/${cart.id}',extra: {CartDetailPage.CART_DATA: encodedCartData});
   }
 
   CartDetailPage({super.key, required this.selectedCart});
-
+ 
   @override
   State<CartDetailPage> createState() => _CartDetailPageState();
 }

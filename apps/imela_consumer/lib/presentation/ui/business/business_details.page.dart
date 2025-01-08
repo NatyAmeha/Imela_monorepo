@@ -23,7 +23,19 @@ class BusinessDetailsPage extends StatefulWidget {
   State<BusinessDetailsPage> createState() => _BusinessDetailsPageState();
 
   static void navigateToBusinessDetailPage(BuildContext context, IRoutingService router, Business business) {
-    router.navigateTo(context, '${BusinessDetailsPage.baseRouteName}/${business.id}', extra: {'name': '${business.name?.localize('ENGLISH')}', 'branches': business.branches});
+    final branchesString = business.branches?.map((e) => e.toJson()).toList().toString();
+    router.navigateTo(
+      context, 
+      '${BusinessDetailsPage.baseRouteName}/${business.id}',
+      queryParam: {
+        'name': '${business.name?.localize('ENGLISH')}',
+        if (branchesString != null) 'branches': Uri.encodeComponent(branchesString),
+      },
+      extra: {
+        'name': '${business.name?.localize('ENGLISH')}',
+        if (branchesString != null) 'branches': Uri.encodeComponent(branchesString),
+      },
+    );
   }
 }
 

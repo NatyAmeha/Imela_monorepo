@@ -30,10 +30,20 @@ class _ProductMembershipPerkState extends State<ProductMembershipPerk> with Sing
   List<ProductAddon> get membershipAddons => widget.product.getMembershipAddons();
   List<ProductAddon> get nonMembershipAddons => widget.product.getNonMembershipAddons();
 
-  @override
+  int get tabLength {
+    if (membershipAddons.isNotEmpty && nonMembershipAddons.isNotEmpty) {
+      return 2;
+    } else if (membershipAddons.isNotEmpty || nonMembershipAddons.isNotEmpty) {
+      return 1;
+    }
+    return 0;
+  }
+
+  @override 
   void initState() {
     super.initState();
-    tabController = TabController(length: 2, vsync: this);
+
+    tabController = TabController(length: tabLength, vsync: this);
   }
 
   @override

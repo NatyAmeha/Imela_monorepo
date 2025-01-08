@@ -28,7 +28,8 @@ class BundleDetailPage extends StatefulWidget {
   State<BundleDetailPage> createState() => _BundleDetailPageState();
 
   static void navigateToBundleDetailPage(BuildContext context, IRoutingService router, ProductBundle bundle, {Widget? previousPage}) {
-    router.navigateTo(context, '${BundleDetailPage.baseRouteName}/${bundle.id}', extra: {'name': '${bundle.name?.localize('ENGLISH')}'});
+    final encodedBundleName = Uri.encodeComponent('${bundle.name?.localize('ENGLISH')}');
+    router.navigateTo(context, '${BundleDetailPage.baseRouteName}/${bundle.id}', queryParam: {'name': encodedBundleName}, extra: {'name': encodedBundleName});
   }
 }
 

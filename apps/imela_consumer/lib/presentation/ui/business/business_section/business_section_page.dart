@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
@@ -33,7 +35,8 @@ class BusinessSectionPage extends StatefulWidget {
 
   static void navigate(BuildContext context, String businessId, {required BusinessSection section}) {
     final router = AppController.getInstance.router;
-    router.navigateTo(context, '/business/$businessId/section/${section.id!}', extra: {BusinessSectionPage.SECTION_INFO_KEY: section});
+    final encodedSectionInfo = Uri.encodeComponent(jsonEncode(section.toJson()));
+    router.navigateTo(context, '/business/$businessId/section/${section.id!}', queryParam: {BusinessSectionPage.SECTION_INFO_KEY: encodedSectionInfo}, extra: {BusinessSectionPage.SECTION_INFO_KEY: encodedSectionInfo});
   }
 }
 
