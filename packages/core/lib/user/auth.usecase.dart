@@ -20,7 +20,7 @@ class AuthUsecase {
   );
 
   Future<User?> getCurrentUserInfoFromJwt() async {
-    final authResponse =  await _authRepo.getAuthInfoFromPreference();
+    final authResponse = await _authRepo.getAuthInfoFromPreference();
     if (authResponse.accessToken != null) {
       final userInfo = await _authService.getCurrentUser(authResponse.accessToken!);
       return userInfo;
@@ -50,6 +50,18 @@ class AuthUsecase {
     return firebaseAuthResponse;
   }
 
+  Future<AuthResponse> continueWithGoogle() async {
+    final firebaseAuthResponse = await _authService.signInWithGoogle() as FirebaseAuthResponse;
+    if (firebaseAuthResponse.authenticated && firebaseAuthResponse.user?.id != null) {
+      final apiResponse = await _authRepo.getUserByGoogleId(firebaseAuthResponse.user!.id!);
+      if (apiResponse.success && apiResponse.user != null) {
+        return AuthResponse(success: true, user: apiResponse.user, googleId: firebaseAuthResponse.user!.id);
+      }
+      return AuthResponse(success: false, user: firebaseAuthResponse.user, message: 'An error occured while trying to sign in with google');
+    }
+    return const AuthResponse(success: false, message: 'An error occured while trying to sign in with google');
+  }
+
   Future<AuthResponse> verifyPhoneNumber(String phoneNumber, String verificationId, String smsCode) async {
     final firebaseAuthResponse = await _authService.verifyPhoneNumber(verificationId, smsCode) as FirebaseAuthResponse;
     if (firebaseAuthResponse.authenticated) {
@@ -59,8 +71,8 @@ class AuthUsecase {
     return const AuthResponse(success: false, message: 'An error occured while trying to sign in with phone number');
   }
 
-  Future<AuthResponse> register(String firstName, String email, String password) async {
-    final signupInfo = UserEmailSignupInput.getEmailSignupInput(firstName, email, password);
+  Future<AuthResponse> register({String? firstName, String? email, String? password, String? phoneNumber, String? googleId}) async {
+    final signupInfo = SignupInput.getEmailSignupInput(email: email, firstName: firstName, phoneNumber: phoneNumber, googleId: googleId);
     final authResponse = await _authRepo.registerUser(signupInfo);
     if (authResponse.isSuccessfull) {
       await _authRepo.saveAuthCredentialToPreference(authResponse);
@@ -68,8 +80,16 @@ class AuthUsecase {
     return authResponse;
   }
 
+  Future<AuthResponse> registerWithGoogleAccountData(SignupInput signupInput) async {
+    final authResponse = await _authRepo.registerUserWithGoogleAccountData(signupInput);
+    if (authResponse.isSuccessfull) {
+      await _authRepo.saveAuthCredentialToPreference(authResponse);
+    }
+    return authResponse;
+  }
+
   Future<bool> refreshToken() async {
-    final refreshTokenResult =  await _authRepo.refreshToken();
+    final refreshTokenResult = await _authRepo.refreshToken();
     await _authRepo.saveAuthCredentialToPreference(refreshTokenResult);
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
     return refreshTokenResult.isSuccessfull;

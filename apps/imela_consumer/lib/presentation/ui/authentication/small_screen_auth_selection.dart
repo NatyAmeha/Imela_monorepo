@@ -58,7 +58,7 @@ class SmallScreenAuthSelection extends StatelessWidget {
                 style: AppButtonStyle.outlinedButtonStyle(context),
                 icon: const Icon(Icons.email),
                 onPressed: () {
-                  viewmodel.handleGoogleAuth(context);
+                  viewmodel.handleGoogleAuthentication(context);
                 },
               ),
             ],

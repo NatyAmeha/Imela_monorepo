@@ -5,6 +5,7 @@ import 'package:imela_core/business/dto/create_business_input.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_response.dart';
 import 'package:imela_core/business/repo/business_repository.dart';
+import 'package:imela_core/settings/setting_usecase.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_utils/location/location_info.dart';
@@ -16,11 +17,13 @@ class BusinessUsecase {
   final IBusinessrepository _businessRepository;
   final IBranchRepository _branchRepository;
   final ILocationService _locationService;
+  final SettingUsecase _settingUsecase;
 
   const BusinessUsecase(
     @Named(BusinessRepository.injectName) this._businessRepository,
     @Named(BranchRepository.injectName) this._branchRepository,
     @Named(LocationService.injectName) this._locationService,
+    this._settingUsecase,
   );
 
   Future<BusinessResponse> registerBusiness(CreateBusinessInput businessInfo) async {
@@ -37,7 +40,10 @@ class BusinessUsecase {
   }
 
   Future<Branch> getNearestBranch(List<Branch> branches) async {
-    final currentLocation = await _locationService.getCurrentLocation();
+    final currentLocation = await _settingUsecase.getCurrentLocation();
+    if (currentLocation.latitude == 0 && currentLocation.longitude == 0) {
+      return branches.first; 
+    }
     var branchLocations = branches.map((branch) => branch.address?.latitude != null && branch.address?.longitude != null ? AppLatLng(branch.address!.latitude!, branch.address!.longitude!) : null).whereNotNull().toList();
     if (branchLocations.isEmpty) {
       return branches.first;

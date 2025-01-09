@@ -1,0 +1,19 @@
+mutation SignUpWitGoogle($signUpInfo : SignupInput!){
+    createOrAuthenticateUsingGoogle(signup : $signUpInfo){
+        success
+        accessToken
+        refreshToken
+        isNewUser
+        user{
+            id
+            email
+            phoneNumber
+            profileImageUrl
+            googleId
+            username
+            firstName
+            lastName
+            googleId  
+        }
+    }
+}

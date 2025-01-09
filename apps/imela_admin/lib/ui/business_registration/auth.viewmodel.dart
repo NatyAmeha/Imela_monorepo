@@ -56,7 +56,7 @@ class BusinessAuthViewmodel extends GetxController with BaseViewmodel {
     try {
       exception.value = null;
       isLoading.value = true;
-      final response = await authUsecase.register(firstNameController.text, emailController.text, passwordController.text);
+      final response = await authUsecase.register(firstName: firstNameController.text, email: emailController.text, password: passwordController.text);
       if (response.isSuccessfull) {
         if (response.isUserNew()) {
           navigateToBusinessRegistrationPage(context);

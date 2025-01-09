@@ -4,6 +4,8 @@ import 'package:imela_core/user/model/auth_response.dart';
 import 'package:imela_data/injection.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/authenticate_staff.data.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/authenticate_staff.req.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/get_user_by_google.data.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/get_user_by_google.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/refresh_token.data.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/refresh_token.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/signin_with_email.data.gql.dart';
@@ -17,13 +19,14 @@ import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_data/network/graphql_exception.dart';
 import 'package:imela_data/shared_pref/preference_datastore.dart';
 import 'package:imela_data/shared_pref/preference_exception.dart';
-import 'package:imela_data/shared_pref/shared_preference.constant.dart'; 
+import 'package:imela_data/shared_pref/shared_preference.constant.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class IAuthRepository extends IRepository {
   Future<AuthResponse> signinOrSignupUsingPhoneNumber(String phoneNumber);
-  Future<AuthResponse> registerUser(UserEmailSignupInput signupInput);
+  Future<AuthResponse> registerUser(SignupInput signupInput);
+  Future<AuthResponse> registerUserWithGoogleAccountData(SignupInput signupInput);
   Future<AuthResponse> loginWithEmail(String email, String password);
   Future<AuthResponse> refreshToken();
   Future<bool> saveAuthCredentialToPreference(AuthResponse authResponse);
@@ -31,6 +34,7 @@ abstract class IAuthRepository extends IRepository {
   Future<bool> removeAuthCredentialFromPreference();
   Future<AuthResponse> getAuthInfoFromPreference();
   Future<AuthResponse> generateTokenForStaff(String phoneNumber);
+  Future<AuthResponse> getUserByGoogleId(String googleId);
 }
 
 @Injectable(as: IAuthRepository)
@@ -47,7 +51,7 @@ class AuthRepository implements IAuthRepository {
   );
 
   @override
-  Future<AuthResponse> registerUser(UserEmailSignupInput signupInput) async {
+  Future<AuthResponse> registerUser(SignupInput signupInput) async {
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
     final request = GSignUpWithEmailReq(
       (b) => b
@@ -56,6 +60,35 @@ class AuthRepository implements IAuthRepository {
           b.email = signupInput.email;
           b.password = signupInput.password;
           b.phoneNumber = signupInput.phoneNumber;
+          b.googleId = signupInput.googleId;
+          b.profileImageUrl = signupInput.profileImageUrl;
+          // b.accountType = signupInput.accountType;
+        })
+        ..fetchPolicy = _graphQLDataSource.getFetchPolicy(ApiDataFetchPolicy.networkOnly),
+    );
+    final result = await _graphQLDataSource.request<GSignUpWithEmailData>(request, type: 'SIGNUP_WITH_EMAIL', isMainError: true);
+    if (result?.createUserAccountUsingEmailPassword == null) {
+      throw GraphqlException(message: 'Unable to login with phone number');
+    }
+    final responseData = AuthResponse.fromJson(result!.createUserAccountUsingEmailPassword.toJson());
+    if (!responseData.isSuccessfull) {
+      throw AppException(message: 'An error occured while trying to sign in with phone number');
+    }
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
+    return responseData;
+  }
+
+  Future<AuthResponse> registerUserWithGoogleAccountData(SignupInput signupInput) async {
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
+    final request = GSignUpWithEmailReq(
+      (b) => b
+        ..vars.signUpInfo.update((b) {
+          b.firstName = signupInput.firstName;
+          b.email = signupInput.email;
+          b.password = signupInput.password;
+          b.phoneNumber = signupInput.phoneNumber;
+          b.googleId = signupInput.googleId;
+          b.profileImageUrl = signupInput.profileImageUrl;
         })
         ..fetchPolicy = _graphQLDataSource.getFetchPolicy(ApiDataFetchPolicy.networkOnly),
     );
@@ -166,6 +199,15 @@ class AuthRepository implements IAuthRepository {
       throw PreferenceException(source: 'Refresh token', errorMessage: 'An error occured while trying to save user credential');
     }
     return result;
+  }
+
+  @override
+  Future<AuthResponse> getUserByGoogleId(String googleId) async {
+    final request = GGetUserByGoogleIdReq((b) => b
+      ..vars.googleId = googleId
+      ..fetchPolicy = _graphQLDataSource.getFetchPolicy(ApiDataFetchPolicy.networkOnly));
+    final result = await _graphQLDataSource.request<GGetUserByGoogleIdData>(request, type: 'GET_USER_BY_GOOGLE_ID', isMainError: true);
+    return AuthResponse.fromJson(result!.getUserByGoogleId.toJson());
   }
 
   @override

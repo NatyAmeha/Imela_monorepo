@@ -18,13 +18,14 @@ class AuthResponse with _$AuthResponse implements IAuthResponse {
     String? accessToken,
     String? refreshToken,
     bool? isNewUser,
-    List<Access>? accesses
+    List<Access>? accesses,
+    String? googleId,
   }) = _AuthResponse;
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) => _$AuthResponseFromJson(json);
 
   bool get isSuccessfull {
-    if(success && accessToken != null && refreshToken != null){
+    if (success && accessToken != null && refreshToken != null) {
       return true;
     }
     return false;
@@ -33,7 +34,6 @@ class AuthResponse with _$AuthResponse implements IAuthResponse {
   bool isUserNew() {
     return isNewUser ?? false;
   }
-
 }
 
 class FirebaseAuthResponse implements IAuthResponse {
@@ -41,6 +41,13 @@ class FirebaseAuthResponse implements IAuthResponse {
   final String? smscode;
   final String? errorMsg;
   final String? verificationId;
+  final User? user;
 
-  FirebaseAuthResponse({required this.authenticated, this.smscode, this.errorMsg, this.verificationId});
+  FirebaseAuthResponse({
+    required this.authenticated,
+    this.smscode,
+    this.errorMsg,
+    this.verificationId,
+    this.user,
+  });
 }

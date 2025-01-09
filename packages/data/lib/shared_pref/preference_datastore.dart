@@ -20,28 +20,27 @@ class SharedPreferenceDataStore implements ISharedPreferenceDataStore {
   Future<R> create<R, S>(String path, S body, {Map<String, dynamic>? queryParameters}) async {
     try {
       final sharedPref = await SharedPreferences.getInstance();
-      switch (S) {
-        case const (String):
+      switch (body) {
+        case String():
           final result = await sharedPref.setString(path, body as String);
           return result as R;
-
-        case const (int):
+        case int():
           final result = await sharedPref.setInt(path, body as int);
           return result as R;
-        case const (double):
+        case double():
           final result = await sharedPref.setDouble(path, body as double);
           return result as R;
-
-        case const (bool):
+        case bool():
           final result = await sharedPref.setBool(path, body as bool);
           return result as R;
-        case const (List<String>):
+        case List<String>():
           final result = await sharedPref.setStringList(path, body as List<String>);
           return result as R;
         default:
           return Future.error(AppException(message: 'Trying to save unsupported type to preference'));
       }
     } catch (e) {
+      print('exception ${e.toString()}');
       if (kDebugMode) {
         print('exception ${e.toString()}');
       }
@@ -54,8 +53,29 @@ class SharedPreferenceDataStore implements ISharedPreferenceDataStore {
     try {
       final sharedPref = await SharedPreferences.getInstance();
       switch (R) {
-        case const (String):
+        case String:
           final result = sharedPref.getStringList(path);
+          if (result == null || result.isEmpty == true) { 
+            return [];
+          } else {
+            return result as List<R>;
+          }
+        case int:
+          final result = sharedPref.getStringList(path)?.map(int.parse).toList();
+          if (result == null || result.isEmpty == true) {
+            return [];
+          } else {
+            return result as List<R>;
+          }
+        case double:
+          final result = sharedPref.getStringList(path)?.map(double.parse).toList();
+          if (result == null || result.isEmpty == true) {
+            return [];
+          } else {
+            return result as List<R>;
+          }
+        case bool:
+          final result = sharedPref.getStringList(path)?.map((e) => e.toLowerCase() == 'true').toList();
           if (result == null || result.isEmpty == true) {
             return [];
           } else {

@@ -3,18 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:imela/presentation/ui/authentication/create_account_for_google_signin.dart';
 import 'package:imela/presentation/ui/authentication/phone_login_page.dart';
 import 'package:imela/presentation/ui/authentication/phone_verify_page.dart';
 import 'package:imela/presentation/ui/home/home.page.dart';
-import 'package:imela/presentation/ui/profile/update_profile/update_profile.viewmodel.dart';
 import 'package:imela/presentation/ui/profile/update_profile/update_profile_page.dart';
-import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_core/user/auth.usecase.dart';
+import 'package:imela_core/user/dto/user_signup_input.dart';
 import 'package:imela_core/user/model/auth_response.dart';
 import 'package:imela_core/user/model/user.model.dart';
 import 'package:imela_data/injection.dart';
 import 'package:imela_utils/exception/app_exception.dart';
+import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:intl_phone_field/phone_number.dart';
@@ -31,18 +32,29 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
 
   AppController get appController => AppController.getInstance;
 
-  late TextEditingController verifyPinController;
+  TextEditingController verifyPinController = TextEditingController();
 
   // page state variables
   var isLoading = false.obs;
   var exception = Rxn<AppException>();
   var errorMessage = ''.obs;
 
+  // google auth state variables
+  var phoneNumberController = TextEditingController();
+  var emailController = TextEditingController();
+  var firstNameController = TextEditingController();
+  var googleUser = Rxn<User>();
+  var isInputValid = false.obs;
+
   String? redirectUrl;
   Map<String, dynamic>? redirectExtra;
 
   var phoneNumber = ''.obs;
   var isPhoneNumberValid = false.obs;
+
+  static AuthViewmodel getInstance() {
+    return BaseViewmodel.isViewmodelRegistered(getIt<AuthViewmodel>());
+  }
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
@@ -96,6 +108,7 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
     isLoading.value = true;
     try {
       final response = await authUsecae.continueWithPhoneNumber(phoneNumber.value);
+      print('response ${response.toString()}');
       if (response is AuthResponse) {
         // automatic phone verification without sms code
         if (response.isSuccessfull) {
@@ -105,6 +118,7 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
         }
       } else if (response is FirebaseAuthResponse) {
         // it means we need to navigate to the next screen to enter the sms code
+        appController.firebaseAuthInfo = response;
         if (response.errorMsg != null) {
           appController.getWidgetFactory(context).showFlashMessage(context, message: response.errorMsg!);
           return;
@@ -116,6 +130,62 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
       exception.value = exceptiionHandler.getException(e as Exception);
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> handleGoogleAuthentication(BuildContext context) async {
+    final widgetFactory = appController.getWidgetFactory(context);
+    try {
+      isLoading(true);
+      final response = await authUsecae.continueWithGoogle();
+      if (response.success) {
+        // user is already registered on the api
+        appController.setLoggedInUser(response.user);
+        handleRedirect(context, user: response.user, isNewUser: response.isNewUser ?? false);
+        return;
+      } else {
+        // user is not registered on the api, we need to create a new account from fetched google credentials
+        if (response.user != null) {
+          CreateAccountForGoogleSignin.navigate(context, response.user!);
+        } else {
+          widgetFactory.showFlashMessage(context, message: 'An error occured while trying to sign in with google');
+        }
+      }
+    } catch (e) {
+      widgetFactory.showFlashMessage(context, message: 'An error occured while trying to sign in with google');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  void initializeTextFields(User userInfo) {
+    Future.delayed(Duration.zero, () {
+      googleUser.value = userInfo;
+      firstNameController.text = userInfo.username?.split(' ').first ?? '';
+      emailController.text = userInfo.email ?? '';
+      phoneNumberController.text = userInfo.phoneNumber ?? '';
+    });
+  }
+
+  Future<void> registerUser(BuildContext context) async {
+    try {
+      isLoading(true);
+      final signupInput = SignupInput.getGoogleSignupInput(
+        googleId: googleUser.value!.id!,
+        phoneNumber: phoneNumber.value,
+        username: firstNameController.text,
+        email: emailController.text,
+        profileImageUrl: googleUser.value!.profileImageUrl,
+      );
+      final response = await authUsecae.registerWithGoogleAccountData(signupInput);
+      if (response.isSuccessfull) {
+        appController.setLoggedInUser(response.user);
+        handleRedirect(context, user: response.user, isNewUser: response.isNewUser ?? false);
+      }
+    } catch (e) {
+      exception.value = AppException(message: 'An error occured while trying to register user');
+    } finally {
+      isLoading(false);
     }
   }
 
@@ -143,10 +213,6 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-  void handleGoogleAuth(BuildContext context) {
-    // handleRedirect(context);
-  }
-
   void handleRedirect(BuildContext context, {User? user, bool isNewUser = false}) async {
     if (isNewUser) {
       UpdateProfilePage.navigate(context, redirectUrl: redirectUrl ?? HomePage.routeName, redirectExtra: redirectExtra);
@@ -165,5 +231,27 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
   void dispose() {
     // verifyPinController.dispose();
     super.dispose();
+  }
+
+  void checkInputValidity() {
+    final isValid = firstNameController.text.isNotEmpty && phoneNumber.value.length >= 13 && emailController.text.isNotEmpty;
+    isInputValid.value = isValid;
+  }
+
+  void showWarningAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Warning'),
+        content: const Text('Are you sure you want to leave this page?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Leave')),
+        ],
+      ),
+    );
   }
 }

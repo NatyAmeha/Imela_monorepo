@@ -47,7 +47,8 @@ class SettingRepository implements ISettingRepository {
 
   @override
   Future<SettingInfo?> getSettingFromPreference(String key) async {
-    return await sharedPreferenceDataStore.get<SettingInfo>(key);
+    final value = await sharedPreferenceDataStore.get<String>(key);
+    return SettingInfo(key: key, value: value);
   }
 
   @override

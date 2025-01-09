@@ -44,7 +44,7 @@ class _PhoneVerifyPageState extends State<PhoneVerifyPage> {
         children: [
           appWidgetFactory.createText(context, 'Verify Phone', style: Theme.of(context).textTheme.displaySmall),
           const SizedBox(height: 4),
-          appWidgetFactory.createText(context, 'Enter the 6 digit code we sent to the number below: ', style: Theme.of(context).textTheme.labelMedium),
+          appWidgetFactory.createText(context, 'Enter the 6 digit code we sent to the ${widget.authViewmodel!.phoneNumber.value} below: ', style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 16),
           PinInput(
             length: inputLength,

@@ -31,6 +31,7 @@ class SettingUsecase {
   Future<String> getSelectedLanguage() async {
     final settingInfo = await settingRepository.getSettingFromPreference(SettingKey.SELECTED_LANGUAGE);
     final value = settingInfo?.value;
+    print('language value: $value');
     return AppLanguage.values.firstWhereOrNull((element) => element.name == value)?.name ?? AppLanguage.ENGLISH.name;
   }
 

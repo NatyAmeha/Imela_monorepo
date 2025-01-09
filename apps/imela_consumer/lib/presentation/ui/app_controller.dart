@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:imela/app/app.dart';
 import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/authentication/auth_selection_page.dart';
 import 'package:imela/presentation/ui/cart/cart_detail_page.dart';
@@ -46,6 +48,7 @@ class AppController extends GetxController with BaseViewmodel {
   }
 
   FirebaseAuthResponse? firebaseAuthInfo;
+  static final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   late GoRouterService router;
 
@@ -76,6 +79,10 @@ class AppController extends GetxController with BaseViewmodel {
   var refetchOrderList = false.obs;
 
   // getter
+  BuildContext getAppContext() {
+    return AppController.scaffoldMessengerKey.currentContext!;
+  }
+
   bool get isAuthenticated => loggedInUser.value != null;
   List<Reward> get allRewards => selectedBusinessLoyaltyInfo.value?.tier?.rewards ?? [];
   List<Reward> get userEligableRewards {
@@ -123,6 +130,9 @@ class AppController extends GetxController with BaseViewmodel {
   void getInitialSettings() async {
     final selectedLanguage = await settingUsecase.getSelectedLanguage();
     selectedLanguageUpdated.value = selectedLanguage;
+    updateLanguage(AppLanguage.values.firstWhere((element) => element.name == selectedLanguage), (locale) {
+      MelegnaCustomerApp.of(getAppContext()!)?.setLocale(locale);
+    });
   }
 
   void updateSelectedBusiness(Business? business) {
@@ -132,10 +142,14 @@ class AppController extends GetxController with BaseViewmodel {
   // Method to update the selected language
   // Method to update the selected language
   Future<void> updateLanguage(AppLanguage language, Function(Locale) updateLocaleCallback) async {
-    selectedLanguageUpdated.value = language.name;
-    await settingUsecase.saveSelectedLanguage(language.name);
-    // Update the app's locale by calling the provided callback
-    updateLocaleCallback(language.locale);
+    try {
+      selectedLanguageUpdated.value = language.name;
+      await settingUsecase.saveSelectedLanguage(language.name);
+      // Update the app's locale by calling the provided callback
+      updateLocaleCallback(language.locale);
+    } catch (e) {
+      print('updateLanguage error: $e');
+    }
   }
 
   Future<void> getCurrentUser() async {
@@ -221,7 +235,7 @@ class AppController extends GetxController with BaseViewmodel {
       if (loyaltyInfo?.success ?? false) {
         setSelectedBusinessLoyaltyInfo(loyaltyInfo);
         final customerPoints = loyaltyInfo?.customerLoyalty?.currentPoints ?? 0.0;
-        final tierInfo = await loyaltyUsecase.getCustomerTierByPoints(businessId, customerPoints); 
+        final tierInfo = await loyaltyUsecase.getCustomerTierByPoints(businessId, customerPoints);
         print('loyaltyInfo tier : ${tierInfo}');
         if (tierInfo?.success ?? false) {
           // take the higher tier from eligable customer loyalty tiers
