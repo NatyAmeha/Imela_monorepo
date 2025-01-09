@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela_core/order/model/order.model.dart';
 import 'package:imela_ui_kit/components/badge/badge_list.dart';
@@ -41,7 +42,7 @@ class OrderListItem extends StatelessWidget {
           Row(children: [
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                widgetFactory.createText(context, 'Order code ${order.code}', style: Theme.of(context).textTheme.bodyLarge),
+                widgetFactory.createText(context, AppLocalizations.of(context).orderCode(order.code ?? ''), style: Theme.of(context).textTheme.bodyLarge),
                 BadgeList(values: [order.status ?? ''], colors: [Theme.of(context).colorScheme.tertiary], widgetFactory: widgetFactory),
               ]),
             ),
@@ -51,7 +52,7 @@ class OrderListItem extends StatelessWidget {
           Row( 
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Total amount', style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, AppLocalizations.of(context).totalAmount, style: Theme.of(context).textTheme.labelMedium),
               widgetFactory.createText(context, 'ETB ${order.totalAmount}', style: Theme.of(context).textTheme.bodyLarge),
             ],
           ).withPaddingSymetric(vertical: 4),
@@ -59,7 +60,7 @@ class OrderListItem extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                widgetFactory.createText(context, 'Remaining amount', style: Theme.of(context).textTheme.labelMedium),
+                widgetFactory.createText(context, AppLocalizations.of(context).remainingAmount, style: Theme.of(context).textTheme.labelMedium),
                 widgetFactory.createText(context, order.remainingAmountString(selectedCurrency, selectedLanguage), style: Theme.of(context).textTheme.bodyLarge, color: ColorManager.warning),
               ],
             ),

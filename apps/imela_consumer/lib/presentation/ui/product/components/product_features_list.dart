@@ -21,7 +21,7 @@ class ProductFeaturesListComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return widgetFactory.createCard(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
       borderRadius: BorderRadius.circular(8),
       child: AppGridView(
@@ -39,9 +39,9 @@ class ProductFeaturesListComponent extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  widgetFactory.createIcon(materialIcon: feature.icon ?? Icons.check_circle_outline, color: feature.color, size: 20),
+                  widgetFactory.createIcon(materialIcon: feature.icon ?? Icons.check_circle_outline, color: feature.color, size: 16),
                   const SizedBox(width: 10),
-                  widgetFactory.createText(context, feature.name, style: Theme.of(context).textTheme.titleSmall),
+                  widgetFactory.createText(context, feature.name, style: Theme.of(context).textTheme.bodyMedium),
                 ],
               ),
             );

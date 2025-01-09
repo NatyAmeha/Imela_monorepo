@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/loyalty/components/loyalty_list_item.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_list_viewmodel.dart';
@@ -35,7 +36,7 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Your Loyalties")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).yourLoyalties)),
       body: Obx(
         () => PageContentLoader(
           showContent: viewmodel.customerLoyalties.isNotEmpty,

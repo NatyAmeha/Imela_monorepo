@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
 import 'package:imela/presentation/ui/product/components/product_option_item.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
@@ -72,7 +73,7 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 24),
-                    widget.widgetFactory.createText(context, 'Choose option', style: Theme.of(context).textTheme.titleMedium),
+                    widget.widgetFactory.createText(context, AppLocalizations.of(context).chooseOption, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 16),
                     AppGridView(
                       shrinkWrap: true,
@@ -107,7 +108,7 @@ class _BundleProductConfigModalState extends State<BundleProductConfigModal> {
           child: ProductCallToActionBottomComponenet(
             product: selectedProductOption ?? widget.product,
             widgetFactory: widget.widgetFactory,
-            callToActionText: 'Select',
+            callToActionText: AppLocalizations.of(context).select,
             discounts: widget.discounts,
             enableCallToActionBtn: enableCallToActionBtn,
             onPressed: () {

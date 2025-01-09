@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
@@ -45,7 +46,7 @@ class CartSummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          widgetFactory.createText(context, 'Order Summary', style: Theme.of(context).textTheme.titleMedium),
+          widgetFactory.createText(context, AppLocalizations.of(context).orderSummary, style: Theme.of(context).textTheme.titleMedium),
           if (cart.configs?.isNotEmpty == true)
             Stack(
               children: [
@@ -76,7 +77,7 @@ class CartSummary extends StatelessWidget {
                       children: [
                         widgetFactory.createIcon(materialIcon: Icons.edit_outlined, color: Theme.of(context).colorScheme.secondary, size: 16),
                         const SizedBox(width: 4),
-                        widgetFactory.createText(context, 'Change', style: Theme.of(context).textTheme.bodySmall, color: Theme.of(context).colorScheme.secondary),
+                        widgetFactory.createText(context, AppLocalizations.of(context).change, style: Theme.of(context).textTheme.bodySmall, color: Theme.of(context).colorScheme.secondary),
                       ],
                     ),
                     onTap: () {
@@ -90,10 +91,10 @@ class CartSummary extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Subtotal', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, AppLocalizations.of(context).subtotal, style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, cart.getSubtotalPOSUpdatedFormatted('ETB'), style: Theme.of(context).textTheme.bodyLarge),
             ],
-          ),
+          ), 
           if (usedLoyaltyPoints > 0)
             widgetFactory.createCard(
               color: Theme.of(context).colorScheme.primaryContainer,
@@ -106,13 +107,13 @@ class CartSummary extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      widgetFactory.createText(context, 'Used points', style: Theme.of(context).textTheme.labelSmall),
+                      widgetFactory.createText(context, AppLocalizations.of(context).earnedPoints, style: Theme.of(context).textTheme.labelSmall),
                       widgetFactory.createText(context, '$usedLoyaltyPoints points', style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
                   widgetFactory.createButton(
                     context: context,
-                    content: const Text('Clear'),
+                    content: Text(AppLocalizations.of(context).clear),
                     style: AppButtonStyle.textButtonStyle(
                       context,
                       padding: const EdgeInsets.all(0),
@@ -127,14 +128,14 @@ class CartSummary extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Total discount', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, AppLocalizations.of(context).discount, style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, cart.getTotalDiscountAmountPOSFormatted(selectedCurrency), style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Add-ons charges', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, AppLocalizations.of(context).addonsCharges, style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, cart.getAddonsAmountFormatted(selectedCurrency), style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
@@ -142,7 +143,7 @@ class CartSummary extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleMedium),
+              widgetFactory.createText(context, AppLocalizations.of(context).total, style: Theme.of(context).textTheme.titleMedium),
               widgetFactory.createText(context, cart.getTotalAmountPOSFormatted(selectedCurrency), style: Theme.of(context).textTheme.titleLarge),
             ],
           ),

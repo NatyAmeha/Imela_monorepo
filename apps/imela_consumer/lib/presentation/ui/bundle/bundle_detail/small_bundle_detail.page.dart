@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.viewmodel.dart';
 import 'package:imela/presentation/ui/bundle/components/bundle_summary.dart';
@@ -38,7 +39,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                   header: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      widgetFactory.createText(context, 'Items', style: Theme.of(context).textTheme.titleMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).items, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       widgetFactory.createCard(
                         padding: const EdgeInsets.all(8),
@@ -106,7 +107,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surfaceContainerLowest,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [widgetFactory.createText(context, 'Selected Products (${viewmodel.selectedBundleProducts.values.length})', style: Theme.of(context).textTheme.titleSmall), widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_up)],
+                      children: [widgetFactory.createText(context, AppLocalizations.of(context).selectedProducts('${viewmodel.selectedBundleProducts.values.length}'), style: Theme.of(context).textTheme.titleSmall), widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_up)],
                     ),
                   ),
                 ),
@@ -133,7 +134,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                       widgetFactory
                           .createButton(
                             context: context,
-                            content: const Text('Order'),
+                            content: Text(AppLocalizations.of(context).orderCallToAction),
                             onPressed: viewmodel.enableBundlePurchase
                                 ? () {
                                     viewmodel.addSelectedProductsToCart(context);

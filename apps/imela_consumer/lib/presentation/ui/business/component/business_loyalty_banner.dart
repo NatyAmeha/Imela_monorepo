@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
 import 'package:imela_core/membership/dto/membership_response.dart';
@@ -16,11 +17,15 @@ class BusinessLoyaltyBanner extends StatelessWidget {
     this.membershipInfo,
   });
 
-  String get rewardsString => '${loyaltyInfo?.rewards?.length ?? 0} Rewards';
+  String getRewardsString(BuildContext context) {
+    final appController = AppController.getInstance;
+    return '${loyaltyInfo?.rewards?.length ?? 0} ${appController.getAppContext().l10n.rewards}';
+  }
 
   @override
   Widget build(BuildContext context) {
     final widgetfactory = AppController.getInstance.getWidgetFactory(context);
+    final appController = AppController.getInstance;
     return widgetfactory.createCard(
       height: 45,
       child: Row(
@@ -39,8 +44,8 @@ class BusinessLoyaltyBanner extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        widgetfactory.createText(context, 'Reward program', style: Theme.of(context).textTheme.bodyMedium, color: Colors.white),
-                        // widgetfactory.createText(context, rewardsString, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
+                        widgetfactory.createText(context, appController.getAppContext().l10n.rewardProgram, style: Theme.of(context).textTheme.bodyMedium, color: Colors.white),
+                        // widgetfactory.createText(context, getRewardsString(context), style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
                       ],
                     ),
                   ),
@@ -63,8 +68,8 @@ class BusinessLoyaltyBanner extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          widgetfactory.createText(context, 'Membership', style: Theme.of(context).textTheme.bodyMedium, color: Colors.white),
-                          // widgetfactory.createText(context, rewardsString, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
+                          widgetfactory.createText(context, appController.getAppContext().l10n.membership, style: Theme.of(context).textTheme.bodyMedium, color: Colors.white),
+                          // widgetfactory.createText(context, getRewardsString(context), style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
                         ],
                       ),
                     ),

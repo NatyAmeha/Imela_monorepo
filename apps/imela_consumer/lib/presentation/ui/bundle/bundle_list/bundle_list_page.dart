@@ -7,6 +7,7 @@ import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_ui_kit/components/list/gridview.component.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
+import 'package:imela/l10n/l10n.dart';
 
 class BundleListPage extends StatefulWidget {
   static const String routeName = '/bundles';
@@ -40,7 +41,7 @@ class _BundleListPageState extends State<BundleListPage> {
   Widget build(BuildContext context) {
     final widgetFactory = viewmodel.appController.getWidgetFactory(context);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title ?? 'Bundles')),
+      appBar: AppBar(title: Text(widget.title ?? AppLocalizations.of(context).bundles)),
       body: Obx(
         () => PageContentLoader(
           isLoading: viewmodel.isLoading.value,

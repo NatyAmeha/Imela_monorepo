@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/components/user_membership_card.dart';
 import 'package:imela/presentation/ui/membership/membership_list/membership_list_viewmodel.dart';
@@ -49,7 +50,7 @@ class _UserMembershipListPageState extends State<UserMembershipListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Membership List'),
+        title: Text(AppLocalizations.of(context).membershipList),
       ),
       body: Obx(
         () => RefreshIndicator(
@@ -63,25 +64,29 @@ class _UserMembershipListPageState extends State<UserMembershipListPage> {
             onTryAgain: () {
               viewmodel.getUserMemberships(context);
             },
-            content: AppListView(
-              items: viewmodel.membershipList,
-              padding: Responsive.paddingSymetric(context),
-              contentPadding: const EdgeInsets.symmetric(vertical: 8),
-              itemBuilder: (context, item, index) {
-                return UserMembershipCard(
-                  membership: item,
-                  widgetFactory: widgetFactory,
-                  qrCode: viewmodel.getQrCode(item.id!),
-                  selectedLanguage: viewmodel.selectedLanguage,
-                  backgroundColor: viewmodel.getRandomBackgroundColor(index),
-                  onQrCodePressed: () {
-                    viewmodel.showMembershipBenefitsModal(context, item);
+            content: Column(
+              children: [
+                AppListView(
+                  items: viewmodel.membershipList,
+                  padding: Responsive.paddingSymetric(context),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  itemBuilder: (context, item, index) {
+                    return UserMembershipCard(
+                      membership: item,
+                      widgetFactory: widgetFactory,
+                      qrCode: viewmodel.getQrCode(item.id!),
+                      selectedLanguage: viewmodel.selectedLanguage,
+                      backgroundColor: viewmodel.getRandomBackgroundColor(index),
+                      onQrCodePressed: () {
+                        viewmodel.showMembershipBenefitsModal(context, item);
+                      },
+                      onViewDetailsPressed: () {
+                        viewmodel.navigateToMembershipDetails(context, item);
+                      },
+                    );
                   },
-                  onViewDetailsPressed: () {
-                    viewmodel.navigateToMembershipDetails(context, item);
-                  },
-                );
-              },
+                ),
+              ],
             ),
           ),
         ),

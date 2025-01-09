@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
 import 'package:imela/presentation/ui/order/components/order_item_list_item.dart';
 import 'package:imela/presentation/ui/order/components/order_payment_method_item.dart';
@@ -25,7 +26,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order details'),
+        title: Text(AppLocalizations.of(context).orderDetails),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -39,13 +40,13 @@ class SmallScreenOrderDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, 'Order Summary', style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, AppLocalizations.of(context).orderSummary, style: Theme.of(context).textTheme.titleMedium),
                   buildBusinessesSection(context),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      widgetFactory.createText(context, 'Order Status', style: Theme.of(context).textTheme.bodyLarge).withPaddingSymetric(vertical: 8),
+                      widgetFactory.createText(context, AppLocalizations.of(context).orderStatus, style: Theme.of(context).textTheme.bodyLarge).withPaddingSymetric(vertical: 8),
                       SizedBox(
                         width: MediaQuery.sizeOf(context).width * 0.8,
                         child: Obx(
@@ -64,21 +65,21 @@ class SmallScreenOrderDetail extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, 'Order Date', style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).orderDate, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, '${viewmodel.orderInfo.value?.createdAt?.toFormattedString()}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, 'total Items', style: Theme.of(context).textTheme.bodyMedium),
-                      widgetFactory.createText(context, '${viewmodel.orderInfo.value?.items?.length} items', style: Theme.of(context).textTheme.titleSmall),
+                      widgetFactory.createText(context, AppLocalizations.of(context).totalItems, style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).itemsCount('${viewmodel.orderInfo.value?.items?.length}'), style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, 'Total Amount', style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).totalAmount, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, 'ETB ${viewmodel.orderInfo.value?.totalAmount}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
@@ -91,14 +92,14 @@ class SmallScreenOrderDetail extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            widgetFactory.createText(context, 'Earned Points', style: Theme.of(context).textTheme.bodyMedium),
+                            widgetFactory.createText(context, AppLocalizations.of(context).earnedPoints, style: Theme.of(context).textTheme.bodyMedium),
                             widgetFactory.createText(context, '${viewmodel.orderInfo.value?.getTotalEarnedPointsString(selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
                           ],
                         ),
                         widgetFactory.createButton(
                           context: context,
                           style: AppButtonStyle.textButtonStyle(context),
-                          content: const Text('View rewards'),
+                          content: Text(AppLocalizations.of(context).viewRewards),
                           onPressed: () {
                             viewmodel.moveToRewards(context);
                           },
@@ -117,19 +118,19 @@ class SmallScreenOrderDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, 'Payment summary', style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, AppLocalizations.of(context).paymentSummary, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, 'Paid amounts', style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).paidAmounts, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, '${viewmodel.orderInfo.value?.paidAmountString(selectedCurrency, selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, 'Remaining Amount', style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).remainingAmount, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, '${viewmodel.orderInfo.value?.remainingAmountString(selectedCurrency, selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
@@ -138,7 +139,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      widgetFactory.createText(context, 'Payment methods', style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).paymentMethods, style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(height: 8),
                       AppListView(
                         shrinkWrap: true,
@@ -161,7 +162,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, 'Items', style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, AppLocalizations.of(context).items, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 16),
                   AppListView(
                     shrinkWrap: true,
@@ -209,7 +210,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        widgetFactory.createText(context, 'Additional Configurations', style: Theme.of(context).textTheme.titleMedium),
+        widgetFactory.createText(context, AppLocalizations.of(context).additionalConfigurations, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 16),
         AppListView(
           shrinkWrap: true,

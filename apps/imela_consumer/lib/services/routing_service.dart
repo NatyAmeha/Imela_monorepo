@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imela/presentation/ui/authentication/create_account_for_google_signin.dart';
 import 'package:imela/presentation/ui/bundle/bundle_list/bundle_list_page.dart';
 import 'package:imela/presentation/ui/business/business_section/business_section_page.dart';
 import 'package:imela/presentation/ui/business/service_overview/service_overview_list_page.dart';
@@ -32,6 +33,7 @@ import 'package:imela_core/loyalty/model/loyalty_tier.model.dart';
 import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_core/user/model/user.model.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:imela/presentation/ui/authentication/auth_selection_page.dart';
@@ -326,10 +328,22 @@ class GoRouterService implements IRoutingService {
           final arguments = state.extra as Map<String, dynamic>?;
           final redirectUrl = arguments?[AuthSelectionPage.REDIRECT_URL_KEY] as String?;
           final redirectExtra = arguments?[AuthSelectionPage.REDIRECT_EXTRA_KEY] as Map<String, dynamic>?;
-          print('redirect url info $redirectExtra $redirectUrl');
           return buildPageWithCustomTransition(state, AuthSelectionPage(redirectionRoute: redirectUrl, redirectExtra: redirectExtra));
         },
       ),
+
+      GoRoute(
+        path: CreateAccountForGoogleSignin.routeName,
+        pageBuilder: (context, state) {
+          final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
+          final googleUserString = arguments[CreateAccountForGoogleSignin.GOOGLE_USER_KEY] as String;
+          final decodedJson = Uri.decodeComponent(googleUserString);
+          final userJson = jsonDecode(decodedJson);
+          final googleUser = User.fromJson(userJson);
+          return buildPageWithCustomTransition(state, CreateAccountForGoogleSignin(googleUser: googleUser));
+        },
+      ),
+
       GoRoute(
         path: PhoneLoginPage.routeName,
         pageBuilder: (context, state) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/business/business_section/business_section.viewmodel.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
@@ -43,11 +44,12 @@ class BusinessSectionPage extends StatefulWidget {
 class _BusinessSectionPageState extends State<BusinessSectionPage> {
   var viewmodel = BusinessSectionViewModel.getInstance();
   late WidgetFactory widgetFactory;
+  final appController = AppController.getInstance;
 
   @override
   void initState() {
     super.initState();
-    widgetFactory = AppController.getInstance.getWidgetFactory(context);
+    widgetFactory = appController.getWidgetFactory(context);
     viewmodel.initViewmodel(data: {BusinessSectionPage.BUSINESS_ID_KEY: widget.businessId, BusinessSectionPage.SECTION_ID_KEY: widget.sectionId, BusinessSectionPage.SECTION_INFO_KEY: widget.sectionInfo});
   }
 
@@ -65,19 +67,6 @@ class _BusinessSectionPageState extends State<BusinessSectionPage> {
               title: Text(viewmodel.sectionName),
               floating: false,
               backgroundColor: Theme.of(context).colorScheme.primary,
-              // flexibleSpace: FlexibleSpaceBar(
-              //   background: Column(
-              //     mainAxisAlignment: MainAxisAlignment.end,
-              //     children: [
-              //       SearchBar(
-              //         hintText: 'Search products and bundles',
-              //         leading: widgetFactory.createIcon(materialIcon: Icons.search),
-              //         onTap: () {},
-              //       ).paddingSymmetric(vertical: 10, horizontal: 16),
-              //     ],
-              //   ),
-              //   centerTitle: false,
-              // ),
               bottom: PreferredSize(
                 preferredSize: Size(MediaQuery.of(context).size.width, 40),
                 child: viewmodel.businessSectionDetails.value != null
@@ -112,8 +101,8 @@ class _BusinessSectionPageState extends State<BusinessSectionPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    widgetFactory.createText(context, 'Products', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 12, vertical: 8),
-                    widgetFactory.createText(context, 'View all', style: Theme.of(context).textTheme.bodySmall).withPaddingSymetric(horizontal: 12, vertical: 8),
+                    widgetFactory.createText(context, appController.getAppContext().l10n.products, style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 12, vertical: 8),
+                    widgetFactory.createText(context, appController.getAppContext().l10n.viewAll, style: Theme.of(context).textTheme.bodySmall).withPaddingSymetric(horizontal: 12, vertical: 8),
                   ],
                 ),
                 if (viewmodel.filteredProducts.isEmpty)
@@ -146,6 +135,6 @@ class _BusinessSectionPageState extends State<BusinessSectionPage> {
   }
 
   Widget _buildEmptySection() {
-    return widgetFactory.createText(context, 'No products found in this section', style: Theme.of(context).textTheme.bodySmall).withPaddingSymetric(horizontal: 12, vertical: 8);
+    return widgetFactory.createText(context, appController.getAppContext().l10n.noProductsInSection, style: Theme.of(context).textTheme.bodySmall).withPaddingSymetric(horizontal: 12, vertical: 8);
   }
 }

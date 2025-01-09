@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'theme.dart';
 import '../services/routing_service.dart';
@@ -22,6 +23,7 @@ class _MelegnaCustomerAppState extends State<MelegnaCustomerApp> {
 
   // Method to update locale dynamically
   void setLocale(Locale locale) {
+    print('setLocale ${locale.languageCode}');
     setState(() {
       _appLocale = locale;
     });
@@ -46,13 +48,14 @@ class _MelegnaCustomerAppState extends State<MelegnaCustomerApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      scaffoldMessengerKey: AppController.scaffoldMessengerKey,
       title: 'Imela',
       theme: AppThemeManager.getInstance(context).getLightTheme(),
       darkTheme: AppThemeManager.getInstance(context).getDarkTheme(),
       themeMode: ThemeMode.light,
       locale: _appLocale,
       localizationsDelegates: const [
-        // AppLocalizations.delegate, // Add this line
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

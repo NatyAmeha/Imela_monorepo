@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/order/components/order_item_list_item.dart';
 import 'package:imela/presentation/ui/order/order_confirmation/order_confirmation.viewmodel.dart';
@@ -31,7 +32,7 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
       },
       child: Scaffold(
           appBar: AppBar(
-            title: const Text('Order Confirmation'),
+            title: Text(AppLocalizations.of(context).orderConfirmation),
             automaticallyImplyLeading: false,
             leading: widgetFactory.createIcon(
                 materialIcon: Icons.arrow_back_ios,
@@ -51,20 +52,20 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
                       const SizedBox(height: 32),
                       widgetFactory.createIcon(materialIcon: Icons.check_circle, size: 75, color: Theme.of(context).colorScheme.primary),
                       const SizedBox(height: 16),
-                      widgetFactory.createText(context, 'Order submitted successfully', style: Theme.of(context).textTheme.titleLarge),
+                      widgetFactory.createText(context, AppLocalizations.of(context).orderSubmittedSuccess, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 8),
                       widgetFactory.createCard(
                         padding: const EdgeInsets.all(10),
                         border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerLow),
                         borderRadius: BorderRadius.circular(8),
-                        child: widgetFactory.createText(context, 'Thank you for your order. We will contact you shortly to confirm the order.', style: Theme.of(context).textTheme.bodySmall),
+                        child: widgetFactory.createText(context, AppLocalizations.of(context).thankYouOrderMessage, style: Theme.of(context).textTheme.bodySmall),
                       ),
                       const SizedBox(height: 16),
                       _buildOrderSummary(context),
                       const SizedBox(height: 16),
                       widgetFactory.createButton(
                         context: context,
-                        content: const Text('Back to Home'),
+                        content: Text(AppLocalizations.of(context).backToHome),
                         onPressed: () {
                           viewmodel.navigateToHome(context);
                         },
@@ -82,7 +83,7 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        widgetFactory.createText(context, 'Order Summary', style: Theme.of(context).textTheme.titleMedium),
+        widgetFactory.createText(context, AppLocalizations.of(context).orderSummary, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 16),
         AppListView(
           shrinkWrap: true,
@@ -100,21 +101,21 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            widgetFactory.createText(context, 'Subtotal', style: Theme.of(context).textTheme.titleMedium),
+            widgetFactory.createText(context, AppLocalizations.of(context).subtotal, style: Theme.of(context).textTheme.titleMedium),
             widgetFactory.createText(context, viewmodel.order?.subtotalAmountString(viewmodel.selectedCurrency, viewmodel.selectedLanguage) ?? '', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            widgetFactory.createText(context, 'Discount', style: Theme.of(context).textTheme.titleMedium),
+            widgetFactory.createText(context, AppLocalizations.of(context).discount, style: Theme.of(context).textTheme.titleMedium),
             widgetFactory.createText(context, viewmodel.order?.totalDiscountString(viewmodel.selectedCurrency, viewmodel.selectedLanguage) ?? '', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.titleMedium),
+            widgetFactory.createText(context, AppLocalizations.of(context).total, style: Theme.of(context).textTheme.titleMedium),
             widgetFactory.createText(context, viewmodel.order?.totalAmountString(viewmodel.selectedCurrency, viewmodel.selectedLanguage) ?? '', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),

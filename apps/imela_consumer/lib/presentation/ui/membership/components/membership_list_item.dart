@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela_core/membership/model/membership.model.dart';
@@ -20,7 +21,7 @@ class MembershipListItem extends StatelessWidget {
     this.width = double.infinity,
     this.bgColor = ColorManager.primary,
     this.height,
-    this.selectedLanguage = "ENGLISH",
+    this.selectedLanguage = 'ENGLISH',
     this.onTap,
   });
 
@@ -46,7 +47,7 @@ class MembershipListItem extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          widgetFactory.createText(context, "Benefits ", style: Theme.of(context).textTheme.titleSmall).withPaddingSymetric(horizontal: 16),
+          widgetFactory.createText(context, '${AppController.getInstance.getAppContext().l10n.benefits} ', style: Theme.of(context).textTheme.titleSmall).withPaddingSymetric(horizontal: 16),
           AppListView(
             shrinkWrap: true,
             items: membershipInfo.benefits,
@@ -61,7 +62,7 @@ class MembershipListItem extends StatelessWidget {
           widgetFactory
               .createButton(
                 context: context,
-                content: const Text("View Details"),
+                content: const Text('View Details'),
                 style: AppButtonStyle.outlinedButtonStyle(context, borderRadius: 24),
                 onPressed: () => onTap?.call(),
               )

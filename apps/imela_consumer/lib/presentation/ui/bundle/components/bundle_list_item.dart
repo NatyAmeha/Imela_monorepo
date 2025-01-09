@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela/presentation/ui/shared/countdown_timer.component.dart';
@@ -48,15 +49,15 @@ class BundleListItem extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: remainingTime != null ? 16 : 8),
+                      SizedBox(height: (remainingTime != null) ? 16 : 4),
                       widgetFactory.createText(context, bundleData.name.localize('ENGLISH'), style: Theme.of(context).textTheme.titleMedium),
                       widgetFactory
                           .createText(
                             context,
-                            bundleData.description.localize('ENGLISH'),
+                            bundleData.description.localize('ENGLISH'), 
                             maxLines: 2,
                             padding: const EdgeInsets.symmetric(vertical: 4),
-                            style: Theme.of(context).textTheme.labelMedium,
+                            style: Theme.of(context).textTheme.labelSmall,
                           )
                           .showIfNotNull(bundleData.description),
                       const SizedBox(height: 4),
@@ -74,8 +75,8 @@ class BundleListItem extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  widgetFactory.createText(context, 'Discount', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
-                                  widgetFactory.createText(context, '${bundleData.discount?.value} OFF', style: Theme.of(context).textTheme.bodyMedium, enableResize: true),
+                                  widgetFactory.createText(context, AppLocalizations.of(context).discount, padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
+                                  widgetFactory.createText(context, '${bundleData.discount?.value} ${AppLocalizations.of(context).off}', style: Theme.of(context).textTheme.bodyMedium, enableResize: true),
                                 ],
                               ),
                             ),
@@ -85,8 +86,8 @@ class BundleListItem extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  widgetFactory.createText(context, 'Products', padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
-                                  widgetFactory.createText(context, bundleData.getBundleProducts(), style: Theme.of(context).textTheme.bodyMedium, enableResize: true, maxLines: 1),
+                                  widgetFactory.createText(context, AppLocalizations.of(context).products, padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
+                                  widgetFactory.createText(context, AppLocalizations.of(context).bundleProducts(bundleData.getBundleProducts()), style: Theme.of(context).textTheme.bodyMedium, enableResize: true, maxLines: 1),
                                 ],
                               ),
                             ),

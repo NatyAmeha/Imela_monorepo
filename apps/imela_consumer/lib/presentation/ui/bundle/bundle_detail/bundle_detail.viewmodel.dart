@@ -37,6 +37,7 @@ import 'package:imela_utils/helpers/number_utils.dart';
 import 'package:injectable/injectable.dart';
 import 'package:imela_core/bundle/bundle.usecase.dart';
 import 'package:imela_core/order/order.usecase.dart';
+import 'package:imela/l10n/l10n.dart';
 
 @injectable
 class BundleDetailViewmodel extends GetxController with BaseViewmodel {
@@ -101,16 +102,16 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     final conditionValue = double.tryParse(bundle!.discount!.conditionValue ?? '0') ?? 0.0;
     if (condition == DiscountCondition.MAXIMUM_PURCHASE.name) {
       canEnable = selectedBundleProducts.length <= conditionValue;
-      remainingStatusMsg.value = '${conditionValue - selectedBundleProducts.length} remaining';
+      remainingStatusMsg.value = AppLocalizations.of(appViewmodel.getAppContext()).remaining('${conditionValue - selectedBundleProducts.length}');
       return canEnable;
     } else if (condition == DiscountCondition.MINIMUM_PURCHASE.name) {
       canEnable = selectedBundleProducts.length >= conditionValue;
-      remainingStatusMsg.value = selectedBundleProducts.length >= conditionValue ? '' : '${conditionValue - selectedBundleProducts.length} remaining';
+      remainingStatusMsg.value = selectedBundleProducts.length >= conditionValue ? '' : AppLocalizations.of(appViewmodel.getAppContext()).remaining('${conditionValue - selectedBundleProducts.length}');
       return canEnable;
     } else if (condition == DiscountCondition.PURCHASE_ALL_ITEMS.name) {
       final bundleProductsLength = bundle?.products?.length;
       var items = bundleProductsLength == selectedBundleProducts.length;
-      remainingStatusMsg.value = 'Purchase all products';
+      remainingStatusMsg.value = AppLocalizations.of(appViewmodel.getAppContext()).purchaseAllProducts;
       return items;
     } else {
       return bundlePrice.isGreaterThan(0);
@@ -184,13 +185,13 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
       isLoading(true);
       parentProduct = product;
       if (isBundleExpired) {
-        widgetFactory.showFlashMessage(context, message: 'Bundle expired ', backgroundColor: ColorManager.error);
+        widgetFactory.showFlashMessage(context, message: AppLocalizations.of(context).bundleExpired, backgroundColor: ColorManager.error);
         return;
       }
       if (product.hasVariants()) {
         AppModalSheet.showModal(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
           ModalContent(
-            title: widgetFactory.createText(context, 'Configure product', style: Theme.of(context).textTheme.titleMedium),
+            title: widgetFactory.createText(context, AppLocalizations.of(context).configureProduct, style: Theme.of(context).textTheme.titleMedium),
             content: BundleProductConfigModal(
               product: product,
               widgetFactory: widgetFactory,
@@ -289,7 +290,7 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
       isLoading(true);
       var cartInfo = bundle!.getCartInfo(selectedBundleProducts.values.toList(), productOrderConfigs).addOrderAddons(bundle!.addons ?? []).addOrUpdateItems(additionallySelectedOrderItems);
       cartListViewmodel.addCartToCartList(cartInfo, paymentOptions: bundle!.bundlePaymentOptions());
-      appViewmodel.showAddToCartDialog(context, message: 'Bundle added to cart successfully', cart: cartInfo);
+      appViewmodel.showAddToCartDialog(context, message: AppLocalizations.of(context).bundleAddedToCart, cart: cartInfo);
     } catch (e) {
       exception.value = exceptiionHandler.getException(e as Exception);
       if (exception.value?.code == ErrorResourceValues.UnAUTHORIZED_EXCEPTION_CODE) {
@@ -344,11 +345,11 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     var widgetFactory = AppController.getInstance.getWidgetFactory(context);
     AppModalSheet.showModal(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
       ModalContent(
-        title: const Text('Selected Products'),
+        title: Text(AppLocalizations.of(context).selectedProducts('${selectedBundleProducts.values.length}')),
         content: Obx(
           () => AppListView(
             shrinkWrap: true,
-            header: widgetFactory.createText(context, 'Selected Products', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 16, vertical: 8),
+            header: widgetFactory.createText(context, AppLocalizations.of(context).selectedProducts('${selectedBundleProducts.values.length}'), style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 16, vertical: 8),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
             items: selectedBundleProducts.values.toList(),
@@ -381,9 +382,21 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
     }
     final selectedCart = appViewmodel.carts.firstWhereOrNull((element) => element.id == bundle!.id);
     if (selectedCart == null) {
-      appViewmodel.getWidgetFactory(context).showFlashMessage(context, message: 'No cart created for this business. Add products from this business first');
+      appViewmodel.getWidgetFactory(context).showFlashMessage(context, message: AppLocalizations.of(context).noCartCreated);
       return;
     }
     CartDetailPage.navigateToCartDetailPage(context, router, selectedCart);
   }
+
+  String getRemainingMessage(BuildContext context, String condition, double conditionValue) {
+    if (condition == DiscountCondition.MAXIMUM_PURCHASE.name) {
+      return AppLocalizations.of(context).remaining('${conditionValue - selectedBundleProducts.length}');
+    } else if (condition == DiscountCondition.MINIMUM_PURCHASE.name) {
+      return selectedBundleProducts.length >= conditionValue ? '' : AppLocalizations.of(context).remaining('${conditionValue - selectedBundleProducts.length}');
+    } else if (condition == DiscountCondition.PURCHASE_ALL_ITEMS.name) {
+      return AppLocalizations.of(context).purchaseAllProducts;
+    }
+    return '';
+  }
 }
+ 

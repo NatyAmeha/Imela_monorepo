@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/cart/order_configure/order_configure.viewmodel.dart';
 import 'package:imela/presentation/ui/payment/components/payment_option_item.dart';
 import 'package:imela/presentation/ui/payment/components/selected_payment_method.dart';
@@ -22,7 +23,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment'),
+        title: Text(AppLocalizations.of(context).payment),
       ),
       body: Obx(
         () => PageContentLoader(
@@ -37,9 +38,9 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      widgetFactory.createText(context, 'Choose payment option', style: Theme.of(context).textTheme.titleMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).choosePaymentOption, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
-                      AppListView<PaymentOption>(
+                      AppListView<PaymentOption>( 
                         items: cart.paymentOptions ?? [],
                         contentPadding: const EdgeInsets.symmetric(vertical: 8),
                         shrinkWrap: true,
@@ -57,14 +58,13 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           );
                         },
                       ),
-                      // const Divider(height: 24),
                       const SizedBox(height: 24),
                       Obx(() {
                         return AppListView(
                           header: viewmodel.selectedPaymentMethods.isNotEmpty
                               ? widgetFactory.createText(
                                   context,
-                                  'Selected payment method',
+                                  AppLocalizations.of(context).selectedPaymentMethod,
                                   style: Theme.of(context).textTheme.titleMedium,
                                 )
                               : null,
@@ -112,7 +112,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                               children: [
                                 widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
                                 const SizedBox(width: 8),
-                                Flexible(child: widgetFactory.createText(context, viewmodel.paymentStatusMessage, style: Theme.of(context).textTheme.bodyMedium)),
+                                Flexible(child: widgetFactory.createText(context, AppLocalizations.of(context).paymentInfo, style: Theme.of(context).textTheme.bodyMedium)),
                               ],
                             ),
                             const Divider(height: 8),
@@ -122,7 +122,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                widgetFactory.createText(context, 'Total', style: Theme.of(context).textTheme.bodyLarge),
+                                widgetFactory.createText(context, AppLocalizations.of(context).total, style: Theme.of(context).textTheme.bodyLarge),
                                 const SizedBox(width: 8),
                                 widgetFactory.createText(context, 'ETB ${viewmodel.currentPayment}', style: Theme.of(context).textTheme.titleMedium),
                               ],
@@ -132,7 +132,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           Obx(
                             () => widgetFactory.createButton(
                               context: context,
-                              content: Text(viewmodel.orderCallToactionTest),
+                              content: Text(AppLocalizations.of(context).orderCallToAction),
                               onPressed: () => viewmodel.placeOrder(context),
                             ),
                           ),

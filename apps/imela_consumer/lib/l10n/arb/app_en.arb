@@ -1,0 +1,256 @@
+{
+    "@@locale": "en",
+    "appTitle": "Imela POS",
+    "homeTitle": "Home",
+    "salesTitle": "Sales",
+    "inventoryTitle": "Inventory",
+    "settingsTitle": "Settings",
+    "logoutButton": "Logout",
+    "bundles": "Bundles",
+    "featuredProducts": "Featured products",
+    "selectedBranch": "Selected branch",
+    "change": "Change",
+    "businessInfoButton": "Business Information",
+    "chooseOption": "Choose option",
+    "minimumOrder": "Minimum order: {qty}",
+    "remainingItems": "Remaining items: {amount}",
+    "membersOnly": "Members only",
+    "becomeMember": "Become a member",
+    "membersOnlyDescription": "This product is for members only who have a membership plan on the business",
+    "additionalPerks": "Additional perks",
+    "membershipPerks": "Membership perks",
+    "memberOnlyProducts": "Member only products",
+    "noProductFound": "No product found",
+    "membershipPendingMessage": "Your request to join this membership is pending. it will be reviewed by the business owner and you will be notified of the result.",
+    "seeRequestDetail": "See request detail",
+    "trialPeriod": "Trial period",
+    "requestToJoin": "Request to join",
+    "membershipPayment": "Membership Payment",
+    "selectPaymentMethod": "Select Payment Method",
+    "paymentReceiptInfo": "Choose payment method, upload your payment receipt and we will verify your payment receipt and approve your membership request as soon as possible.",
+    "sendRequest": "Send Request",
+    "price": "Price",
+    "duration": "Duration",
+    "status": "Status",
+    "active": "Active",
+    "pending": "Pending",
+    "paymentReceipt": "Payment receipt",
+    "noReceipt": "No receipt",
+    "benefits": "Benefits",
+    "close": "Close",
+    "amount": "Amount",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "viewDetails": "View Details",
+    "@minimumOrder": {
+        "description": "Minimum order quantity",
+        "placeholders": {
+            "qty": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "@remainingItems": {
+        "description": "Remaining items in stock",
+        "placeholders": {
+            "amount": {
+                "type": "String",
+                "example": "10"
+            }
+        }
+    },
+    "products": "Products",
+    "viewAll": "View all",
+    "noProductsInSection": "No products found in this section",
+    "language": "Language",
+    "rewards": "Rewards",
+    "rewardProgram": "Reward program",
+    "membership": "Membership",
+    "selectedLanguage": "en",
+    "addressAndContact": "Address & Contact",
+    "email": "Email",
+    "phoneNumber": "Phone number",
+    "address": "Address",
+    "branches": "Branches",
+    "discover": "Discover",
+    "cart": "Cart",
+    "profile": "Profile",
+    "onlinePresenceTitle": "Online presence for your business",
+    "onlinePresenceDescription": "Create online store for your business and reach more customers, accept online orders and payments",
+    "membershipTitle": "Membership and subscription",
+    "membershipDescription": "Create membership and subscription plans for your customers and increase your revenue and customer loyalty",
+    "loyaltyTitle": "Create Loyal customers",
+    "loyaltyDescription": "Create loyalty programs and reward your customers for their loyalty and increase your repeat customers",
+    "rewardDetails": "Reward Details",
+    "pointsToReachTier": "Point required to reach this tier: ",
+    "availableRewards": "Available rewards: ",
+    "rewardsCount": "{count} rewards",
+    "businesses": "Businesses",
+    "rewardsAvailableAllProducts": "Rewards in this tier will be available on all products.",
+    "insufficientPoints": "Insufficient points to redeem rewards",
+    "insufficientPointsDescription": "Your current points isn't enough to join a reward program and redeem rewards. Please check your points and try again.",
+    "seeBusinessRewardPrograms": "See business reward programs",
+    "membershipList": "Membership List",
+    "yourLoyalties": "Your Loyalties",
+    "@rewardsCount": {
+        "description": "Number of rewards available",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "favoriteBusiness": "Your Favorite Businesses",
+    "viewMore": "View more",
+    "rewards": "Rewards",
+    "noProductsInSection": "No products found in this section",
+    "notSignedIn": "Not signed in",
+    "signIn": "Sign in",
+    "signInToSeeProfile": "Sign in to see your profile and rewards",
+    "addName": "Add Name",
+    "orders": "Orders",
+    "viewAll": "View All",
+    "yourMemberships": "Your Memberships",
+    "loyaltyPrograms": "Loyalty programs",
+    "settings": "Settings",
+    "currency": "Currency",
+    "notificationSettings": "Notification Settings",
+    "profileSettings": "Profile Settings",
+    "editProfile": "Edit Profile",
+    "qrCode": "QR code",
+    "rewardsCount": "Rewards: {count}",
+    "helpCenter": "Help Center",
+    "@rewardsCount": {
+        "description": "Number of rewards",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "orderDetails": "Order details",
+    "orderSummary": "Order Summary",
+    "orderStatus": "Order Status",
+    "orderDate": "Order Date",
+    "totalItems": "Total Items",
+    "totalAmount": "Total Amount",
+    "earnedPoints": "Earned Points",
+    "viewRewards": "View rewards",
+    "paymentSummary": "Payment summary",
+    "paidAmounts": "Paid amounts",
+    "remainingAmount": "Remaining Amount",
+    "paymentMethods": "Payment methods",
+    "items": "Items",
+    "additionalConfigurations": "Additional Configurations",
+    "orderConfirmation": "Order Confirmation",
+    "orderSubmittedSuccess": "Order submitted successfully",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "itemsCount": "{count} items",
+    "@itemsCount": {
+        "description": "Number of items in order",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "orderCode": "Order code {code}",
+    "@orderCode": {
+        "description": "Order code with number",
+        "placeholders": {
+            "code": {
+                "type": "String",
+                "example": "123"
+            }
+        }
+    },
+    "signInToApplyRewards": "Sign in to apply your rewards",
+    "seeAdditionalItems": "See Additional items",
+    "yourPoints": "Your points ({points})",
+    "@yourPoints": {
+        "description": "Points with number",
+        "placeholders": {
+            "points": {
+                "type": "String",
+                "example": "100"
+            }
+        }
+    },
+    "seeRewards": "See rewards",
+    "thankYouOrderMessage": "Thank you for your order. We will contact you shortly to confirm the order.",
+    "backToHome": "Back to Home",
+    "yourCartIsEmpty": "Your cart is empty",
+    "addItemsToCart": "Add items to your cart to get started",
+    "payment": "Payment",
+    "choosePaymentOption": "Choose payment option",
+    "selectedPaymentMethod": "Selected payment method",
+    "currentPayment": "Current payment",
+    "remainingPaymentAmount": "Remaining amount",
+    "payRemainingOnDelivery": "Pay remaining on delivery",
+    "proceedToCheckout": "Proceed to checkout",
+    "addonsCharges": "Add-ons charges",
+    "change": "Change",
+    "orderCallToAction": "Place order",
+    "paymentInfo": "Choose payment method, upload your payment receipt and we will verify your payment receipt and approve your order as soon as possible.",
+    "clear": "Clear",
+    "bundleExpired": "Bundle expired",
+    "configureProduct": "Configure product",
+    "bundleAddedToCart": "Bundle added to cart successfully",
+    "items": "Items",
+    "discount": "Discount",
+    "products": "Products",
+    "off": "OFF",
+    "bundleProducts": "{count} Products",
+    "@bundleProducts": {
+        "description": "Number of products in a bundle",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "remaining": "{count} remaining",
+    "@remaining": {
+        "description": "Number of remaining items",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "3"
+            }
+        }
+    },
+    "purchaseAllProducts": "Purchase all products",
+    "chooseOption": "Choose option",
+    "select": "Select",
+    "totalProducts": "Total products",
+    "timeRemaining": "Time remaining",
+    "additionalItems": "Additional items",
+    "quantity": "Qty - {qty}",
+    "@quantity": {
+        "description": "Quantity with number",
+        "placeholders": {
+            "qty": {
+                "type": "String",
+                "example": "1"
+            }
+        }
+    },
+    "selectedProducts": "Selected Products ({count})",
+    "@selectedProducts": {
+        "description": "Number of selected products",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "3"
+            }
+        }
+    },
+    "noCartCreated": "No cart created for this business. Add products from this business first"
+}

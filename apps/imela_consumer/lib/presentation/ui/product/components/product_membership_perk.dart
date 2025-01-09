@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
@@ -27,6 +29,7 @@ class ProductMembershipPerk extends StatefulWidget {
 
 class _ProductMembershipPerkState extends State<ProductMembershipPerk> with SingleTickerProviderStateMixin {
   late final TabController tabController;
+  final appController = AppController.getInstance;
   List<ProductAddon> get membershipAddons => widget.product.getMembershipAddons();
   List<ProductAddon> get nonMembershipAddons => widget.product.getNonMembershipAddons();
 
@@ -42,7 +45,6 @@ class _ProductMembershipPerkState extends State<ProductMembershipPerk> with Sing
   @override 
   void initState() {
     super.initState();
-
     tabController = TabController(length: tabLength, vsync: this);
   }
 
@@ -57,45 +59,39 @@ class _ProductMembershipPerkState extends State<ProductMembershipPerk> with Sing
             isScrollable: true,
             controller: tabController,
             tabs: [
-              if (nonMembershipAddons.isNotEmpty) const Tab(text: 'Additional perks'),
-              if (membershipAddons.isNotEmpty) const Tab(text: 'Membership perks'),
+              if (nonMembershipAddons.isNotEmpty) Tab(text: appController.getAppContext().l10n.additionalPerks),
+              if (membershipAddons.isNotEmpty) Tab(text: appController.getAppContext().l10n.membershipPerks),
             ],
           ),
           Expanded(
             child: TabBarView(
               controller: tabController,
               children: [
-                if (nonMembershipAddons.isNotEmpty) buildAddonList(context, nonMembershipAddons).paddingSymmetric(vertical: 16),
-                if (membershipAddons.isNotEmpty) buildAddonList(context, membershipAddons).paddingSymmetric(vertical: 16),
+                if (nonMembershipAddons.isNotEmpty)
+                  AppListView(
+                    items: nonMembershipAddons,
+                    shrinkWrap: true,
+                    itemBuilder: (context, addon, index) {
+                      return ListTile(
+                        title: widget.widgetFactory.createText(context, addon.name.localize(widget.selectedLanguage)),
+                      );
+                    },
+                  ),
+                if (membershipAddons.isNotEmpty)
+                  AppListView(
+                    items: membershipAddons,
+                    shrinkWrap: true,
+                    itemBuilder: (context, addon, index) {
+                      return ListTile(
+                        title: widget.widgetFactory.createText(context, addon.name.localize(widget.selectedLanguage)),
+                      );
+                    },
+                  ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildAddonList(BuildContext context, List<ProductAddon> addons, {bool isMembership = false}) {
-    final emptyAddonText = isMembership ? 'No membership perks' : 'No additional perks';
-    return Column(
-      children: [
-        if (addons.isEmpty) widget.widgetFactory.createText(context, emptyAddonText).paddingSymmetric(vertical: 40),
-        AppListView(
-          items: addons,
-          shrinkWrap: true,
-          primary: false,
-          contentPadding: const EdgeInsets.symmetric(vertical: 4),
-          itemBuilder: (context, addon, index) {
-            return Row(
-              children: [
-                widget.widgetFactory.createIcon(materialIcon: Icons.check_circle, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 10),
-                widget.widgetFactory.createText(context, addon.name.localize(widget.selectedLanguage)),
-              ],
-            );
-          },
-        ),
-      ],
     );
   }
 }

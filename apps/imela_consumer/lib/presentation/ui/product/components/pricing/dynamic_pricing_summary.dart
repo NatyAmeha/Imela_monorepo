@@ -68,17 +68,16 @@ class ProductDynamicPriceSummary extends StatelessWidget {
             widgetFactory.createText(context, priceString, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(width: 2),
             if (discountAmountString.isNotEmpty) ...[
-              BadgeList(
-                values: [discountAmountString],
-                colors: const [ColorManager.warning],
+              BadgeListTile(
                 widgetFactory: widgetFactory,
-                width: 100,
-                height: 20,
+                value: discountAmountString,
+                borderColor: ColorManager.warning,
+                textStyle: Theme.of(context).textTheme.bodyMedium,
               ),
             ]
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         widgetFactory.createText(context, qtyConditionString, style: Theme.of(context).textTheme.bodyMedium),
       ],
     ).withPaddingSymetric(horizontal: 10);

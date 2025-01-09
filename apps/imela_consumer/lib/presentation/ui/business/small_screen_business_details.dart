@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/bundle/components/bundle_list_item.dart';
 import 'package:imela/presentation/ui/business/component/business_loyalty_banner.dart';
@@ -177,7 +178,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                         appWidgetFactory
                             .createButton(
                               context: context,
-                              content: const Text('Get more info'),
+                              content: Text(viewmodel.appViewmodel.getAppContext().l10n.businessInfoButton),
                               style: AppButtonStyle.outlinedButtonStyle(context, borderRadius: 32, padding: const EdgeInsets.all(4)),
                               onPressed: () {
                                 viewmodel.showBusinessInfoDialog(context, appWidgetFactory);
@@ -188,7 +189,11 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                     ),
                   ),
                   AppListView<ProductBundle>(
-                    header: appWidgetFactory.createText(context, 'Bundles', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 16, vertical: 8),
+                    header: appWidgetFactory.createText(
+                      context, 
+                      viewmodel.appViewmodel.getAppContext().l10n.bundles, 
+                      style: Theme.of(context).textTheme.titleMedium
+                    ).withPaddingSymetric(horizontal: 16, vertical: 8),
                     scrollDirection: Axis.horizontal,
                     items: viewmodel.businessBundles,
                     shrinkWrap: true,
@@ -209,7 +214,12 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                   ).showIfTrue(viewmodel.businessBundles.isNotEmpty),
                   const SizedBox(height: 24),
                   AppGridView(
-                    header: appWidgetFactory.createText(context, 'Featured products', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.start).withPaddingSymetric(horizontal: 12),
+                    header: appWidgetFactory.createText(
+                      context, 
+                      viewmodel.appViewmodel.getAppContext().l10n.featuredProducts, 
+                      style: Theme.of(context).textTheme.titleMedium, 
+                      textAlign: TextAlign.start
+                    ).withPaddingSymetric(horizontal: 12),
                     shrinkWrap: true,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     items: viewmodel.featuredProducts,
@@ -275,7 +285,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  appWidgetFactory.createText(context, 'Selected branch', style: Theme.of(context).textTheme.bodySmall),
+                                  appWidgetFactory.createText(context, viewmodel.appViewmodel.getAppContext().l10n.selectedBranch, style: Theme.of(context).textTheme.bodySmall),
                                   appWidgetFactory.createText(context, viewmodel.selectedBranchName, style: Theme.of(context).textTheme.titleSmall),
                                 ],
                               ),
@@ -284,7 +294,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
                           const SizedBox(width: 16),
                           appWidgetFactory.createButton(
                             context: context,
-                            content: const Text('Change'),
+                            content: Text(viewmodel.appViewmodel.getAppContext().l10n.change),
                             style: AppButtonStyle.textButtonStyle(context),
                             onPressed: () {
                               viewmodel.showBusinessBranchSelectionModal(context);

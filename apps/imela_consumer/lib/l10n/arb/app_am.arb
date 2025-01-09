@@ -1,0 +1,255 @@
+{
+    "@@locale": "am",
+    "appTitle": "ኢሜላ ፖስ",
+    "homeTitle": "ዋና ገጽ",
+    "salesTitle": "ሽያጭ",
+    "inventoryTitle": "ዕቃዎች",
+    "settingsTitle": "ቅንብሮች",
+    "logoutButton": "ውጣ",
+    "bundles": "ጥቅሎች",
+    "featuredProducts": "ተለይተው የቀረቡ ምርቶች",
+    "selectedBranch": "የተመረጠው ቅርንጫፍ",
+    "change": "ቀይር",
+    "businessInfoButton": "የንግድ መረጃ",
+    "chooseOption": "አማራጭ ይምረጡ",
+    "minimumOrder": "ዝቅተኛ ትዕዛዝ፡ {qty}",
+    "remainingItems": "የቀሩ እቃዎች፡ {amount}",
+    "membersOnly": "ለአባላት ብቻ",
+    "becomeMember": "አባል ሁን",
+    "membersOnlyDescription": "ይህ ምርት ለንግዱ የአባልነት እቅድ ላላቸው አባላት ብቻ ነው",
+    "additionalPerks": "ተጨማሪ ጥቅሞች",
+    "membershipPerks": "የአባልነት ጥቅሞች",
+    "memberOnlyProducts": "ለአባላት ብቻ የሚሸጡ ምርቶች",
+    "noProductFound": "ምንም ምርት አልተገኘም",
+    "membershipPendingMessage": "የአባልነት ጥያቄዎ በመጠባበቅ ላይ ነው። በንግዱ ባለቤት ይገመገማል እና ውጤቱ ይገለጽልዎታል።",
+    "seeRequestDetail": "የጥያቄውን ዝርዝር ይመልከቱ",
+    "trialPeriod": "የሙከራ ጊዜ",
+    "requestToJoin": "ለመቀላቀል ጥያቄ አቅርብ",
+    "membershipPayment": "የአባልነት ክፍያ",
+    "selectPaymentMethod": "የክፍያ ዘዴን ይምረጡ",
+    "paymentReceiptInfo": "የክፍያ ዘዴን ይምረጡ፣ የክፍያ ደረሰኝዎን ያስቀሉ እና የክፍያ ደረሰኝዎን እናረጋግጣለን እና የአባልነት ጥያቄዎን በተቻለ ፍጥነት እናፀድቃለን።",
+    "sendRequest": "ጥያቄ ይላኩ",
+    "price": "ዋጋ",
+    "duration": "የጊዜ ርዝማኔ",
+    "status": "ሁኔታ",
+    "active": "ንቁ",
+    "pending": "በመጠባበቅ ላይ",
+    "paymentReceipt": "የክፍያ ደረሰኝ",
+    "noReceipt": "ደረሰኝ የለም",
+    "benefits": "ጥቅሞች",
+    "close": "ዝጋ",
+    "amount": "መጠን",
+    "startDate": "የመጀመሪያ ቀን",
+    "endDate": "የመጨረሻ ቀን",
+    "viewDetails": "ዝርዝሮችን ይመልከቱ",
+    "@minimumOrder": {
+        "description": "Minimum order quantity",
+        "placeholders": {
+            "qty": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "@remainingItems": {
+        "description": "Remaining items in stock",
+        "placeholders": {
+            "amount": {
+                "type": "String",
+                "example": "10"
+            }
+        }
+    },
+    "products": "ምርቶች",
+    "viewAll": "ሁሉንም ይመልከቱ",
+    "noProductsInSection": "በዚህ ክፍል ውስጥ ምንም ምርት አልተገኘም",
+    "language": "ቋንቋ",
+    "rewards": "ሽልማቶች",
+    "rewardProgram": "የሽልማት ፕሮግራም",
+    "membership": "አባልነት",
+    "selectedLanguage": "am",
+    "addressAndContact": "አድራሻ እና አድራሻ",
+    "email": "ኢሜይል",
+    "phoneNumber": "ስልክ ቁጥር",
+    "address": "አድራሻ",
+    "branches": "ቅርንጫፎች",
+    "discover": "አግኝ",
+    "cart": "ጋሪ",
+    "profile": "መገለጫ",
+    "onlinePresenceTitle": "ለንግድዎ የመስመር ላይ ተገኝነት",
+    "onlinePresenceDescription": "ለንግድዎ የመስመር ላይ መደብር ይፍጠሩ እና ተጨማሪ ደንበኞችን ያግኙ፣ የመስመር ላይ ትዕዛዞችን እና ክፍያዎችን ይቀበሉ",
+    "membershipTitle": "አባልነት እና የደንበኝነት አገልግሎት",
+    "membershipDescription": "ለደንበኞችዎ የአባልነት እና የደንበኝነት እቅዶችን ይፍጠሩ እና ገቢዎን እና የደንበኞችዎን ታማኝነት ይጨምሩ",
+    "loyaltyTitle": "ታማኝ ደንበኞችን ይፍጠሩ",
+    "loyaltyDescription": "የታማኝነት ፕሮግራሞችን ይፍጠሩ እና ደንበኞችዎን ለታማኝነታቸው ይሸልሙ እና የሚመለሱ ደንበኞችዎን ይጨምሩ",
+    "rewardDetails": "የሽልማት ዝርዝሮች",
+    "pointsToReachTier": "ይህን ደረጃ ለመድረስ የሚያስፈልግ ነጥብ፡ ",
+    "availableRewards": "ያሉ ሽልማቶች፡ ",
+    "rewardsCount": "{count} ሽልማቶች",
+    "businesses": "ንግዶች",
+    "rewardsAvailableAllProducts": "በዚህ ደረጃ ያሉ ሽልማቶች በሁሉም ምርቶች ላይ ይገኛሉ።",
+    "insufficientPoints": "ሽልማቶችን ለመቀበል በቂ ነጥብ የለም",
+    "insufficientPointsDescription": "የአሁኑ ነጥብዎ የሽልማት ፕሮግራም ለመቀላቀል እና ሽልማቶችን ለመቀበል በቂ አይደለም። እባክዎ ነጥብዎን ያረጋግጡ እና እንደገና ይሞክሩ።",
+    "seeBusinessRewardPrograms": "የንግድ ሽልማት ፕሮግራሞችን ይመልከቱ",
+    "membershipList": "የአባልነት ዝርዝር",
+    "yourLoyalties": "የእርስዎ ታማኝነቶች",
+    "@rewardsCount": {
+        "description": "Number of rewards available",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "favoriteBusiness": "የእርስዎ ተወዳጅ ንግዶች",
+    "viewMore": "ተጨማሪ ይመልከቱ",
+    "rewards": "ሽልማቶች",
+    "noProductsInSection": "በዚህ ክፍል ውስጥ ምንም ምርት አልተገኘም",
+    "notSignedIn": "አልገቡም",
+    "signIn": "ግባ",
+    "signInToSeeProfile": "መገለጫዎን እና ሽልማቶችዎን ለማየት ይግቡ",
+    "addName": "ስም ያክሉ",
+    "orders": "ትዕዛዞች",
+    "viewAll": "ሁሉንም ይመልከቱ",
+    "yourMemberships": "የእርስዎ አባልነቶች",
+    "loyaltyPrograms": "የታማኝነት ፕሮግራሞች",
+    "settings": "ቅንብሮች",
+    "currency": "ገንዘብ",
+    "notificationSettings": "የማሳወቂያ ቅንብሮች",
+    "profileSettings": "የመገለጫ ቅንብሮች",
+    "editProfile": "መገለጫን ያስተካክሉ",
+    "qrCode": "ኪውአር ኮድ",
+    "rewardsCount": "ሽልማቶች፡ {count}",
+    "helpCenter": "የእገዛ ማዕከል",
+    "@rewardsCount": {
+        "description": "Number of rewards",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "orderDetails": "የትዕዛዝ ዝርዝሮች",
+    "orderSummary": "የትዕዛዝ ማጠቃለያ",
+    "orderStatus": "የትዕዛዝ ሁኔታ",
+    "orderDate": "የትዕዛዝ ቀን",
+    "totalItems": "ጠቅላላ እቃዎች",
+    "totalAmount": "ጠቅላላ መጠን",
+    "earnedPoints": "ያገኙት ነጥቦች",
+    "viewRewards": "ሽልማቶችን ይመልከቱ",
+    "paymentSummary": "የክፍያ ማጠቃለያ",
+    "paidAmounts": "የተከፈለ መጠን",
+    "remainingAmount": "የቀረው መጠን",
+    "paymentMethods": "የክፍያ ዘዴዎች",
+    "items": "እቃዎች",
+    "additionalConfigurations": "ተጨማሪ ማዋቀሮች",
+    "orderConfirmation": "የትዕዛዝ ማረጋገጫ",
+    "orderSubmittedSuccess": "ትዕዛዝ በተሳካ ሁኔታ ተልኳል",
+    "subtotal": "ንዑስ ድምር",
+    "discount": "ቅናሽ",
+    "total": "ጠቅላላ",
+    "itemsCount": "{count} እቃዎች",
+    "@itemsCount": {
+        "description": "Number of items in order",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "orderCode": "የትዕዛዝ ኮድ {code}",
+    "@orderCode": {
+        "description": "Order code with number",
+        "placeholders": {
+            "code": {
+                "type": "String",
+                "example": "123"
+            }
+        }
+    },
+    "signInToApplyRewards": "ሽልማቶችን ለመጠቀም ይግቡ",
+    "seeAdditionalItems": "ተጨማሪ እቃዎችን ይመልከቱ",
+    "yourPoints": "የእርስዎ ነጥቦች ({points})",
+    "@yourPoints": {
+        "description": "Points with number",
+        "placeholders": {
+            "points": {
+                "type": "String",
+                "example": "100"
+            }
+        }
+    },
+    "seeRewards": "ሽልማቶችን ይመልከቱ",
+    "thankYouOrderMessage": "ለትዕዛዝዎ እናመሰግናለን። በቅርብ ጊዜ ውስጥ ትዕዛዙን ለማረጋገጥ እናገኝዎታለን።",
+    "backToHome": "ወደ ዋናው ገጽ ተመለስ",
+    "yourCartIsEmpty": "የእርስዎ ጋሪ ባዶ ነው",
+    "addItemsToCart": "እባክዎ እቃዎችን ወደ ጋሪዎ ያክሉ",
+    "payment": "ክፍያ",
+    "choosePaymentOption": "የክፍያ አማራጭ ይምረጡ",
+    "selectedPaymentMethod": "የተመረጠው የክፍያ ዘዴ",
+    "currentPayment": "የአሁኑ ክፍያ",
+    "remainingPaymentAmount": "የቀረው መጠን",
+    "payRemainingOnDelivery": "የቀረውን በማድረሻ ጊዜ ይክፈሉ",
+    "proceedToCheckout": "ወደ ክፍያ ይቀጥሉ",
+    "addonsCharges": "ተጨማሪ ክፍያዎች",
+    "orderCallToAction": "ትዕዛዝ ያስገቡ",
+    "paymentInfo": "የክፍያ ዘዴን ይምረጡ፣ የክፍያ ደረሰኝዎን ያስገቡ እና የክፍያ ደረሰኝዎን እናረጋግጣለን እና ትዕዛዝዎን በተቻለ ፍጥነት እናፀድቃለን።",
+    "clear": "አጥፋ",
+    "bundleExpired": "ጥቅሉ ጊዜው አልፏል",
+    "configureProduct": "ምርቱን ያዋቅሩ",
+    "bundleAddedToCart": "ጥቅሉ በተሳካ ሁኔታ ወደ ጋሪ ተጨምሯል",
+    "items": "እቃዎች",
+    "discount": "ቅናሽ",
+    "products": "ምርቶች",
+    "off": "ቅናሽ",
+    "bundleProducts": "{count} ምርቶች",
+    "@bundleProducts": {
+        "description": "Number of products in a bundle",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "5"
+            }
+        }
+    },
+    "remaining": "{count} ቀሪ",
+    "@remaining": {
+        "description": "Number of remaining items",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "3"
+            }
+        }
+    },
+    "purchaseAllProducts": "ሁሉንም ምርቶች ይግዙ",
+    "chooseOption": "አማራጭ ይምረጡ",
+    "select": "ይምረጡ",
+    "totalProducts": "ጠቅላላ ምርቶች",
+    "timeRemaining": "የቀረው ጊዜ",
+    "additionalItems": "ተጨማሪ እቃዎች",
+    "quantity": "ብዛት - {qty}",
+    "@quantity": {
+        "description": "Quantity with number",
+        "placeholders": {
+            "qty": {
+                "type": "String",
+                "example": "1"
+            }
+        }
+    },
+    "selectedProducts": "የተመረጡ ምርቶች ({count})",
+    "@selectedProducts": {
+        "description": "Number of selected products",
+        "placeholders": {
+            "count": {
+                "type": "String",
+                "example": "3"
+            }
+        }
+    },
+    "noCartCreated": "ለዚህ ንግድ የተፈጠረ ጋሪ የለም። እባክዎ መጀመሪያ ከዚህ ንግድ ምርቶችን ያክሉ"
+}

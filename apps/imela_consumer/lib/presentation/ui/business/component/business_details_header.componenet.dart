@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -27,6 +29,7 @@ class BusinessDetailsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appWidgetFactory = WidgetFactory(Theme.of(context).platform);
+    final appController = AppController.getInstance;
     return Stack(
       children: [
         Positioned.fill(
@@ -84,6 +87,7 @@ class BusinessDetailsHeader extends StatelessWidget {
   }
 
   Widget _buildLanguageSelector(BuildContext context, WidgetFactory widgetFactory) {
+    final appController = AppController.getInstance;
     return widgetFactory.createCard(
         onTap: () => onLanguageSelected(),
         borderRadius: BorderRadius.circular(4),
@@ -93,7 +97,7 @@ class BusinessDetailsHeader extends StatelessWidget {
           children: [
             widgetFactory.createIcon(materialIcon: Icons.language, color: ColorManager.white),
             const SizedBox(width: 8),
-            widgetFactory.createText(context, selectedLanguage, style: Theme.of(context).textTheme.bodyMedium, color: ColorManager.white),
+            widgetFactory.createText(context, appController.getAppContext().l10n.language, style: Theme.of(context).textTheme.bodyMedium, color: ColorManager.white),
             const SizedBox(width: 8),
             widgetFactory.createIcon(materialIcon: Icons.arrow_drop_down, color: ColorManager.white),
           ],

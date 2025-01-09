@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/loyalty/components/loyalty_list_item.dart';
@@ -78,7 +79,7 @@ class _LoyaltyDetailsPageState extends State<LoyaltyDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reward Details')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).rewardDetails)),
       body: Obx(() {
         return PageContentLoader(
           showContent: viewmodel.loyaltyDetail.value != null,
@@ -127,15 +128,20 @@ class _LoyaltyDetailsPageState extends State<LoyaltyDetailsPage> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: widgetFactory.createText(context, 'Point required to reach this tier: ', style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
+            Expanded(child: widgetFactory.createText(context, AppLocalizations.of(context).pointsToReachTier, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
             Expanded(child: widgetFactory.createText(context, '${viewmodel.loyaltyDetail.value?.tier?.minPoints ?? 0} points', style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.end)),
           ],
         ).paddingSymmetric(vertical: 8),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: widgetFactory.createText(context, 'Available rewards: ', style: Theme.of(context).textTheme.titleSmall)),
-            Expanded(child: widgetFactory.createText(context, '${viewmodel.loyaltyDetail.value?.tier?.rewards?.length ?? 0} rewards', style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.end)),
+            Expanded(child: widgetFactory.createText(context, AppLocalizations.of(context).availableRewards, style: Theme.of(context).textTheme.titleSmall)),
+            Expanded(child: widgetFactory.createText(
+              context, 
+              AppLocalizations.of(context).rewardsCount('${viewmodel.loyaltyDetail.value?.tier?.rewards?.length ?? 0}'), 
+              style: Theme.of(context).textTheme.bodyLarge, 
+              textAlign: TextAlign.end
+            )),
           ],
         ),
         const Divider(height: 24),
@@ -153,7 +159,7 @@ class _LoyaltyDetailsPageState extends State<LoyaltyDetailsPage> {
           const SizedBox.shrink()
         ] else ...[
           const SizedBox(height: 8),
-          widgetFactory.createText(context, 'Businesses', style: Theme.of(context).textTheme.titleMedium),
+          widgetFactory.createText(context, AppLocalizations.of(context).businesses, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           ...viewmodel.loyaltyBusinesses.map(
             (e) {
@@ -185,7 +191,7 @@ class _LoyaltyDetailsPageState extends State<LoyaltyDetailsPage> {
               children: [
                 widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
-                widgetFactory.createText(context, "Rewards in this tier will be available on all products.", style: Theme.of(context).textTheme.titleMedium),
+                widgetFactory.createText(context, AppLocalizations.of(context).rewardsAvailableAllProducts, style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
           )
@@ -200,7 +206,7 @@ class _LoyaltyDetailsPageState extends State<LoyaltyDetailsPage> {
       header: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          widgetFactory.createText(context, "Rewards", style: Theme.of(context).textTheme.titleMedium),
+          widgetFactory.createText(context, AppLocalizations.of(context).rewards, style: Theme.of(context).textTheme.titleMedium),
         ],
       ),
       shrinkWrap: true,
@@ -223,18 +229,18 @@ class _LoyaltyDetailsPageState extends State<LoyaltyDetailsPage> {
         const SizedBox(height: 16),
         widgetFactory.createIcon(materialIcon: Icons.credit_card_off_outlined, color: Theme.of(context).colorScheme.secondary, size: 60),
         const SizedBox(height: 8),
-        widgetFactory.createText(context, 'Insufficient points to redeem rewards', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+        widgetFactory.createText(context, AppLocalizations.of(context).insufficientPoints, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
         const SizedBox(height: 8),
         widgetFactory.createText(
           context,
-          'Your current points isn\'t enough to join a reward program and redeem rewards. Please check your points and try again.',
+          AppLocalizations.of(context).insufficientPointsDescription,
           style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
         widgetFactory.createButton(
           context: context,
-          content: const Text('See business reward programs'),
+          content: Text(AppLocalizations.of(context).seeBusinessRewardPrograms),
           style: AppButtonStyle.outlinedButtonStyle(context),
           onPressed: () {
             viewmodel.goToBusinessRewardPrograms(context);

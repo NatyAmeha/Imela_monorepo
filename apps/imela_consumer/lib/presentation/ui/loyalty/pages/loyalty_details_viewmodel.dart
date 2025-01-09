@@ -76,7 +76,7 @@ class LoyaltyDetailsViewmodel extends GetxController with BaseViewmodel {
           loyaltyDetail.value = loyaltyInfo;
         }
         if (loyaltyInfo?.customerLoyalty != null) {
-          loyaltyDetail.value = loyaltyDetail.value?.copyWith(customerLoyalty: loyaltyInfo?.customerLoyalty);
+          loyaltyDetail.value = loyaltyInfo?.copyWith(customerLoyalty: loyaltyInfo?.customerLoyalty);
         }
         customerTier.value = loyaltyInfo?.tier;
       }

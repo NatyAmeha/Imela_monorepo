@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -474,12 +476,13 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
   }
 
   void goToLoginPage(BuildContext context) async {
+    final encodedCartData = Uri.encodeComponent(jsonEncode(selectedCart.value!.toJson()));
     await appController.refreshTokenOrLogout(
       context,
       moveToLogin: true,
       showLoginMessage: true,
       redirectUrl: CartDetailPage.routeName,
-      redirectExtra: {CartDetailPage.CART_DATA: selectedCart.value},
+      redirectExtra: {CartDetailPage.CART_DATA: encodedCartData},
     );
   }
 

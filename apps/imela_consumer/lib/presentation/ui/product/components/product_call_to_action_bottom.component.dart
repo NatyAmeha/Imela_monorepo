@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:imela/l10n/l10n.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_page.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
@@ -32,6 +34,8 @@ class ProductCallToActionBottomComponenet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appController = AppController.getInstance;
+    
     return widgetFactory.createCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 1),
@@ -51,14 +55,13 @@ class ProductCallToActionBottomComponenet extends StatelessWidget {
                   children: [
                     widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 4),
-                    Flexible(child: widgetFactory.createText(context, 'This product is for members only who have a membership plan on the business', style: Theme.of(context).textTheme.bodySmall)),
-                    
+                    Flexible(child: widgetFactory.createText(context, appController.getAppContext().l10n.membersOnlyDescription, style: Theme.of(context).textTheme.bodySmall)),
                   ],
                 ),
                 widgetFactory.createButton(
                   context: context,
-                  style: AppButtonStyle.textButtonStyle(context, ),
-                  content: const Text('Become a member'),
+                  style: AppButtonStyle.textButtonStyle(context),
+                  content: Text(appController.getAppContext().l10n.becomeMember),
                   onPressed: () {
                     MembershipDetailsPage.navigate(context, product.membershipIds!.first);
                   },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/components/user_membership_card.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_viewmodel.dart';
@@ -41,10 +42,12 @@ class MembershipDetailsPage extends StatefulWidget {
 class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
   final viewmodel = MembershipDetailsViewModel.getInstance();
   late WidgetFactory widgetFactory;
+  final appController = AppController.getInstance;
+
   @override
   void initState() {
     super.initState();
-    widgetFactory = AppController.getInstance.getWidgetFactory(context);
+    widgetFactory = appController.getWidgetFactory(context);
     viewmodel.initViewmodel(data: {MembershipDetailsPage.MEMBERSHIP_ID_KEY: widget.membershipId, MembershipDetailsPage.CONTEXT_KEY: context});
   }
 
@@ -84,14 +87,14 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
                               children: [
                                 widgetFactory.createText(
                                   context,
-                                  'Your request to join this membership is pending. it will be reviewed by the business owner and you will be notified of the result.',
+                                  appController.getAppContext().l10n.membershipPendingMessage,
                                   color: Colors.white,
                                 ),
                                 const SizedBox(height: 5),
                                 widgetFactory.createButton(
                                   context: context,
                                   style: AppButtonStyle.textButtonStyle(context, color: Theme.of(context).colorScheme.onTertiaryContainer),
-                                  content: const Text('See request detail'),
+                                  content: Text(appController.getAppContext().l10n.seeRequestDetail),
                                   onPressed: () => viewmodel.showMembershipBenefitsModal(context),
                                 )
                               ],
@@ -112,7 +115,11 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
                         ],
                         const SizedBox(height: 16),
                         AppGridView(
-                          header: widgetFactory.createText(context, 'Member only products', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 12),
+                          header: widgetFactory.createText(
+                            context, 
+                            appController.getAppContext().l10n.memberOnlyProducts, 
+                            style: Theme.of(context).textTheme.titleMedium
+                          ).withPaddingSymetric(horizontal: 12),
                           items: viewmodel.membershipProducts.value,
                           padding: const EdgeInsets.all(10),
                           shrinkWrap: true,
@@ -134,7 +141,7 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
                             () => viewmodel.membershipProducts.isEmpty
                                 ? widgetFactory.createText(
                                     context,
-                                    'No product found',
+                                    appController.getAppContext().l10n.noProductFound,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context).textTheme.bodyMedium,
                                   )
@@ -155,7 +162,7 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
                       if (!viewmodel.isUserJoined())
                         widgetFactory.createButton(
                           context: context,
-                          content: const Text('Request to join'),
+                          content: Text(appController.getAppContext().l10n.requestToJoin),
                           onPressed: () => viewmodel.navigateToMembershipPayment(context),
                         )
                     ],
@@ -180,9 +187,17 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Trial period', style: Theme.of(context).textTheme.titleSmall),
+              widgetFactory.createText(
+                context, 
+                appController.getAppContext().l10n.trialPeriod, 
+                style: Theme.of(context).textTheme.titleSmall
+              ),
               const SizedBox(width: 8),
-              widgetFactory.createText(context, '${viewmodel.membership?.trialPeriod?.toDurationString()}', style: Theme.of(context).textTheme.titleSmall),
+              widgetFactory.createText(
+                context, 
+                '${viewmodel.membership?.trialPeriod?.toDurationString()}', 
+                style: Theme.of(context).textTheme.titleSmall
+              ),
             ],
           ),
           const SizedBox(height: 8),

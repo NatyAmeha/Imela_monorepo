@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/bundle/bundle_detail/bundle_detail.page.dart';
@@ -87,7 +88,6 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
 
   var destinations = <Destination>[].obs;
 
-
   @override
   void initViewmodel({Map<String, dynamic>? data}) async {
     final bool fetchBrowseData = data?.getOrElse(FETCH_BROWSEDATA, () => false) ?? false;
@@ -99,7 +99,7 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
 
     listenToUserChanges(context);
     appviewmodel.getCurrentUser();
-    
+
     if (fetchBrowseData) {
       await getBrowseData();
     }
@@ -121,14 +121,14 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     persistentTabController.value = PersistentTabController(initialIndex: 0);
     destinations.value = [
       if (appviewmodel.loggedInUser.value != null) ...[
-        Destination(title: 'Favorites', icon: widgetFactory.createIcon(materialIcon: Icons.favorite, cupertinoIcon: CupertinoIcons.heart), page: const ForYouPage()),
+        Destination(title: AppLocalizations.of(appviewmodel.getAppContext()).homeTitle, icon: widgetFactory.createIcon(materialIcon: Icons.favorite, cupertinoIcon: CupertinoIcons.heart), page: const ForYouPage()),
       ],
-      Destination(title: 'Discover', icon: widgetFactory.createIcon(materialIcon: Icons.explore_sharp, cupertinoIcon: CupertinoIcons.home), page: BrowsePage(homepageViewmodel: this)),
-      Destination(title: 'Cart', icon: widgetFactory.createIcon(materialIcon: Icons.shopping_cart, cupertinoIcon: CupertinoIcons.cart), page: CartListPage()),
-      Destination(title: appviewmodel.loggedInUser.value?.username ?? 'Profile', icon: widgetFactory.createIcon(materialIcon: Icons.person, cupertinoIcon: CupertinoIcons.person), page: ProfilePage()),
-    ];
-    appviewmodel.reloadHomePageDestination(false);
-  }
+      Destination(title: appviewmodel.getAppContext().l10n.discover, icon: widgetFactory.createIcon(materialIcon: Icons.explore_sharp, cupertinoIcon: CupertinoIcons.home), page: BrowsePage(homepageViewmodel: this)),
+      Destination(title: appviewmodel.getAppContext().l10n.cart, icon: widgetFactory.createIcon(materialIcon: Icons.shopping_cart, cupertinoIcon: CupertinoIcons.cart), page: CartListPage()),
+      Destination(title: appviewmodel.loggedInUser.value?.username ?? appviewmodel.getAppContext().l10n.profile, icon: widgetFactory.createIcon(materialIcon: Icons.person, cupertinoIcon: CupertinoIcons.person), page: ProfilePage()),
+    ]; 
+    appviewmodel.reloadHomePageDestination(false); 
+  } 
 
   // data operation
 
@@ -177,20 +177,20 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
   List<BannerData> getAppFeaturesBannerData() {
     return [
       BannerData(
-        title: 'Online presense for your business',
-        description: 'Create online store for your business and reach more customers, accept online orders and payments',
+        title: appviewmodel.getAppContext().l10n.onlinePresenceTitle,
+        description: appviewmodel.getAppContext().l10n.onlinePresenceDescription,
         imageUrl: 'https://www.shutterstock.com/image-vector/concept-online-shop-store-transfer-260nw-1066200437.jpg',
         backgroundColor: ColorManager.primary,
       ),
       BannerData(
-        title: 'Membership and subscription',
-        description: 'Create membership and subscription plans for your customers and increase your revenue and customer loyalty',
+        title: appviewmodel.getAppContext().l10n.membershipTitle,
+        description: appviewmodel.getAppContext().l10n.membershipDescription,
         imageUrl: 'https://www.shutterstock.com/image-photo/man-hand-showing-smartphone-mock-260nw-2322526537.jpg',
         backgroundColor: ColorManager.tertiary,
       ),
       BannerData(
-        title: 'Create Loyal customers',
-        description: 'Create loyalty programs and reward your customers for their loyalty and increase your repeat customers',
+        title: appviewmodel.getAppContext().l10n.loyaltyTitle,
+        description: appviewmodel.getAppContext().l10n.loyaltyDescription,
         imageUrl: 'https://www.shutterstock.com/image-vector/3d-discount-coupon-sale-banner-260nw-2040195605.jpg',
         backgroundColor: ColorManager.secondary,
       ),

@@ -5,6 +5,7 @@ import 'package:imela/presentation/ui/order/order_list/order_list.viewmodel.dart
 import 'package:imela/presentation/ui/order/order_list/small_screen_order_list.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
+import 'package:imela/l10n/l10n.dart';
 
 class OrderListPage extends StatefulWidget {
   static const routeName = '/orders';
@@ -40,7 +41,7 @@ class _OrderListPageState extends State<OrderListPage> {
     final appWidgetfactory = AppController.getInstance.getWidgetFactory(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Orders'),
+        title: Text(AppLocalizations.of(context).orders),
       ),
       body: Obx(
         () => PageContentLoader(

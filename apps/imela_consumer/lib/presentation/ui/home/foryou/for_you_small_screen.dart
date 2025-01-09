@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/bundle/components/bundle_list_item.dart';
 import 'package:imela/presentation/ui/business/component/business_list_tile.dart';
@@ -49,7 +50,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
                   AppListView(
                     header: ListHeader(
                       widgetFactory: widgetFactory,
-                      title: 'Your Favorite Businesses',
+                      title: AppLocalizations.of(context).favoriteBusiness,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       action: IconButton(
                         onPressed: () {

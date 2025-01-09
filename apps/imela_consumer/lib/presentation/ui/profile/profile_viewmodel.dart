@@ -170,6 +170,7 @@ class ProfileViewmodel extends GetxController with BaseViewmodel {
 
   Future<void> updateLanguage(BuildContext context, AppLanguage language) async {
     await appViewmodel.updateLanguage(language, (locale) {
+      appViewmodel.reloadHomePageDestination(true);
       MelegnaCustomerApp.of(context)?.setLocale(locale);
     });
   }

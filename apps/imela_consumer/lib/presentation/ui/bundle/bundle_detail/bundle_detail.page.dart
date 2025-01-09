@@ -10,6 +10,7 @@ import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/responsive_wrapper.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela/l10n/l10n.dart';
 
 class BundleDetailPage extends StatefulWidget {
   // routing constants
@@ -53,7 +54,7 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
     final appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bundle Detail'),
+        title: Text(AppLocalizations.of(context).bundles),
         actions: [
           appWidgetFactory.createIcon(
             materialIcon: Icons.shopping_cart,

@@ -10,6 +10,7 @@ import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SmallScreenCartDetailPage extends StatelessWidget {
   final CartListViewmodel viewmodel;
@@ -84,7 +85,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                       if (viewmodel.configResult.value?.additionalItems?.isNotEmpty == true)
                         widgetFactory.createButton(
                           context: context,
-                          content: widgetFactory.createText(context, 'See Additional items', style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.secondary),
+                          content: widgetFactory.createText(context, AppLocalizations.of(context).seeAdditionalItems, style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.secondary),
                           style: AppButtonStyle.textButtonStyle(context),
                           onPressed: () {
                             viewmodel.showAdditionalItems(context);
@@ -120,7 +121,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                   children: [
                     widgetFactory.createText(
                       context,
-                      'Sign in to apply your rewards',
+                      AppLocalizations.of(context).signInToApplyRewards,
                       style: Theme.of(context).textTheme.bodySmall,
                       color: Colors.white,
                     ),
@@ -128,7 +129,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              widgetFactory.createText(context, 'Sign in', style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
+              widgetFactory.createText(context, AppLocalizations.of(context).signIn, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
               widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_right, color: Colors.white, size: 24),
             ],
           ),
@@ -152,7 +153,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                     Obx(
                       () => widgetFactory.createText(
                         context,
-                        'Your points (${viewmodel.appController.remainingPoints.toStringAsFixed(0)})',
+                        AppLocalizations.of(context).yourPoints(viewmodel.appController.remainingPoints.toStringAsFixed(0)),
                         style: Theme.of(context).textTheme.bodySmall,
                         color: Colors.white,
                       ),
@@ -161,7 +162,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              widgetFactory.createText(context, 'See rewards', style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
+              widgetFactory.createText(context, AppLocalizations.of(context).seeRewards, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
               widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_right, color: Colors.white, size: 24),
             ],
           ),

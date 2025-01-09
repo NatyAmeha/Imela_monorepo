@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/home/home_page.viewmodel.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
@@ -75,11 +76,11 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               const CircleAvatar(radius: 20, backgroundColor: Colors.amber, child: Icon(Icons.person_outline)),
               const SizedBox(width: 16),
-              widgetFactory.createText(context, 'Not signed in', style: Theme.of(context).textTheme.titleMedium),
+              widgetFactory.createText(context, AppLocalizations.of(context).notSignedIn, style: Theme.of(context).textTheme.titleMedium),
               const Spacer(),
               widgetFactory.createButton(
                 context: context,
-                content: const Text('Sign in'),
+                content: Text(AppLocalizations.of(context).signIn),
                 style: AppButtonStyle.filledbuttonStyle(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 1)),
                 onPressed: () {
                   viewmodel.navigateToLogin(context);
@@ -88,7 +89,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           const SizedBox(height: 10),
-          widgetFactory.createText(context, 'Sign in to see your profile and rewards', style: Theme.of(context).textTheme.bodyMedium),
+          widgetFactory.createText(context, AppLocalizations.of(context).signInToSeeProfile, style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),
     );
@@ -117,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
         else
           widgetFactory.createButton(
             context: context,
-            content: const Text('Add Name'),
+            content: Text(AppLocalizations.of(context).addName),
             style: AppButtonStyle.textButtonStyle(context, color: Theme.of(context).colorScheme.secondary),
             onPressed: () {
               viewmodel.navigateToUpdateProfile(context);
@@ -164,34 +165,34 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildSettingsList() {
+  Widget _buildSettingsList() { 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildSettingsItem(Icons.receipt_long, 'Orders', 'View All', onTap: () {
+        _buildSettingsItem(Icons.receipt_long, AppLocalizations.of(context).orders, AppLocalizations.of(context).viewAll, onTap: () {
           viewmodel.navigateToOrderList(context);
         }),
-        _buildSettingsItem(Icons.card_membership, 'Your Memberships', 'View All', onTap: () {
+        _buildSettingsItem(Icons.card_membership, AppLocalizations.of(context).yourMemberships, AppLocalizations.of(context).viewAll, onTap: () {
           viewmodel.navigateToMembershipList(context);
         }),
-        _buildSettingsItem(Icons.loyalty, 'Loyalty programs', 'View All', onTap: () {
+        _buildSettingsItem(Icons.loyalty, AppLocalizations.of(context).loyaltyPrograms, AppLocalizations.of(context).viewAll, onTap: () {
           viewmodel.navigateToLoyaltyRewards(context);
         }),
         const Divider(height: 24),
-        widgetFactory.createText(context, 'Settings', style: Theme.of(context).textTheme.titleMedium).paddingSymmetric(horizontal: 16),
+        widgetFactory.createText(context, AppLocalizations.of(context).settings, style: Theme.of(context).textTheme.titleMedium).paddingSymmetric(horizontal: 16),
         const SizedBox(height: 10),
         Obx(
-          () => _buildSettingsItem(Icons.language, 'Language', viewmodel.language, onTap: () {
+          () => _buildSettingsItem(Icons.language, AppLocalizations.of(context).language, viewmodel.language, onTap: () {
             viewmodel.showLanguageSelectorDialog(context);
           }),
         ),
-        _buildSettingsItem(Icons.attach_money, 'Currency', viewmodel.currency),
-        _buildSettingsItem(Icons.notifications, 'Notification Settings', '', onTap: () {
+        _buildSettingsItem(Icons.attach_money, AppLocalizations.of(context).currency, viewmodel.currency),
+        _buildSettingsItem(Icons.notifications, AppLocalizations.of(context).notificationSettings, '', onTap: () {
           viewmodel.appViewmodel.loggedInUser.refresh();
         }),
         if (viewmodel.appViewmodel.loggedInUser.value != null) ...[
-          _buildSettingsItem(Icons.person, 'Profile Settings', 'Edit Profile'),
-          _buildSettingsItem(Icons.logout, 'Log out', 'Log Out', isLogout: true, onTap: () {
+          _buildSettingsItem(Icons.person, AppLocalizations.of(context).profileSettings, AppLocalizations.of(context).editProfile),
+          _buildSettingsItem(Icons.logout, AppLocalizations.of(context).logoutButton, AppLocalizations.of(context).logoutButton, isLogout: true, onTap: () {
             viewmodel.logout(context);
           }),
         ],

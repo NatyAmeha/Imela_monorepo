@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/membership/membership_detail/membership_detail_viewmodel.dart';
@@ -25,17 +26,18 @@ class MembershipPaymentPage extends StatefulWidget {
 class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
   final viewmodel = MembershipDetailsViewModel.getInstance();
   late WidgetFactory widgetFactory;
+  final appController = AppController.getInstance;
 
   @override
   void initState() {
     super.initState();
-    widgetFactory = AppController.getInstance.getWidgetFactory(context);
+    widgetFactory = appController.getWidgetFactory(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Membership Payment')),
+      appBar: AppBar(title: Text(appController.getAppContext().l10n.membershipPayment)),
       body: Obx(
         () => PageContentLoader(
           isLoading: viewmodel.isLoading.value,
@@ -54,7 +56,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                       const SizedBox(height: 20),
                       buildMembershipSummary(),
                       const Divider(height: 32),
-                      widgetFactory.createText(context, 'Selected payment', style: Theme.of(context).textTheme.titleMedium),
+                      widgetFactory.createText(context, appController.getAppContext().l10n.selectPaymentMethod, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       if (viewmodel.selectedPaymentMethod.value != null)
                         SelectedPaymentMethodListItem(
@@ -73,7 +75,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                       else
                         widgetFactory.createButton(
                           context: context,
-                          content: const Text('Select Payment Method'),
+                          content: Text(appController.getAppContext().l10n.selectPaymentMethod),
                           style: AppButtonStyle.outlinedButtonStyle(context),
                           onPressed: () {
                             viewmodel.showPaymentMethodListModal(context);
@@ -84,7 +86,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                   ),
                 ),
               ),
-              Positioned(
+              Positioned( 
                 bottom: 16,
                 left: 16,
                 right: 16,
@@ -103,9 +105,8 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                           Flexible(
                             child: widgetFactory.createText(
                               context,
-                              'Choose payment method, upload your payment receipt and  We will verify your payment receipt and approve your membership request as soon as possible.',
+                              appController.getAppContext().l10n.paymentReceiptInfo,
                               style: Theme.of(context).textTheme.bodyMedium,
-                              // color: Colors.white,
                             ),
                           ),
                         ],
@@ -114,7 +115,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
                     const SizedBox(height: 16),
                     widgetFactory.createButton(
                       context: context,
-                      content: const Text('Send Request'),
+                      content: Text(appController.getAppContext().l10n.sendRequest),
                       isLoading: viewmodel.isLoading.value,
                       onPressed: viewmodel.canEnableRequestButton
                           ? () {
@@ -143,7 +144,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Price', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, appController.getAppContext().l10n.price, style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, viewmodel.membershipPrice, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
@@ -151,7 +152,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Duration', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, appController.getAppContext().l10n.duration, style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, durationString, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
@@ -159,7 +160,7 @@ class _MembershipPaymentPageState extends State<MembershipPaymentPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Trial period', style: Theme.of(context).textTheme.bodyMedium),
+              widgetFactory.createText(context, appController.getAppContext().l10n.trialPeriod, style: Theme.of(context).textTheme.bodyMedium),
               widgetFactory.createText(context, trialPeriodString, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/resources/values.dart';
+import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/product/components/pricing/dynamic_pricing_summary.dart';
 import 'package:imela/presentation/ui/product/components/product_call_to_action_bottom.component.dart';
 import 'package:imela/presentation/ui/product/components/product_features_list.dart';
@@ -10,6 +11,7 @@ import 'package:imela/presentation/ui/product/components/product_option_item.dar
 import 'package:imela/presentation/ui/product/product_details/product_details.viewmodel.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela/presentation/ui/shared/list/gridview.component.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/components/image/markdown_text.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
@@ -27,6 +29,8 @@ class SmallScreenProductDetail extends StatefulWidget {
 }
 
 class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
+  final appController = AppController.getInstance;
+
   @override
   void initState() {
     super.initState();
@@ -105,17 +109,31 @@ class _SmallScreenProductDetailState extends State<SmallScreenProductDetail> {
                         widget.viewmodel.showFeatureDescriptionModal(context, selectedFEature);
                       },
                     ),
-                    const SizedBox(height: 8),
+                    const Divider(height: 16),
                     MarkdownText(data: widget.viewmodel.getProductDescription, maxHeight: 400),
-                    // widget.widgetFactory.createText(context, 'Minimum order: ${widget.viewmodel.selectedProduct.minimumOrderQty}', style: Theme.of(context).textTheme.labelMedium),
-                    // widget.widgetFactory.createText(context, 'Remaining items: ${widget.viewmodel.productDetails.value?.product?.remainingAmount}', style: Theme.of(context).textTheme.labelMedium),
+                    if (widget.viewmodel.selectedProduct.minimumOrderQty != null)
+                      widget.widgetFactory.createText(
+                        context, 
+                        appController.getAppContext().l10n.minimumOrder(widget.viewmodel.selectedProduct.minimumOrderQty.toString()), 
+                        style: Theme.of(context).textTheme.labelMedium
+                      ),
+                    if (widget.viewmodel.productDetails.value?.product?.remainingAmount != null)
+                      widget.widgetFactory.createText(
+                        context, 
+                        appController.getAppContext().l10n.remainingItems(widget.viewmodel.productDetails.value?.product?.remainingAmount.toString() ?? '0'), 
+                        style: Theme.of(context).textTheme.labelMedium
+                      ),
                     if (widget.viewmodel.productOptions.isNotEmpty)
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 24),
-                          widget.widgetFactory.createText(context, 'Choose option', style: Theme.of(context).textTheme.titleMedium),
+                          widget.widgetFactory.createText(
+                            context, 
+                            appController.getAppContext().l10n.chooseOption, 
+                            style: Theme.of(context).textTheme.titleMedium
+                          ),
                           const SizedBox(height: 16),
                           AppGridView(
                             controller: widget.viewmodel.productOptionListController,

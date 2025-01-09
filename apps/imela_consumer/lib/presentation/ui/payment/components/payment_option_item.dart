@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
@@ -60,7 +61,7 @@ class PaymentOptionListItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, 'Current payment', style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, AppLocalizations.of(context).currentPayment, style: Theme.of(context).textTheme.labelMedium),
               widgetFactory.createText(context, paymentOption.currentPaymentString(totalAmount), style: Theme.of(context).textTheme.bodyLarge),
             ],
           ).withPaddingSymetric(horizontal: 16, vertical: 8),
@@ -75,13 +76,13 @@ class PaymentOptionListItem extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, 'Remaining amount', style: Theme.of(context).textTheme.labelMedium),
+                      widgetFactory.createText(context, AppLocalizations.of(context).remainingPaymentAmount, style: Theme.of(context).textTheme.labelMedium),
                       widgetFactory.createText(context, paymentOption.remainingPaymentString(totalAmount), style: Theme.of(context).textTheme.bodyLarge),
                     ],
                   ).withPaddingSymetric(vertical: 0).showIfTrue(paymentOption.isPartialPaymentOption()),
                   Row(
                     children: [
-                      widgetFactory.createText(context, 'Pay remaining on delivery', style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),
+                      widgetFactory.createText(context, AppLocalizations.of(context).payRemainingOnDelivery, style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),
                     ],
                   ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption())
                 ],

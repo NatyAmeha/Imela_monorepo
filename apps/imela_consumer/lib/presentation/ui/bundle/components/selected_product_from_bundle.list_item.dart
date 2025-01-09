@@ -6,6 +6,7 @@ import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela/l10n/l10n.dart';
 
 class SelectedProductFromBundlListItem extends StatelessWidget {
   final String name;
@@ -61,7 +62,7 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
                         widgetFactory.createCard(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                           color: Theme.of(context).colorScheme.primaryContainer,
-                          child: widgetFactory.createText(context, 'Qty - $qty', style: Theme.of(context).textTheme.bodyMedium),
+                          child: widgetFactory.createText(context, AppLocalizations.of(context).quantity('$qty'), style: Theme.of(context).textTheme.bodyMedium),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -71,9 +72,8 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
               ),
               if (additionalItems.isNotEmpty) ...[
                 const Divider(),
-                // widgetFactory.createText(context, 'Additional Items', style: Theme.of(context).textTheme.bodySmall),
                 AppListView(
-                  header: widgetFactory.createText(context, 'Additional Items', style: Theme.of(context).textTheme.bodyMedium).paddingSymmetric(horizontal: 8),
+                  header: widgetFactory.createText(context, AppLocalizations.of(context).additionalItems, style: Theme.of(context).textTheme.bodyMedium).paddingSymmetric(horizontal: 8),
                   items: additionalItems,
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

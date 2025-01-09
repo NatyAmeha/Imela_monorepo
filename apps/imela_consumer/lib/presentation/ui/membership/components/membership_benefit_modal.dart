@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/shared/app_image.dart';
 import 'package:imela_core/membership/model/group.model.dart';
@@ -32,7 +33,8 @@ class MembershipBenefitsModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var widgetFactory = AppController.getInstance.getWidgetFactory(context);
+    final appController = AppController.getInstance;
+    var widgetFactory = appController.getWidgetFactory(context);
     double modalHeight = height ?? MediaQuery.of(context).size.height * 0.8;
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -44,9 +46,9 @@ class MembershipBenefitsModal extends StatelessWidget {
           ],
           widgetFactory.createText(context, membershipInfo.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
           const SizedBox(height: 16),
-          _buildMembershipSummary(context, widgetFactory, membershipInfo, selectedLanguage, currency),
+          _buildMembershipSummary(context, widgetFactory, membershipInfo, selectedLanguage, currency, appController),
           const SizedBox(height: 16),
-          widgetFactory.createText(context, 'Benefits', style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(vertical: 16),
+          widgetFactory.createText(context, appController.getAppContext().l10n.benefits, style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(vertical: 16),
           AppListView(
             items: membershipInfo.benefits,
             contentPadding: const EdgeInsets.symmetric(vertical: 6),
@@ -63,20 +65,24 @@ class MembershipBenefitsModal extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
-          widgetFactory.createButton(context: context, content: const Text('Close'), onPressed: () => Navigator.of(context).pop())
+          widgetFactory.createButton(
+            context: context, 
+            content: Text(appController.getAppContext().l10n.close), 
+            onPressed: () => Navigator.of(context).pop()
+          )
         ],
       ),
     );
   }
 
-  Widget _buildMembershipSummary(BuildContext context, WidgetFactory widgetFactory, Membership membershipInfo, String selectedLanguage, String currency) {
+  Widget _buildMembershipSummary(BuildContext context, WidgetFactory widgetFactory, Membership membershipInfo, String selectedLanguage, String currency, AppController appController) {
     return Column(
       children: [
         Row(
           children: [
             widgetFactory.createIcon(materialIcon: Icons.payment, color: Colors.grey),
             const SizedBox(width: 10),
-            widgetFactory.createText(context, 'Amount', style: Theme.of(context).textTheme.labelMedium),
+            widgetFactory.createText(context, appController.getAppContext().l10n.amount, style: Theme.of(context).textTheme.labelMedium),
             const Spacer(),
             widgetFactory.createText(context, membershipInfo.price.toSelectedPriceString(currency).toString(), style: Theme.of(context).textTheme.bodyLarge),
           ],
@@ -86,7 +92,7 @@ class MembershipBenefitsModal extends StatelessWidget {
           children: [
             widgetFactory.createIcon(materialIcon: Icons.calendar_month, color: Colors.grey),
             const SizedBox(width: 10),
-            widgetFactory.createText(context, 'Duration', style: Theme.of(context).textTheme.labelMedium),
+            widgetFactory.createText(context, appController.getAppContext().l10n.duration, style: Theme.of(context).textTheme.labelMedium),
             const Spacer(),
             widgetFactory.createText(context, membershipInfo.getDurationString(selectedLanguage), style: Theme.of(context).textTheme.bodyLarge),
           ],
@@ -96,9 +102,13 @@ class MembershipBenefitsModal extends StatelessWidget {
           children: [
             widgetFactory.createIcon(materialIcon: Icons.card_membership, color: Colors.grey),
             const SizedBox(width: 10),
-            widgetFactory.createText(context, 'Status', style: Theme.of(context).textTheme.labelMedium),
+            widgetFactory.createText(context, appController.getAppContext().l10n.status, style: Theme.of(context).textTheme.labelMedium),
             const Spacer(),
-            widgetFactory.createText(context, currentUserSubscription != null ? 'Active' : 'Pending', style: Theme.of(context).textTheme.bodyLarge),
+            widgetFactory.createText(
+              context, 
+              currentUserSubscription != null ? appController.getAppContext().l10n.active : appController.getAppContext().l10n.pending, 
+              style: Theme.of(context).textTheme.bodyLarge
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -110,7 +120,7 @@ class MembershipBenefitsModal extends StatelessWidget {
               children: [
                 widgetFactory.createIcon(materialIcon: Icons.receipt, color: Colors.grey),
                 const SizedBox(width: 10),
-                widgetFactory.createText(context, 'Payment receipt', style: Theme.of(context).textTheme.labelMedium),
+                widgetFactory.createText(context, appController.getAppContext().l10n.paymentReceipt, style: Theme.of(context).textTheme.labelMedium),
               ],
             ),
             const SizedBox(height: 10),
@@ -121,7 +131,7 @@ class MembershipBenefitsModal extends StatelessWidget {
                 height: 50,
               )
             ] else
-              widgetFactory.createText(context, 'No receipt', style: Theme.of(context).textTheme.bodyLarge),
+              widgetFactory.createText(context, appController.getAppContext().l10n.noReceipt, style: Theme.of(context).textTheme.bodyLarge),
           ],
         ),
       ],
