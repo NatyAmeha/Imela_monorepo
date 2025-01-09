@@ -22,7 +22,7 @@ class LocationService implements ILocationService {
 
   @override
   Future<AppLatLng> getCurrentLocation() async {
-    final Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    final Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, forceAndroidLocationManager: true);
     return AppLatLng(position.latitude, position.longitude);
   }
 

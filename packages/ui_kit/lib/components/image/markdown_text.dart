@@ -55,9 +55,9 @@ class _MarkdownTextState extends State<MarkdownText> {
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          height: _isExpanded 
-              ? _contentHeight 
-              : _contentHeight != null 
+          height: _isExpanded
+              ? _contentHeight
+              : _contentHeight != null
                   ? min(_contentHeight!, widget.maxHeight ?? _contentHeight!)
                   : widget.maxHeight,
           child: SingleChildScrollView(
@@ -103,9 +103,7 @@ class _MarkdownTextState extends State<MarkdownText> {
             },
             child: Text(
               _isExpanded ? 'Show Less' : 'Show More',
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
       ],

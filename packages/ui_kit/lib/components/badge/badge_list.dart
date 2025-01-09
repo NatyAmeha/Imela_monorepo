@@ -96,7 +96,7 @@ class BadgeListTile extends StatelessWidget {
         // width: width,
         
         decoration: BoxDecoration(
-          color: color ?? Theme.of(context).colorScheme.primary,
+          color: color ?? Colors.transparent,
           border: Border.all(color: borderColor ?? Colors.transparent),
           borderRadius: BorderRadius.circular(4),
         ),
