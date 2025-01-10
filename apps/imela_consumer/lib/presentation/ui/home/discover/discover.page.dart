@@ -28,7 +28,6 @@ class _BrowsePageState extends State<BrowsePage> {
   void initState() {
     super.initState();
     initializeViewmodel();
-    viewmodel.startAutoScrollFeatureBanner();
   }
 
   @override

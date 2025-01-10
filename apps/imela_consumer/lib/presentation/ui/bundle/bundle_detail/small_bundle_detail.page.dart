@@ -39,7 +39,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                   header: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).items, style: Theme.of(context).textTheme.titleMedium),
+                      widgetFactory.createText(context, context.l10n.items, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       widgetFactory.createCard(
                         padding: const EdgeInsets.all(8),
@@ -107,7 +107,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surfaceContainerLowest,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [widgetFactory.createText(context, AppLocalizations.of(context).selectedProducts('${viewmodel.selectedBundleProducts.values.length}'), style: Theme.of(context).textTheme.titleSmall), widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_up)],
+                      children: [widgetFactory.createText(context, context.l10n.selectedProducts('${viewmodel.selectedBundleProducts.values.length}'), style: Theme.of(context).textTheme.titleSmall), widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_up)],
                     ),
                   ),
                 ),
@@ -134,7 +134,7 @@ class SmallBundleDetailScreen extends StatelessWidget {
                       widgetFactory
                           .createButton(
                             context: context,
-                            content: Text(AppLocalizations.of(context).orderCallToAction),
+                            content: Text(context.l10n.orderCallToAction),
                             onPressed: viewmodel.enableBundlePurchase
                                 ? () {
                                     viewmodel.addSelectedProductsToCart(context);

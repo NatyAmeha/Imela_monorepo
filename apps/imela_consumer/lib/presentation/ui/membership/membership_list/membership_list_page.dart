@@ -50,14 +50,14 @@ class _UserMembershipListPageState extends State<UserMembershipListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).membershipList),
+        title: Text(context.l10n.membershipList),
       ),
-      body: Obx(
-        () => RefreshIndicator(
-          onRefresh: () async {
-            viewmodel.getUserMemberships(context);
-          },
-          child: PageContentLoader(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          viewmodel.getUserMemberships(context);
+        },
+        child: Obx(
+          () => PageContentLoader(
             isLoading: viewmodel.isLoading.value,
             exception: viewmodel.exception.value,
             hasError: viewmodel.exception.value?.isMainError ?? false,

@@ -39,6 +39,7 @@ class User with _$User {
       email: jwtPayload['email'],
       phoneNumber: jwtPayload['phoneNumber'],
       refreshToken: jwtPayload['refreshToken'],
+      profileImageUrl: jwtPayload['profileImageUrl'],
     );
   }
 }

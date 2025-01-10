@@ -45,6 +45,7 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
   var firstNameController = TextEditingController();
   var googleUser = Rxn<User>();
   var isInputValid = false.obs;
+  var canShowWarningDialog = true;
 
   String? redirectUrl;
   Map<String, dynamic>? redirectExtra;
@@ -108,7 +109,6 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
     isLoading.value = true;
     try {
       final response = await authUsecae.continueWithPhoneNumber(phoneNumber.value);
-      print('response ${response.toString()}');
       if (response is AuthResponse) {
         // automatic phone verification without sms code
         if (response.isSuccessfull) {
@@ -140,8 +140,7 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
       final response = await authUsecae.continueWithGoogle();
       if (response.success) {
         // user is already registered on the api
-        appController.setLoggedInUser(response.user);
-        handleRedirect(context, user: response.user, isNewUser: response.isNewUser ?? false);
+        await handleRedirect(context, user: response.user, isNewUser: response.isNewUser ?? false);
         return;
       } else {
         // user is not registered on the api, we need to create a new account from fetched google credentials
@@ -167,23 +166,25 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
     });
   }
 
-  Future<void> registerUser(BuildContext context) async {
+  Future<void> registerUserWithGoogleAccountInfo(BuildContext context) async {
     try {
       isLoading(true);
+      canShowWarningDialog = false;
       final signupInput = SignupInput.getGoogleSignupInput(
         googleId: googleUser.value!.id!,
         phoneNumber: phoneNumber.value,
         username: firstNameController.text,
-        email: emailController.text,
+        email: googleUser.value!.email,
         profileImageUrl: googleUser.value!.profileImageUrl,
       );
       final response = await authUsecae.registerWithGoogleAccountData(signupInput);
       if (response.isSuccessfull) {
-        appController.setLoggedInUser(response.user);
-        handleRedirect(context, user: response.user, isNewUser: response.isNewUser ?? false);
+        await handleRedirect(context, user: response.user, isNewUser: response.isNewUser ?? false);
       }
     } catch (e) {
+      print('Error occured: ${e.toString()}');
       exception.value = AppException(message: 'An error occured while trying to register user');
+      canShowWarningDialog = true;
     } finally {
       isLoading(false);
     }
@@ -213,18 +214,18 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
-  void handleRedirect(BuildContext context, {User? user, bool isNewUser = false}) async {
+  Future<void> handleRedirect(BuildContext context, {User? user, bool isNewUser = false}) async {
     if (isNewUser) {
       UpdateProfilePage.navigate(context, redirectUrl: redirectUrl ?? HomePage.routeName, redirectExtra: redirectExtra);
       return;
     }
     appController.setLoggedInUser(user);
     appController.reloadHomePageDestination(true);
+    // resetGraphQlClientInstance();
     await HomePage.navigate(context, replace: true);
     if (redirectUrl != null) {
       await appController.router.navigateTo(context, redirectUrl!, extra: redirectExtra);
     }
-    resetGraphQlClientInstance();
   }
 
   @override
@@ -239,19 +240,29 @@ class AuthViewmodel extends GetxController with BaseViewmodel {
   }
 
   void showWarningAlertDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Warning'),
-        content: const Text('Are you sure you want to leave this page?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Leave')),
-        ],
-      ),
-    );
+    if (canShowWarningDialog) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Warning'),
+          content: const Text('Are you sure you want to leave this page?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              child: const Text('Leave'),
+              onPressed: () {
+                Navigator.pop(context);
+                appController.router.goBack(context);
+              },
+            ),
+          ],
+        ),
+      );
+    } else {
+      Navigator.of(context).pop();
+    }
   }
 }

@@ -54,7 +54,7 @@ class _BundleDetailPageState extends State<BundleDetailPage> {
     final appWidgetFactory = WidgetFactory(Theme.of(context).platform);
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).bundles),
+        title: Text(context.l10n.bundles),
         actions: [
           appWidgetFactory.createIcon(
             materialIcon: Icons.shopping_cart,

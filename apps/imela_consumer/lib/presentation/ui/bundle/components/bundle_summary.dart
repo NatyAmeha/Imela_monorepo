@@ -34,7 +34,7 @@ class BundleSummary extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(flex: 1, child: widgetFactory.createText(context, AppLocalizations.of(context).discount, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
+                Expanded(flex: 1, child: widgetFactory.createText(context, context.l10n.discount, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
                 Expanded(
                   flex: 2,
                   child: Column(
@@ -48,7 +48,7 @@ class BundleSummary extends StatelessWidget {
             ).withPaddingSymetric(vertical: 6),
           Row(
             children: [
-              widgetFactory.createText(context, AppLocalizations.of(context).totalProducts, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
+              widgetFactory.createText(context, context.l10n.totalProducts, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
               Expanded(
                 child: widgetFactory.createText(context, viewmodel.totalProductcount, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.end),
               )
@@ -58,7 +58,7 @@ class BundleSummary extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, AppLocalizations.of(context).timeRemaining, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
+              widgetFactory.createText(context, context.l10n.timeRemaining, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
               BadgeList(
                 widgets: [
                   CountdownTimer(

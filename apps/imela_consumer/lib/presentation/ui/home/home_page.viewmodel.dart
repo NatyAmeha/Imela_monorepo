@@ -30,6 +30,7 @@ import 'package:imela_core/discovery/model/product_discovery.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_ui_kit/components/image/app_image.dart';
 import 'package:imela_ui_kit/components/list/list_componenet.viewmodel.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
@@ -121,14 +122,14 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     persistentTabController.value = PersistentTabController(initialIndex: 0);
     destinations.value = [
       if (appviewmodel.loggedInUser.value != null) ...[
-        Destination(title: AppLocalizations.of(appviewmodel.getAppContext()).homeTitle, icon: widgetFactory.createIcon(materialIcon: Icons.favorite, cupertinoIcon: CupertinoIcons.heart), page: const ForYouPage()),
+        Destination(title: appviewmodel.getAppContext().l10n.homeTitle, icon: widgetFactory.createIcon(materialIcon: Icons.favorite, cupertinoIcon: CupertinoIcons.heart), page: const ForYouPage()),
       ],
       Destination(title: appviewmodel.getAppContext().l10n.discover, icon: widgetFactory.createIcon(materialIcon: Icons.explore_sharp, cupertinoIcon: CupertinoIcons.home), page: BrowsePage(homepageViewmodel: this)),
       Destination(title: appviewmodel.getAppContext().l10n.cart, icon: widgetFactory.createIcon(materialIcon: Icons.shopping_cart, cupertinoIcon: CupertinoIcons.cart), page: CartListPage()),
-      Destination(title: appviewmodel.loggedInUser.value?.username ?? appviewmodel.getAppContext().l10n.profile, icon: widgetFactory.createIcon(materialIcon: Icons.person, cupertinoIcon: CupertinoIcons.person), page: ProfilePage()),
-    ]; 
-    appviewmodel.reloadHomePageDestination(false); 
-  } 
+      Destination(title: appviewmodel.loggedInUser.value?.username ?? appviewmodel.getAppContext().l10n.profile, icon: buildProfileDestinationIcon(context), page: ProfilePage()),
+    ];
+    appviewmodel.reloadHomePageDestination(false);
+  }
 
   // data operation
 
@@ -197,16 +198,19 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
     ];
   }
 
-  void startAutoScrollFeatureBanner() {
-    // _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-    //   if (featureBannerPageController.hasClients) {
-    //     int nextPage = featureBannerPageController.page!.round() + 1;
-    //     if (nextPage >= 3) {
-    //       nextPage = 0;
-    //     }
-    //     featureBannerPageController.animateToPage(nextPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-    //   }
-    // });
+  Widget buildProfileDestinationIcon(BuildContext context) {
+    return appviewmodel.loggedInUser.value?.profileImageUrl != null
+        ? CircleAvatar(
+            radius: 12,
+            child: AppImage(
+              imageUrl: appviewmodel.loggedInUser.value!.profileImageUrl ?? '',
+              width: 24,
+              height: 24,
+              fit: BoxFit.cover,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          )
+        : AppController.getInstance.getWidgetFactory(context).createIcon(materialIcon: Icons.person, cupertinoIcon: CupertinoIcons.person);
   }
 
   void navigateToBusinessDetailPage(BuildContext context, Business business, {Widget? previousPage}) {

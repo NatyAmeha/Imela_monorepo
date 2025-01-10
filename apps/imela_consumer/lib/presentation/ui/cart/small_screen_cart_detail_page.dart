@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
 import 'package:imela/presentation/ui/cart/components/cart_item_list_item.dart';
@@ -10,7 +11,6 @@ import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SmallScreenCartDetailPage extends StatelessWidget {
   final CartListViewmodel viewmodel;
@@ -85,7 +85,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                       if (viewmodel.configResult.value?.additionalItems?.isNotEmpty == true)
                         widgetFactory.createButton(
                           context: context,
-                          content: widgetFactory.createText(context, AppLocalizations.of(context).seeAdditionalItems, style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.secondary),
+                          content: widgetFactory.createText(context, context.l10n.seeAdditionalItems, style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.secondary),
                           style: AppButtonStyle.textButtonStyle(context),
                           onPressed: () {
                             viewmodel.showAdditionalItems(context);
@@ -121,7 +121,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                   children: [
                     widgetFactory.createText(
                       context,
-                      AppLocalizations.of(context).signInToApplyRewards,
+                      context.l10n.signInToApplyRewards,
                       style: Theme.of(context).textTheme.bodySmall,
                       color: Colors.white,
                     ),
@@ -129,7 +129,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              widgetFactory.createText(context, AppLocalizations.of(context).signIn, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
+              widgetFactory.createText(context, context.l10n.signIn, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
               widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_right, color: Colors.white, size: 24),
             ],
           ),
@@ -153,7 +153,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                     Obx(
                       () => widgetFactory.createText(
                         context,
-                        AppLocalizations.of(context).yourPoints(viewmodel.appController.remainingPoints.toStringAsFixed(0)),
+                        context.l10n.yourPoints(viewmodel.appController.remainingPoints.toStringAsFixed(0)),
                         style: Theme.of(context).textTheme.bodySmall,
                         color: Colors.white,
                       ),
@@ -162,7 +162,7 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              widgetFactory.createText(context, AppLocalizations.of(context).seeRewards, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
+              widgetFactory.createText(context, context.l10n.seeRewards, style: Theme.of(context).textTheme.bodySmall, color: Colors.white),
               widgetFactory.createIcon(materialIcon: Icons.keyboard_arrow_right, color: Colors.white, size: 24),
             ],
           ),

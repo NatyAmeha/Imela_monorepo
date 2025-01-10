@@ -2,10 +2,10 @@ import 'package:imela_core/shared/repository.intereface.dart';
 import 'package:imela_core/user/dto/user_signup_input.dart';
 import 'package:imela_core/user/model/auth_response.dart';
 import 'package:imela_data/injection.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/authenticate_by_google.data.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/authenticate_by_google.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/authenticate_staff.data.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/authenticate_staff.req.gql.dart';
-import 'package:imela_data/network/graphql/auth/__generated__/get_user_by_google.data.gql.dart';
-import 'package:imela_data/network/graphql/auth/__generated__/get_user_by_google.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/refresh_token.data.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/refresh_token.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/signin_with_email.data.gql.dart';
@@ -14,6 +14,8 @@ import 'package:imela_data/network/graphql/auth/__generated__/signup_signin_with
 import 'package:imela_data/network/graphql/auth/__generated__/signup_signin_with_phone.req.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/signup_with_email.data.gql.dart';
 import 'package:imela_data/network/graphql/auth/__generated__/signup_with_email.req.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/signup_with_google.data.gql.dart';
+import 'package:imela_data/network/graphql/auth/__generated__/signup_with_google.req.gql.dart';
 import 'package:imela_data/network/graphql/graphql_config.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_data/network/graphql_exception.dart';
@@ -80,7 +82,7 @@ class AuthRepository implements IAuthRepository {
 
   Future<AuthResponse> registerUserWithGoogleAccountData(SignupInput signupInput) async {
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
-    final request = GSignUpWithEmailReq(
+    final request = GSignUpWitGoogleReq(
       (b) => b
         ..vars.signUpInfo.update((b) {
           b.firstName = signupInput.firstName;
@@ -92,11 +94,11 @@ class AuthRepository implements IAuthRepository {
         })
         ..fetchPolicy = _graphQLDataSource.getFetchPolicy(ApiDataFetchPolicy.networkOnly),
     );
-    final result = await _graphQLDataSource.request<GSignUpWithEmailData>(request, type: 'SIGNUP_WITH_EMAIL', isMainError: true);
-    if (result?.createUserAccountUsingEmailPassword == null) {
+    final result = await _graphQLDataSource.request<GSignUpWitGoogleData>(request, type: 'SIGNUP_WITH_GOOGLE', isMainError: true);
+    if (result?.createOrAuthenticateUsingGoogle == null) {
       throw GraphqlException(message: 'Unable to login with phone number');
     }
-    final responseData = AuthResponse.fromJson(result!.createUserAccountUsingEmailPassword.toJson());
+    final responseData = AuthResponse.fromJson(result!.createOrAuthenticateUsingGoogle.toJson());
     if (!responseData.isSuccessfull) {
       throw AppException(message: 'An error occured while trying to sign in with phone number');
     }
@@ -203,11 +205,11 @@ class AuthRepository implements IAuthRepository {
 
   @override
   Future<AuthResponse> getUserByGoogleId(String googleId) async {
-    final request = GGetUserByGoogleIdReq((b) => b
+    final request = GAuthenticateByGoogleIdReq((b) => b
       ..vars.googleId = googleId
       ..fetchPolicy = _graphQLDataSource.getFetchPolicy(ApiDataFetchPolicy.networkOnly));
-    final result = await _graphQLDataSource.request<GGetUserByGoogleIdData>(request, type: 'GET_USER_BY_GOOGLE_ID', isMainError: true);
-    return AuthResponse.fromJson(result!.getUserByGoogleId.toJson());
+    final result = await _graphQLDataSource.request<GAuthenticateByGoogleIdData>(request, type: 'AUTHENTICATE_BY_GOOGLE_ID', isMainError: true);
+    return AuthResponse.fromJson(result!.authenticateWithGoogleId.toJson());
   }
 
   @override

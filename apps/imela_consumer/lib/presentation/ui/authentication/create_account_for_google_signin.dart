@@ -43,7 +43,10 @@ class _CreateAccountForGoogleSigninState extends State<CreateAccountForGoogleSig
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
-        authViewmodel.showWarningAlertDialog(context);
+        print('can show warning dialog ${authViewmodel.canShowWarningDialog}');
+        if (authViewmodel.canShowWarningDialog) {
+          authViewmodel.showWarningAlertDialog(context);
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -58,57 +61,54 @@ class _CreateAccountForGoogleSigninState extends State<CreateAccountForGoogleSig
             ),
           ],
         ),
-        body: Obx(
-          () => PageContentLoader(
-            isLoading: authViewmodel.isLoading.value,
-            showContent: true,
-            content: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 24),
-                  CircleAvatar(
-                    radius: 50,
-                    child: AppImage(imageUrl: widget.googleUser.profileImageUrl, width: 100, height: 100, fit: BoxFit.cover, borderRadius: BorderRadius.circular(50)),
+        body: PageContentLoader(
+          showContent: true,
+          content: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 24),
+                CircleAvatar(
+                  radius: 50,
+                  child: AppImage(
+                    imageUrl: widget.googleUser.profileImageUrl,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(50),
                   ),
-                  const SizedBox(height: 24),
-                  widgetFactory.createTextField(
-                    controller: authViewmodel.firstNameController,
-                    hintText: 'Your Name',
-                    onChanged: (value) {
-                      authViewmodel.checkInputValidity();
-                    },
+                ),
+                const SizedBox(height: 24),
+                widgetFactory.createTextField(
+                  controller: authViewmodel.firstNameController,
+                  hintText: 'Your Name',
+                  onChanged: (value) {
+                    authViewmodel.checkInputValidity();
+                  },
+                ),
+                const SizedBox(height: 32),
+                PhoneInputField(
+                  controller: authViewmodel.phoneNumberController,
+                  onChanged: (value) {
+                    authViewmodel.phoneNumber.value = value;
+                    authViewmodel.checkInputValidity();
+                  },
+                ),
+                const SizedBox(height: 60),
+                Obx(
+                  () => widgetFactory.createButton(
+                    context: context,
+                    content: const Text('Create Account'),
+                    isLoading: authViewmodel.isLoading.value,
+                    onPressed: !authViewmodel.isLoading.value && authViewmodel.isInputValid.value
+                        ? () {
+                            authViewmodel.registerUserWithGoogleAccountInfo(context);
+                          }
+                        : null,
                   ),
-                  const SizedBox(height: 32),
-                  PhoneInputField(
-                    controller: authViewmodel.phoneNumberController,
-                    onChanged: (value) {
-                      authViewmodel.phoneNumber.value = value;
-                      authViewmodel.checkInputValidity();
-                    },
-                  ),
-                  widgetFactory.createTextField(
-                      controller: authViewmodel.emailController,
-                      hintText: 'Email (optional)',
-                      onChanged: (value) {
-                        authViewmodel.checkInputValidity();
-                      }),
-                  const SizedBox(height: 60),
-                  Obx(
-                    () => widgetFactory.createButton(
-                      context: context,
-                      content: const Text('Create Account'),
-                      isLoading: authViewmodel.isLoading.value,
-                      onPressed: !authViewmodel.isLoading.value && authViewmodel.isInputValid.value
-                          ? () {
-                              authViewmodel.registerUser(context);
-                            }
-                          : null,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

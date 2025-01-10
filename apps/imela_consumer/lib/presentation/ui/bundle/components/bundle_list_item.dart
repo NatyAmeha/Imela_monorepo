@@ -75,8 +75,8 @@ class BundleListItem extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  widgetFactory.createText(context, AppLocalizations.of(context).discount, padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
-                                  widgetFactory.createText(context, '${bundleData.discount?.value} ${AppLocalizations.of(context).off}', style: Theme.of(context).textTheme.bodyMedium, enableResize: true),
+                                  widgetFactory.createText(context, context.l10n.discount, padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.labelSmall),
+                                  widgetFactory.createText(context, '${bundleData.discount?.value} ${context.l10n.off}', style: Theme.of(context).textTheme.bodyMedium, enableResize: true),
                                 ],
                               ),
                             ),
@@ -86,8 +86,8 @@ class BundleListItem extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  widgetFactory.createText(context, AppLocalizations.of(context).products, padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
-                                  widgetFactory.createText(context, AppLocalizations.of(context).bundleProducts(bundleData.getBundleProducts()), style: Theme.of(context).textTheme.bodyMedium, enableResize: true, maxLines: 1),
+                                  widgetFactory.createText(context, context.l10n.products, padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0), style: Theme.of(context).textTheme.bodySmall),
+                                  widgetFactory.createText(context, context.l10n.bundleProducts(bundleData.getBundleProducts()), style: Theme.of(context).textTheme.bodyMedium, enableResize: true, maxLines: 1),
                                 ],
                               ),
                             ),

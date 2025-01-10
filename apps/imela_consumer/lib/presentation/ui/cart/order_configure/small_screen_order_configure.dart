@@ -23,7 +23,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).payment),
+        title: Text(context.l10n.payment),
       ),
       body: Obx(
         () => PageContentLoader(
@@ -38,7 +38,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).choosePaymentOption, style: Theme.of(context).textTheme.titleMedium),
+                      widgetFactory.createText(context, context.l10n.choosePaymentOption, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       AppListView<PaymentOption>( 
                         items: cart.paymentOptions ?? [],
@@ -64,7 +64,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           header: viewmodel.selectedPaymentMethods.isNotEmpty
                               ? widgetFactory.createText(
                                   context,
-                                  AppLocalizations.of(context).selectedPaymentMethod,
+                                  context.l10n.selectedPaymentMethod,
                                   style: Theme.of(context).textTheme.titleMedium,
                                 )
                               : null,
@@ -112,7 +112,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                               children: [
                                 widgetFactory.createIcon(materialIcon: Icons.info_outline, color: Theme.of(context).colorScheme.primary),
                                 const SizedBox(width: 8),
-                                Flexible(child: widgetFactory.createText(context, AppLocalizations.of(context).paymentInfo, style: Theme.of(context).textTheme.bodyMedium)),
+                                Flexible(child: widgetFactory.createText(context, context.l10n.paymentInfo, style: Theme.of(context).textTheme.bodyMedium)),
                               ],
                             ),
                             const Divider(height: 8),
@@ -122,7 +122,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                widgetFactory.createText(context, AppLocalizations.of(context).total, style: Theme.of(context).textTheme.bodyLarge),
+                                widgetFactory.createText(context, context.l10n.total, style: Theme.of(context).textTheme.bodyLarge),
                                 const SizedBox(width: 8),
                                 widgetFactory.createText(context, 'ETB ${viewmodel.currentPayment}', style: Theme.of(context).textTheme.titleMedium),
                               ],
@@ -132,7 +132,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           Obx(
                             () => widgetFactory.createButton(
                               context: context,
-                              content: Text(AppLocalizations.of(context).orderCallToAction),
+                              content: Text(context.l10n.orderCallToAction),
                               onPressed: () => viewmodel.placeOrder(context),
                             ),
                           ),

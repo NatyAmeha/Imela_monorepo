@@ -61,7 +61,7 @@ class PaymentOptionListItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, AppLocalizations.of(context).currentPayment, style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, context.l10n.currentPayment, style: Theme.of(context).textTheme.labelMedium),
               widgetFactory.createText(context, paymentOption.currentPaymentString(totalAmount), style: Theme.of(context).textTheme.bodyLarge),
             ],
           ).withPaddingSymetric(horizontal: 16, vertical: 8),
@@ -76,13 +76,13 @@ class PaymentOptionListItem extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).remainingPaymentAmount, style: Theme.of(context).textTheme.labelMedium),
+                      widgetFactory.createText(context, context.l10n.remainingPaymentAmount, style: Theme.of(context).textTheme.labelMedium),
                       widgetFactory.createText(context, paymentOption.remainingPaymentString(totalAmount), style: Theme.of(context).textTheme.bodyLarge),
                     ],
                   ).withPaddingSymetric(vertical: 0).showIfTrue(paymentOption.isPartialPaymentOption()),
                   Row(
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).payRemainingOnDelivery, style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),
+                      widgetFactory.createText(context, context.l10n.payRemainingOnDelivery, style: Theme.of(context).textTheme.labelMedium, color: Theme.of(context).colorScheme.tertiary),
                     ],
                   ).withPaddingSymetric(vertical: 2).showIfTrue(paymentOption.isPartialPaymentOption())
                 ],

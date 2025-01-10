@@ -36,7 +36,7 @@ class _LoyaltyListPageState extends State<LoyaltyListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).yourLoyalties)),
+      appBar: AppBar(title: Text(context.l10n.yourLoyalties)),
       body: Obx(
         () => PageContentLoader(
           showContent: viewmodel.customerLoyalties.isNotEmpty,

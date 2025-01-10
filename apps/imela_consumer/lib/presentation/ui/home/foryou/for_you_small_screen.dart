@@ -50,7 +50,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
                   AppListView(
                     header: ListHeader(
                       widgetFactory: widgetFactory,
-                      title: AppLocalizations.of(context).favoriteBusiness,
+                      title: context.l10n.favoriteBusiness,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       action: IconButton(
                         onPressed: () {

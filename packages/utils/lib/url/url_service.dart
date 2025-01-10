@@ -2,6 +2,14 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+enum UrlType {
+  phone,
+  email,
+  web,
+  sms,
+  map,
+}
+
 abstract class IUrlService {
   Future<bool> launchPhoneCall(String phoneNumber);
   Future<bool> launchEmail(String email, {String? subject, String? body});
@@ -17,12 +25,11 @@ abstract class IUrlService {
 class UrlService implements IUrlService {
   static const injectName = 'UrlService';
 
-  UrlService();
-
   @override
   Future<bool> launchPhoneCall(String phoneNumber) async {
     final phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-    return await launchUrl(phoneUri);
+    final result = await launchUrl(phoneUri);
+    return result;
   }
 
   @override

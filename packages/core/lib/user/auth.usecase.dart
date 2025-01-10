@@ -55,6 +55,7 @@ class AuthUsecase {
     if (firebaseAuthResponse.authenticated && firebaseAuthResponse.user?.id != null) {
       final apiResponse = await _authRepo.getUserByGoogleId(firebaseAuthResponse.user!.id!);
       if (apiResponse.success && apiResponse.user != null) {
+        await _authRepo.saveAuthCredentialToPreference(apiResponse);
         return AuthResponse(success: true, user: apiResponse.user, googleId: firebaseAuthResponse.user!.id);
       }
       return AuthResponse(success: false, user: firebaseAuthResponse.user, message: 'An error occured while trying to sign in with google');

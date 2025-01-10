@@ -62,7 +62,7 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
                         widgetFactory.createCard(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                           color: Theme.of(context).colorScheme.primaryContainer,
-                          child: widgetFactory.createText(context, AppLocalizations.of(context).quantity('$qty'), style: Theme.of(context).textTheme.bodyMedium),
+                          child: widgetFactory.createText(context, context.l10n.quantity('$qty'), style: Theme.of(context).textTheme.bodyMedium),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -73,7 +73,7 @@ class SelectedProductFromBundlListItem extends StatelessWidget {
               if (additionalItems.isNotEmpty) ...[
                 const Divider(),
                 AppListView(
-                  header: widgetFactory.createText(context, AppLocalizations.of(context).additionalItems, style: Theme.of(context).textTheme.bodyMedium).paddingSymmetric(horizontal: 8),
+                  header: widgetFactory.createText(context, context.l10n.additionalItems, style: Theme.of(context).textTheme.bodyMedium).paddingSymmetric(horizontal: 8),
                   items: additionalItems,
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

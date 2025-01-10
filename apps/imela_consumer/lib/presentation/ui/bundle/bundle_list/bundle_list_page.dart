@@ -41,7 +41,7 @@ class _BundleListPageState extends State<BundleListPage> {
   Widget build(BuildContext context) {
     final widgetFactory = viewmodel.appController.getWidgetFactory(context);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title ?? AppLocalizations.of(context).bundles)),
+      appBar: AppBar(title: Text(widget.title ?? context.l10n.bundles)),
       body: Obx(
         () => PageContentLoader(
           isLoading: viewmodel.isLoading.value,

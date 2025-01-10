@@ -32,6 +32,7 @@ import 'package:imela_core/membership/dto/membership_response.dart';
 import 'package:imela_core/membership/membership_usecase.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_core/settings/setting_usecase.dart';
 import 'package:imela_core/shared/components/language_selector.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
@@ -42,6 +43,7 @@ import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:imela_utils/helpers/date_utils.dart';
+import 'package:imela_utils/url/url_service.dart';
 import 'package:injectable/injectable.dart';
 import 'component/business_info.dart';
 
@@ -51,12 +53,14 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   final LoyaltyUsecase loyaltyUsecase;
   final MembershipUseCase membershipUsecase;
   final IExceptiionHandler exceptiionHandler;
+  final SettingUsecase settingUsecase;
   final IRoutingService router;
 
   BusinessDetailsViewModel({
     required this.businessUsecase,
     required this.loyaltyUsecase,
     required this.membershipUsecase,
+    required this.settingUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
     @Named(GoRouterService.injectName) required this.router,
   });
@@ -106,7 +110,6 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
 
   LoyaltyResponse? get businessLoyaltyInfo => appViewmodel.selectedBusinessLoyaltyInfo.value;
   MembershipResponse? get businessMembershipInfo => appViewmodel.businessMembershipInfo.value;
-
 
   List<String> get categories => businessDetails.value?.business?.categories ?? [];
   @override
@@ -217,6 +220,16 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
         business: businessData!,
         branches: businessBranches,
         widgetFactory: widgetFactory,
+        onEmailPressed: () {
+          if (businessData!.email != null) {
+            settingUsecase.launchUrl(businessData!.email!, type: UrlType.email);
+          }
+        },
+        onPhonePressed: () {
+          if (businessData!.phoneNumber != null) {
+            settingUsecase.launchUrl(businessData!.phoneNumber!, type: UrlType.phone);
+          }
+        },
         onClose: () {
           router.goBack(context);
         },
@@ -290,6 +303,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     }
     CartDetailPage.navigateToCartDetailPage(context, router, selectedCart);
   }
+
   // navigation helpers
   void navigateToProductDetails(BuildContext context, Product productInfo) {
     router.navigateTo(context, '/product/${productInfo.id!}', extra: {'name': productInfo.name?.localize('ENGLISH')});
@@ -311,14 +325,12 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
     exception.value = null;
     appViewmodel.setSelectedBusinessLoyaltyInfo(null);
     appViewmodel.setBusinessMembershipInfo(null);
-    
   }
 
   @override
   void dispose() {
     print("dispose business details viewmodel");
 
-  
     super.dispose();
   }
 

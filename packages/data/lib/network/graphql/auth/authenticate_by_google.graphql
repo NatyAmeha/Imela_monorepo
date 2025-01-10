@@ -1,0 +1,15 @@
+query AuthenticateByGoogleId($googleId: String!) {
+  authenticateWithGoogleId(googleId: $googleId) {
+    success
+    accessToken
+    user{
+      id
+      email
+      phoneNumber
+      googleId
+      username
+      firstName
+      profileImageUrl
+    }
+  }
+}

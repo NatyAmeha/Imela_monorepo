@@ -40,9 +40,7 @@ class _OrderListPageState extends State<OrderListPage> {
   Widget build(BuildContext context) {
     final appWidgetfactory = AppController.getInstance.getWidgetFactory(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).orders),
-      ),
+      appBar: AppBar(title: Text(context.l10n.orders)),
       body: Obx(
         () => PageContentLoader(
           isLoading: viewmodel.isLoading.value,

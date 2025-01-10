@@ -42,7 +42,7 @@ class OrderListItem extends StatelessWidget {
           Row(children: [
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                widgetFactory.createText(context, AppLocalizations.of(context).orderCode(order.code ?? ''), style: Theme.of(context).textTheme.bodyLarge),
+                widgetFactory.createText(context, context.l10n.orderCode(order.code ?? ''), style: Theme.of(context).textTheme.bodyLarge),
                 BadgeList(values: [order.status ?? ''], colors: [Theme.of(context).colorScheme.tertiary], widgetFactory: widgetFactory),
               ]),
             ),
@@ -52,7 +52,7 @@ class OrderListItem extends StatelessWidget {
           Row( 
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, AppLocalizations.of(context).totalAmount, style: Theme.of(context).textTheme.labelMedium),
+              widgetFactory.createText(context, context.l10n.totalAmount, style: Theme.of(context).textTheme.labelMedium),
               widgetFactory.createText(context, 'ETB ${order.totalAmount}', style: Theme.of(context).textTheme.bodyLarge),
             ],
           ).withPaddingSymetric(vertical: 4),
@@ -60,7 +60,7 @@ class OrderListItem extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                widgetFactory.createText(context, AppLocalizations.of(context).remainingAmount, style: Theme.of(context).textTheme.labelMedium),
+                widgetFactory.createText(context, context.l10n.remainingAmount, style: Theme.of(context).textTheme.labelMedium),
                 widgetFactory.createText(context, order.remainingAmountString(selectedCurrency, selectedLanguage), style: Theme.of(context).textTheme.bodyLarge, color: ColorManager.warning),
               ],
             ),

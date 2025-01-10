@@ -32,7 +32,7 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
       },
       child: Scaffold(
           appBar: AppBar(
-            title: Text(AppLocalizations.of(context).orderConfirmation),
+            title: Text(context.l10n.orderConfirmation),
             automaticallyImplyLeading: false,
             leading: widgetFactory.createIcon(
                 materialIcon: Icons.arrow_back_ios,
@@ -52,20 +52,20 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
                       const SizedBox(height: 32),
                       widgetFactory.createIcon(materialIcon: Icons.check_circle, size: 75, color: Theme.of(context).colorScheme.primary),
                       const SizedBox(height: 16),
-                      widgetFactory.createText(context, AppLocalizations.of(context).orderSubmittedSuccess, style: Theme.of(context).textTheme.titleLarge),
+                      widgetFactory.createText(context, context.l10n.orderSubmittedSuccess, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 8),
                       widgetFactory.createCard(
                         padding: const EdgeInsets.all(10),
                         border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerLow),
                         borderRadius: BorderRadius.circular(8),
-                        child: widgetFactory.createText(context, AppLocalizations.of(context).thankYouOrderMessage, style: Theme.of(context).textTheme.bodySmall),
+                        child: widgetFactory.createText(context, context.l10n.thankYouOrderMessage, style: Theme.of(context).textTheme.bodySmall),
                       ),
                       const SizedBox(height: 16),
                       _buildOrderSummary(context),
                       const SizedBox(height: 16),
                       widgetFactory.createButton(
                         context: context,
-                        content: Text(AppLocalizations.of(context).backToHome),
+                        content: Text(context.l10n.backToHome),
                         onPressed: () {
                           viewmodel.navigateToHome(context);
                         },
@@ -83,7 +83,7 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        widgetFactory.createText(context, AppLocalizations.of(context).orderSummary, style: Theme.of(context).textTheme.titleMedium),
+        widgetFactory.createText(context, context.l10n.orderSummary, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 16),
         AppListView(
           shrinkWrap: true,
@@ -101,21 +101,21 @@ class _SmallScreenOrderConfirmationState extends State<SmallScreenOrderConfirmat
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            widgetFactory.createText(context, AppLocalizations.of(context).subtotal, style: Theme.of(context).textTheme.titleMedium),
+            widgetFactory.createText(context, context.l10n.subtotal, style: Theme.of(context).textTheme.titleMedium),
             widgetFactory.createText(context, viewmodel.order?.subtotalAmountString(viewmodel.selectedCurrency, viewmodel.selectedLanguage) ?? '', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            widgetFactory.createText(context, AppLocalizations.of(context).discount, style: Theme.of(context).textTheme.titleMedium),
+            widgetFactory.createText(context, context.l10n.discount, style: Theme.of(context).textTheme.titleMedium),
             widgetFactory.createText(context, viewmodel.order?.totalDiscountString(viewmodel.selectedCurrency, viewmodel.selectedLanguage) ?? '', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            widgetFactory.createText(context, AppLocalizations.of(context).total, style: Theme.of(context).textTheme.titleMedium),
+            widgetFactory.createText(context, context.l10n.total, style: Theme.of(context).textTheme.titleMedium),
             widgetFactory.createText(context, viewmodel.order?.totalAmountString(viewmodel.selectedCurrency, viewmodel.selectedLanguage) ?? '', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),

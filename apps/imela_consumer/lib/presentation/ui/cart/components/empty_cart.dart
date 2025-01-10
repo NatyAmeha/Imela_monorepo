@@ -16,9 +16,9 @@ class EmptyCartCard extends StatelessWidget {
         children: [
           widgetFactory.createIcon(materialIcon: Icons.hourglass_empty_outlined, size: 100),
           const SizedBox(height: 16),
-          widgetFactory.createText(context, AppLocalizations.of(context).yourCartIsEmpty, style: Theme.of(context).textTheme.headlineMedium),
+          widgetFactory.createText(context, context.l10n.yourCartIsEmpty, style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 10),
-          widgetFactory.createText(context, AppLocalizations.of(context).addItemsToCart, style: Theme.of(context).textTheme.labelLarge),
+          widgetFactory.createText(context, context.l10n.addItemsToCart, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     );

@@ -26,7 +26,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).orderDetails),
+        title: Text(context.l10n.orderDetails),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -40,13 +40,13 @@ class SmallScreenOrderDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, AppLocalizations.of(context).orderSummary, style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, context.l10n.orderSummary, style: Theme.of(context).textTheme.titleMedium),
                   buildBusinessesSection(context),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).orderStatus, style: Theme.of(context).textTheme.bodyLarge).withPaddingSymetric(vertical: 8),
+                      widgetFactory.createText(context, context.l10n.orderStatus, style: Theme.of(context).textTheme.bodyLarge).withPaddingSymetric(vertical: 8),
                       SizedBox(
                         width: MediaQuery.sizeOf(context).width * 0.8,
                         child: Obx(
@@ -65,21 +65,21 @@ class SmallScreenOrderDetail extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).orderDate, style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, context.l10n.orderDate, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, '${viewmodel.orderInfo.value?.createdAt?.toFormattedString()}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).totalItems, style: Theme.of(context).textTheme.bodyMedium),
-                      widgetFactory.createText(context, AppLocalizations.of(context).itemsCount('${viewmodel.orderInfo.value?.items?.length}'), style: Theme.of(context).textTheme.titleSmall),
+                      widgetFactory.createText(context, context.l10n.totalItems, style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, context.l10n.itemsCount('${viewmodel.orderInfo.value?.items?.length}'), style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).totalAmount, style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, context.l10n.totalAmount, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, 'ETB ${viewmodel.orderInfo.value?.totalAmount}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
@@ -92,14 +92,14 @@ class SmallScreenOrderDetail extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            widgetFactory.createText(context, AppLocalizations.of(context).earnedPoints, style: Theme.of(context).textTheme.bodyMedium),
+                            widgetFactory.createText(context, context.l10n.earnedPoints, style: Theme.of(context).textTheme.bodyMedium),
                             widgetFactory.createText(context, '${viewmodel.orderInfo.value?.getTotalEarnedPointsString(selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
                           ],
                         ),
                         widgetFactory.createButton(
                           context: context,
                           style: AppButtonStyle.textButtonStyle(context),
-                          content: Text(AppLocalizations.of(context).viewRewards),
+                          content: Text(context.l10n.viewRewards),
                           onPressed: () {
                             viewmodel.moveToRewards(context);
                           },
@@ -118,19 +118,19 @@ class SmallScreenOrderDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, AppLocalizations.of(context).paymentSummary, style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, context.l10n.paymentSummary, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).paidAmounts, style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, context.l10n.paidAmounts, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, '${viewmodel.orderInfo.value?.paidAmountString(selectedCurrency, selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).remainingAmount, style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, context.l10n.remainingAmount, style: Theme.of(context).textTheme.bodyMedium),
                       widgetFactory.createText(context, '${viewmodel.orderInfo.value?.remainingAmountString(selectedCurrency, selectedLanguage)}', style: Theme.of(context).textTheme.titleSmall),
                     ],
                   ).withPaddingSymetric(vertical: 6),
@@ -139,7 +139,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      widgetFactory.createText(context, AppLocalizations.of(context).paymentMethods, style: Theme.of(context).textTheme.bodyMedium),
+                      widgetFactory.createText(context, context.l10n.paymentMethods, style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(height: 8),
                       AppListView(
                         shrinkWrap: true,
@@ -162,7 +162,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widgetFactory.createText(context, AppLocalizations.of(context).items, style: Theme.of(context).textTheme.titleMedium),
+                  widgetFactory.createText(context, context.l10n.items, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 16),
                   AppListView(
                     shrinkWrap: true,
@@ -210,7 +210,7 @@ class SmallScreenOrderDetail extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        widgetFactory.createText(context, AppLocalizations.of(context).additionalConfigurations, style: Theme.of(context).textTheme.titleMedium),
+        widgetFactory.createText(context, context.l10n.additionalConfigurations, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 16),
         AppListView(
           shrinkWrap: true,
