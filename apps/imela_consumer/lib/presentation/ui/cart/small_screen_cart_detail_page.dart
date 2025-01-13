@@ -82,13 +82,13 @@ class SmallScreenCartDetailPage extends StatelessWidget {
                           },
                         ),
                       ),
-                      if (viewmodel.configResult.value?.additionalItems?.isNotEmpty == true)
+                      if (viewmodel.selectedCart.value!.hasOrderAddons() == true)
                         widgetFactory.createButton(
                           context: context,
-                          content: widgetFactory.createText(context, context.l10n.seeAdditionalItems, style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.secondary),
+                          content: widgetFactory.createText(context, 'Additional options', style: Theme.of(context).textTheme.bodyMedium, color: Theme.of(context).colorScheme.secondary),
                           style: AppButtonStyle.textButtonStyle(context),
                           onPressed: () {
-                            viewmodel.showAdditionalItems(context);
+                            viewmodel.changeOrderConfigs(context);
                           },
                         )
                     ],

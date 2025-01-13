@@ -18,6 +18,7 @@ import 'package:imela/presentation/ui/home/home.page.dart';
 import 'package:imela/presentation/ui/product/product_details/product_details.page.dart';
 import 'package:imela/presentation/ui/product/product_list/product_list_page.dart';
 import 'package:imela/presentation/ui/profile/profile_page.dart';
+import 'package:imela/presentation/utils/date_utils.dart';
 import 'package:imela/presentation/utils/screen_size_utils.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
@@ -257,5 +258,9 @@ class HomepageViewmodel extends GetxController with BaseViewmodel {
 
   void navigateToBusinessListPage(BuildContext context, {String? title}) {
     BusinessListPage.navigate(context, businesses: businessListController.items, title: title ?? 'Business List');
+  }
+
+  Duration getBundleRemainingTime(ProductBundle bundle) {
+    return DateHelper.getDateDifference(startDate: DateTime.now(), endDate: bundle.endDate);
   }
 }

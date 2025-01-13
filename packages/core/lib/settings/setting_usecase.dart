@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:imela_core/settings/model/location.model.dart';
 import 'package:imela_core/settings/setting_info.dart';
 import 'package:imela_core/settings/setting_repository.dart';
+import 'package:imela_utils/helpers/date_utils.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
 import 'package:imela_utils/location/location_info.dart';
 import 'package:imela_utils/location/location_service.dart';
@@ -34,8 +35,23 @@ class SettingUsecase {
   Future<String> getSelectedLanguage() async {
     final settingInfo = await settingRepository.getSettingFromPreference(SettingKey.SELECTED_LANGUAGE);
     final value = settingInfo?.value;
-    print('language value: $value');
     return AppLanguage.values.firstWhereOrNull((element) => element.name == value)?.name ?? AppLanguage.ENGLISH.name;
+  }
+
+  Future<bool> setIsDownloadAppBannerShown(bool value) async {
+    final settingInfo = SettingInfo(key: SettingKey.IS_DOWNLOAD_APP_BANNER_SHOWN, value: value);
+    await settingRepository.setSettingToPrefernece(settingInfo);
+    if (value) {
+      final settingInfo = SettingInfo(key: SettingKey.IS_DOWNLOAD_APP_BANNER_SHOWN_DATE, value: DateTime.now().toString());
+      await settingRepository.setSettingToPrefernece(settingInfo);
+    }
+    return true;
+  }
+
+  Future<List<SettingInfo>> getIsDownloadAppBannerShown() async {
+    final settingInfo = await settingRepository.getSettingFromPreference<bool>(SettingKey.IS_DOWNLOAD_APP_BANNER_SHOWN);
+    final settingInfoDate = await settingRepository.getSettingFromPreference<String>(SettingKey.IS_DOWNLOAD_APP_BANNER_SHOWN_DATE);
+    return [settingInfo, settingInfoDate].whereNotNull().toList();
   }
 
   Future<PermissionStatusType> handlePermissionRequest(AppPermissionType permission, {Function? permissionDescription}) async {
@@ -71,7 +87,7 @@ class SettingUsecase {
 
   Future<bool> launchUrl(String url, {required UrlType type, double? latitude, double? longitude, String? label}) async {
     switch (type) {
-      case UrlType.web:
+      case UrlType.url:
         return urlService.launchWebUrl(url);
       case UrlType.phone:
         return urlService.launchPhoneCall(url);

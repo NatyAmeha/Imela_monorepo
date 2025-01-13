@@ -127,7 +127,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     }
     Future.delayed(Duration.zero, () {
       addonsWithDisabledDates.clear();
-      addProductAddon(data?['productAddons'], data?['INITIAL_ORDER_CONFIGS'] as List<OrderConfig> ?? []);
+      addProductAddon(data?['productAddons'], data?['INITIAL_ORDER_CONFIGS'] as List<OrderConfig>);
       listenOrderConfigChange();
       applyDefaultQtyBasedAddonsToOrderConfigs();
     });
@@ -172,6 +172,9 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
           var productSelected = selectedAddon.inputType == AddonInputType.PRODUCT_SELECTION_WITH_ADDON_DISCOUNT_INPUT.name ? selectedDiscoungtedProductsFromAddons.value : selectedProductsFromAddon.value;
           var canEnable = productSelected.isNotEmpty && productSelected.length <= selectedAddon.maxAmount && productSelected.length >= selectedAddon.minAmount;
           canGoToNextAddonConfigPage.value = canEnable;
+        } else if (selectedAddon.inputType == AddonInputType.LOCATION_INPUT.name || selectedAddon.inputType == AddonInputType.LOCATION_PER_KM_INPUT.name) {
+          var selectedLocation = orderConfigs[selectedAddon.id]?.singleValue;
+          canGoToNextAddonConfigPage.value = selectedLocation != null;
         }
       }
     }
@@ -242,7 +245,6 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   }
 
   Future<void> getUserSavedLocations() async {
-    
     var locationsFromDb = await settingUsecase.getUserSavedLocations(AppConstants.APP_DB_NAME);
     savedLocations.value = locationsFromDb;
   }
@@ -671,6 +673,9 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
     selectedProductsFromAddon.clear();
     additionalProductOrderItems.clear();
     selectedDiscoungtedProductsFromAddons.clear();
+    selectedAddonOptions.clear();
+    selectedProductQty.clear();
+    addonsWithDisabledDates.clear();
     refresh();
   }
 
@@ -690,6 +695,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
           content: LocationSelectorPage(
             onLocationSelected: (locationSearchContext, location) {
               savedLocations.add(location);
+              // applySelectedLocation(context, addon, location);
               AppModalSheet.closeModal();
             },
           ),

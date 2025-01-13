@@ -37,17 +37,21 @@ class _MembershipPlanListPageState extends State<MembershipPlanListPage> {
         () => PageContentLoader(
           isLoading: viewmodel.isLoading.value,
           showContent: viewmodel.membershipPlans.value.isNotEmpty,
-          content: AppListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            contentPadding: const EdgeInsets.symmetric(vertical: 8),
-            items: viewmodel.membershipPlans.value,
-            itemBuilder: (context, item, index) {
-              return MembershipListItem(
-                membershipInfo: item,
-                selectedLanguage: viewmodel.selectedLanguage,
-                onTap: () => viewmodel.navigateToMembershipDetails(context, item),
-              );
-            },
+          content: Column(
+            children: [
+              AppListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                items: viewmodel.membershipPlans.value,
+                itemBuilder: (context, item, index) {
+                  return MembershipListItem(
+                    membershipInfo: item,
+                    selectedLanguage: viewmodel.selectedLanguage,
+                    onTap: () => viewmodel.navigateToMembershipDetails(context, item),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),

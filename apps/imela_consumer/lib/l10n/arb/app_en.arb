@@ -27,7 +27,7 @@
     "requestToJoin": "Request to join",
     "membershipPayment": "Membership Payment",
     "selectPaymentMethod": "Select Payment Method",
-    "paymentReceiptInfo": "Choose payment method, upload your payment receipt and we will verify your payment receipt and approve your membership request as soon as possible.",
+    "paymentReceiptInfo": "Choose payment method and upload your payment receipt if required.",
     "sendRequest": "Send Request",
     "price": "Price",
     "duration": "Duration",

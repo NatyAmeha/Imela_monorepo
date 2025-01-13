@@ -314,9 +314,7 @@ class _BusinessDetailsSmallScreenState extends State<BusinessDetailsSmallScreen>
 
   @override
   void dispose() {
-    if (kDebugMode) {
-      print('business details dispose');
-    }
+    
     viewmodel.dispose();
     super.dispose();
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class DateHelper {
   static Duration getDateDifference({DateTime? startDate, DateTime? endDate}) {
+    print('startDate: $startDate endDate: $endDate');
     if (startDate == null || endDate == null) {
       return Duration.zero;
     }

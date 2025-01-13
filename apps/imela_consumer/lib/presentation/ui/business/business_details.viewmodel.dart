@@ -1,7 +1,9 @@
 import 'package:dartx/dartx.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/app/app.dart';
+import 'package:imela/app/app_constants.dart';
 import 'package:imela/injection.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/branch/component/business_branch_list_modal.dart';
@@ -46,6 +48,7 @@ import 'package:imela_utils/helpers/date_utils.dart';
 import 'package:imela_utils/url/url_service.dart';
 import 'package:injectable/injectable.dart';
 import 'component/business_info.dart';
+import 'package:imela_ui_kit/components/shared/download_app_banner.dart';
 
 @injectable
 class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
@@ -119,9 +122,9 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
       businessId = data!['id'] as String;
       final context = data['context'] as BuildContext;
       final branches = data['branches'] as List<Branch>;
-      cleanupStateVariables();
       alreadySelectedBranchId = appViewmodel.getSelectedBusinessBranchId(businessId);
-      await getBusinessDetails(context, businessId, branchId: alreadySelectedBranchId, branchListWithAddress: branches);
+      cleanupStateVariables();
+      getBusinessDetails(context, businessId, branchId: alreadySelectedBranchId, branchListWithAddress: branches);
     });
   }
 
@@ -138,16 +141,16 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   Future<void> getBusinessDetails(BuildContext context, String id, {String? branchId, List<Branch> branchListWithAddress = const []}) async {
     try {
       isLoading(true);
-
-      if (branchListWithAddress.isNotEmpty) {
+      if (branchListWithAddress.isNotEmpty && alreadySelectedBranchId == null) {
         final nearestBranch = await businessUsecase.getNearestBranch(branchListWithAddress);
         branchId = nearestBranch.id;
         selectedBranch.value = nearestBranch;
-        alreadySelectedBranchId = nearestBranch.id;
+        appViewmodel.setSelectedBusinessBranchId(businessId, nearestBranch.id!);
       }
       final response = await businessUsecase.getBusinessDetails(id, branchId: branchId, fetchPolicy: ApiDataFetchPolicy.cacheFirst);
       if (response?.isBusinessDetailFetchSuccessfull() == true) {
         businessDetails.value = response;
+
         if (businessBranches.isNotEmpty && branchId == null) {
           final nearestBranch = await businessUsecase.getNearestBranch(businessBranches);
           alreadySelectedBranchId = nearestBranch.id;
@@ -164,6 +167,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
         isSecondLoading(true);
         await appViewmodel.getCustomerBusinessLoyalty(context, businessId);
         await getMembershipPlans();
+        await showDownloadAppBanner(context);
       } else {
         exception(AppException(message: 'Business not found'));
       }
@@ -235,6 +239,48 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
         },
       );
     });
+  }
+
+  Future<void> showDownloadAppBanner(BuildContext context) async {
+    Future.delayed(
+      const Duration(seconds: 5),
+      () async {
+        if (kIsWeb) {
+          final dialogContent = ModalContent(
+            title: const Text('Download App'),
+            content: DownloadAppBanner(
+              title: 'Get the best experience with our app',
+              description: const [
+                'Interact with your favorite businesses on the go with our mobile app.',
+                'Get instant notification for best offers and discounts.',
+                'Get exclusive deals and rewards just for being a member.',
+                'Track your orders and manage your account with ease.',
+              ],
+              widgetFactory: appViewmodel.getWidgetFactory(context),
+              onDownload: () {
+                AppModalSheet.closeModal();
+                settingUsecase.launchUrl(AppConstants.appDownloadUrl, type: UrlType.url);
+              },
+            ),
+          );
+          final isDownloadAppBannerShown = await settingUsecase.getIsDownloadAppBannerShown();
+          final isBannerShown = (isDownloadAppBannerShown.firstWhereOrNull((t) => true))?.value ?? false;
+          if (isBannerShown) {
+            final downloadAppBannerShownDate = isDownloadAppBannerShown.lastOrNull?.value;
+            final dateNow = DateTime.now();
+            final bannerShownDate = DateTime.tryParse(downloadAppBannerShownDate ?? dateNow.toFormattedString()) ?? dateNow;
+            final after24Hours = bannerShownDate.add(const Duration(days: 1));
+            if (after24Hours.isBefore(dateNow)) {
+              await AppModalSheet.showModal(context, type: AppModalSheetType.DIALOG, pages: [dialogContent]);
+              await settingUsecase.setIsDownloadAppBannerShown(true);
+            }
+          } else {
+            AppModalSheet.showModal(context, type: AppModalSheetType.DIALOG, pages: [dialogContent]);
+            await settingUsecase.setIsDownloadAppBannerShown(true);
+          }
+        }
+      },
+    );
   }
 
   Future<void> showBusinessBranchSelectionModal(BuildContext context) async {
@@ -328,13 +374,6 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   }
 
   @override
-  void dispose() {
-    print("dispose business details viewmodel");
-
-    super.dispose();
-  }
-
-  @override
   void onClose() {
     super.onClose();
   }
@@ -361,7 +400,7 @@ class BusinessDetailsViewModel extends GetxController with BaseViewmodel {
   }
 
   Duration getBundleRemainingTime(ProductBundle bundle) {
-    return DateHelper.getDateDifference(startDate: bundle.startDate, endDate: bundle.endDate);
+    return DateHelper.getDateDifference(startDate: DateTime.now(), endDate: bundle.endDate);
   }
 
   void navigateToServiceOverviewDetails(BuildContext context, List<ServiceOverview> serviceOverviews) {

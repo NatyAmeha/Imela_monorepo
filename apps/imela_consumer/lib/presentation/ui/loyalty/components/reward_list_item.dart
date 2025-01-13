@@ -1,8 +1,8 @@
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/product/components/grid_product_list_item.component.dart';
+import 'package:imela/presentation/utils/widget_extesions.dart';
 import 'package:imela_core/loyalty/model/reward.model.dart';
 import 'package:imela_core/loyalty/model/reward_info.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
@@ -141,7 +141,7 @@ class RewardListItem extends StatelessWidget {
             const SizedBox(width: 8),
             widgetFactory.createText(context, reward.getDiscountInfo(selectedLanguage), style: Theme.of(context).textTheme.titleSmall),
           ],
-        ).paddingSymmetric(vertical: 4),
+        ).withPaddingSymetric(vertical: 4),
       ],
     );
   }

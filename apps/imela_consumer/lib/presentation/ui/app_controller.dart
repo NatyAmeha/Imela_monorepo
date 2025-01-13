@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:get/get.dart';
 import 'package:imela/app/app.dart';
 import 'package:imela/injection.dart';
@@ -22,6 +22,7 @@ import 'package:imela_core/subscription/model/subscription.model.dart';
 import 'package:imela_core/user/auth.usecase.dart';
 import 'package:imela_core/user/model/auth_response.dart';
 import 'package:imela_core/user/model/user.model.dart';
+import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -104,7 +105,7 @@ class AppController extends GetxController with BaseViewmodel {
     return discounts;
   }
 
-  Discount? get heighestMembershipDiscounts => currentUserBusinessMembershipsDiscounts.firstOrNull;
+  Discount? get heighestMembershipDiscounts => currentUserBusinessMembershipsDiscounts.firstWhereOrNull((element) => true);
 
   static WidgetFactory? _widgetFactory;
   WidgetFactory getWidgetFactory(BuildContext context) {
@@ -228,10 +229,10 @@ class AppController extends GetxController with BaseViewmodel {
     return subscriptions.isNotEmpty;
   }
 
-  Future<LoyaltyResponse?> getCustomerBusinessLoyalty(BuildContext context, String businessId) async {
+  Future<LoyaltyResponse?> getCustomerBusinessLoyalty(BuildContext context, String businessId, {ApiDataFetchPolicy policy = ApiDataFetchPolicy.cacheFirst}) async {
     try {
       setSelectedBusinessLoyaltyInfo(null);
-      var loyaltyInfo = await loyaltyUsecase.getCustomerBusinessLoyalty(businessId);
+      var loyaltyInfo = await loyaltyUsecase.getCustomerBusinessLoyalty(businessId, apiDataFeed: policy);
       if (loyaltyInfo?.success ?? false) {
         setSelectedBusinessLoyaltyInfo(loyaltyInfo);
         final customerPoints = loyaltyInfo?.customerLoyalty?.currentPoints ?? 0.0;
@@ -239,7 +240,7 @@ class AppController extends GetxController with BaseViewmodel {
         print('loyaltyInfo tier : ${tierInfo}');
         if (tierInfo?.success ?? false) {
           // take the higher tier from eligable customer loyalty tiers
-          loyaltyInfo = loyaltyInfo?.copyWith(tier: tierInfo?.tiers?.firstOrNull);
+          loyaltyInfo = loyaltyInfo?.copyWith(tier: tierInfo?.tiers?.firstWhereOrNull((test) => true));
           setSelectedBusinessLoyaltyInfo(loyaltyInfo);
         }
       }

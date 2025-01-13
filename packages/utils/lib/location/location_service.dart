@@ -91,7 +91,6 @@ class LocationService implements ILocationService {
 
   @override
   AppLatLng findNearestLocation(List<AppLatLng> locations, AppLatLng targetLocation) {
-    
     if (locations.isEmpty) {
       throw ArgumentError('Locations list cannot be empty');
     }

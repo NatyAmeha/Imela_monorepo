@@ -320,7 +320,7 @@ class _ProductAddonModalState extends State<ProductAddonModal> {
 
   Widget buildLocationAddonList(ProductAddon addon) {
     return Obx(
-      () => Expanded(
+      () => Expanded( 
         child: LocationListModal(
           widgetFactory: widgetFactory,
           title: 'Saved Locations',

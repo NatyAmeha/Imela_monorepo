@@ -63,7 +63,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
                     items: homepageViewmodel.forYouData.value?.favoriteBusinesses ?? [],
                     shrinkWrap: true,
                     height: 250,
-                    padding: const EdgeInsets.only(right : 8),
+                    padding: const EdgeInsets.only(right: 8),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                     itemBuilder: (context, business, index) {
                       return BusinessListTile(
@@ -115,6 +115,7 @@ class _ForYouSmallScreenState extends State<ForYouSmallScreen> {
           itemBuilder: (context, bundle, index) {
             return BundleListItem(
               bundleData: bundle,
+              remainingTime: homepageViewmodel.getBundleRemainingTime(bundle),
               widgetFactory: widgetFactory,
               width: 300,
               height: 250,

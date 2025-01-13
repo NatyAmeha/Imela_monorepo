@@ -34,13 +34,13 @@ class BundleSummary extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(flex: 1, child: widgetFactory.createText(context, context.l10n.discount, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start)),
+                Expanded(flex: 1, child: widgetFactory.createText(context, context.l10n.discount, style: Theme.of(context).textTheme.labelMedium, textAlign: TextAlign.start)),
                 Expanded(
                   flex: 2,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      BadgeList(colors: const [Colors.transparent], borderColors: const [Colors.red], widgetFactory: widgetFactory, values: [viewmodel.getDiscountValue], textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black))
+                      BadgeList(colors: const [Colors.transparent], borderColors:  [Theme.of(context).colorScheme.primary], widgetFactory: widgetFactory, values: [viewmodel.getDiscountValue], textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black))
                     ],
                   ),
                 )
@@ -48,7 +48,7 @@ class BundleSummary extends StatelessWidget {
             ).withPaddingSymetric(vertical: 6),
           Row(
             children: [
-              widgetFactory.createText(context, context.l10n.totalProducts, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
+              widgetFactory.createText(context, context.l10n.totalProducts, style: Theme.of(context).textTheme.labelMedium, textAlign: TextAlign.start),
               Expanded(
                 child: widgetFactory.createText(context, viewmodel.totalProductcount, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.end),
               )
@@ -58,18 +58,12 @@ class BundleSummary extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widgetFactory.createText(context, context.l10n.timeRemaining, style: Theme.of(context).textTheme.titleSmall, textAlign: TextAlign.start),
-              BadgeList(
-                widgets: [
-                  CountdownTimer(
-                    duration: viewmodel.remainingTime,
-                    backgroundColor: Colors.transparent,
-                    textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black),
-                  )
-                ],
-                colors: const [ColorManager.accent1],
-                widgetFactory: widgetFactory,
-              ),
+              widgetFactory.createText(context, context.l10n.timeRemaining, style: Theme.of(context).textTheme.labelMedium, textAlign: TextAlign.start),
+              CountdownTimer(
+                duration: viewmodel.remainingTime,
+                backgroundColor: Colors.transparent,
+                textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.red),
+              )
             ],
           ),
         ],

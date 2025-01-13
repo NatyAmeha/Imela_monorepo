@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/home/home.page.dart';
-import 'package:imela/presentation/ui/loyalty/pages/loyalty_details_page.dart';
 import 'package:imela/presentation/ui/loyalty/pages/loyalty_tier/loyalty_tier_page.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/presentation/ui/shared/list/list_componenet.viewmodel.dart';
@@ -109,7 +108,7 @@ class OrderDetailviewmodel extends GetxController with BaseViewmodel {
   }
 
   void moveToRewards(BuildContext context) {
-    final businessId = orderInfo.value?.businessId?.firstOrNull;
+    final businessId = orderInfo.value?.businessId?.firstWhereOrNull((t) => true);
     if (businessId != null) {
       LoyaltyTierListPage.navigate(context, businessId: businessId);
     }

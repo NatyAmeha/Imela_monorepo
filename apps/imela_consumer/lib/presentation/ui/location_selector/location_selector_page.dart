@@ -37,7 +37,7 @@ class _LocationSelectorPageState extends State<LocationSelectorPage> {
   @override
   Widget build(BuildContext context) {
     return widgetFactory.createCard(
-      height: MediaQuery.sizeOf(context).height * 0.8,
+      height: MediaQuery.sizeOf(context).height,
       width: MediaQuery.sizeOf(context).width,
       child: Column(
         children: [

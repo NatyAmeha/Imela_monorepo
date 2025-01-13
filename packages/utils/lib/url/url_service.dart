@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 enum UrlType {
   phone,
   email,
-  web,
+  url,
   sms,
   map,
 }

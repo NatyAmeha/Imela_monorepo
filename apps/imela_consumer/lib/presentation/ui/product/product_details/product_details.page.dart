@@ -47,7 +47,7 @@ class ProductDetailPage extends StatefulWidget {
 
   static void navigateBeta(BuildContext context, {required Product product, List<Discount>? discounts}) {
     final router = AppController.getInstance.router;
-    final discountString = discounts?.firstOrNull != null 
+    final discountString = discounts?.firstOrNullWhere((t) => true) != null
         ? Uri.encodeComponent(jsonEncode(discounts!.first.toJson()))
         : null;
         

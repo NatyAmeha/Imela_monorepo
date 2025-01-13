@@ -68,7 +68,7 @@ class DynamicPriceViewmodel extends GetxController with BaseViewmodel {
       selectedPrice.value = selectedDiscountValue.key;
       selectedDiscount.value = selectedDiscountValue.value;
     } else {
-      selectedPrice.value = discountsWithPrice.value.keys.firstOrNull;
+      selectedPrice.value = discountsWithPrice.value.keys.firstOrNullWhere((test) => true);
     }
   }
 

@@ -10,7 +10,7 @@ import 'package:injectable/injectable.dart';
 abstract class ISettingRepository extends IRepository {
   Future<bool> initDB(String dbName);
   Future<bool> setSettingToPrefernece(SettingInfo settingInfo);
-  Future<SettingInfo?> getSettingFromPreference(String key);
+  Future<SettingInfo?> getSettingFromPreference<T>(String key);
 
   Future<bool> saveLocationToDB(String dbName, Location locationInfo);
   Future<List<Location>> getLocationsFromDB(String dbName);
@@ -46,8 +46,8 @@ class SettingRepository implements ISettingRepository {
   }
 
   @override
-  Future<SettingInfo?> getSettingFromPreference(String key) async {
-    final value = await sharedPreferenceDataStore.get<String>(key);
+  Future<SettingInfo?> getSettingFromPreference<T>(String key) async {
+    final value = await sharedPreferenceDataStore.get<T>(key);
     return SettingInfo(key: key, value: value);
   }
 

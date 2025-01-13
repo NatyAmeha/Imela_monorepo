@@ -8,7 +8,6 @@ import 'package:imela/presentation/ui/shared/list/listview.component.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_ui_kit/components/page_loading_utils/page_content_loader.dart';
-import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 
 class SmallScreenOrderConfigure extends StatelessWidget {
@@ -40,10 +39,11 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                     children: [
                       widgetFactory.createText(context, context.l10n.choosePaymentOption, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
-                      AppListView<PaymentOption>( 
+                      AppListView<PaymentOption>(
                         items: cart.paymentOptions ?? [],
                         contentPadding: const EdgeInsets.symmetric(vertical: 8),
                         shrinkWrap: true,
+                        primary: false,
                         itemBuilder: (context, item, index) {
                           return Obx(
                             () => PaymentOptionListItem(
@@ -89,7 +89,7 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           },
                         );
                       }),
-                      const SizedBox(height: 124),
+                      const SizedBox(height: 125),
                     ],
                   ),
                 ),
@@ -132,7 +132,8 @@ class SmallScreenOrderConfigure extends StatelessWidget {
                           Obx(
                             () => widgetFactory.createButton(
                               context: context,
-                              content: Text(context.l10n.orderCallToAction),
+                              content: Text(viewmodel.orderCallToactionTest),
+                              isLoading: viewmodel.isLoading.value,
                               onPressed: () => viewmodel.placeOrder(context),
                             ),
                           ),

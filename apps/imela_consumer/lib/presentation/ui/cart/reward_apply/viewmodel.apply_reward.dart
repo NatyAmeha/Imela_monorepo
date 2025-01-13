@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartx/dartx.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
@@ -181,13 +182,13 @@ class ApplyRewardViewModel extends GetxController with BaseViewmodel {
       if (info.discount != null) {
         var discount = info.discount!;
         final updatedDiscount = discount.copyWith(id: info.reward.id, source: DiscountSource.LOYALTY);
-        var selectedProductIds = cartViewmodel.selectedCart.value?.items?.map((product) => product.productId).whereNotNull().toList() ?? [];
+        var selectedProductIds = cartViewmodel.selectedCart.value?.items?.map((product) => product.productId).filterNotNull().toList() ?? [];
         var discountItem = updatedDiscount.toItemDiscount(defaultName: [const LocalizedField(key: 'ENGLISH', value: 'Reward discount')]);
         updatedCart = updatedCart?.applyDiscountOnOrderItems(discountList: [discountItem], selectedProductsForDiscount: selectedProductIds, removeExistingDiscount: false);
         updateCartState(updatedCart);
       }
     }
-    var selectedProducts = selectedRewardsInfo.map((info) => info.products ?? []).flattened.whereNotNull().toList();
+    var selectedProducts = selectedRewardsInfo.map((info) => info.products ?? []).flattened.filterNotNull().toList();
     var orderItems = selectedProducts.map((product) => product.getOrderItem(product.qty ?? 1, discounts: product.discounts ?? [], minQty: product.minimumOrderQty.toDouble(), maxQty: product.maximumOrderQty?.toDouble() ?? 10)).toList();
     updatedCart = updatedCart?.addOrUpdateItems(orderItems);
     updateCartState(updatedCart);
@@ -211,13 +212,13 @@ class ApplyRewardViewModel extends GetxController with BaseViewmodel {
       if (selectedReward?.discount != null) {
         selectedRewardsInfo.removeWhere((info) => info.reward.id == reward.id);
       } else {
-        selectedRewardsInfo.add(SelectedRewardInfo(reward: reward, discount: reward.rewardInfo?.firstOrNull?.discount));
+        selectedRewardsInfo.add(SelectedRewardInfo(reward: reward, discount: reward.rewardInfo?.firstOrNullWhere((t) => true)?.discount));
       }
     } else if (reward.isDeliveryReward()) {
       if (selectedReward == null) {
-        selectedRewardsInfo.add(SelectedRewardInfo(reward: reward, deliveryFeeDiscount: reward.rewardInfo?.firstOrNull?.deliveryRewardInfo?.discount?.value));
+        selectedRewardsInfo.add(SelectedRewardInfo(reward: reward, deliveryFeeDiscount: reward.rewardInfo?.firstOrNullWhere((t) => true)?.deliveryRewardInfo?.discount?.value));
       } else {
-        selectedRewardsInfo.updateByRewardId(reward.id, updatedInfo: selectedReward.setDeliveryFeeDiscount(reward.rewardInfo?.firstOrNull?.deliveryRewardInfo?.discount?.value ?? 0));
+        selectedRewardsInfo.updateByRewardId(reward.id, updatedInfo: selectedReward.setDeliveryFeeDiscount(reward.rewardInfo?.firstOrNullWhere((t) => true)?.deliveryRewardInfo?.discount?.value ?? 0));
       }
     }
   }
@@ -231,7 +232,7 @@ class ApplyRewardViewModel extends GetxController with BaseViewmodel {
   }
 
   void navigateToLoyaltyTierPage(BuildContext context) {
-    var selectedBusinessId = cartViewmodel.selectedCart.value?.businessIds?.firstOrNull;
+    var selectedBusinessId = cartViewmodel.selectedCart.value?.businessIds?.firstOrNullWhere((t) => true);
     if (selectedBusinessId != null) {
       LoyaltyTierListPage.navigate(context, businessId: selectedBusinessId);
     }

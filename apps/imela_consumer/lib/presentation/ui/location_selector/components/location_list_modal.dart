@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:imela/presentation/ui/app_controller.dart';
+import 'package:get/get.dart';
 import 'package:imela/presentation/ui/shared/list/listview.component.dart';
-import 'package:imela/presentation/utils/widget_extesions.dart';
 import 'package:imela_core/settings/model/location.model.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
@@ -33,21 +32,15 @@ class LocationListModal extends StatelessWidget {
         widgetFactory.createText(context, title, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (locations.isEmpty)
-          widgetFactory.createCard(
-            child: Column(
-              children: [
-                widgetFactory.createText(context, 'No locations found', style: Theme.of(context).textTheme.bodyLarge),
-                const SizedBox(height: 24),
-              ],
-            ),
-          )
+          buildNoLocationFound(context)
         else
           AppListView(
             items: locations,
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
             shrinkWrap: true,
             itemBuilder: (context, location, index) {
-              var isSelected = selectedLocation?.id == location.id;
+              print('selectedLocation: ${selectedLocation?.name} location: ${location.name}');
+              var isSelected = selectedLocation?.name == location.name;
               return widgetFactory.createCard(
                 onTap: () => onLocationSelected(widgetContext, location),
                 padding: const EdgeInsets.all(16),
@@ -75,5 +68,19 @@ class LocationListModal extends StatelessWidget {
         )
       ],
     );
+  }
+
+  Widget buildNoLocationFound(BuildContext context) {
+    return widgetFactory.createCard(
+      padding: const EdgeInsets.all(24),
+      border: Border.all(color: Theme.of(context).colorScheme.primaryContainer),
+      child: Column(
+        children: [
+          widgetFactory.createIcon(materialIcon: Icons.location_off, size: 48),
+          const SizedBox(height: 16),
+          widgetFactory.createText(context, 'No saved locations found', style: Theme.of(context).textTheme.bodyLarge),
+        ],
+      )
+    ).paddingSymmetric(vertical: 16);
   }
 }

@@ -26,7 +26,7 @@ class BusinessResponse with _$BusinessResponse {
   factory BusinessResponse.fromJson(Map<String, dynamic> json) => _$BusinessResponseFromJson(json);
 
   bool isBusinessDetailFetchSuccessfull() {
-    if (success == true && business?.sections?.isNotEmpty == true && products?.isNotEmpty == true) {
+    if (success == true && business?.sections?.isNotEmpty == true) {
       return true;
     }
     return false;

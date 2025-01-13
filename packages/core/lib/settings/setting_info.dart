@@ -2,6 +2,8 @@ class SettingKey {
   static const String IS_FIRST_TIME_LAUNCH = 'isFirstTimeLaunch';
   static const String SELECTED_LANGUAGE = 'selectedLanguage';
   static const String SELECTED_CURRENCY = 'selectedCurrency';
+  static const String IS_DOWNLOAD_APP_BANNER_SHOWN = 'isDownloadAppBannerShown';
+  static const String IS_DOWNLOAD_APP_BANNER_SHOWN_DATE = 'isDownloadAppBannerShownDate';
 }
 
 class SettingInfo {

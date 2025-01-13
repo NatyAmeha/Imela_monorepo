@@ -87,7 +87,6 @@ class GoRouterService implements IRoutingService {
   static final GoRouter routes = GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: HomePage.routeName,
-    
     redirect: (context, state) async {
       return null;
     },
@@ -101,7 +100,6 @@ class GoRouterService implements IRoutingService {
           return HomePage(reload: reload);
         },
       ),
-      
       GoRoute(
         path: BusinessListPage.routeName,
         pageBuilder: (context, state) {
@@ -112,18 +110,27 @@ class GoRouterService implements IRoutingService {
         },
       ),
       GoRoute(
+        path: OrderConfigurePage.routeName,
+        pageBuilder: (context, state) {
+          final arguments = state.extra as Map<String, dynamic>;
+          final Cart cartInfo = arguments['cart'];
+          return buildPageWithCustomTransition(state, OrderConfigurePage(cartInfo: cartInfo));
+        },
+      ),
+      GoRoute(
         path: BusinessDetailsPage.routeName,
         pageBuilder: (context, state) {
           final businessId = state.pathParameters[BusinessDetailsPage.idQueryParameter];
           final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           final businessName = arguments['name'] as String?;
           List<Branch> branches = [];
-          
+
           final encodedBranchesData = arguments['branches'] as String?;
           if (encodedBranchesData != null) {
             try {
               final decodedJson = Uri.decodeComponent(encodedBranchesData);
               final branchesJson = jsonDecode(decodedJson) as List;
+              print('decodedJson  ${decodedJson} ${branchesJson}');
               branches = branchesJson.map((e) => Branch.fromJson(e)).toList();
             } catch (e) {
               print('Error parsing branches data: $e');
@@ -159,7 +166,7 @@ class GoRouterService implements IRoutingService {
         pageBuilder: (context, state) {
           final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           List<ServiceOverview> serviceOverviews = [];
-          
+
           final encodedServiceData = arguments[ServiceOverviewListPage.SERVICE_OVERVIEWS_KEY] as String?;
           if (encodedServiceData != null) {
             try {
@@ -207,7 +214,7 @@ class GoRouterService implements IRoutingService {
           final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>?;
           final title = arguments?['title'];
           List<Product>? products;
-          
+
           final encodedProductsData = arguments?[ProductListPage.PRODUCT_LIST_KEY] as String?;
           if (encodedProductsData != null) {
             try {
@@ -227,7 +234,7 @@ class GoRouterService implements IRoutingService {
         pageBuilder: (context, state) {
           final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           List<ProductBundle> bundles = [];
-          
+
           final encodedBundlesData = arguments[BundleListPage.BUNDLES_KEY] as String?;
           if (encodedBundlesData != null) {
             try {
@@ -263,7 +270,7 @@ class GoRouterService implements IRoutingService {
         pageBuilder: (context, state) {
           final arguments = (state.extra ?? state.uri.queryParameters) as Map<String, dynamic>;
           Cart? cartInfo;
-          
+
           final encodedCartData = arguments[CartDetailPage.CART_DATA] as String?;
           if (encodedCartData != null) {
             try {
@@ -292,14 +299,7 @@ class GoRouterService implements IRoutingService {
           );
         },
       ),
-      GoRoute(
-        path: OrderConfigurePage.routeName,
-        pageBuilder: (context, state) {
-          final arguments = state.extra as Map<String, dynamic>;
-          final Cart cartInfo = arguments['cart'];
-          return buildPageWithCustomTransition(state, OrderConfigurePage(cartInfo: cartInfo));
-        },
-      ),
+      
       GoRoute(
         path: OrderConfirmationPage.routeName,
         pageBuilder: (context, state) {
@@ -331,7 +331,6 @@ class GoRouterService implements IRoutingService {
           return buildPageWithCustomTransition(state, AuthSelectionPage(redirectionRoute: redirectUrl, redirectExtra: redirectExtra));
         },
       ),
-
       GoRoute(
         path: CreateAccountForGoogleSignin.routeName,
         pageBuilder: (context, state) {
@@ -343,7 +342,6 @@ class GoRouterService implements IRoutingService {
           return buildPageWithCustomTransition(state, CreateAccountForGoogleSignin(googleUser: googleUser));
         },
       ),
-
       GoRoute(
         path: PhoneLoginPage.routeName,
         pageBuilder: (context, state) {
@@ -393,7 +391,7 @@ class GoRouterService implements IRoutingService {
           final programName = arguments[LoyaltyDetailsPage.PROGRAM_NAME_KEY] as String;
           final businessId = arguments[LoyaltyDetailsPage.BUSINESS_ID_KEY] as String;
           final tierId = arguments[LoyaltyDetailsPage.TIER_ID_KEY] as String?;
-          
+
           Color? color;
           final encodedColor = arguments[LoyaltyDetailsPage.COLOR_KEY] as String?;
           if (encodedColor != null) {
@@ -405,7 +403,7 @@ class GoRouterService implements IRoutingService {
               print('Error parsing color data: $e');
             }
           }
-          
+
           return buildPageWithCustomTransition(state, LoyaltyDetailsPage(programName: programName, businessId: businessId, color: color, tierId: tierId));
         },
       ),
@@ -505,6 +503,10 @@ class GoRouterService implements IRoutingService {
 
   static Page buildPageWithCustomTransition(GoRouterState state, Widget child, {PageTransitionType? transitionType, Widget? previousScreen}) {
     print('child current ${previousScreen.runtimeType}');
+
+    // Determine the transition type based on the platform
+    final effectiveTransitionType = kIsWeb ? PageTransitionType.leftToRight : (transitionType ?? PageTransitionType.rightToLeft);
+
     return CustomTransitionPage<void>(
       key: state.pageKey,
       name: state.name,
@@ -513,11 +515,11 @@ class GoRouterService implements IRoutingService {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return PageTransition(
           child: child,
-          type: transitionType ?? PageTransitionType.rightToLeft,
+          type: effectiveTransitionType,
           maintainStateData: true,
           childCurrent: previousWidget,
-          duration: const Duration(milliseconds: 300),
-          reverseDuration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 200),
+          reverseDuration: const Duration(milliseconds: 200),
           alignment: Alignment.center,
           ctx: context,
         ).buildTransitions(context, animation, secondaryAnimation, child);

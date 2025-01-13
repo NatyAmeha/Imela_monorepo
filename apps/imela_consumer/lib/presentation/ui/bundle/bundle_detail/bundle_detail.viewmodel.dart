@@ -127,14 +127,14 @@ class BundleDetailViewmodel extends GetxController with BaseViewmodel {
   }
 
   Duration get remainingTime {
-    return DateHelper.getDateDifference(startDate: bundle?.startDate, endDate: bundle?.endDate);
+    return DateHelper.getDateDifference(startDate: DateTime.now(), endDate: bundle?.endDate);
   }
 
   bool get isBundleExpired {
-    return remainingTime == Duration.zero;
+    return remainingTime < Duration.zero;
   }
 
-  double get originalProductPrice {
+  double get originalProductPrice { 
     final selectedProductPrices = selectedBundleProducts.values.map((product) => product.getTotalPriceUpdated(appViewmodel.selectedCurrency.name)).sum;
     return selectedProductPrices;
   }

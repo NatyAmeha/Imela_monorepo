@@ -82,7 +82,7 @@ class ProductDetailsViewmodel extends GetxController with BaseViewmodel {
 
   Product? get originalProductInfo => productDetails.value?.product;
   Product get selectedProduct => selectedProductOption.value ?? originalProductInfo!;
-  String get selectedProductUnit => selectedProduct.inventory?.firstOrNull?.unit ?? 'Unit';
+  String get selectedProductUnit => IterableFirstOrNull(selectedProduct.inventory)?.firstOrNull?.unit ?? 'Unit';
   List<Product> get productOptions => originalProductInfo?.variants ?? [];
 
   String get productName => productDetails.value?.product?.name.localize('ENGLISH') ?? '';

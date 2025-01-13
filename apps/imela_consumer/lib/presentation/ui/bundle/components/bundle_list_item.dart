@@ -27,6 +27,8 @@ class BundleListItem extends StatelessWidget {
     this.remainingTime,
   });
 
+  bool get canShowTimer => remainingTime != null && remainingTime!.inDays > 0;
+
   @override
   Widget build(BuildContext context) {
     final productImages = bundleData.getBundleProductImages().take(5);
@@ -49,12 +51,12 @@ class BundleListItem extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: (remainingTime != null) ? 16 : 4),
+                      SizedBox(height: canShowTimer ? 16 : 4),
                       widgetFactory.createText(context, bundleData.name.localize('ENGLISH'), style: Theme.of(context).textTheme.titleMedium),
                       widgetFactory
                           .createText(
                             context,
-                            bundleData.description.localize('ENGLISH'), 
+                            bundleData.description.localize('ENGLISH'),
                             maxLines: 2,
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             style: Theme.of(context).textTheme.labelSmall,
@@ -118,7 +120,7 @@ class BundleListItem extends StatelessWidget {
               ],
             ).withPaddingAll(8),
           ),
-          if (remainingTime != null)
+          if (canShowTimer)
             Positioned(
               top: 0,
               left: 0,
@@ -134,6 +136,7 @@ class BundleListItem extends StatelessWidget {
                 ],
                 colors: const [ColorManager.tertiary],
                 widgetFactory: widgetFactory,
+                alignment: WrapAlignment.start,
               ),
             ),
         ],

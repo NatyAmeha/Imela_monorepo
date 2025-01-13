@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imela/injection.dart';
@@ -23,17 +25,17 @@ class BusinessDetailsPage extends StatefulWidget {
   State<BusinessDetailsPage> createState() => _BusinessDetailsPageState();
 
   static void navigateToBusinessDetailPage(BuildContext context, IRoutingService router, Business business) {
-    final branchesString = business.branches?.map((e) => e.toJson()).toList().toString();
+    final branchesString = business.branches?.map((e) => e.toJson()).toList();
     router.navigateTo(
       context, 
       '${BusinessDetailsPage.baseRouteName}/${business.id}',
       queryParam: {
         'name': '${business.name?.localize('ENGLISH')}',
-        if (branchesString != null) 'branches': Uri.encodeComponent(branchesString),
+        if (branchesString != null) 'branches': Uri.encodeComponent(jsonEncode(branchesString)),
       },
       extra: {
         'name': '${business.name?.localize('ENGLISH')}',
-        if (branchesString != null) 'branches': Uri.encodeComponent(branchesString),
+        if (branchesString != null) 'branches': Uri.encodeComponent(jsonEncode(branchesString)),
       },
     );
   }

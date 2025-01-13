@@ -1,12 +1,15 @@
 import 'package:dartx/dartx.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:imela/l10n/l10n.dart';
 import 'package:imela/presentation/ui/app_controller.dart';
 import 'package:imela/presentation/ui/cart/cart_list.viewmodel.dart';
 import 'package:imela/presentation/ui/cart/order_configure/order_configure_page.dart';
 import 'package:imela/presentation/ui/home/home.page.dart';
 import 'package:imela/presentation/ui/order/order_confirmation/order_confirmation_page.dart';
 import 'package:imela/presentation/ui/payment/components/payment_method_list_modal.dart';
+import 'package:imela/presentation/ui/payment/components/selected_payment_method.dart';
 import 'package:imela/presentation/ui/shared/base_viewmodel.dart';
 import 'package:imela/services/routing_service.dart';
 import 'package:imela_core/business/model/payment_method.model.dart';
@@ -16,6 +19,7 @@ import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_core/order/order.usecase.dart';
 import 'package:imela_core/shared/price.model.dart';
 import 'package:imela_core/shared/utils/exception_handler.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
 import 'package:imela_ui_kit/helpers/file_upload.model.dart';
 import 'package:imela_utils/exception/app_exception.dart';
@@ -86,7 +90,7 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
   @override
   void initViewmodel({Map<String, dynamic>? data}) {
     cartInfo.value = data?['cart'] as Cart?;
-    selectedPaymentOption.value = cartInfo.value?.paymentOptions?.firstOrNull ?? PaymentOption.defaultPaymentOption();
+    selectedPaymentOption.value = cartInfo.value?.paymentOptions?.firstOrNullWhere((t) => true) ?? PaymentOption.defaultPaymentOption();
     super.initViewmodel(data: data);
   }
 
@@ -126,11 +130,78 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
               final amount = Price(amount: currentPayment, currency: appController.selectedCurrency.name);
               addSelectedPaymentMethod(paymentMethod, amount: amount);
               AppModalSheet.closeModal();
+              if (paymentMethod.requireReceiptImage) {
+                final currentlySelectedPaymentMethod = selectedPaymentMethods.firstWhereOrNull((pM) => pM.id == paymentMethod.id);
+                showPaymentReceiptModal(context, currentlySelectedPaymentMethod);
+              }
             },
           ),
         ),
       ],
     );
+  }
+
+  Future<void> showPaymentReceiptModal(BuildContext context, SelectedPaymentMethod? paymentMethod) async {
+    if (paymentMethod == null) {
+      return;
+    }
+    var widgetFactory = appController.getWidgetFactory(context);
+    await AppModalSheet.showModal(context, type: AppModalSheetType.BOTTOMSHEET, pages: [
+      ModalContent(
+        title: const Text('Upload payment receipt'),
+        content: Obx(() {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppListView(
+                header: selectedPaymentMethods.isNotEmpty
+                    ? widgetFactory
+                        .createText(
+                          context,
+                          context.l10n.selectedPaymentMethod,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        )
+                        .paddingSymmetric(horizontal: 16)
+                    : null,
+                shrinkWrap: true,
+                primary: false,
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                items: [paymentMethod],
+                itemBuilder: (context, paymentMethod, index) {
+                  return SelectedPaymentMethodListItem(
+                    selectedPaymentMethod: paymentMethod,
+                    selectedLanguage: appController.selectedLanguageUpdated.value,
+                    onRemoveSelectedPayment: () {
+                      removeSelectedPaymentMethod(paymentMethod);
+                    },
+                    onPaymentReceiptImageUpload: (fileUpload) {
+                      addPaymenReceiptImage(paymentMethod.id!, fileUpload);
+                    },
+                    onPaymentReceiptImageRemoved: (index) {
+                      removePaymentReceiptImage(paymentMethod.id!, index);
+                    },
+                  );
+                },
+              ),
+              Obx(() {
+                final isReceiptImageUploaded = selectedPaymentMethods.firstWhereOrNull((pM) => pM.id == paymentMethod.id)?.receiptImages?.isNotEmpty == true;
+                return widgetFactory
+                    .createButton(
+                      context: context,
+                      content: const Text('Close'),
+                      onPressed: isReceiptImageUploaded
+                          ? () {
+                              AppModalSheet.closeModal();
+                            }
+                          : null,
+                    )
+                    .paddingSymmetric(vertical: 16, horizontal: 16);
+              })
+            ],
+          );
+        }),
+      ),
+    ]);
   }
 
   Future<void> placeOrder(BuildContext context) async {
@@ -167,7 +238,7 @@ class OrderConfigureViewmodel extends GetxController with BaseViewmodel {
       var placeOrderResult = await orderUsecase.placeOrderForBusiness(cartInfo.value!.businessIds!, cartInfo.value!.id!, orderInfo);
       if (placeOrderResult.success == true) {
         cleanupData();
-        
+
         OrderConfirmationPage.navigate(context, placeOrderResult.order!);
         appController.setRefetchOrderList(true);
       } else {

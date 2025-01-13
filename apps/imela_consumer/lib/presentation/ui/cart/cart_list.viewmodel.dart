@@ -203,7 +203,7 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
         isRewardLoading(true);
         cartItemListController.setItems(selectedCart.items ?? []);
         this.selectedCart.value = selectedCart;
-        final businessId = selectedCart.businessIds?.firstOrNull;
+        final businessId = selectedCart.businessIds?.firstOrNullWhere((t) => true);
         if (businessId != null) {
           final result = await appController.getCustomerBusinessLoyalty(cont, businessId);
           if (result != null) {
@@ -444,7 +444,6 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
 
   void handleNextScreenNavigation(BuildContext context) async {
     if (selectedCart.value!.hasOrderAddons() == true) {
-      print('config result ${configResult.value}');
       if (configResult.value == null) {
         await changeOrderConfigs(context);
       } else {
@@ -486,8 +485,5 @@ class CartListViewmodel extends GetxController with BaseViewmodel {
     );
   }
 
-  void showAdditionalItems(BuildContext context) {
-    var productSelectionAddons = orderAddonsToShow.value.getProductSelectionAddons();
-    changeOrderConfigs(context, productAddons: productSelectionAddons);
-  }
+  
 }

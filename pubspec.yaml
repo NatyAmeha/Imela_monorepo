@@ -1,9 +1,0 @@
-name: imela_monorepo
-
-environment:
-  sdk: ^3.4.0
-  flutter: ^3.22.0
-
-dev_dependencies:
-  flutter_lints: ^4.0.0
-  melos: ^6.1.0

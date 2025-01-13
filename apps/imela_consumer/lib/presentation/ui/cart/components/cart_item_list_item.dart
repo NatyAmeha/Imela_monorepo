@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imela/presentation/resources/colors.dart';
 import 'package:imela/presentation/ui/cart/components/cart_dynamic_pricing_componenet.dart';
 import 'package:imela/presentation/ui/cart/components/order_item_config.list_tile.dart';
@@ -76,7 +77,7 @@ class CartItemListItem extends StatelessWidget {
                                   const SizedBox(height: 2),
                                   if (dynamicPriceDiscount.isNotEmpty) CartDynamicPricingComponenet(dynamicPricingDiscounts: dynamicPriceDiscount, selectedDynamicPriceDiscount: dynamicPriceDiscount.first, cartItem: item),
                                 ],
-                              ),
+                              ).paddingOnly(right: 16)
                             )
                           ],
                         )
@@ -132,12 +133,11 @@ class CartItemListItem extends StatelessWidget {
         ),
         if (canRemoveItem)
           Positioned(
-            right: 16,
-            top: 4,
-            child: widgetFactory.createButton(
-              context: context,
-              content: const Text('Remove'),
-              style: AppButtonStyle.textButtonStyle(context, padding: const EdgeInsets.all(0), color: ColorManager.error),
+            right: 0,
+            top: 0,
+            child: widgetFactory.createIcon(
+              materialIcon: Icons.delete,
+              color: ColorManager.error,
               onPressed: canRemoveItem ? () => onRemove?.call() : null,
             ),
           ),

@@ -137,6 +137,8 @@ class SmallDiscoverScreen extends StatelessWidget {
                         itemBuilder: (context, bundle, index) {
                           return BundleListItem(
                             bundleData: bundle,
+                                                    remainingTime: homepageViewmodel.getBundleRemainingTime(bundle),
+
                             width: 300,
                             widgetFactory: widgetFactory,
                             onTap: () {
