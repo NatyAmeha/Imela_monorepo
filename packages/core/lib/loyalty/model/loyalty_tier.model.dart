@@ -29,6 +29,8 @@ class LoyaltyTier with _$LoyaltyTier {
 
   bool canUseRewardsFromTier(double remainingUserPoints) {
     if (minPoints == null || maxPoints == null) return true;
-    return remainingUserPoints >= minPoints! && remainingUserPoints <= maxPoints!;
+    var data =  remainingUserPoints >= minPoints! && remainingUserPoints <= maxPoints!;
+    print('remainingUserPoints: $data $remainingUserPoints $minPoints $maxPoints');
+    return data;
   }
-}
+}  

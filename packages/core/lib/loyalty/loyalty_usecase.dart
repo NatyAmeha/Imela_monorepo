@@ -11,7 +11,7 @@ class LoyaltyUsecase {
 
   Future<LoyaltyResponse?> getCustomerLoyalties({ApiDataFetchPolicy apiDataFeed = ApiDataFetchPolicy.cacheFirst}) async {
     var result = await _loyaltyRepository.getCustomerLoyalties(apiDataFeed: apiDataFeed);
-    if ((result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
+    if (!(result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
       result = await _loyaltyRepository.getCustomerLoyalties(apiDataFeed: ApiDataFetchPolicy.networkOnly);
     }
     return result;
@@ -19,7 +19,7 @@ class LoyaltyUsecase {
 
   Future<LoyaltyResponse?> getBusinessLoyaltyTiers(String businessId, {ApiDataFetchPolicy apiDataFeed = ApiDataFetchPolicy.cacheFirst}) async {
     var result = await _loyaltyRepository.getBusinessLoyaltyTiers(businessId, fetchPolicy: apiDataFeed);
-    if ((result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
+    if (!(result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
       result = await _loyaltyRepository.getBusinessLoyaltyTiers(businessId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
     return result;
@@ -27,7 +27,8 @@ class LoyaltyUsecase {
 
   Future<LoyaltyResponse?> getLoyaltyTier(String businessId, String tierId, {ApiDataFetchPolicy apiDataFeed = ApiDataFetchPolicy.cacheFirst}) async {
     var result = await _loyaltyRepository.getLoyaltyTier(businessId, tierId, fetchPolicy: apiDataFeed);
-    if ((result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
+    print('loyalty tier result ${result?.success} $apiDataFeed');
+    if (!(result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
       result = await _loyaltyRepository.getLoyaltyTier(businessId, tierId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
     return result;
@@ -35,7 +36,7 @@ class LoyaltyUsecase {
 
   Future<LoyaltyResponse?> getCustomerTierByPoints(String businessId, double points, {ApiDataFetchPolicy apiDataFeed = ApiDataFetchPolicy.cacheFirst}) async {
     var result = await _loyaltyRepository.getEligableLoyaltyTierByPoint(businessId, points, fetchPolicy: apiDataFeed);
-    if ((result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
+    if (!(result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
       result = await _loyaltyRepository.getEligableLoyaltyTierByPoint(businessId, points, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
     return result;
@@ -43,7 +44,7 @@ class LoyaltyUsecase {
 
   Future<LoyaltyResponse?> getCustomerBusinessLoyalty(String businessId, {ApiDataFetchPolicy apiDataFeed = ApiDataFetchPolicy.cacheFirst}) async {
     var result = await _loyaltyRepository.getCustomerBusinessLoyalty(businessId, fetchPolicy: apiDataFeed);
-    if ((result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
+    if (!(result?.success ?? false) && (apiDataFeed == ApiDataFetchPolicy.cacheFirst)) {
       result = await _loyaltyRepository.getCustomerBusinessLoyalty(businessId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
     return result;
