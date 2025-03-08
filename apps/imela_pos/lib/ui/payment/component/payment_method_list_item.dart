@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_pos/app/app_viewmodel.dart';
+import 'package:imela_ui_kit/components/image/image_uploader.dart';
+import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
+import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
 
 class PaymentMethodListItem extends StatefulWidget {
@@ -14,7 +17,10 @@ class PaymentMethodListItem extends StatefulWidget {
   final Function(String value) onAmountChanged;
   final Function() onDelete;
   final bool isSelected;
+  final EdgeInsets customPadding;
   final TextEditingController controller;
+  final Function(String paymentMethodId, PaymentMethodOption option) onOptionChanged;
+  final WidgetFactory widgetFactory;
   const PaymentMethodListItem({
     super.key,
     required this.paymentMethod,
@@ -25,7 +31,10 @@ class PaymentMethodListItem extends StatefulWidget {
     required this.onDelete,
     required this.controller,
     this.onSelected,
+    this.customPadding = const EdgeInsets.symmetric(horizontal: 16),
     required this.onAmountChanged,
+    required this.widgetFactory,
+    required this.onOptionChanged,
   });
 
   @override
@@ -70,10 +79,11 @@ class _PaymentMethodListItemState extends State<PaymentMethodListItem> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Flexible(child: Align(alignment: Alignment.centerLeft, child: widgetFactory.createText(context, widget.paymentMethod.name.localize(widget.selectedLanguage), style: Theme.of(context).textTheme.bodyLarge).withPaddingSymetric(horizontal: 16))),
-              Padding(
-                padding: EdgeInsets.only(right: Responsive.getWidth(context, small: 0, medium: 75, large: 200)),
-                child: Flexible(
+              Expanded(flex: 3, child: Align(alignment: Alignment.centerLeft, child: widgetFactory.createText(context, widget.paymentMethod.name.localize(widget.selectedLanguage), style: Theme.of(context).textTheme.bodyLarge).withPaddingSymetric(horizontal: 16))),
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: widget.customPadding,
                   child: widgetFactory.createCard(
                     width: Responsive.getWidth(context, small: 150, medium: 175, large: 200),
                     borderRadius: BorderRadius.circular(32),
@@ -100,29 +110,49 @@ class _PaymentMethodListItemState extends State<PaymentMethodListItem> {
                   ),
                 ),
               ),
-
-              widget.controller.text.isNotEmpty
-                  ? widgetFactory.createIcon(
-                      materialIcon: Icons.delete,
-                      size: 24,
-                      onPressed: () {
-                        widget.onDelete();
-                      },
-                    )
-                  : const SizedBox(width: 45)
+              Expanded(
+                flex: 1,
+                child: widget.controller.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          widget.onDelete();
+                        },
+                      )
+                    : const SizedBox(width: 45),
+              )
             ],
           ),
-          // if (paymentMethod.options?.isNotEmpty == true)
-          //   AppListView(
-          //     padding: const EdgeInsets.symmetric(horizontal: 24),
-          //     shrinkWrap: true,
-          //     items: paymentMethod.options,
-          //     itemBuilder: (context, option, index) {
-          //       return widgetFactory.createCheckboxListTile(context, title: option.name.localize(selectedLanguage), value: false, onChanged: (value) {});
-          //     },
-          //   )
+          if (widget.paymentMethod.options?.isNotEmpty == true && widget.isSelected) ...[
+            const Divider(height: 16),
+            buildPaymentMethodOptions(widget.paymentMethod),
+          ],
+          const Divider(height: 16),
+          if (widget.paymentMethod.requireReceiptImage && widget.isSelected) ...[
+            const Divider(height: 16),
+            ImageUploader(widgetFactory: widgetFactory, height: 200, imageSize: 200, enablePhotoViewer: true).withPaddingAll(16),
+          ]
         ],
       ),
+    );
+  }
+
+  Widget buildPaymentMethodOptions(PaymentMethod paymentMethod) {
+    return AppListView(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      shrinkWrap: true,
+      items: paymentMethod.options,
+      itemBuilder: (context, option, index) {
+        return widget.widgetFactory.createCheckboxListTile(
+          context,
+          title: option.name.localize(widget.selectedLanguage),
+          subtitle: option.account,
+          value: false,
+          onChanged: (value) {
+            widget.onOptionChanged(paymentMethod.id!, option);
+          },
+        );
+      },
     );
   }
 }

@@ -6,9 +6,8 @@ import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_order_status.dart';
 import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
-import 'package:imela_core/calendar/dto/calendar.response.dart';
 import 'package:imela_core/calendar/model/calendar.model.dart';
-import 'package:imela_core/calendar/model/calendar_booking.model.dart';
+import 'package:imela_core/chat/service/chat_socket_service.dart';
 import 'package:imela_core/customer/customer_usecase.dart';
 import 'package:imela_core/customer/model/customer.model.dart';
 import 'package:imela_core/loyalty/dto/loyalty.response.dart';
@@ -28,15 +27,15 @@ import 'package:imela_data/injection.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_pos/app/routing_service.dart';
 import 'package:imela_pos/ui/authentication/staff_signin.page.dart';
-import 'package:imela_pos/ui/authentication/staff_signin.viewmodel.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
 import 'package:injectable/injectable.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 @injectable
 class AppViewmodel extends GetxController with BaseViewmodel {
+  static final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
   static WidgetFactory? _widgetFactoryInstance;
 
   final AuthUsecase authUsecase;
@@ -76,6 +75,11 @@ class AppViewmodel extends GetxController with BaseViewmodel {
     LocalizedField(key: AppLanguage.AMHARIC.name, value: "ስምምነት"),
   ], items: []).obs;
 
+  ChatSocketService chatSocketService = getIt<ChatSocketService>();
+
+  BuildContext getAppContext() {
+    return AppViewmodel.scaffoldMessengerKey.currentContext!;
+  }
   List<Access> get loggedInStaffAccesses => loggedInStaffInfo.value?.authResponse?.accesses ?? [];
 
   // getter
@@ -274,6 +278,9 @@ class AppViewmodel extends GetxController with BaseViewmodel {
         POSStaffSignInPage.navigate(context, replaceRoute: true);
       }
     }
+    
+    // Disconnect socket on logout
+    chatSocketService.disconnect();
   }
 
   void resetCustomerRelatedData() {
@@ -296,5 +303,25 @@ class AppViewmodel extends GetxController with BaseViewmodel {
   void setProductCalendars(List<Calendar>? calendars) {
     if (calendars?.isEmpty ?? true) return;
     productsCalendars.assignAll(calendars!);
+  }
+
+  void initSocketConnection() {
+    if (loggedInStaffInfo.value != null && loggedInStaffInfo.value!.staff != null) {
+      final staffId = loggedInStaffInfo.value!.staff!.id;
+      final token = loggedInStaffInfo.value!.authResponse!.accessToken;
+      
+      // Connect the socket
+      if (staffId != null && token != null) {
+        chatSocketService.connect(staffId, token);
+        print('Socket connection initialized for staff: $staffId');
+      }
+    }
+  }
+
+  void updateLoggedInStaffInfo(StaffResponse staffInfo) {
+    loggedInStaffInfo.value = staffInfo;
+    
+    // Initialize socket connection after login
+    initSocketConnection();
   }
 }

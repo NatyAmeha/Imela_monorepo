@@ -46,8 +46,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final destinations = viewmodel.getDestinations(context);
+    print('selected branch ${viewmodel.selectedBranch?.id}');
     return Scaffold(
       drawer: HomePageSidenav(
         selectedIndex: 0,
@@ -88,6 +88,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                   },
                                   onSearchClicked: () {
                                     SearchListPage.navigate(context);
+                                  },
+                                  onChatClicked: () {
+                                    viewmodel.navigateToChatPage(context);
                                   },
                                   onLogout: () {
                                     viewmodel.appViewmodel.logout(context, showLogoutPopup: true);

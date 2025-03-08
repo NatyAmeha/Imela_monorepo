@@ -57,7 +57,7 @@ class _SearchListPageState extends State<SearchListPage> {
         ],
       ),
       bottomSheet: Obx(
-        () => CartBottomNav(
+        () => CartBottomNav( 
           totalAmountString: viewModel.homePageViewmodel.cartTotalAmount,
           totalItemsString: viewModel.homePageViewmodel.cartTotalItems,
           onTap: () {

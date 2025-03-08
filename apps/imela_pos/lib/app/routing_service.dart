@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imela_core/calendar/model/calendar_booking.model.dart';
+import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_pos/ui/authentication/staff_signin.page.dart';
 import 'package:imela_pos/ui/authentication/workspace_auth/workspace_auth.dart';
 import 'package:imela_pos/ui/cart/component/cart_list_component.dart';
@@ -14,15 +16,22 @@ import 'package:imela_pos/ui/membership/pos_membership_list_page.dart';
 import 'package:imela_pos/ui/order/order_confirmation_page.dart';
 import 'package:imela_pos/ui/order/order_details_page.dart';
 import 'package:imela_pos/ui/order/order_list_page.dart';
+import 'package:imela_pos/ui/order/schedule/create_schedule/create_schedule_page.dart';
 import 'package:imela_pos/ui/order/schedule/order_schedule_page.dart';
 import 'package:imela_pos/ui/payment/payment_page.dart';
 import 'package:imela_pos/ui/search/search_list_page.dart';
+import 'package:imela_pos/ui/section/section_page.dart';
 import 'package:imela_pos/ui/staff/create_staff/create_staff_page.dart';
 import 'package:imela_pos/ui/staff/staff_list/staff_list_page.dart';
 import 'package:injectable/injectable.dart';
 import 'package:imela_core/order/model/order.model.dart' as OrderModel;
 
 import 'package:page_transition/page_transition.dart';
+import 'package:imela_pos/ui/product/product_list_page.dart';
+import 'package:imela_pos/ui/inventory/inventory_list_page.dart';
+import 'package:imela_pos/ui/calendar/calendar_list_page.dart';
+import 'package:imela_pos/ui/product_price/product_price_list_page.dart';
+import 'package:imela_pos/ui/chat/chat_room_list_page.dart';
 
 abstract class IRoutingService {
   Future<T?> navigateTo<T>(BuildContext context, String routeName, {Map<String, dynamic> queryParam, Map<String, dynamic>? extra, bool replace = false});
@@ -87,6 +96,35 @@ class GoRouterService implements IRoutingService {
             final membershipId = arguments['membershipId'] as String;
             return CreateMembershipPage(membershipId: membershipId);
           }),
+      GoRoute(
+          path: CreateSchedulePage.routeName,
+          builder: (context, state) {
+            var arguments = (state.extra) as Map<String, dynamic>;
+            var selectedBooking = arguments['selectedBooking'] as Schedule?;
+            var calendarId = arguments['calendarId'] as String;
+            var orderId = arguments['orderId'] as String;
+
+            return CreateSchedulePage(
+              selectedSchedule: selectedBooking,
+              calendarId: calendarId,
+              orderId: orderId,
+            );
+          }),
+      GoRoute(
+        path: SectionPage.routeName,
+        builder: (context, state) {
+          var arguments = state.extra as Map<String, dynamic>;
+          var businessId = arguments['businessId'] as String;
+          var sectionId = arguments['sectionId'] as String;
+          var sectionName = arguments['sectionName'] as String;
+          return SectionPage(businessId: businessId, sectionId: sectionId, sectionName: sectionName);
+        },
+      ),
+      GoRoute(path: ProductListPage.routeName, builder: (context, state) => const ProductListPage()),
+      GoRoute(path: InventoryListPage.routeName, builder: (context, state) => const InventoryListPage()),
+      GoRoute(path: CalendarListPage.routeName, builder: (context, state) => const CalendarListPage()),
+      GoRoute(path: ProductPriceListPage.routeName, builder: (context, state) => const ProductPriceListPage()),
+      GoRoute(path: ChatRoomListPage.routeName, builder: (context, state) => const ChatRoomListPage()),
     ],
   );
   @override

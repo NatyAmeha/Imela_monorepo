@@ -24,7 +24,8 @@ class OrderConfirmationPage extends StatefulWidget {
 
   static void navigate(BuildContext context, {required Order order}) {
     final router = AppViewmodel.getInstance().appRouter;
-    router.navigateTo(context, routeName, extra: {orderKey: order});
+    final queryParam = order.getOrderQueryParam();
+    router.navigateTo(context, routeName, extra: {orderKey: order}, queryParam: {orderKey: queryParam});
   }
 }
 

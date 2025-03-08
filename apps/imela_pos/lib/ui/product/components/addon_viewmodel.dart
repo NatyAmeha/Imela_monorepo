@@ -11,6 +11,7 @@ import 'package:imela_core/order/order.usecase.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/product/product.usecase.dart';
+import 'package:imela_core/schedule/schedule.usecase.dart';
 import 'package:imela_core/settings/model/location.model.dart';
 import 'package:imela_core/settings/setting_usecase.dart';
 import 'package:imela_core/shared/currency_utils.dart';
@@ -36,11 +37,13 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
   // final Paymentusec businessUsecase;
   final SettingUsecase settingUsecase;
   final OrderUsecase orderUsecase;
+  final ScheduleUsecase scheduleUsecase;
   final IExceptiionHandler exceptiionHandler;
 
   ProductAddonViewmodel({
     required this.settingUsecase,
     required this.orderUsecase,
+    required this.scheduleUsecase,
     @Named(AppExceptionHandler.injectName) required this.exceptiionHandler,
   });
 
@@ -119,7 +122,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
         final disabledDates = calendar.disabledDays ?? [];
         final disabledHours = calendar.disabledHours ?? [];
         var bookedDates = <DateTime>[];
-        final result = await orderUsecase.getSchedulesByCalendarId(calendar.id!);
+        final result = await scheduleUsecase.getSchedulesByCalendarId(calendar.id!);
         if (result != null) {
           bookedDates = result.schedules?.map((e) => e.bookedTimes ?? []).flatten().toList() ?? [];
         }
@@ -573,7 +576,7 @@ class ProductAddonViewmodel extends GetxController with BaseViewmodel {
 
   void closeAdddonConfigModalWithResult(BuildContext context, {double? selectedQty}) {
     if (selectedQty != null) {
-      orderConfigs[OrderConfig.QTY_CONFIG_ID] = OrderConfig.createQtyOrderConfig(selectedQty);
+      orderConfigs[OrderConfig.QTY_CONFIG_ID] = OrderConfig.createQtyOrderConfig(selectedQty, allAddons: productAddons);
     }
 
     var configs = orderConfigs.values.toList();

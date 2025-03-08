@@ -4,3 +4,4 @@ import 'package:imela_pos/bootstrap.dart';
 void main() {
   bootstrap(() => const App());
 }
+ 

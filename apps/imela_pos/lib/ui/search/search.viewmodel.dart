@@ -226,16 +226,18 @@ class SearchViewmodel extends GetxController with BaseViewmodel {
           items: searchResults,
           isStaggered: true,
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          crossAxisCount: Responsive.getGridCount(context, itemWidth: 180),
+          crossAxisCount: Responsive.getGridCount(context, itemWidth: 200),
           itemBuilder: (context, item, index) {
             return SearchResultListItem(
                 searchInfo: item,
+                imageHeight: 175,
+                imageWidth: 200,
                 widgetFactory: AppViewmodel.getWidgetFactory(context),
                 onTap: () {
                   final productInfo = item.getProductInfo(products: allBranchProducts);
                   if (productInfo != null) {
                     homePageViewmodel.addProductToCartOrUpdateQty(context, product: productInfo);
-                  }
+                  } 
                 });
           },
         ),

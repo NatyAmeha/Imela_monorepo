@@ -209,6 +209,10 @@ class PaymentPageViewmodel extends GetxController with BaseViewmodel {
     }
   }
 
+  void updatePaymentMethodOption(String paymentMethodId, PaymentMethodOption option) {
+    // var sMethod = selectedPaymentMethod.value.firstWhere((element) => element.id == paymentMethodId);
+  }
+
   // Future<void> showCustomerListModal(BuildContext context, {String title = 'Select customer', String? description}) async {
   //   final customers = appViewmodel.posCustomers;
   //   const pageId = 'customer_list_page';

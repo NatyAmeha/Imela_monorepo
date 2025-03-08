@@ -152,8 +152,8 @@ class PosMembershipDetailsComponent extends StatelessWidget {
   Widget buildMembershipMembersProducts(BuildContext context) {
     return AppGridView(
       shrinkWrap: true,
-      itemExtent: 230,
-      crossAxisCount: Responsive.getGridCount(context, itemWidth: 300),
+      isStaggered: true,
+      crossAxisCount: Responsive.getGridCount(context, itemWidth: 150),
       items: viewmodel.selectedMembershipProducts,
       itemBuilder: (context, item, index) {
         return HomeProductListItem(

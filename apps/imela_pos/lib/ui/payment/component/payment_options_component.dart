@@ -81,8 +81,8 @@ class PaymentOptionsComponent extends StatelessWidget {
                   },
                   paidAmount: viewmodel.totalPaidAmount.toString(),
                   remainingAmount: viewmodel.remainingAmountFromInitialPayment.toString(),
-                  onPlaceOrderPressed: () {
-                    viewmodel.placeOrder(context);
+                  onOptionChanged: (paymentMethodId, option) {
+                    viewmodel.updatePaymentMethodOption(paymentMethodId, option);
                   },
                 ),
               ),

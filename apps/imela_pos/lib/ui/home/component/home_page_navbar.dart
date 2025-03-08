@@ -12,6 +12,7 @@ class HomePageNavbar extends StatelessWidget {
   final TextEditingController controller;
   final String? selectedSectionId;
   final Function() onSync;
+  final Function() onChatClicked;
   final Function() onSearchClicked;
   final Function()? onLogout;
   final String selectedLanguage;
@@ -25,6 +26,7 @@ class HomePageNavbar extends StatelessWidget {
     required this.onSync,
     required this.selectedLanguage,
     required this.onSearchClicked,
+    required this.onChatClicked,
      this.onLogout,
   });
 
@@ -49,6 +51,7 @@ class HomePageNavbar extends StatelessWidget {
               ).withPaddingSymetric(horizontal: 24, vertical: 12),
             ),
             SearchComponent(controller: controller, widgetFactory: widgetFactory, onTap: onSearchClicked),
+            widgetFactory.createIcon(materialIcon: Icons.chat, size: 30, onPressed: onChatClicked),
             widgetFactory.createIcon(
                 materialIcon: Icons.sync,
                 size: 30,

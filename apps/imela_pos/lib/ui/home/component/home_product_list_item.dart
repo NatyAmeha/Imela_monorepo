@@ -46,7 +46,7 @@ class HomeProductListItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppImage(imageUrl: product.getImageUrl(), height: imageHeight, width: double.infinity),
+              AppImage(imageUrl: product.getImageUrl(), height: imageHeight),
               const SizedBox(height: 5),
               widgetFactory.createText(context, product.name.localize(selectedLanguage), style: Theme.of(context).textTheme.bodyLarge, maxLines: 2).withPaddingSymetric(horizontal: 10),
               widgetFactory.createText(context, product.getPriceRangeString(selectedCurrency), style: Theme.of(context).textTheme.titleMedium).withPaddingSymetric(horizontal: 10),

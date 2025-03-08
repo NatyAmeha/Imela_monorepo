@@ -5,9 +5,9 @@ import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_ui_kit/components/image/image_uploader.dart';
 import 'package:imela_ui_kit/helpers/button_style.dart';
-import 'package:imela_ui_kit/helpers/file_upload.model.dart';
 import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
+import 'package:imela_utils/storage/file_upload.model.dart';
 
 class RenewMembershipSummary extends StatelessWidget {
   final Customer? customer;

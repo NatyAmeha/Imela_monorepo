@@ -16,9 +16,9 @@ import 'package:imela_pos/ui/customer/component/create_customer_modal.dart';
 import 'package:imela_pos/ui/customer/component/search_customer_list_modal.dart';
 import 'package:imela_pos/ui/membership/pos_membership_list.viewmodel.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
-import 'package:imela_ui_kit/helpers/file_upload.model.dart';
 import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
+import 'package:imela_utils/storage/file_upload.model.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable

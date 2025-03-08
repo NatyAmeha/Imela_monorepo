@@ -20,6 +20,7 @@ import 'package:imela_pos/injection.dart';
 import 'package:imela_pos/l10n/l10n.dart';
 import 'package:imela_pos/ui/cart/cart.viewmodel.dart';
 import 'package:imela_pos/ui/cart/component/cart_list_component.dart';
+import 'package:imela_pos/ui/chat/chat_room_list_page.dart';
 import 'package:imela_pos/ui/customer/customer_list_page.dart';
 import 'package:imela_pos/ui/home/home_page.dart';
 import 'package:imela_pos/ui/membership/pos_membership_list_page.dart';
@@ -27,6 +28,8 @@ import 'package:imela_pos/ui/order/order_list_page.dart';
 import 'package:imela_pos/ui/order/schedule/order_schedule_page.dart';
 import 'package:imela_pos/ui/product/components/pos_product_addon_list_modal.dart';
 import 'package:imela_pos/ui/product/components/produc_variant_list_modal.dart';
+import 'package:imela_pos/ui/product/product_list_page.dart';
+import 'package:imela_pos/ui/section/section_page.dart';
 import 'package:imela_pos/ui/staff/staff_list/staff_list_page.dart';
 import 'package:imela_ui_kit/components/list/listview.component.dart';
 import 'package:imela_ui_kit/components/modal/app_modal_sheet.dart';
@@ -35,6 +38,9 @@ import 'package:imela_utils/exception/app_exception.dart';
 import 'package:imela_utils/helpers/base_viewmodel.dart';
 import 'package:imela_utils/helpers/screen_size_utils.dart';
 import 'package:injectable/injectable.dart';
+import 'package:imela_pos/ui/inventory/inventory_list_page.dart';
+import 'package:imela_pos/ui/calendar/calendar_list_page.dart';
+import 'package:imela_pos/ui/product_price/product_price_list_page.dart';
 
 @injectable
 class HomePageViewmodel extends GetxController with BaseViewmodel {
@@ -101,11 +107,57 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
       AppNavigationDestination(name: context.l10n.salesTitle, icon: Icons.inventory_2, screen: OrderListPage(), onTap: () => OrderListPage.navigate(context)),
       AppNavigationDestination(name: context.l10n.inventoryTitle, icon: Icons.inventory_2, screen: CustomerListPage(), onTap: () => CustomerListPage.navigate(context)),
       AppNavigationDestination(name: 'Memberships', icon: Icons.wallet_membership_rounded, screen: POSMembershipListPage(), onTap: () => POSMembershipListPage.navigateTo(context)),
+      
+      // Add Product Management category with destinations
+      AppNavigationDestination(
+        name: 'Products',
+        icon: Icons.shopping_bag,
+        category: 'Product Management',
+        screen: ProductListPage(),
+        onTap: () => ProductListPage.navigate(context)
+      ),
+      
+      // These destinations are placeholders for now
+      AppNavigationDestination(
+        name: 'Inventory',
+        icon: Icons.inventory,
+        category: 'Product Management',
+        screen: const InventoryListPage(),
+        onTap: () => InventoryListPage.navigate(context)
+      ),
+      
+      AppNavigationDestination(
+        name: 'Calendar',
+        icon: Icons.calendar_today,
+        category: 'Product Management',
+        screen: const CalendarListPage(),
+        onTap: () => CalendarListPage.navigate(context)
+      ),
+      
+      // Add a new destination to the Product Management category
+      AppNavigationDestination(
+        name: 'Price Lists',
+        icon: Icons.price_change,
+        category: 'Product Management',
+        screen: const ProductPriceListPage(),
+        onTap: () => ProductPriceListPage.navigate(context)
+      ),
     ];
+    
     if (appViewmodel.loggedInStaffAccesses.canAccessStaff()) {
-      defaultDestinations.add(AppNavigationDestination(name: 'Staffs', icon: Icons.settings, screen: StaffListPage(), onTap: () => StaffListPage.navigate(context)));
+      defaultDestinations.add(AppNavigationDestination(name: 'Staff', icon: Icons.people, screen: StaffListPage(), onTap: () => StaffListPage.navigate(context)));
     }
     defaultDestinations.add(AppNavigationDestination(name: 'Schedules', icon: Icons.calendar_month, screen: OrderSchedulePage(), onTap: () => OrderSchedulePage.navigateTo(context)));
+    var sectionDestinations = sections.map(
+      (e) => AppNavigationDestination(
+        name: e.name.localize(appViewmodel.selectedLanguage),
+        icon: Icons.settings,
+        category: 'Sections',
+        screen: SectionPage(businessId: appViewmodel.selectedBusinessId, sectionId: e.id!, sectionName: e.name.localize(appViewmodel.selectedLanguage)),
+        onTap: () => SectionPage.navigate(context, businessId: appViewmodel.selectedBusinessId, sectionId: e.id!, sectionName: e.name.localize(appViewmodel.selectedLanguage)),
+      ),
+    );
+    defaultDestinations.addAll(sectionDestinations);
     return defaultDestinations;
   }
 
@@ -177,7 +229,6 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
       } else {
         final orderItem = selectedProductInfo.getOrderItem(qty, config: orderConfigs);
         cartViewmodel.addProductToCart(orderItem);
-        
       }
     } catch (ex) {
       print('error adding product to cart: $ex');
@@ -273,5 +324,9 @@ class HomePageViewmodel extends GetxController with BaseViewmodel {
         ),
       ],
     );
+  }
+
+  void navigateToChatPage(BuildContext context) {
+    ChatRoomListPage.navigate(context);
   }
 }

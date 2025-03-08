@@ -40,15 +40,18 @@ class AppThemeManager {
         labelMedium: AppTypography.of(context).labelMedium.copyWith(color: ColorManager.secondaryText),
         labelSmall: AppTypography.of(context).labelSmall.copyWith(color: ColorManager.secondaryText),
       ),
+
       dividerTheme: const DividerThemeData(color: ColorManager.primaryBackground, thickness: 1),
       // drawerTheme: const DrawerThemeData(backgroundColor: ColorManager.primaryBackground),
       appBarTheme: const AppBarTheme().copyWith(
         backgroundColor: ColorManager.alternate,
         centerTitle: true,
         elevation: 2,
+        
         surfaceTintColor: Colors.transparent,
         titleTextStyle: AppTypography.of(context).titleLarge.copyWith(color: ColorManager.primaryText),
       ),
+    
     );
   }
 

@@ -33,11 +33,11 @@ class OrderScheduleViewModel extends GetxController with BaseViewmodel {
   var orderDetail = Rxn<OrderResponse>();
   var calendarViewType = CalendarViewType.week.obs;
 
-  var filteredBookings = <CalendarBooking>[].obs;
+  var filteredBookings = <Schedule>[].obs;
 
   // getters
   AppViewmodel get appViewmodel => AppViewmodel.getInstance();
-  List<CalendarBooking> get orderSchedules => branchOrderSchedules.value?.schedules ?? [];
+  List<Schedule> get orderSchedules => branchOrderSchedules.value?.schedules ?? [];
 
   @override
   void initViewmodel({Map<String, dynamic>? data}) {

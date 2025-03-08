@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:imela_core/order/model/order.model.dart';
 import 'package:imela_ui_kit/components/badge/badge_list.dart';
 import 'package:imela_ui_kit/helpers/pop_up_menu_data.dart';
-import 'package:imela_ui_kit/helpers/widget_extesions.dart';
 import 'package:imela_ui_kit/widget_factory/widget.factory.dart';
-import 'package:intl/intl.dart';
+import 'package:imela_utils/helpers/date_utils.dart';
+
 
 class OrderListItem extends StatelessWidget {
   final Order order;
@@ -36,36 +36,46 @@ class OrderListItem extends StatelessWidget {
           onTap.call();
         },
         padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                widgetFactory.createText(
-                  context,
-                  'Order #${order.code ?? 'N/A'}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(width: 8),
-                BadgeList(
-                  colors: [_getStatusColor()],
-                  widgetFactory: widgetFactory,
-                  values: [statusMsg],
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      widgetFactory.createText(
+                        context,
+                        'Order #${order.code ?? 'N/A'}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(width: 8),
+                      BadgeList(
+                        colors: [_getStatusColor()],
+                        widgetFactory: widgetFactory,
+                        values: [statusMsg],
+                      ),
+                    ],
+                  ),
+                  widgetFactory.createText(
+                    context,
+                    'Date: ${order.createdAt?.toFormattedString()}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 4),
+                  widgetFactory.createText(
+                    context,
+                    'Total: ${order.totalAmountString('USD', 'en')}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
-            widgetFactory.createText(
-              context,
-              'Date: ${_formatDate(order.createdAt)}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 4),
-            widgetFactory.createText(
-              context,
-              'Total: ${order.totalAmountString('USD', 'en')}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
+            actions.isNotEmpty ? PopupMenuButton<String>(
+              itemBuilder: (context) => actions.map((e) => PopupMenuItem<String>(value: e.value, child: Text(e.label))).toList(),
+              onSelected: (value) => onActionClick.call(value),
+            ) : const SizedBox.shrink(),
           ],
         ));
   }
@@ -87,10 +97,5 @@ class OrderListItem extends StatelessWidget {
       default:
         return Colors.grey;
     }
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'N/A';
-    return DateFormat('MMM dd, yyyy HH:mm').format(date);
   }
 }

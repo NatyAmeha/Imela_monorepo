@@ -28,7 +28,7 @@ class BranchListItem extends StatelessWidget {
           widgetFactory.createText(context, branchInfo.name.localize(selectedLanguage), style: Theme.of(context).textTheme.titleMedium),
           if (branchInfo.address?.city != null) ...[
             const SizedBox(height: 8),
-            widgetFactory.createText(context, branchInfo.address!.city, style: Theme.of(context).textTheme.bodyMedium),
+            widgetFactory.createText(context, branchInfo.address?.city ?? '', style: Theme.of(context).textTheme.bodyMedium),
           ],
           const Spacer(),
           Row(

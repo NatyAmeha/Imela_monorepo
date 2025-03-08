@@ -44,7 +44,7 @@ class _OrderSchedulePageState extends State<OrderSchedulePage> {
           showContent: !(viewModel.exception.value?.isMainError ?? false),
           exception: viewModel.exception.value,
           hasError: viewModel.exception.value?.isMainError ?? false,
-          content: ScheduleComponent<CalendarBooking>(
+          content: ScheduleComponent<Schedule>(
             dataSource: OrderBookingScheduleDataSource(viewModel.filteredBookings),
             viewType: viewModel.calendarViewType.value,
             onEventTap: (bookings) {
