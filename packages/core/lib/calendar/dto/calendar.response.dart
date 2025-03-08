@@ -10,9 +10,10 @@ class CalendarResponse with _$CalendarResponse {
   const CalendarResponse._();
   const factory CalendarResponse({
     bool? success,
+    String? message,
     Calendar? calendar,
     List<Calendar>? calendars,
-    CalendarBooking? calendarBooking,
+    Schedule? calendarBooking,
     List<DateTime>? disabledDatesForBooking,
   }) = _CalendarResponse;
 

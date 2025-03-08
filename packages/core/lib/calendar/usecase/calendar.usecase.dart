@@ -1,5 +1,7 @@
 import 'package:imela_core/calendar/dto/calendar.response.dart';
+import 'package:imela_core/calendar/model/calendar.model.dart';
 import 'package:imela_core/calendar/repo/calendar.repository.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:injectable/injectable.dart';
 
@@ -28,4 +30,38 @@ class CalendarUsecase {
     return result;
   }
 
+  Future<CalendarResponse?> getBusinessCalendars(String businessId, {String? branchId, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    var result = await _calendarRepository.getBusinessCalendars(businessId, branchId: branchId, fetchPolicy: fetchPolicy);
+    if (!(result?.success ?? false)) {
+      result = await _calendarRepository.getBusinessCalendars(businessId, branchId: branchId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+    }
+    return result;
+  }
+
+  Future<CalendarResponse?> updateCalendar(Calendar calendar) async {
+    // Convert calendar model to required inputs
+    
+    return await _calendarRepository.updateCalendar(
+      calendar.id!,
+      name: calendar.name ?? [],
+      productId: calendar.productId!,
+      fromDate: calendar.fromDate!,
+      toDate: calendar.toDate!, 
+      disabledDays: calendar.disabledDays ?? [],
+      disabledHours: calendar.disabledHours ?? [],
+      orderInfo: calendar.orderInfo ?? [],
+    );
+  }
+}
+
+class CalendarOrderInfoInput {
+  final int dayOfWeek;
+  final int maxOrderPerDay;
+  final int maxOrderPerHour;
+
+  CalendarOrderInfoInput({
+    required this.dayOfWeek,
+    required this.maxOrderPerDay,
+    required this.maxOrderPerHour,
+  });
 }
