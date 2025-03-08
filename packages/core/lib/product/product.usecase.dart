@@ -24,10 +24,10 @@ class ProductUsecase {
     return await _productRepository.createProduct(businessId, productInputs);
   }
 
-  Future<ProductResponse?> getProductDetails(String productId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
-    var result = await _productRepository.getProductDetails(productId, fetchPolicy: fetchPolicy);
+  Future<ProductResponse?> getProductDetails(String productId, {String? branchId, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    var result = await _productRepository.getProductDetails(productId, branchId: branchId, fetchPolicy: fetchPolicy);
     if (!(result?.isSuccessfull ?? false)) {
-      result = await _productRepository.getProductDetails(productId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
+      result = await _productRepository.getProductDetails(productId, branchId: branchId, fetchPolicy: ApiDataFetchPolicy.networkOnly);
     }
     return result;
   }

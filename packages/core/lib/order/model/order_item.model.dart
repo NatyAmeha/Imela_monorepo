@@ -29,18 +29,24 @@ class OrderItem with _$OrderItem {
     List<ItemDiscount>? discount,
     List<OrderConfig>? config,
     double? finalPrice,
+    String? dependOnProduct,
     Product? product,
     String? calendarId,
     DateTime? createdAt,
     DateTime? updatedAt,
     @Default(1) double minQty,
     @Default(10) double maxQty,
+
   }) = _OrderItem;
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => _$OrderItemFromJson(json);
 
   OrderItem updateQuantity(double qty) {
     return copyWith(quantity: qty);
+  }
+
+  OrderItem updateConfig(List<OrderConfig> newConfig) {
+    return copyWith(config: newConfig);
   }
 
   OrderItem addOrRemoveDiscount(List<ItemDiscount> newDiscounts) {
@@ -56,7 +62,7 @@ class OrderItem with _$OrderItem {
     return copyWith(discount: finalDiscounts);
   }
 
-  OrderItem addDiscount(List<ItemDiscount> newDiscounts, {bool replaceIfExists = false}) {
+  OrderItem addDiscount(List<ItemDiscount> newDiscounts, {bool replaceIfExists = false, bool applyDiscountOnTotal = false}) {
     var finalDiscounts = List<ItemDiscount>.from(discount ?? []);
 
     for (var discountInfo in newDiscounts) {
@@ -66,7 +72,11 @@ class OrderItem with _$OrderItem {
           finalDiscounts.remove(existingDiscount);
         }
       }
-      finalDiscounts.add(discountInfo);
+      final subtotal = applyDiscountOnTotal ? getTotalAmountPOS() : getSubtotalPOSUpdated(includeAddonPrice: false);
+      final discountAmount = (subtotal).getPercentage(discountInfo.percentage ?? 0, deductPercentageFromOriginalPrice: false);
+      final discountItem = discountInfo.copyWith(amount: discountAmount);
+      finalDiscounts.add(discountItem);
+
     }
     return copyWith(discount: finalDiscounts);
   }
@@ -111,8 +121,8 @@ class OrderItem with _$OrderItem {
     return (totalDiscount * (applyQty ? quantity : 1)).getPresision(2);
   }
 
-  String totalAmountString({String? currency}) {
-    return '$currency ${getTotalAmountPOS()}';
+  String totalAmountString({String? currency, bool applyQty = true, bool discountFromAmount = false}) {
+    return '$currency ${getTotalAmountPOS(applyQty: applyQty, discountFromAmount: discountFromAmount).getPresisionString(precision: 2)}';
   }
 
   double getTotalAmount({bool applyQty = true}) {
@@ -127,7 +137,10 @@ class OrderItem with _$OrderItem {
     return '$currency ${getTotalAddonPrices().getPresisionString(precision: 2)}';
   }
 
-  double getTotalDiscountAmountPOS({bool applyQty = true}) {
+  double getTotalDiscountAmountPOS({bool applyQty = true, bool discountFromAmount = false}) {
+    if (discountFromAmount) {
+      return discount?.sumBy((e) => e.amount) ?? 0;
+    }
     var subtotalAmount = getSubtotalPOSUpdated(includeAddonPrice: false);
     double totalDiscount = 0;
     if (discount?.isNotEmpty == true) {
@@ -151,12 +164,14 @@ class OrderItem with _$OrderItem {
     if (includeAddonPrice) {
       return totalAmount + getTotalAddonPrices();
     }
-    return totalAmount; 
+    return totalAmount;
   }
 
-  double getTotalAmountPOS({bool includeDynamicPricingDiscount = true}) {
-    final totalAmount = getSubtotalPOSUpdated(includeDynamicPricingDiscount: includeDynamicPricingDiscount, includeAddonPrice: false) - getTotalDiscountAmountPOS();
+  double getTotalAmountPOS({bool includeDynamicPricingDiscount = true, bool applyQty = true, bool discountFromAmount = false}) {
+    final totalDiscount = getTotalDiscountAmountPOS(applyQty: applyQty, discountFromAmount: discountFromAmount);
+    final totalAmount = getSubtotalPOSUpdated(includeDynamicPricingDiscount: includeDynamicPricingDiscount, includeAddonPrice: false, applyQty: applyQty) - totalDiscount;
     final totalAddonPrices = getTotalAddonPrices();
+
     return (totalAmount + totalAddonPrices).getPresision(2);
   }
 
@@ -213,5 +228,11 @@ class ItemDiscount with _$ItemDiscount {
     final discountAmount = getDiscountAmount(subTotal: subTotal);
     if (discountAmount == 0.0) return '';
     return '- $currency ${discountAmount.getPresision(2)}';
+  }
+}
+
+extension OrderItems on List<OrderItem> {
+  String getItemNameByProductId(String productId, {String selectedLanguage = 'ENGLISH'}) {
+    return firstWhereOrNull((element) => element.productId == productId)?.name?.localize(selectedLanguage) ?? '';
   }
 }

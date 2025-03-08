@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/business/model/business_order_status.dart';
 import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
+import 'package:imela_core/calendar/model/calendar_booking.model.dart';
 import 'package:imela_core/customer/model/customer.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
@@ -50,6 +53,7 @@ class Order with _$Order {
     bool? isOnlineOrder,
     String? note,
     List<String>? businessId,
+    List<Schedule>? schedules,
     String? branchId,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -69,11 +73,12 @@ class Order with _$Order {
     double? usedRewardsPoints,
   }) {
     final remainingAmount = totalAmount - paidAmount;
+    
     return Order(
         paymentType: paymentOption.type,
         items: cartIfno.items,
         isOnlineOrder: true,
-        subTotal: cartIfno.getSubtotal,
+        subTotal: cartIfno.getSubtotalPOSUpdated(includeAddonPrice: false, includeDynamicPricingDiscount: true),
         totalAmount: totalAmount,
         config: cartIfno.configs,
         paidAmount: paidAmount,
@@ -95,7 +100,7 @@ class Order with _$Order {
   }
 
   double getTotalDiscountAmount() {
-    return items?.sumBy((item) => item.getTotalDiscountAmountPOS()) ?? 0;
+    return items?.sumBy((item) => item.getTotalDiscountAmountPOS(discountFromAmount: true)) ?? 0;
   }
 
   double getTotalAddonAmount() {
@@ -115,15 +120,15 @@ class Order with _$Order {
   }
 
   String remainingAmountString(String selectedCurrency, String selectedLanguage) {
-    return '$selectedCurrency $remainingAmount';
+    return '$selectedCurrency ${remainingAmount.getPresisionString()}';
   }
 
-  String paidAmountString(String selectedCurrency, String selectedLanguage) {
-    return '$selectedCurrency $paidAmount';
+   String paidAmountString(String selectedCurrency, String selectedLanguage) {
+    return '$selectedCurrency ${paidAmount?.getPresisionString()}';
   }
 
   double getTotalEarnedPoints() {
-    return items?.sumBy((item) => item.point ?? 0) ?? 0.0;
+    return items?.sumBy((item) => (item.point ?? 0) * item.quantity) ?? 0.0;
   }
 
   String getTotalEarnedPointsString(String selectedLanguage) {
@@ -134,6 +139,12 @@ class Order with _$Order {
 
   Map<String, List<String>>? getPaymentProofImages() {
     return paymentMethods?.asMap().map((key, value) => MapEntry(value.id!, value.receiptImages ?? []));
+  }
+
+  Map<String, List<dynamic>?>?getPaymentProofImagesUploaded() {
+    var paymentProofMap =  paymentMethods?.asMap().map((key, value) => MapEntry(value.id!, value.receiptImagesUploaded ?? []));
+    paymentProofMap?.removeWhere((key, value) => value.isEmpty == true);
+    return paymentProofMap;
   }
 
   Order addPaymentProofImages(Map<String, List<String>?> uploadResult) {
@@ -149,11 +160,29 @@ class Order with _$Order {
 
   String getOrderStatus(String selectedLanguage, List<BusinessOrderStatus> businessOrderStatus) {
     final selectedStatus = businessOrderStatus.firstOrNullWhere((bs) => bs.id == status) ?? businessOrderStatus.firstOrNullWhere((bs) => bs.isDefault ?? false) ?? businessOrderStatus.firstOrNull;
-    print('selectedStatus ${businessOrderStatus} ${selectedStatus?.status?.localize(selectedLanguage)}');
     return selectedStatus?.status?.localize(selectedLanguage) ?? 'Pending';
   }
 
   Order updateOrderStatus(String statusId) {
     return copyWith(status: statusId);
+  }
+
+  String getOrderQueryParam() {
+    return Uri.encodeComponent(jsonEncode(toJson()));
+  }
+
+  Order? updateSchedules(Schedule result) {
+    final updatedSchedules = schedules?.map((schedule) {
+      if (schedule.id == result.id) {
+        return result;
+      }
+      return schedule;
+    }).toList();
+    return copyWith(schedules: updatedSchedules);
+  }
+
+  void getOrderCalendars() {
+    final calendars = schedules?.map((schedule) => schedule.calendar).toList();
+    print(calendars);
   }
 }

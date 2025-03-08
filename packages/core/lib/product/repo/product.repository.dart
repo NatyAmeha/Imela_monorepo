@@ -1,3 +1,5 @@
+import 'package:imela_core/order/model/order.response.dart';
+import 'package:imela_core/product/dto/addon_usage_response.dart';
 import 'package:imela_core/product/dto/create_product.input.dart';
 import 'package:imela_core/product/dto/product_to_entity_extension.dart';
 import 'package:imela_core/product/model/product.model.dart';
@@ -9,6 +11,8 @@ import 'package:imela_data/injection.dart';
 import 'package:imela_data/network/graphql/__generated__/schema.schema.gql.dart';
 import 'package:imela_data/network/graphql/graphql_config.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_data/network/graphql/order/__generated__/get_addon_usage.data.gql.dart';
+import 'package:imela_data/network/graphql/order/__generated__/get_addon_usage.req.gql.dart';
 import 'package:imela_data/network/graphql/product/__generated__/business_products.data.gql.dart';
 import 'package:imela_data/network/graphql/product/__generated__/business_products.req.gql.dart';
 import 'package:imela_data/network/graphql/product/__generated__/create_product.data.gql.dart';
@@ -24,13 +28,13 @@ import 'package:imela_data/network/graphql/product/__generated__/product_detail_
 import 'package:injectable/injectable.dart';
 
 abstract class IProductRepository {
-  Future<ProductResponse?> getProductDetails(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
+  Future<ProductResponse?> getProductDetails(String id, {String? branchId, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
   Future<ProductResponse?> getBusinessProducts(String businessId, {int page = 1, int limit = 10, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
   Future<ProductResponse?> createProduct(String businessId, List<CreateProductInput> productInputs);
   Future<ProductResponse?> createProductAddon(String businessId, String productId, List<ProductAddon> addonInputs);
   Future<ProductResponse?> createProductPrice(String businessId, String productId, List<ProductPrice> priceInputs);
   Future<ProductResponse?> getMembershipProducts(String membershipId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
-
+  Future<OrderResponse?> getAddonUsage(String addonId, {DateTime? startDate, DateTime? endDate, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
   Future<List<int>> savePOSProductsToDb({required String dbName, required String businessId, required String branchId,  required List<Product> products});
 }
 
@@ -46,11 +50,12 @@ class ProductRepository implements IProductRepository {
     // @Named(POSDBDataSource.injectName) this._dbDataSource,
   );
   @override
-  Future<ProductResponse?> getProductDetails(String id, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+  Future<ProductResponse?> getProductDetails(String id, {String? branchId, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
     updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
     final request = GGetProductDetailsReq(
       (b) => b
         ..vars.id = id
+        ..vars.branchId = branchId
         ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
     final result = await _graphQLDataSource.request<GGetProductDetailsData>(request, type: GET_PRODUCT_DETAILS, isMainError: true);
@@ -138,6 +143,24 @@ class ProductRepository implements IProductRepository {
       return null;
     }
     return ProductResponse.fromJson(result.getMembershipProducts.toJson());
+  }
+
+
+  @override
+  Future<OrderResponse?> getAddonUsage(String addonId, {DateTime? startDate, DateTime? endDate, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork}) async {
+    final request = GgetAddonUsageReq(
+      (b) => b
+        ..vars.addonId = addonId
+        ..vars.startDate.update((b) => startDate?.toIso8601String())
+        ..vars.endDate.update((b) => endDate?.toIso8601String())
+        ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
+    );
+
+    final result = await _graphQLDataSource.request<GgetAddonUsageData>(request, type: 'GET_ADDON_USAGE', isMainError: true);
+    if (result == null) {
+      return null;
+    }
+    return OrderResponse.fromJson(result.getAddonUsage.toJson());
   }
 
   @override

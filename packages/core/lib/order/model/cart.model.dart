@@ -31,6 +31,7 @@ class Cart with _$Cart {
     DateTime? createdAt,
     DateTime? updatedAt,
     List<PaymentOption>? paymentOptions,
+    List<LocalizedField>? businessName,
   }) = _Cart;
 
   factory Cart.fromJson(Map<String, dynamic> json) => _$CartFromJson(json);
@@ -79,12 +80,16 @@ class Cart with _$Cart {
     return '$selectedCurrency $getSubtotal';
   }
 
+  double get totalEarnedPoint {
+    return (items?.sumBy((element) => (element.point ?? 0) * element.quantity) ?? 0).getPresision(2);
+  }
+
   String totalEarnedPointString(String selectedLanguage) {
-    final totalPoints = (items?.sumBy((element) => (element.point ?? 0) * element.quantity) ?? 0).getPresision(2);
+    final totalPoints = totalEarnedPoint;
     if (selectedLanguage == AppLanguage.AMHARIC.name) {
-      return '$totalPoints ነጥብ ያገኛሉ';
+      return '$totalPoints ነጥብ';
     }
-    return 'You will earn ${totalPoints.getPresisionString()} points';
+    return '+${totalPoints.getPresisionString()} points';
   }
 
   List<ItemDiscount> getAllItemDiscounts(List<OrderItem>? selectedItems, {List<String> rewardsId = const []}) {
@@ -120,8 +125,8 @@ class Cart with _$Cart {
     return (items?.sumBy((element) => element.getTotalAmount()) ?? 0).getPresision(2);
   }
 
-  double getSubtotalPOSUpdated({bool includeDynamicPricingDiscount = true, bool includeAddonPrice = false}) {
-    var subtotal = items?.sumBy((element) => element.getSubtotalPOSUpdated(includeDynamicPricingDiscount: includeDynamicPricingDiscount, includeAddonPrice: includeAddonPrice)) ?? 0;
+  double getSubtotalPOSUpdated({bool includeDynamicPricingDiscount = true, bool includeAddonPrice = false, bool applyQty = true}) {
+    var subtotal = items?.sumBy((element) => element.getSubtotalPOSUpdated(applyQty: applyQty, includeDynamicPricingDiscount: includeDynamicPricingDiscount, includeAddonPrice: includeAddonPrice)) ?? 0;
     var orderAddonsTotalAmount = configs?.sumBy((element) => element.additionalPrice) ?? 0;
     if (includeAddonPrice) {
       subtotal += orderAddonsTotalAmount;
@@ -149,23 +154,23 @@ class Cart with _$Cart {
   }
 
   String getAddonsAmountFormatted(String selectedCurrency) {
-    return '$selectedCurrency ${getAddonsAmount(selectedCurrency)}';
+    return '$selectedCurrency ${getAddonsAmount(selectedCurrency).getPresisionString()}';
   }
 
   String getSubtotalPOSUpdatedFormatted(String selectedCurrency) {
-    return '$selectedCurrency ${getSubtotalPOSUpdated()}';
+    return '$selectedCurrency ${getSubtotalPOSUpdated().getPresisionString()}';
   }
 
   String getTotalDiscountAmountPOSFormatted(String selectedCurrency) {
-    return '$selectedCurrency ${getTotalDiscountAmountPOS()}';
+    return '$selectedCurrency ${getTotalDiscountAmountPOS().getPresisionString()}';
   }
 
   String getTotalAmountPOSFormatted(String selectedCurrency) {
-    return '$selectedCurrency ${getTotatAmountPOS(selectedCurrency: selectedCurrency)}';
+    return '$selectedCurrency ${getTotatAmountPOS(selectedCurrency: selectedCurrency).getPresisionString()}';
   }
 
   String getFormattedTotalPrice(BuildContext context) {
-    return 'ETB ${getTotalPrice.toStringAsFixed(2)}';
+    return 'ETB ${getTotalPrice.getPresisionString()}';
   }
 
   Cart addPaymentOption(List<PaymentOption> paymentOptions) {
@@ -215,6 +220,15 @@ class Cart with _$Cart {
     return copyWith(items: items?.where((element) => !productIds.contains(element.productId)).toList());
   }
 
+  List<String> getDependentItemsProductIds(List<String> productIds) {
+    var dependentItemsProductIds = items?.where((item) => item.dependOnProduct != null && productIds.contains(item.dependOnProduct)).map((item) => item.productId).toList() ?? [];
+    return dependentItemsProductIds.whereNotNull().toList();
+
+
+  }
+
+
+
   bool hasOrderAddons() {
     return orderAddons?.isNotEmpty ?? false;
   }
@@ -255,7 +269,7 @@ class Cart with _$Cart {
             if (removeExistingDiscount) {
               updatedItem = updatedItem.removeDiscount([discountInfo]);
             } else {
-              updatedItem = updatedItem.addDiscount([discountInfo], replaceIfExists: true);
+              updatedItem = updatedItem.addDiscount([discountInfo], replaceIfExists: true, applyDiscountOnTotal: true);
             }
           }
         }

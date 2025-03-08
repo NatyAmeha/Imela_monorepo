@@ -1,3 +1,4 @@
+import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/order/model/order.response.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
@@ -15,7 +16,6 @@ class OrderUsecase {
   final IOrderRepository _orderRepo;
   final ICartRepository _cartRepo;
   final StorageUseCase _storageUseCase;
-  
 
   const OrderUsecase(
     this._storageUseCase,
@@ -38,23 +38,32 @@ class OrderUsecase {
     return result;
   }
 
-  Future<OrderResponse> placeOrderForBusiness(List<String> businessIds, String? cartId, OrderModel.Order orderInfo) async {
+  Future<OrderResponse> placeOrderForBusiness(List<String> businessIds, String? cartId, OrderModel.Order orderInfo, {List<LocalizedField> businessName = const []}) async {
     final paymentProofImageInfo = orderInfo.getPaymentProofImages();
-    final uploadResult = await _storageUseCase.uploadOrderPaymentProof(businessIds.first, paymentProofImageInfo);
+    final paymentProofImageUploaded = orderInfo.getPaymentProofImagesUploaded();
+    print('paymentProofImageUploaded ${paymentProofImageUploaded}');
+    final uploadResult = await _storageUseCase.uploadOrderPaymentProof(businessIds.first, paymentProofImageInfo, paymentProofImageUploaded);
     OrderModel.Order updatedOrder = orderInfo;
     if (uploadResult.isNotEmpty) {
       updatedOrder = orderInfo.addPaymentProofImages(uploadResult);
     }
 
-    final result = await _orderRepo.createBusinessOrder(businessIds: businessIds, cartId: cartId, orderInfo: updatedOrder);
+    final result = await _orderRepo.createBusinessOrder(businessIds: businessIds, businessName: businessName, cartId: cartId, orderInfo: updatedOrder);
     if (result.success ?? false) {
       _storageUseCase.removeCachedImageUrls();
     }
     return result;
   }
 
-  Future<OrderResponse> placePOSBusiness(String businessId, OrderModel.Order orderInfo, {String? customerId, String? customerName, String? customerPhone}) async {
-    final result = await _orderRepo.createPOSOrder(businessId: businessId, orderInfo: orderInfo, customerId: customerId, customerName: customerName, customerPhone: customerPhone);
+  Future<OrderResponse> placePOSBusiness(String businessId, OrderModel.Order orderInfo, {List<LocalizedField> businessName = const [], String? customerId, String? customerName, String? customerPhone}) async {
+    final result = await _orderRepo.createPOSOrder(
+      businessId: businessId,
+      orderInfo: orderInfo,
+      businessName: businessName,
+      customerId: customerId,
+      customerName: customerName,
+      customerPhone: customerPhone,
+    );
     return result;
   }
 
@@ -76,8 +85,8 @@ class OrderUsecase {
     return result;
   }
 
-  Future<OrderResponse?> getOrderDetails(String orderId) async {
-    final result = await _orderRepo.getOrderDetails(orderId);
+  Future<OrderResponse?> getOrderDetails(String orderId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    final result = await _orderRepo.getOrderDetails(orderId, fetchPolicy: fetchPolicy);
     return result;
   }
 
@@ -90,8 +99,17 @@ class OrderUsecase {
     return result;
   }
 
-  Future<OrderResponse?> getSchedulesByCalendarId(String calendarId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
-    final result = await _orderRepo.getSchedulesByCalendarId(calendarId, fetchPolicy: fetchPolicy);
+  
+
+  Future<OrderResponse?> payRemainingAmount(String orderId, SelectedPaymentMethod paymentMethod) async {
+    final paymentProofImageInfo = <String, List<String>>{paymentMethod.id!: paymentMethod.receiptImages ?? []};
+    final paymentProofImageUploaded = <String, List<dynamic>>{paymentMethod.id!: paymentMethod.receiptImagesUploaded ?? []};
+    final uploadResult = await _storageUseCase.uploadOrderPaymentProof(orderId, paymentProofImageInfo, paymentProofImageUploaded);
+    var updatedPaymentMethod = paymentMethod;
+    if (uploadResult.values.isNotEmpty == true) {
+      updatedPaymentMethod = paymentMethod.addReceiptImages(uploadResult.values.first!);
+    }
+    final result = await _orderRepo.payRemainingAmount(orderId, updatedPaymentMethod);
     return result;
   }
 }

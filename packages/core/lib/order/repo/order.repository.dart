@@ -1,5 +1,7 @@
+import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/order/model/order.response.dart';
 import 'package:imela_core/shared/graphql_input_utils.dart';
+import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
 import 'package:imela_data/network/graphql/order/__generated__/create_order.data.gql.dart';
 import 'package:imela_data/network/graphql/order/__generated__/create_order.req.gql.dart';
@@ -13,21 +15,26 @@ import 'package:imela_data/network/graphql/order/__generated__/order_detail.data
 import 'package:imela_data/network/graphql/order/__generated__/order_detail.req.gql.dart';
 import 'package:imela_data/network/graphql/order/__generated__/order_fetch_query.data.gql.dart';
 import 'package:imela_data/network/graphql/order/__generated__/order_fetch_query.req.gql.dart';
+import 'package:imela_data/network/graphql/order/__generated__/pay_remaining_payment.data.gql.dart';
+import 'package:imela_data/network/graphql/order/__generated__/pay_remaining_payment.req.gql.dart';
 import 'package:imela_data/network/graphql/order/__generated__/update_order_status.data.gql.dart';
 import 'package:imela_data/network/graphql/order/__generated__/update_order_status.req.gql.dart';
+import 'package:imela_data/network/graphql/schedule/__generated__/get_schedule_by_calendar.data.gql.dart';
+import 'package:imela_data/network/graphql/schedule/__generated__/get_schedule_by_calendar.req.gql.dart';
 import 'package:imela_data/network/graphql_exception.dart';
 import 'package:injectable/injectable.dart';
 import 'package:imela_core/order/model/order.model.dart' as OrderModel;
 
 abstract class IOrderRepository {
   Future<OrderResponse?> getOrders({ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst});
-  Future<OrderResponse?> getOrderDetails(String orderId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
-  Future<OrderResponse> createPOSOrder({required String businessId, required OrderModel.Order orderInfo, String? customerId, String? customerName, String? customerPhone});
+  Future<OrderResponse?> getOrderDetails(String orderId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst});
+  Future<OrderResponse?> payRemainingAmount(String orderId, SelectedPaymentMethod paymentMethod);
+  Future<OrderResponse> createPOSOrder({required String businessId, required OrderModel.Order orderInfo, List<LocalizedField>? businessName, String? customerId, String? customerName, String? customerPhone});
   Future<OrderResponse?> getPOSOrders(String branchId, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
-  Future<OrderResponse> createBusinessOrder({required List<String> businessIds, String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
+  Future<OrderResponse> createBusinessOrder({required List<String> businessIds, required List<LocalizedField> businessName, String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheAndNetwork});
   Future<OrderResponse> updateOrderStatus(String businessId, String orderId, String statusId);
+  
   Future<OrderResponse> getBranchOrderSchedules(String branchId, {required ApiDataFetchPolicy fetchPolicy});
-  Future<OrderResponse?> getSchedulesByCalendarId(String calendarId, {required ApiDataFetchPolicy fetchPolicy});
 }
 
 @Injectable(as: IOrderRepository)
@@ -50,7 +57,30 @@ class OrderRepository implements IOrderRepository {
   }
 
   @override
-  Future<OrderResponse> createBusinessOrder({required List<String> businessIds, String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
+  Future<OrderResponse?> payRemainingAmount(String orderId, SelectedPaymentMethod paymentMethod) async {
+    print('payment method amount ${paymentMethod.amount.amount}');
+    final request = GPayRemainingPaymentReq(
+      (b) => b
+        ..vars.orderId = orderId
+        ..vars.paymentMethod.update(
+              (p0) => p0
+                ..name.addAll(paymentMethod.name.toLocalizedFieldInput())
+                ..receiptImages.addAll(paymentMethod.receiptImages ?? [])
+                ..requireReceiptImage = paymentMethod.requireReceiptImage
+                ..amount.update((b) => b
+                  ..amount = paymentMethod.amount.amount
+                  ..currency = paymentMethod.amount.currency.toCurrencyKeyInput),
+            ),
+    );
+    final result = await _graphQLDataSource.request<GPayRemainingPaymentData>(request, type: 'PAY_REMAINING_AMOUNT', isMainError: true);
+    if (result?.payRemainingOrderPayment == null) {
+      return null;
+    }
+    return OrderResponse.fromJson(result!.payRemainingOrderPayment.toJson());
+  }
+
+  @override
+  Future<OrderResponse> createBusinessOrder({required List<String> businessIds, required List<LocalizedField> businessName, String? cartId, required OrderModel.Order orderInfo, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.networkOnly}) async {
     print('orderInfo repo: ${orderInfo.config}');
     final request = GCreateOrderReq((b) => b
       ..vars.cartId = cartId
@@ -60,9 +90,10 @@ class OrderRepository implements IOrderRepository {
               ..paymentType = orderInfo.paymentType.toPaymentOptionTypeInput
               ..branchId = orderInfo.branchId
               ..note = orderInfo.note
+              ..businessName.addAll(businessName.toLocalizedFieldInput())
               ..orderNumber = orderInfo.orderNumber?.toDouble()
               ..paidAmount = orderInfo.paidAmount?.toDouble()
-              ..remainingAmount = orderInfo.remainingAmount?.toDouble()
+              ..remainingAmount = orderInfo.remainingAmount.toDouble()
               ..subTotal = orderInfo.subTotal?.toDouble()
               ..totalAmount = orderInfo.totalAmount?.toDouble()
               ..config.addAll(orderInfo.config.toOrderConfigInput())
@@ -85,8 +116,7 @@ class OrderRepository implements IOrderRepository {
   }
 
   @override
-  Future<OrderResponse> createPOSOrder({required String businessId, required OrderModel.Order orderInfo, String? customerId, String? customerName, String? customerPhone}) async {
-
+  Future<OrderResponse> createPOSOrder({required String businessId,  List<LocalizedField>? businessName, required OrderModel.Order orderInfo, String? customerId, String? customerName, String? customerPhone}) async {
     final request = GCreatePOSOrderReq((b) => b
       ..vars.businessId = businessId
       ..vars.customerId = customerId
@@ -96,6 +126,7 @@ class OrderRepository implements IOrderRepository {
               ..branchId = orderInfo.branchId
               ..note = orderInfo.note
               ..orderNumber = orderInfo.orderNumber?.toDouble()
+              ..businessName.addAll(businessName?.toLocalizedFieldInput() ?? [])
               ..paidAmount = orderInfo.paidAmount?.toDouble()
               ..note = orderInfo.note
               ..remainingAmount = orderInfo.remainingAmount.toDouble()
@@ -168,13 +199,5 @@ class OrderRepository implements IOrderRepository {
     return OrderResponse.fromJson(result?.getBranchOrderSchedules.toJson() ?? {});
   }
 
-  @override
-  Future<OrderResponse?> getSchedulesByCalendarId(String calendarId, {required ApiDataFetchPolicy fetchPolicy}) async {
-    return null;
-    // final request = GGetSchedulesByCalendarIdReq((b) => b
-    //   ..vars.calendarId = calendarId
-    //   ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy));
-    // final result = await _graphQLDataSource.request<GGetSchedulesByCalendarIdData>(request, type: 'GET_SCHEDULES_BY_CALENDAR_ID', isMainError: true);
-    // return OrderResponse.fromJson(result?.getSchedulesByCalendarId.toJson() ?? {});
-  }
+  
 }

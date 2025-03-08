@@ -16,7 +16,7 @@ class OrderResponse with _$OrderResponse {
     List<Cart>? carts,
     Order? order,
     List<Order>? orders,
-    List<CalendarBooking>? schedules,
+    List<Schedule>? schedules,
   }) = _OrderResponse;
 
   factory OrderResponse.fromJson(Map<String, dynamic> json) => _$OrderResponseFromJson(json);

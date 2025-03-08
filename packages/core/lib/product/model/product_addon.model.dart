@@ -9,6 +9,7 @@ import 'package:imela_core/order/model/order_item.model.dart';
 import 'package:imela_core/product/model/addon_dependency.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
+import 'package:imela_core/shared/address.model.dart';
 import 'package:imela_core/shared/currency_utils.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_core/shared/price.model.dart';
@@ -39,6 +40,15 @@ enum AddonInputType {
 
 enum AddonCondition { NONE, MINIMUM_QUANTITY, MEMBERSHIP, MINIMUM_PURCHASE }
 
+enum ConfigurationForType {
+  OPTION_ADDON,
+}
+
+enum ConfigurationUiType {
+  GRID,
+  LIST,
+}
+
 // multiple selection addon sample for hotel booking
 
 @freezed
@@ -52,6 +62,7 @@ class ProductAddon with _$ProductAddon {
     @Default('NONE') String inputType,
     List<String>? membershipIds,
     @Default([]) List<ProductAddonOption> options,
+    @Default([]) List<Configuration> configurations,
     bool? checkCalendar,
     List<Price>? additionalPrice,
     @Default(1.0) double minAmount,
@@ -72,6 +83,7 @@ class ProductAddon with _$ProductAddon {
     String? rewardType,
     DateTime? createdAt,
     DateTime? updatedAt,
+    TextAddonConfig? textAddonConfig,
   }) = _ProductAddon;
 
   factory ProductAddon.fromJson(Map<String, dynamic> json) => _$ProductAddonFromJson(json);
@@ -114,6 +126,15 @@ class ProductAddon with _$ProductAddon {
     return conditionCheck;
   }
 
+  String? getAddonConditionString(String selectedLanguage, {String? unit = 'items'}) {
+    if (condition == AddonCondition.MINIMUM_QUANTITY.name) {
+      return '${LocalizationUtils.returnLocalizedString(selectedLanguage, englishString: "You need to select at least $conditionValue $unit", amharicString: "ቢያንስ $conditionValue $unit መምረጥ አለብዎት")}';
+    } else if (condition == AddonCondition.MINIMUM_PURCHASE.name) {
+      return '${LocalizationUtils.returnLocalizedString(selectedLanguage, englishString: "Minimum Purchase", amharicString: "መጠን ብዛት")} $conditionValue';
+    }
+    return null;
+  }
+
   String requiredString(String selectedLanguage) {
     return LocalizationUtils.returnLocalizedString(selectedLanguage, englishString: "Required", amharicString: "መምረጥ ያስፈልጋል");
   }
@@ -124,7 +145,7 @@ class ProductAddon with _$ProductAddon {
 
   double getAddonPriceUpdated(String selectedCurrency, {Map<String, OrderConfig>? orderConfigs, List<SelectedRewardInfo> selectedRewards = const []}) {
     final orderconfig = orderConfigs?[id];
-    var finalAddonPrice = additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0;
+    var finalAddonPrice = additionalPrice?.toSelectedPrice(selectedCurrency)?.amount ?? 0;
     if (inputType == AddonInputType.QUANTITY_INPUT.name) {
       final qty = double.tryParse(orderconfig?.singleValue ?? '1') ?? 1;
       finalAddonPrice = ((additionalPrice!.toSelectedPrice(selectedCurrency)?.amount ?? 0) * qty).getPresision(2).toDouble();
@@ -187,6 +208,15 @@ class ProductAddon with _$ProductAddon {
     return productOptionInfos?.map((info) => info.product).whereNotNull().toList() ?? [];
   }
 
+  List<ProductAddon> getDependentAddons(List<ProductAddon> addons) {
+    return addons?.where((e) => e.dependencies?.any((depend) => depend.addonId == id) ?? false).toList() ?? [];
+  }
+
+  List<String> getDependentAddonIds(List<ProductAddon> addons) {
+    final dependentAddons = getDependentAddons(addons);
+    return dependentAddons.map((e) => e.id!).toList();
+  }
+
   List<AddonProductOptionInfo> getProductOptionInfos() {
     return productOptionInfos ?? [];
   }
@@ -205,14 +235,29 @@ class ProductAddonOption with _$ProductAddonOption {
     List<String>? images,
     List<String>? membershipIds,
     List<Price>? price,
+    @Default(1) int maxSelection,
+    List<Address>? addresses,
   }) = _ProductAddonOption;
 
   factory ProductAddonOption.fromJson(Map<String, dynamic> json) => _$ProductAddonOptionFromJson(json);
 
   String? getOptionPriceString(String selectedCurrency) {
     if (price?.isEmpty ?? true) return null;
+    if ((price.toSelectedPrice('ETB')?.amount == 0)) return null;
     return '+${price?.toSelectedPriceString(selectedCurrency)}';
   }
+}
+
+@freezed
+class Configuration with _$Configuration {
+  const Configuration._();
+  factory Configuration({
+    String? forType,
+    @Default('LIST') String uiType,
+    int? row,
+  }) = _Configuration;
+
+  factory Configuration.fromJson(Map<String, dynamic> json) => _$ConfigurationFromJson(json);
 }
 
 @freezed
@@ -227,6 +272,17 @@ class AddonProductOptionInfo with _$AddonProductOptionInfo {
   }) = _AddonProductOptionInfo;
 
   factory AddonProductOptionInfo.fromJson(Map<String, dynamic> json) => _$AddonProductOptionInfoFromJson(json);
+}
+
+@freezed
+class TextAddonConfig with _$TextAddonConfig {
+  const TextAddonConfig._();
+  factory TextAddonConfig({
+    double? minLength,
+    double? maxLength,
+  }) = _TextAddonConfig;
+
+  factory TextAddonConfig.fromJson(Map<String, dynamic> json) => _$TextAddonConfigFromJson(json);
 }
 
 @freezed
@@ -286,4 +342,6 @@ extension ProductAddonExtension on List<ProductAddon> {
 
     return result;
   }
+
+  
 }

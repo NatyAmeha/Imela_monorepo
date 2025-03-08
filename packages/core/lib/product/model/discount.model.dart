@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:dartx/dartx.dart';
@@ -20,7 +21,7 @@ class Discount with _$Discount {
     List<LocalizedField>? name,
     @Default("PERCENTAGE") String type,
     @Default(0) double value,
-    @Default('NONE') String condition, 
+    @Default('NONE') String condition,
     String? conditionValue,
     DateTime? startDate,
     DateTime? endDate,
@@ -42,13 +43,13 @@ class Discount with _$Discount {
 
   String? getDiscountConditionDescription(String currency) {
     if (condition == DiscountCondition.MAXIMUM_PURCHASE.name) {
-      return 'on orders less $currency $conditionValue';
+      return '$value discount on orders less $currency $conditionValue';
     } else if (condition == DiscountCondition.MINIMUM_PURCHASE.name) {
-      return 'on orders above $currency $conditionValue';
+      return '$value% discount  on orders above $currency $conditionValue';
     } else if (condition == DiscountCondition.QUANTITY.name) {
       return 'You should purchase total  $conditionValue items. you can purchase any quantity of each item';
     } else if (condition == DiscountCondition.PURCHASE_ALL_ITEMS.name) {
-      return 'You should purchase of all items in the bundle';
+      return 'You should purchase all items in the bundle';
     } else {
       return '';
     }
@@ -64,8 +65,9 @@ class Discount with _$Discount {
     );
   }
 
-  ItemDiscount toItemDiscount({List<LocalizedField>? defaultName}) {
-    return ItemDiscount(id: id, name: name ?? defaultName, percentage: value, amount: 0, source: source);
+  ItemDiscount toItemDiscount({List<LocalizedField>? defaultName, required double amount, double qty = 1}) {
+    final discountAmount = (amount * qty).getPercentage(value, deductPercentageFromOriginalPrice: false);
+    return ItemDiscount(id: id, name: name ?? defaultName, percentage: value, amount: discountAmount, source: source);
   }
 
   double getDiscountedSubtotal(double price) {
@@ -143,5 +145,24 @@ extension DiscountListX on List<DiscountInfo>? {
 
   double getTotalPointApplied() {
     return this?.sumBy((element) => element.pointApplied) ?? 0;
+  }
+}
+
+extension DiscountX on List<Discount> {
+  String encodeDiscounts() {
+    final jsonList = jsonEncode(this.map((e) => e.toJson()).toList());
+    // URI encode the JSON string
+    return Uri.encodeComponent(jsonList);
+  }
+
+  List<ItemDiscount> toItemDiscount({required double amount, required double qty}) {
+    var subtotalAmount = amount;
+    List<ItemDiscount> itemDiscounts = [];
+    for (var discount in this) {
+      final discountAmount = subtotalAmount.getPercentage(discount.value, deductPercentageFromOriginalPrice: false);
+      itemDiscounts.add(discount.toItemDiscount(amount: subtotalAmount, qty: qty));
+      subtotalAmount -= discountAmount;
+    }
+    return itemDiscounts;
   }
 }

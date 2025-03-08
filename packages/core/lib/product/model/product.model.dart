@@ -1,9 +1,11 @@
+import 'dart:math';
+
 import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
-import 'package:imela_core/branch/model/inventory.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/calendar/model/calendar.model.dart';
+import 'package:imela_core/inventory/model/inventory.model.dart';
 import 'package:imela_core/order/model/cart.model.dart';
 import 'package:imela_core/order/model/order_config.model.dart';
 import 'package:imela_core/order/model/order_item.model.dart';
@@ -22,6 +24,16 @@ part 'product.model.g.dart';
 enum ProductType { PRODUCT, SERVICE, GIFT_CARD, MEMBERSHIP }
 
 @freezed
+class ProductFeatureInfo with _$ProductFeatureInfo {
+  const factory ProductFeatureInfo({
+    @Default(false) bool featured,
+    @Default([]) List<String> branchIds,
+  }) = _ProductFeatureInfo;
+
+  factory ProductFeatureInfo.fromJson(Map<String, dynamic> json) => _$ProductFeatureInfoFromJson(json);
+}
+
+@freezed
 class Product with _$Product {
   const Product._();
   const factory Product({
@@ -30,6 +42,7 @@ class Product with _$Product {
     List<LocalizedField>? displayName,
     List<LocalizedField>? description,
     @Default(false) bool featured,
+    @Default([]) List<ProductFeatureInfo>? featuredInfo,
     Gallery? gallery,
     Business? business,
     List<Calendar>? calendars,
@@ -63,6 +76,9 @@ class Product with _$Product {
     List<Discount>? discounts,
     List<String>? membershipIds,
     double? qty,
+    bool? showOnStore,
+    @Default(false) bool availableInPOS,
+
   }) = _Product;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
@@ -112,7 +128,10 @@ class Product with _$Product {
     var basePrice = getTotalPriceUpdated(currency, qtyInput: qty);
     final totalDiscount = calculateaAppliedDiscount(currency, discounts: discounts);
     final discountPercentage = ((totalDiscount / (basePrice)) * 100).getPresision(0, roundUp: false);
-    return '$discountPercentage% off';
+    if (discountPercentage > 0) {
+      return '${discountPercentage.getPresisionString()}% off';
+    }
+    return '';
   }
 
   String getPriceRangeString(String currency, {List<Discount> discounts = const [], bool showWithoutDiscount = false}) {
@@ -156,8 +175,8 @@ class Product with _$Product {
         basePrice = basePrice!.copyWith(amount: basePrice.amount.getPercentage(discount.value));
       }
     }
-    final finalPrice =  ((basePrice!.amount + additionalPrice).getPresision(2) * (qtyInput ?? qty ?? 1));
-    if(round){
+    final finalPrice = ((basePrice!.amount + additionalPrice).getPresision(2) * (qtyInput ?? qty ?? 1));
+    if (round) {
       return finalPrice.getPresision(2);
     }
     return finalPrice;
@@ -172,6 +191,10 @@ class Product with _$Product {
       totalDiscountAmount += discountAmount;
     }
     return totalDiscountAmount.getPresision(2);
+  }
+
+  bool isPriceAvailable(String currency) {
+    return getPrice().toSelectedPrice(currency) != null;
   }
 
   String getTotalPriceUpdatedString(String currency, {double? qty, List<Discount> discounts = const [], double additionalPrice = 0, bool round = true}) {
@@ -293,25 +316,17 @@ class Product with _$Product {
     return Price(amount: basePrice.getPresision(2), currency: currency);
   }
 
-  List<OrderConfig> getDefaultAddonValue() {
-    final orderConfig = <OrderConfig>[];
-    addons?.forEach((addon) {
-      if (addon.isSingleSelectionInput) {
-        orderConfig.add(OrderConfig.createSingleSelectOrderConfig(addon.name!, addon.options.first.id!, addon));
-      } else if (addon.isMultiSelectionInput) {
-        orderConfig.add(OrderConfig.createMultipleSelectOrderConfig(addon.name!, addon.options.map((e) => e.id!).toList(), addon));
-      }
-      if (addon.isNumberInput) {
-        orderConfig.add(OrderConfig.createNumberInputOrderConfig(addon.name!, addon.minAmount, addon));
-      }
-    });
-    return orderConfig;
-  }
-
   Cart getCartInfo({double qty = 1, required Business businessInfo, List<OrderConfig> productOrderConfigs = const [], List<Discount> discounts = const [], List<ProductAddon> addons = const [], double productPoint = 0}) {
     final originalProductPrice = getTotalPriceUpdated('ETB', qtyInput: 1);
     final item = getOrderItem(qty, originalPrice: originalProductPrice, discounts: discounts, config: productOrderConfigs, addons: addons, productPoint: productPoint);
-    return Cart(id: businessInfo.id, name: businessInfo.name, items: [item], paymentOptions: businessInfo.paymentOptions, businessIds: [businessInfo.id!]);
+    return Cart(
+      id: businessInfo.id,
+      name: businessInfo.name,
+      items: [item],
+      paymentOptions: businessInfo.paymentOptions,
+      businessIds: [businessInfo.id!],
+      businessName: businessInfo.name,
+    );
   }
 
   OrderItem getOrderItem(
@@ -324,11 +339,15 @@ class Product with _$Product {
     double minQty = 1,
     double maxQty = 10,
     double? productPoint,
+    String? dependOnProduct,
     List<LocalizedField>? defaultDiscountName,
   }) {
     final subtotalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: 1);
-    final totalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: 1);
+    final selectedDynamicPriceDiscount = getDynamicPriceDiscountByQty(selectedQty);
+    final totalPrice = getTotalPriceUpdated(selectedCurrency, qtyInput: 1, discounts: [...discounts, if (selectedDynamicPriceDiscount != null) selectedDynamicPriceDiscount]);
+
     return OrderItem(
+      id: Random().nextInt(1000000000).toString(),
       name: name,
       product: copyWith(addons: addons),
       productId: id,
@@ -336,12 +355,13 @@ class Product with _$Product {
       originalPrice: originalPrice,
       subTotal: subtotalPrice.getPresision(2),
       total: totalPrice.getPresision(2),
-      point: (productPoint ?? loyaltyPoint.toDouble()),
-      discount: discounts.map((e) => e.toItemDiscount(defaultName: defaultDiscountName)).toList(),
+      point: productPoint ?? loyaltyPoint.toDouble(),
+      discount: discounts.toItemDiscount(amount: subtotalPrice, qty: selectedQty),
       config: config,
       quantity: selectedQty,
       minQty: minQty,
       maxQty: maxQty,
+      dependOnProduct: dependOnProduct,
     );
   }
 
@@ -386,119 +406,3 @@ class ProductOption with _$ProductOption {
 }
 
 enum CallToAction { Order, Call, Book, Reserve }
-
-
-
-
-var fakeProductList = [
-  Product(
-    id: 'prod_001',
-    name: [
-      const LocalizedField(key: 'ENGLISH', value: 'Macchiato'),
-      const LocalizedField(key: 'AMHARIC', value: 'ማክያቶ'),
-    ],
-    description: [
-      const LocalizedField(key: 'ENGLISH', value: 'Rich espresso with steamed milk'),
-      const LocalizedField(key: 'AMHARIC', value: 'ጣፋጭ እስፕሬሶ ከፍቅ ወተት ጋር'),
-    ],
-    gallery: const Gallery(
-      logoImage: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800',
-      images: [
-        GalleryData(url: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800'),
-        GalleryData(url: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800'),
-        GalleryData(url: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800')
-      ],
-    ),
-    prices: [
-      ProductPrice(
-        price: [Price(amount: 45.0, currency: 'ETB')],
-        isDefault: true,
-      ),
-    ],
-    isActive: true,
-    category: ['Beverages', 'Hot Drinks'],
-    loyaltyPoint: 5,
-  ),
-  Product(
-    id: 'prod_002',
-    name: [
-      const LocalizedField(key: 'ENGLISH', value: 'Tiramisu Cake'),
-      const LocalizedField(key: 'AMHARIC', value: 'ትራሚሱ ኬክ'),
-    ],
-    description: [
-      const LocalizedField(key: 'ENGLISH', value: 'Classic Italian dessert with coffee-soaked ladyfingers'),
-    ],
-    gallery: const Gallery(
-      logoImage: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800',
-      images: [
-        GalleryData(url: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800'),
-        GalleryData(url: 'https://images.unsplash.com/photo-1542124948-dc391252a940?w=800'),
-      ],
-    ),
-    prices: [
-      ProductPrice(
-        price: [Price(amount: 120.0, currency: 'ETB')],
-        isDefault: true,
-      ),
-    ],
-    isActive: true,
-    category: ['Desserts', 'Cakes'],
-    featured: true,
-    loyaltyPoint: 10,
-  ),
-  Product(
-    id: 'prod_003',
-    name: [
-      const LocalizedField(key: 'ENGLISH', value: 'Breakfast Combo'),
-      const LocalizedField(key: 'AMHARIC', value: 'የቁርስ ኮምቦ'),
-    ],
-    description: [
-      const LocalizedField(key: 'ENGLISH', value: 'Eggs, bread, and coffee - perfect start to your day'),
-    ],
-    gallery: const Gallery(
-      logoImage: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=800',
-      images: [
-        GalleryData(url: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=800'),
-        GalleryData(url: 'https://images.unsplash.com/photo-1496042399014-dc73c4f2bde1?w=800'),
-      ],
-    ),
-    prices: [
-      ProductPrice(
-        price: [Price(amount: 200.0, currency: 'ETB')],
-        isDefault: true,
-      ),
-    ],
-    isActive: true,
-    category: ['Breakfast', 'Combos'],
-    minimumOrderQty: 1,
-    loyaltyPoint: 15,
-    
-  ),
-  Product(
-    id: 'prod_004',
-    name: [
-      const LocalizedField(key: 'ENGLISH', value: 'Fresh Fruit Salad'),
-      const LocalizedField(key: 'AMHARIC', value: 'የፍራፍሬ ሰላጣ'),
-    ],
-    description: [
-      const LocalizedField(key: 'ENGLISH', value: 'Mix of seasonal fruits with honey drizzle'),
-    ],
-    gallery: const Gallery(
-      logoImage: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=800',
-      images: [
-        GalleryData(url: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=800'),
-        GalleryData(url: 'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?w=800'),
-      ],
-    ),
-    prices: [
-      ProductPrice(
-        price: [Price(amount: 85.0, currency: 'ETB')],
-        isDefault: true,
-      ),
-    ],
-    isActive: true,
-    category: ['Healthy', 'Salads'],
-    featured: true,
-    loyaltyPoint: 8,
-  ),
-];
