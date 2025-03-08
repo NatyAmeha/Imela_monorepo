@@ -18,9 +18,10 @@ class PaymentOption with _$PaymentOption {
     List<LocalizedField>? description,
     String? type,
     double? upfrontPayment,
+    List<LocalizedField>? payLaterMessage,
     DateTime? dueDate,
     DateTime? createdAt,
-    DateTime? updatedAt,
+    DateTime? updatedAt, 
   }) = _PaymentOption;
 
   Function toGraphQLInput() {

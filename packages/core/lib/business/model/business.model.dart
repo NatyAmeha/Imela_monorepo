@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_order_status.dart';
+import 'package:imela_core/business/model/payment_method.model.dart';
 import 'package:imela_core/business/model/payment_option.model.dart';
 import 'package:imela_core/business/model/service_overview.model.dart';
 import 'package:imela_core/product/model/discount.model.dart';
@@ -56,6 +59,7 @@ class Business extends BaseModel with _$Business {
     @Default(0) int? totalViews,
     List<PriceList>? priceLists,
     List<PaymentOption>? paymentOptions,
+    List<PaymentMethod>? paymentMethods,
     List<Discount>? discounts,
     List<ServiceOverview>? serviceOverviews,
     @Default(false) bool requireBranchSelection,
@@ -80,8 +84,6 @@ class Business extends BaseModel with _$Business {
     return name?.localize(locale);
   }
 
-  
-
   // POSBusinessEntity toPOSBusinessEntity() {
   //   return POSBusinessEntity(
   //     name: name?.map((e) => LocalizedFieldEntity(key: e.key, value: e.value)).toList() ?? [],
@@ -89,6 +91,18 @@ class Business extends BaseModel with _$Business {
   //     phoneNumber: phoneNumber ?? '',
   //   );
   // }
+
+  String? getBrancheAddressUrlQueryParam() {
+    final branchesWithAddress = branches?.map((e) {
+      var branchWithAddress = e.getBranchOnlyWithIdAndAddress();
+      return branchWithAddress.toJson()..removeWhere((key, value) => value == null);
+    }).toList();
+    
+    if (branchesWithAddress?.isNotEmpty == true) {
+      return Uri.encodeComponent(jsonEncode(branchesWithAddress));
+    }
+    return null;
+  }
 
   List<ProductAddon> getSectionsOrderAddon(List<String> selectedSectionIds) {
     if (sections == null) return [];
@@ -99,8 +113,7 @@ class Business extends BaseModel with _$Business {
         addons.addAll(section.orderAddons ?? []);
       }
       // "99c7fc8c-ebdd-4dc3-bd9c-17c92506d5cc";
-      // "99c7fc8c-ebdd-4dc3-bd9c-17c91506d5cc" 
-
+      // "99c7fc8c-ebdd-4dc3-bd9c-17c91506d5cc"
     });
     return addons;
   }

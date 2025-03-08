@@ -31,6 +31,7 @@ class SelectedPaymentMethod with _$SelectedPaymentMethod {
     required Price amount,
     @Default(false) bool requireReceiptImage,
     List<String>? receiptImages,
+    List<dynamic>? receiptImagesUploaded,
     PaymentMethodOption? paymentMethodOption,
   }) = _SelectedPaymentMethod;
 

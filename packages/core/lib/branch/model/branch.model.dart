@@ -1,13 +1,12 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:imela_core/branch/model/inventory_location.model.dart';
 import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
+import 'package:imela_core/inventory/model/inventory_location.model.dart';
 import 'package:imela_core/product/model/pricelist.model.dart';
 import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_price.model.dart';
 import 'package:imela_core/shared/address.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
-import 'package:imela_utils/helpers/localization_utils.dart';
 
 part 'branch.model.freezed.dart';
 part 'branch.model.g.dart';
@@ -44,5 +43,16 @@ class Branch with _$Branch {
       return '${address?.city}, ${address?.address}';
     }
     return address?.city ?? '';
+  }
+
+  Branch getBranchOnlyWithIdAndAddress() {
+    return Branch(
+      id: id,
+      name: name,
+      phoneNumber: phoneNumber,
+      email: email,
+      website: website,
+      address: address,
+    );
   }
 }

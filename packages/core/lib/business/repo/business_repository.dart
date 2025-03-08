@@ -168,16 +168,18 @@ class BusinessRepository implements IBusinessrepository {
 
   @override
   Future<BusinessResponse?> getBusinessByWorkspace(String workspaceUrl, {String? branchId, ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, true);
     final request = GGetBusinessByWorkspaceReq(
       (b) => b
         ..vars.workspace = workspaceUrl
-        ..vars.branchId = branchId
+        // ..vars.branchId = branchId
         ..fetchPolicy = _graphQLDataSource.getFetchPolicy(fetchPolicy),
     );
     final result = await _graphQLDataSource.request<GGetBusinessByWorkspaceData?>(request, type: 'GET_BUSINESS_BY_WORKSPACE', isMainError: true);
     if (result?.getBusinessByWorkspaceUrl == null) {
       return null;
     }
+    updateDIValue<bool>(ClientInterceptor.BYPASS_TOKEN_VALIDATION, false);
     return BusinessResponse.fromJson(result!.getBusinessByWorkspaceUrl.toJson());
   }
 

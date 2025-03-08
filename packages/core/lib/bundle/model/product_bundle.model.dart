@@ -10,6 +10,7 @@ import 'package:imela_core/product/model/product.model.dart';
 import 'package:imela_core/product/model/product_addon.model.dart';
 import 'package:imela_core/shared/gallery.model.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
+import 'package:imela_utils/helpers/date_utils.dart';
 import 'package:imela_utils/helpers/localization_utils.dart';
 
 part 'product_bundle.model.freezed.dart';
@@ -88,17 +89,34 @@ class ProductBundle with _$ProductBundle {
   }
 
   Cart getCartInfo(List<Product> products, Map<String, List<OrderConfig>> productOrderConfigs) {
+    final businessName = businesses?.first.name;
     final items = products.map((product) {
       final itemConfigs = productOrderConfigs[product.id!] ?? [];
       final originalProductPrice = product.getTotalPriceUpdated('ETB', qtyInput: 1);
       final bundleDiscounts = discount != null ? [discount!] : <Discount>[];
       final selectedBundleProductInfo = productsInfo?.firstWhereOrNull((element) => element.productId == product.id);
       final updatedDiscountWithName = bundleDiscounts.map((discount) => discount.addName(name!)).toList();
-      final item = product.getOrderItem(product.qty ?? 1, originalPrice: originalProductPrice, discounts: updatedDiscountWithName, config: itemConfigs, minQty: selectedBundleProductInfo?.minQty ?? 1, maxQty: selectedBundleProductInfo?.maxQty ?? 10, addons: product.addons ?? []);
+      final item = product.getOrderItem(
+        product.qty ?? 1,
+        originalPrice: originalProductPrice,
+        discounts: updatedDiscountWithName,
+        config: itemConfigs,
+        minQty: selectedBundleProductInfo?.minQty ?? 1,
+        maxQty: selectedBundleProductInfo?.maxQty ?? 10,
+        addons: product.addons ?? [],
+      );
       return item;
     }).toList();
     final paymentOptions = businesses?.first.paymentOptions;
-    return Cart(id: id!, name: name!, items: items, paymentOptions: paymentOptions, businessIds: businessIds, isBundleCart: true);
+    return Cart(
+      id: id!,
+      name: name!,
+      items: items,
+      paymentOptions: paymentOptions,
+      businessIds: businessIds,
+      businessName: businessName,
+      isBundleCart: true,
+    );
   }
 
   List<String?> getBundleProductImages() {
@@ -110,5 +128,9 @@ class ProductBundle with _$ProductBundle {
       return businesses!.first.paymentOptions ?? [PaymentOption.defaultPaymentOption()];
     }
     return [PaymentOption.defaultPaymentOption()];
+  }
+
+  Duration remainingTime() {
+    return DateHelper.getDateDifference(startDate: DateTime.now(), endDate: endDate);
   }
 }

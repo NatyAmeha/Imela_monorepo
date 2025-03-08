@@ -2,12 +2,16 @@ import 'package:dartx/dartx.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
 import 'package:imela_core/branch/repo/branch.repository.dart';
 import 'package:imela_core/business/dto/create_business_input.dart';
+import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/business/model/business_response.dart';
 import 'package:imela_core/business/repo/business_repository.dart';
+import 'package:imela_core/settings/setting_info.dart';
+import 'package:imela_core/settings/setting_repository.dart';
 import 'package:imela_core/settings/setting_usecase.dart';
 import 'package:imela_core/shared/localized_field.model.dart';
 import 'package:imela_data/network/graphql/graphql_datasource.dart';
+import 'package:imela_utils/helpers/json_utils.dart';
 import 'package:imela_utils/location/location_info.dart';
 import 'package:imela_utils/location/location_service.dart';
 import 'package:injectable/injectable.dart';
@@ -17,12 +21,14 @@ class BusinessUsecase {
   final IBusinessrepository _businessRepository;
   final IBranchRepository _branchRepository;
   final ILocationService _locationService;
+  final ISettingRepository _settingRepo;
   final SettingUsecase _settingUsecase;
 
   const BusinessUsecase(
     @Named(BusinessRepository.injectName) this._businessRepository,
     @Named(BranchRepository.injectName) this._branchRepository,
     @Named(LocationService.injectName) this._locationService,
+    @Named(SettingRepository.injectName) this._settingRepo,
     this._settingUsecase,
   );
 
@@ -40,16 +46,51 @@ class BusinessUsecase {
   }
 
   Future<Branch> getNearestBranch(List<Branch> branches) async {
-    final currentLocation = await _settingUsecase.getCurrentLocation();
-    if (currentLocation.latitude == 0 && currentLocation.longitude == 0) {
-      return branches.first; 
-    }
-    var branchLocations = branches.map((branch) => branch.address?.latitude != null && branch.address?.longitude != null ? AppLatLng(branch.address!.latitude!, branch.address!.longitude!) : null).whereNotNull().toList();
-    if (branchLocations.isEmpty) {
+    try {
+      final currentLocation = await _settingUsecase.getCurrentLocation();
+      if (currentLocation.latitude == 0 && currentLocation.longitude == 0) {
+        return branches.first;
+      }
+      var branchLocations = branches.map((branch) => branch.address?.latitude != null && branch.address?.longitude != null ? AppLatLng(branch.address!.latitude!, branch.address!.longitude!) : null).whereNotNull().toList();
+      if (branchLocations.isEmpty) {
+        return branches.first;
+      }
+      final nearestBranch = _locationService.findNearestLocation(branchLocations, currentLocation);
+      return branches.firstWhere((branch) => branch.address?.latitude == nearestBranch.latitude && branch.address?.longitude == nearestBranch.longitude);
+    } catch (e) {
+      print('nearest branch exception ${e.toString()}');
       return branches.first;
     }
-    final nearestBranch = _locationService.findNearestLocation(branchLocations, currentLocation);
-    return branches.firstWhere((branch) => branch.address?.latitude == nearestBranch.latitude && branch.address?.longitude == nearestBranch.longitude);
+  }
+
+  Future<bool> savePreviouslyVisitedBusinessToPreference(Business business) async {
+    var businessInfoToSave = <Business>[];
+    businessInfoToSave.add(business);
+    var businessList = await getPreviouslyVisitedBusiness();
+    print('business list ${businessList.length}');
+    if (businessList.any((element) => element.id == business.id)) {
+      businessList.removeWhere((element) => element.id == business.id);
+    }
+    businessInfoToSave.addAll(businessList);
+    var businessListString = JsonUtils.encodeJsonStringList(businessInfoToSave);
+    final settingInfo = SettingInfo(key: SettingKey.PREVIOUSLY_VISITED_BUSINESS, value: businessListString);
+    await _settingRepo.setSettingToPrefernece(settingInfo);
+    return true;
+  }
+
+  Future<List<Business>> getPreviouslyVisitedBusiness() async {
+    try {
+      final settingInfo = await _settingRepo.getSettingFromPreference<List<String>>(SettingKey.PREVIOUSLY_VISITED_BUSINESS);
+      var businessListStrings = settingInfo?.value as List<String>?;
+      if (businessListStrings?.isNotEmpty == true) {
+        var businessList = JsonUtils.decodeJsonStringList(businessListStrings!);
+        return businessList.map((e) => Business.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      print('exception ${e.toString()}');
+      return [];
+    }
   }
 
   Future<BusinessResponse?> getBusinessesFromOrder(List<String> businessIds, {ApiDataFetchPolicy fetchPolicy = ApiDataFetchPolicy.cacheFirst}) async {

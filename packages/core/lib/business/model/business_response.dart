@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:imela_core/branch/model/branch.model.dart';
+import 'package:imela_core/bundle/model/product_bundle.model.dart';
 import 'package:imela_core/business/model/business.model.dart';
 import 'package:imela_core/business/model/business.section.dart';
 import 'package:imela_core/product/model/product.model.dart';
@@ -19,6 +20,7 @@ class BusinessResponse with _$BusinessResponse {
     List<Branch>? branchAdded,
     List<Branch>? branchUpdated,
     List<Product>? products,
+    List<ProductBundle>? bundles,
     List<BusinessSection>? sections,
   }) = _BusinessResponse;
 

@@ -22,6 +22,7 @@ class Inventory with _$Inventory {
     List<PriceCurrency>? priceInfo,
     double? qty,
     String? unit,
+    String? productId,
     @Default(1) int minOrderQty,
     @Default(100) int maxOrderQty,
     @Default(false) bool isAvailable,
